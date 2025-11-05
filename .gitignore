@@ -1,0 +1,101 @@
+# Laravel
+/vendor/
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Laravel specific
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+artisan
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+/.fleet
+/.idea
+/.vscode
+
+# Storage & Cache
+/storage/*.key
+/storage/app/*
+!/storage/app/.gitkeep
+/storage/framework/cache/*
+!/storage/framework/cache/.gitkeep
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitkeep
+/storage/framework/testing/*
+!/storage/framework/testing/.gitkeep
+/storage/framework/views/*
+!/storage/framework/views/.gitkeep
+/storage/logs/*
+!/storage/logs/.gitkeep
+
+# Public
+/public/hot
+/public/storage
+/public/build
+/public/css
+/public/js
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Vite
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+/coverage/
+/.nyc_output/
+
+# Backup files
+*.bak
+*.swp
+*~
+
+# Database
+*.sqlite
+*.sqlite-journal
+*.db
+
+# Files yang tidak diperlukan
+sales_management
+wilayah.sql
+postman_collection.json
+PAYMENT_INTEGRATION.md
+
+# Cleanup script (opsional, hapus comment jika ingin di-track)
+# cleanup.sh
+
+# Composer
+vendor/
+composer.lock
+
+# Package lock files (pilih salah satu)
+# package-lock.json  # Jika pakai yarn
+# yarn.lock          # Jika pakai npm
