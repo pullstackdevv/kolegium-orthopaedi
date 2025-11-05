@@ -15,7 +15,7 @@ return [
         'http://127.0.0.1:8001',
         'http://192.168.19.165:8000',
         'http://192.168.19.165:5173',
-        'https://mystock.thebee.id',
+        'https://pullstack.cloud',
     ],
 
     'allowed_origins_patterns' => [

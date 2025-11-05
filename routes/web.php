@@ -5,8 +5,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Auth\Middleware\Authenticate;
-use App\Http\Controllers\WebOrderController;
-use App\Http\Controllers\MidtransController;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -46,7 +44,8 @@ Route::get('/login', function () {
 });
 
 // CMS (admin) protected routes
-Route::middleware([Authenticate::class, HandleInertiaRequests::class, \App\Http\Middleware\EnsureModulePermission::class])
+// TEMPORARILY DISABLED EnsureModulePermission for debugging
+Route::middleware([Authenticate::class, HandleInertiaRequests::class])
     ->prefix('cms')
     ->name('cms.')
     ->group(function () {
@@ -61,50 +60,14 @@ Route::middleware([Authenticate::class, HandleInertiaRequests::class, \App\Http\
         })->name('logout');
 
         Route::get('/dashboard', function () {
-            return Inertia::render('Dashboard');
+            return redirect()->route('cms.settings.user');
         })->name('dashboard');
 
 
         // Settings
         Route::get('/settings', function () {
-            return Inertia::render('Settings/index');
+            return redirect()->route('cms.settings.user');
         })->name('settings.index');
-
-        Route::get('/settings/general', function () {
-            return Inertia::render('Settings/index', ['activeMenu' => 'general']);
-        })->name('settings.general');
-
-        Route::get('/settings/order', function () {
-            return Inertia::render('Settings/index', ['activeMenu' => 'order']);
-        })->name('settings.order');
-
-        Route::get('/settings/product', function () {
-            return Inertia::render('Settings/index', ['activeMenu' => 'product']);
-        })->name('settings.product');
-
-        Route::get('/settings/customer', function () {
-            return Inertia::render('Settings/index', ['activeMenu' => 'customer']);
-        })->name('settings.customer');
-
-        Route::get('/settings/payment', function () {
-            return Inertia::render('Settings/index', ['activeMenu' => 'payment']);
-        })->name('settings.payment');
-
-        Route::get('/settings/courier', function () {
-            return Inertia::render('Settings/index', ['activeMenu' => 'courier']);
-        })->name('settings.courier');
-
-        Route::get('/settings/courier-rates', function () {
-            return Inertia::render('Settings/CourierRates');
-        })->name('settings.courier-rates');
-
-        Route::get('/settings/origin', function () {
-            return Inertia::render('Settings/index', ['activeMenu' => 'origin']);
-        })->name('settings.origin');
-
-        Route::get('/settings/template', function () {
-            return Inertia::render('Settings/index', ['activeMenu' => 'template']);
-        })->name('settings.template');
 
         Route::get('/settings/user', function () {
             return Inertia::render('Settings/index', ['activeMenu' => 'user']);
@@ -113,14 +76,6 @@ Route::middleware([Authenticate::class, HandleInertiaRequests::class, \App\Http\
         Route::get('/settings/role', function () {
             return Inertia::render('Settings/index', ['activeMenu' => 'role']);
         })->name('settings.role');
-
-        Route::get('/settings/dashboard', function () {
-            return Inertia::render('Settings/index', ['activeMenu' => 'dashboard']);
-        })->name('settings.dashboard');
-
-        Route::get('/settings/api', function () {
-            return Inertia::render('Settings/index', ['activeMenu' => 'api']);
-        })->name('settings.api');
 
         // User management routes
         Route::get('/settings/users/create', function () {

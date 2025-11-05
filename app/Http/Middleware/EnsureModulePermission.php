@@ -58,7 +58,7 @@ class EnsureModulePermission
         $first = strtolower(explode('/', $path)[0] ?? '');
 
         // Whitelist: allow login/logout/dashboard without checks if desired
-        if (in_array($first, ['', 'logout', 'login'])) {
+        if (in_array($first, ['', 'logout', 'login', 'dashboard'])) {
             return null;
         }
 

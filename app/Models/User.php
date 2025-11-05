@@ -58,31 +58,6 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
-    public function products()
-    {
-        return $this->hasMany(Product::class, 'created_by');
-    }
-
-    public function stockMovements()
-    {
-        return $this->hasMany(StockMovement::class, 'created_by');
-    }
-
-    public function stockOpnames()
-    {
-        return $this->hasMany(StockOpname::class, 'created_by');
-    }
-
-    public function orders()
-    {
-        return $this->hasMany(Order::class, 'user_id');
-    }
-
-    public function verifiedPayments()
-    {
-        return $this->hasMany(OrderPayment::class, 'verified_by');
-    }
-
     public function isOwner(): bool
     {
         return $this->role && $this->role->name === 'owner';
@@ -101,6 +76,14 @@ class User extends Authenticatable
     public function isWarehouse(): bool
     {
         return $this->role && $this->role->name === 'warehouse';
+    }
+
+    /**
+     * Check if user has specific role
+     */
+    public function hasRole(string $roleName): bool
+    {
+        return $this->role && strtolower($this->role->name) === strtolower($roleName);
     }
 
     // Permission methods based on role

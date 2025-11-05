@@ -22,16 +22,16 @@ class UserSeeder extends Seeder
         $users = [
             [
                 'name' => 'Owner Bisnis',
-                'email' => 'owner@mystock.com',
-                'password' => Hash::make('12345678'),
+                'email' => 'owner@gmail.com',
+                'password' => Hash::make('secret'),
                 'role_id' => $ownerRole?->id,
                 'is_active' => true,
             ],
             
             [
                 'name' => 'Administrator',
-                'email' => 'administrator@mystock.com',
-                'password' => Hash::make('12345678'),
+                'email' => 'admin@gmail.com',
+                'password' => Hash::make('secret'),
                 'role_id' => $adminRole?->id,
                 'is_active' => true,
             ],

@@ -2,72 +2,41 @@ import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Link } from "@inertiajs/react";
 import DashboardLayout from "../../Layouts/DashboardLayout";
-import OrderSettings from "./OrderSettings";
-import ProductSettings from "./ProductSettings";
 import UserSettings from "./UserSettings";
 import RoleSettings from "./RoleSettings";
-import OriginSettings from "./OriginSettings";
-import CourierSettings from "./CourierSettings";
-import PaymentSettings from "./PaymentSettings";
-import GeneralSettings from "./GeneralSettings";
-import DashboardSettings from "./DashboardSettings";
-import ApiSettings from "./ApiSettings";
-import { Button } from "flowbite-react";
-
-const stockOpnames = [
-  {
-    date: "11 Jun 25 - 13:38",
-    id: "585731",
-    productCount: 1,
-    warehouse: "Gudang Utama",
-    note: "barang hilang",
-  },
-];
 
 const menus = [
-  { key: "general", label: "General", icon: "mdi:cog" },
-  { key: "order", label: "Order", icon: "mdi:clipboard-list-outline" },
-  { key: "product", label: "Product", icon: "mdi:package-variant" },
-  { key: "payment", label: "Payment", icon: "mdi:credit-card-outline" },
-  { key: "courier", label: "Courier", icon: "mdi:truck-outline" },
-  { key: "origin", label: "Asal Pengiriman", icon: "mdi:map-marker-outline" },
-  { key: "user", label: "User", icon: "mdi:account-outline" },
-  { key: "role", label: "Role Settings", icon: "mdi:shield-account-outline" },
+  { key: "user", label: "User Management", icon: "mdi:account-outline" },
+  { key: "role", label: "Role & Permissions", icon: "mdi:shield-account-outline" },
 ];
 
-function SettingsPage({ activeMenu: initialActiveMenu = "general" }) {
+function SettingsPage({ activeMenu: initialActiveMenu = "user" }) {
   const [activeMenu, setActiveMenu] = useState(initialActiveMenu);
 
   return (
     <DashboardLayout>
       <div className="p-6">
-        <h1 className="text-2xl font-bold mb-4">Setting</h1>
-        <div className="flex flex-wrap gap-2 mb-6">
+        <h1 className="text-2xl font-bold mb-6">Kolegium Settings</h1>
+        <div className="flex flex-wrap gap-3 mb-6">
           {menus.map((menu) => (
             <Link
               key={menu.key}
               href={`/cms/settings/${menu.key}`}
-              className={`px-4 py-2 rounded-lg border flex items-center gap-2 transition-colors ${
+              className={`px-6 py-3 rounded-lg border flex items-center gap-2 transition-all font-medium ${
                 activeMenu === menu.key 
-                  ? "bg-primary text-white border-primary" 
-                  : "border-primary text-primary hover:bg-primary hover:text-white"
+                  ? "bg-blue-600 text-white border-blue-600 shadow-md" 
+                  : "border-gray-300 text-gray-700 hover:bg-blue-50 hover:border-blue-400"
               }`}
             >
-              <Icon icon={menu.icon} width={20} height={20} />
+              <Icon icon={menu.icon} width={22} height={22} />
               {menu.label}
             </Link>
           ))}
         </div>
-        {activeMenu === "general" && <GeneralSettings />}
-        {activeMenu === "order" && <OrderSettings />}
-        {activeMenu === "product" && <ProductSettings />}
-        {activeMenu === "payment" && <PaymentSettings />}
-        {activeMenu === "courier" && <CourierSettings />}
-        {activeMenu === "origin" && <OriginSettings />}
-        {activeMenu === "user" && <UserSettings />}
-        {activeMenu === "role" && <RoleSettings />}
-        {activeMenu === "dashboard" && <DashboardSettings />}
-        {activeMenu === "api" && <ApiSettings />}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+          {activeMenu === "user" && <UserSettings />}
+          {activeMenu === "role" && <RoleSettings />}
+        </div>
       </div>
     </DashboardLayout>
   );

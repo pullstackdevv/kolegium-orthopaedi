@@ -6,7 +6,7 @@ import { imageAsset } from '@/utils/asset'
 const Logo = () => {
   return (
    <Link href={'/'}>
-      <img src={imageAsset('logos/mystock.jpeg')} alt="logo" className="block" />
+      <img src={imageAsset('logos/kolegium.jpeg')} alt="logo" className="block" />
       </Link>
   )
 }
