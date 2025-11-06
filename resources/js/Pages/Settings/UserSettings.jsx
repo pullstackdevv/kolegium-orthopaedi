@@ -306,23 +306,56 @@ export default function UserSettings() {
     {
       key: "no",
       label: "No",
-      render: (_, i) => <span>{i + 1}.</span>,
+      render: (_, i) => <span className="font-medium text-gray-600">{i + 1}.</span>,
     },
     {
       key: "name",
       label: "Nama",
-      render: (row) => <b>{row.name}</b>,
+      render: (row) => (
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-sm font-semibold text-blue-600">
+            {row.name.charAt(0).toUpperCase()}
+          </div>
+          <span className="font-semibold text-gray-900">{row.name}</span>
+        </div>
+      ),
     },
-    { key: "email", label: "Email" },
-    { 
-      key: "role", 
+    {
+      key: "email",
+      label: "Email",
+      render: (row) => <span className="text-gray-600">{row.email}</span>,
+    },
+    {
+      key: "role",
       label: "Role",
       render: (row) => {
         const roleName = row.role?.name || 'Unknown';
-        return <span className="capitalize">{roleName}</span>;
+        const roleColors = {
+          'owner': 'bg-purple-100 text-purple-800',
+          'admin': 'bg-blue-100 text-blue-800',
+          'staff': 'bg-green-100 text-green-800',
+          'warehouse': 'bg-orange-100 text-orange-800'
+        };
+        const colorClass = roleColors[roleName.toLowerCase()] || 'bg-gray-100 text-gray-800';
+        return (
+          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold capitalize ${colorClass}`}>
+            {roleName}
+          </span>
+        );
       }
     },
-
+    {
+      key: "status",
+      label: "Status",
+      render: (row) => (
+        <div className="flex items-center gap-2">
+          <div className={`w-2 h-2 rounded-full ${row.is_active ? 'bg-green-500' : 'bg-red-500'}`}></div>
+          <span className={`text-sm font-medium ${row.is_active ? 'text-green-700' : 'text-red-700'}`}>
+            {row.is_active ? 'Aktif' : 'Nonaktif'}
+          </span>
+        </div>
+      )
+    },
     {
       key: "actions",
       label: "Aksi",
@@ -330,17 +363,19 @@ export default function UserSettings() {
         <div className="flex gap-2">
           <button
             onClick={() => openEditModal(row)}
-            className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors font-medium text-sm"
             title="Edit User"
           >
             <Icon icon="mdi:pencil" className="w-4 h-4" />
+            Edit
           </button>
           <button
             onClick={() => deleteUser(row)}
-            className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors font-medium text-sm"
             title="Hapus User"
           >
             <Icon icon="mdi:trash-can-outline" className="w-4 h-4" />
+            Hapus
           </button>
         </div>
       ),
@@ -350,14 +385,14 @@ export default function UserSettings() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center pb-6 border-b border-gray-200">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Pengaturan User</h2>
-          <p className="text-gray-600 mt-1">Kelola data pengguna dan permission</p>
+          <h2 className="text-3xl font-bold text-gray-900">Pengaturan User</h2>
+          <p className="text-gray-600 mt-2">Kelola data pengguna dan permission</p>
         </div>
         <button
           onClick={openCreateModal}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition-colors shadow-md hover:shadow-lg font-medium"
         >
           <Icon icon="solar:add-circle-outline" className="w-5 h-5" />
           Tambah User
@@ -369,49 +404,54 @@ export default function UserSettings() {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
       ) : error ? (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
-          <p className="font-medium">Error!</p>
-          <p className="text-sm">{error}</p>
+        <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg relative" role="alert">
+          <div className="flex items-start gap-3">
+            <Icon icon="solar:danger-outline" className="w-5 h-5 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="font-semibold">Error!</p>
+              <p className="text-sm mt-1">{error}</p>
+            </div>
+          </div>
         </div>
       ) : (
         <>
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Total User</p>
-                  <p className="text-2xl font-bold text-gray-900">{users.length}</p>
+                  <p className="text-sm font-medium text-gray-600">Total User</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-2">{users.length}</p>
                 </div>
-                <div className="p-3 bg-blue-100 rounded-full">
+                <div className="p-4 bg-blue-100 rounded-full">
                   <Icon icon="solar:users-group-rounded-outline" className="w-6 h-6 text-blue-600" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">User Aktif</p>
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-sm font-medium text-gray-600">User Aktif</p>
+                  <p className="text-3xl font-bold text-green-600 mt-2">
                     {users.filter(u => u.is_active).length}
                   </p>
                 </div>
-                <div className="p-3 bg-green-100 rounded-full">
+                <div className="p-4 bg-green-100 rounded-full">
                   <Icon icon="solar:check-circle-outline" className="w-6 h-6 text-green-600" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">User Nonaktif</p>
-                  <p className="text-2xl font-bold text-red-600">
+                  <p className="text-sm font-medium text-gray-600">User Nonaktif</p>
+                  <p className="text-3xl font-bold text-red-600 mt-2">
                     {users.filter(u => !u.is_active).length}
                   </p>
                 </div>
-                <div className="p-3 bg-red-100 rounded-full">
+                <div className="p-4 bg-red-100 rounded-full">
                   <Icon icon="solar:close-circle-outline" className="w-6 h-6 text-red-600" />
                 </div>
               </div>
@@ -419,13 +459,18 @@ export default function UserSettings() {
           </div>
 
           {/* Users Table */}
-          <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="p-6 border-b border-gray-100">
+              <h3 className="font-semibold text-lg text-gray-900">Data Pengguna</h3>
+            </div>
             <div className="p-6">
-              <h3 className="font-semibold mb-4">Data Pengguna</h3>
               {users.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-8">
-                  <Icon icon="solar:users-group-rounded-outline" className="text-4xl text-gray-400 mb-3" />
-                  <p className="text-gray-600 text-center">Belum ada data pengguna</p>
+                <div className="flex flex-col items-center justify-center py-12">
+                  <div className="p-4 bg-gray-100 rounded-full mb-4">
+                    <Icon icon="solar:users-group-rounded-outline" className="text-3xl text-gray-400" />
+                  </div>
+                  <p className="text-gray-600 text-center font-medium">Belum ada data pengguna</p>
+                  <p className="text-gray-500 text-sm mt-1">Klik tombol "Tambah User" untuk membuat user baru</p>
                 </div>
               ) : (
                 <TableComponent columns={columns} data={users} />
@@ -437,39 +482,47 @@ export default function UserSettings() {
 
       {/* Custom Modal for Add/Edit User */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Backdrop */}
           <div 
-            className="fixed inset-0 bg-black bg-opacity-50" 
+            className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm" 
             onClick={closeModal}
           ></div>
           
           {/* Modal Content */}
-          <div className="relative bg-white rounded-lg shadow-lg w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+          <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b">
-              <h3 className="text-lg font-semibold">
-                {modalType === 'create' ? 'Tambah User Baru' : 'Edit User'}
-              </h3>
+            <div className="sticky top-0 flex items-center justify-between p-6 border-b border-gray-200 bg-white rounded-t-xl">
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">
+                  {modalType === 'create' ? 'Tambah User Baru' : 'Edit User'}
+                </h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  {modalType === 'create' ? 'Buat pengguna baru untuk sistem' : 'Perbarui informasi pengguna'}
+                </p>
+              </div>
               <button
                 onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 transition-colors p-1 hover:bg-gray-100 rounded-lg"
               >
                 <Icon icon="solar:close-circle-outline" className="w-6 h-6" />
               </button>
             </div>
             
             {/* Modal Body */}
-            <div className="p-4">
-              <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 {formError && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
-                    <p className="font-medium">Error!</p>
-                    <p className="text-sm">{formError}</p>
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start gap-3" role="alert">
+                    <Icon icon="solar:danger-outline" className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold">Error!</p>
+                      <p className="text-sm mt-1">{formError}</p>
+                    </div>
                   </div>
                 )}
                 <div>
-                  <label className="block text-sm font-medium mb-1">Nama *</label>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Nama Lengkap *</label>
                   <input
                     type="text"
                     name="name"
@@ -477,12 +530,12 @@ export default function UserSettings() {
                     onChange={handleInputChange}
                     required
                     placeholder="Masukkan nama lengkap"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Email *</label>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Email *</label>
                   <input
                     type="email"
                     name="email"
@@ -490,14 +543,17 @@ export default function UserSettings() {
                     onChange={handleInputChange}
                     required
                     placeholder="Masukkan alamat email"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    {modalType === 'create' ? 'Password *' : 'Password (kosongkan jika tidak ingin mengubah)'}
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    {modalType === 'create' ? 'Password *' : 'Password'}
                   </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    {modalType === 'create' ? 'Minimal 8 karakter' : 'Kosongkan jika tidak ingin mengubah'}
+                  </p>
                   <input
                     type="password"
                     name="password"
@@ -505,12 +561,12 @@ export default function UserSettings() {
                     onChange={handleInputChange}
                     required={modalType === 'create'}
                     placeholder="Masukkan password"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Konfirmasi Password *</label>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Konfirmasi Password *</label>
                   <input
                     type="password"
                     name="password_confirmation"
@@ -518,18 +574,18 @@ export default function UserSettings() {
                     onChange={handleInputChange}
                     required={modalType === 'create' || formData.password}
                     placeholder="Konfirmasi password"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Role *</label>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Role *</label>
                   <select
                     name="role_id"
                     value={formData.role_id}
                     onChange={handleRoleChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   >
                     <option value="">Pilih Role</option>
                     {roles.map((role, index) => (
@@ -544,16 +600,16 @@ export default function UserSettings() {
                     const selectedRole = roles.find(r => r.role === formData.role_id);
                     const roleDesc = roleDescriptions[selectedRole?.role];
                     return selectedRole && (
-                      <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                        <p className="text-sm font-medium text-blue-800 mb-1">
+                      <div className="mt-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p className="text-sm font-medium text-blue-900 mb-2">
                           {roleDesc?.description || selectedRole.description}
                         </p>
                         {(selectedRole.permissions || roleDesc?.permissions) && (selectedRole.permissions || roleDesc.permissions).length > 0 && (
-                          <div className="text-xs text-blue-600">
+                          <div className="text-xs text-blue-700">
                             <strong>Akses:</strong>
-                            <ul className="list-disc list-inside mt-1 space-y-1">
+                            <ul className="list-disc list-inside mt-2 space-y-1">
                               {(selectedRole.permissions || roleDesc.permissions).map((permission, index) => (
-                                <li key={index}>{permission.replace(/\./g, ' ').replace(/_/g, ' ')}</li>
+                                <li key={index} className="capitalize">{permission.replace(/\./g, ' ').replace(/_/g, ' ')}</li>
                               ))}
                             </ul>
                           </div>
@@ -563,8 +619,8 @@ export default function UserSettings() {
                   })()}
                 </div>
 
-                <div>
-                  <label className="flex items-center">
+                <div className="pt-2">
+                  <label className="flex items-center cursor-pointer">
                     <input
                       type="checkbox"
                       name="is_active"
@@ -572,26 +628,26 @@ export default function UserSettings() {
                       onChange={handleInputChange}
                       className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                     />
-                    <span className="ml-2 text-sm text-gray-700">User Aktif</span>
+                    <span className="ml-3 text-sm font-medium text-gray-700">User Aktif</span>
                   </label>
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4">
+                <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
                   <button
                     type="button"
                     onClick={closeModal}
-                    className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                    className="px-6 py-2.5 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors font-medium"
                   >
                     Batal
                   </button>
                   <button
                     type="submit"
                     disabled={formLoading}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 font-medium flex items-center gap-2"
                   >
                     {formLoading ? (
                       <>
-                        <Icon icon="solar:loading-outline" className="animate-spin mr-2" />
+                        <Icon icon="solar:loading-outline" className="animate-spin w-4 h-4" />
                         {modalType === 'create' ? 'Membuat...' : 'Memperbarui...'}
                       </>
                     ) : (

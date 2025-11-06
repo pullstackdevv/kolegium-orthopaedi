@@ -8,39 +8,26 @@ use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-Route::get('/welcome', function () {
-    return view('welcome');
-})->name('welcome');
-
-// Default public homepage
+// Public Homepage - no login required
 Route::get('/', function () {
-    return redirect()->route('cms.auth.login');
+    return Inertia::render('Homepage', ['layout' => 'HomepageLayout']);
 })->name('home');
 
-// Guest auth for CMS (admin area)
-Route::middleware([RedirectIfAuthenticated::class])
-    ->prefix('cms/auth')
-    ->name('cms.auth.')
-    ->group(function () {
-        Route::get('login', function () {
-            return Inertia::render('Auth/Login');
-        })->name('login');
-
-        Route::get('register', function () {
-            return Inertia::render('Auth/Register');
-        })->name('register');
-    });
-
-
-// Public CMS login route (used by auth middleware redirect)
-Route::middleware([RedirectIfAuthenticated::class])
-    ->get('/cms/login', function () {
+// Login routes
+Route::middleware('guest')->group(function () {
+    // GET /cms/login - Show login page
+    Route::get('/cms/login', function () {
         return Inertia::render('Auth/Login');
     })->name('login');
 
-// Also support /login by redirecting to /cms/login (no route name to avoid conflicts)
-Route::get('/login', function () {
-    return redirect('/cms/login');
+    // POST /cms/login - Process login
+    Route::post('/cms/login', [\App\Http\Controllers\AuthController::class, 'webLogin'])
+        ->name('login.post');
+
+    // GET /cms/register - Show register page (optional)
+    Route::get('/cms/register', function () {
+        return Inertia::render('Auth/Register');
+    })->name('register');
 });
 
 // CMS (admin) protected routes

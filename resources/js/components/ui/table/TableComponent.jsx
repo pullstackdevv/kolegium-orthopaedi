@@ -8,14 +8,14 @@ export default function TableComponent({
   ...props
 }) {
   return (
-    <div className="overflow-x-auto">
-      <table className={`min-w-full bg-white border rounded ${className}`} {...props}>
+    <div className="overflow-x-auto rounded-lg border border-gray-200">
+      <table className={`min-w-full bg-white ${className}`} {...props}>
         <thead>
-          <tr>
+          <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
             {columns.map((col) => (
               <th
                 key={col.key}
-                className="px-4 py-2 border-b font-semibold text-sm text-left bg-gray-50"
+                className="px-6 py-4 font-semibold text-sm text-gray-700 text-left"
               >
                 {col.label}
               </th>
@@ -25,15 +25,15 @@ export default function TableComponent({
         <tbody>
           {data.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} className="text-center py-4 text-gray-400">
+              <td colSpan={columns.length} className="text-center py-8 text-gray-400">
                 Tidak ada data
               </td>
             </tr>
           ) : (
             data.map((row, i) => (
-              <tr key={i} className="hover:bg-gray-50">
+              <tr key={i} className="border-b border-gray-100 hover:bg-blue-50 transition-colors">
                 {columns.map((col) => (
-                  <td key={col.key} className="px-4 py-2 border-b text-sm">
+                  <td key={col.key} className="px-6 py-4 text-sm text-gray-700">
                     {col.render ? col.render(row, i) : row[col.key]}
                   </td>
                 ))}

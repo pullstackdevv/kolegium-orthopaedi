@@ -231,7 +231,7 @@ export default function RoleSettings() {
         <div className="flex gap-2">
           <button
             onClick={() => openEditModal(row)}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm flex items-center gap-1"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors shadow-sm hover:shadow-md"
           >
             <Icon icon="mdi:pencil" width={16} height={16} />
             Edit
@@ -245,28 +245,35 @@ export default function RoleSettings() {
     <>
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
       ) : error ? (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {error}
+        <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg flex items-start gap-3" role="alert">
+          <Icon icon="solar:danger-outline" className="w-5 h-5 mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="font-semibold">Error!</p>
+            <p className="text-sm mt-1">{error}</p>
+          </div>
         </div>
       ) : (
         <>
-          <div className="bg-white rounded-lg shadow-md">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
             <div className="p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-800">Role Settings</h2>
-                  <p className="text-gray-600 mt-1">Kelola role dan permissions sistem</p>
+                  <h2 className="text-3xl font-bold text-gray-900">Role Settings</h2>
+                  <p className="text-gray-600 mt-2">Kelola role dan permissions sistem</p>
                 </div>
               </div>
             </div>
             <div className="p-6">
               {roles.length === 0 ? (
-                <div className="text-center py-8">
-                  <Icon icon="mdi:shield-account-outline" width={64} height={64} className="mx-auto text-gray-400 mb-4" />
-                  <p className="text-gray-500">Belum ada data role</p>
+                <div className="text-center py-12">
+                  <div className="p-4 bg-gray-100 rounded-full inline-block mb-4">
+                    <Icon icon="mdi:shield-account-outline" width={48} height={48} className="text-gray-400" />
+                  </div>
+                  <p className="text-gray-600 font-medium">Belum ada data role</p>
+                  <p className="text-gray-500 text-sm mt-1">Tidak ada role yang tersedia saat ini</p>
                 </div>
               ) : (
                 <TableComponent columns={columns} data={roles} />
@@ -278,23 +285,26 @@ export default function RoleSettings() {
 
       {/* Modal for Edit Role */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Backdrop */}
           <div 
-            className="fixed inset-0 bg-black bg-opacity-50" 
+            className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm" 
             onClick={closeModal}
           ></div>
           
           {/* Modal Content */}
-          <div className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+          <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Edit Role: {formData.role}
-              </h3>
+            <div className="sticky top-0 flex items-center justify-between p-6 border-b border-gray-200 bg-white rounded-t-xl">
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">
+                  Edit Role: <span className="text-blue-600 capitalize">{formData.role}</span>
+                </h3>
+                <p className="text-sm text-gray-500 mt-1">Kelola deskripsi dan permissions untuk role ini</p>
+              </div>
               <button
                 onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-gray-400 hover:text-gray-600 transition-colors p-1 hover:bg-gray-100 rounded-lg"
               >
                 <Icon icon="mdi:close" width={24} height={24} />
               </button>
@@ -303,39 +313,43 @@ export default function RoleSettings() {
             {/* Body */}
             <div className="p-6 space-y-6">
               {formError && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                  {formError}
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start gap-3" role="alert">
+                  <Icon icon="solar:danger-outline" className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold">Error!</p>
+                    <p className="text-sm mt-1">{formError}</p>
+                  </div>
                 </div>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
                   Deskripsi Role
                 </label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                   rows={3}
                   placeholder="Masukkan deskripsi role..."
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="block text-sm font-semibold text-gray-900 mb-3">
                   Permissions
                 </label>
-                <div className="grid grid-cols-2 gap-3 max-h-60 overflow-y-auto border border-gray-200 rounded-md p-4">
+                <div className="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-4 bg-gray-50">
                   {availablePermissions.map((permission) => (
-                    <label key={permission} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                    <label key={permission} className="flex items-center space-x-3 cursor-pointer hover:bg-white p-3 rounded-lg transition-colors">
                       <input
                         type="checkbox"
                         checked={formData.permissions.includes(permission)}
                         onChange={() => handlePermissionChange(permission)}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4"
                       />
-                      <span className="text-sm text-gray-700 capitalize">
+                      <span className="text-sm font-medium text-gray-700 capitalize">
                         {permission}
                       </span>
                     </label>
@@ -348,7 +362,7 @@ export default function RoleSettings() {
             <div className="flex justify-end gap-3 p-6 border-t border-gray-200">
               <button
                 onClick={closeModal}
-                className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                className="px-6 py-2.5 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors font-medium"
                 disabled={formLoading}
               >
                 Batal
@@ -356,10 +370,10 @@ export default function RoleSettings() {
               <button
                 onClick={updateRole}
                 disabled={formLoading}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors disabled:opacity-50 flex items-center gap-2"
+                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 font-medium flex items-center gap-2"
               >
                 {formLoading && (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <Icon icon="solar:loading-outline" className="animate-spin w-4 h-4" />
                 )}
                 Simpan
               </button>

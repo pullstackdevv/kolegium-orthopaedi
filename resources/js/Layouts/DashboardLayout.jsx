@@ -61,7 +61,7 @@ export default function DashboardLayout({ children }) {
                         isSidebarOpen && !isMobile ? "lg:ml-64" : "ml-0"
                     }`}>
                         <div>
-                            &copy; {new Date().getFullYear()} TheBee. All rights
+                            &copy; {new Date().getFullYear()} Pullstack. All rights
                             reserved.
                         </div>
                     </footer>
