@@ -28,11 +28,8 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('user_data');
-      // Redirect to login page
-      window.location.href = '/login';
+      // Session expired or unauthorized - redirect to CMS login
+      window.location.href = '/cms/login';
     }
     return Promise.reject(error);
   }

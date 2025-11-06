@@ -86,11 +86,6 @@ export default function RoleSettings() {
       setFormLoading(true);
       setFormError(null);
 
-      if (!AuthAPI.isAuthenticated()) {
-        setFormError('Anda harus login terlebih dahulu');
-        return;
-      }
-
       const response = await api.put(`/roles/${selectedRole.role}`, {
         description: formData.description,
         permissions: formData.permissions
@@ -147,11 +142,6 @@ export default function RoleSettings() {
     try {
       setLoading(true);
       setError(null);
-      
-      if (!AuthAPI.isAuthenticated()) {
-        setError('Anda harus login terlebih dahulu');
-        return;
-      }
 
       const response = await api.get('/roles');
       

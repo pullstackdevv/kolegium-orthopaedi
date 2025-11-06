@@ -247,12 +247,6 @@ export default function UserSettings() {
     try {
       setLoading(true);
       setError(null);
-      
-      // Check if user is authenticated
-      if (!AuthAPI.isAuthenticated()) {
-        setError('Anda harus login terlebih dahulu');
-        return;
-      }
 
       const response = await api.get("/users");
       
