@@ -31,10 +31,13 @@ Route::middleware('auth:sanctum')->group(function () {
         return response()->json(Auth::user());
     });
 
-    Route::apiResource('users', UserController::class);
+    // User specific routes (harus sebelum apiResource)
+    Route::get('users/role-permissions', [UserController::class, 'getRolePermissions']);
     Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus']);
     Route::post('users/{user}/change-password', [UserController::class, 'changePassword']);
-    Route::get('users/role-permissions', [UserController::class, 'getRolePermissions']);
+    
+    // User CRUD
+    Route::apiResource('users', UserController::class);
 
     // Role routes
     Route::get('roles', [RoleController::class, 'index']);
