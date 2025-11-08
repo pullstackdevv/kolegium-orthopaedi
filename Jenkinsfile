@@ -17,7 +17,6 @@ pipeline {
         stage('Build Backend') {
             steps {
                 sh '''
-                cd backend
                 composer install --no-interaction --prefer-dist
                 php artisan migrate --force
                 php artisan config:cache
@@ -28,8 +27,7 @@ pipeline {
 
         stage('Build Frontend') {
             steps {
-                sh '''
-                cd frontend
+                sh '''               
                 npm install
                 npm run build
                 '''
@@ -40,7 +38,7 @@ pipeline {
             steps {
                 sh '''
                 rsync -avz --delete ./ root@${SERVER_IP}:${DEPLOY_PATH}
-                ssh root@${SERVER_IP} "cd ${DEPLOY_PATH}/backend && php artisan migrate --force && systemctl restart php8.2-fpm nginx"
+                ssh root@${SERVER_IP} "cd ${DEPLOY_PATH} && php artisan migrate --force"
                 '''
             }
         }
