@@ -7,40 +7,40 @@ export default function Homepage() {
   const features = [
     {
       icon: "mdi:hospital-box",
-      title: "Pendidikan Berkelanjutan",
-      description: "Program pelatihan dan sertifikasi untuk dokter spesialis orthopaedi dan traumatologi"
+      title: "Continuing Education",
+      description: "Training and certification programs for orthopedic and traumatology specialists"
     },
     {
       icon: "mdi:people-outline",
-      title: "Komunitas Profesional",
-      description: "Jaringan dokter spesialis terbesar di Indonesia dengan standar etika tertinggi"
+      title: "Professional Community",
+      description: "Indonesia's largest network of specialist doctors with the highest ethical standards"
     },
     {
       icon: "mdi:book-open-outline",
-      title: "Riset & Inovasi",
-      description: "Mendukung penelitian dan pengembangan ilmu orthopaedi dan traumatologi"
+      title: "Research & Innovation",
+      description: "Supporting research and development in orthopedics and traumatology"
     },
     {
       icon: "mdi:heart-outline",
-      title: "Pelayanan Kesehatan",
-      description: "Meningkatkan kualitas pelayanan kesehatan orthopaedi di seluruh Indonesia"
+      title: "Healthcare Services",
+      description: "Improving the quality of orthopedic healthcare services throughout Indonesia"
     }
   ];
 
   const programs = [
     {
-      title: "Program Pendidikan",
-      description: "Pelatihan spesialis orthopaedi dan traumatologi dengan kurikulum internasional",
+      title: "Education Program",
+      description: "Orthopedic and traumatology specialist training with international curriculum",
       icon: "mdi:school-outline"
     },
     {
-      title: "Konferensi Tahunan",
-      description: "Pertemuan ilmiah tahunan dengan pembicara internasional terkemuka",
+      title: "Annual Conference",
+      description: "Annual scientific meeting with leading international speakers",
       icon: "mdi:presentation-play"
     },
     {
-      title: "Sertifikasi Profesional",
-      description: "Program sertifikasi untuk meningkatkan kompetensi dokter spesialis",
+      title: "Professional Certification",
+      description: "Certification program to enhance specialist doctor competencies",
       icon: "mdi:certificate-outline"
     }
   ];
@@ -53,24 +53,24 @@ export default function Homepage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
-                Kolegium Orthopaedi & Traumatologi Indonesia
+                Indonesian College of Orthopedics & Traumatology
               </h1>
               <p className="text-lg sm:text-xl text-blue-100 leading-relaxed">
-                Organisasi profesional terkemuka yang berkomitmen meningkatkan kualitas pelayanan kesehatan orthopaedi dan traumatologi di Indonesia.
+                A leading professional organization committed to improving the quality of orthopedic and traumatology healthcare services in Indonesia.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Link
                   href="/cms/register"
                   className="inline-flex items-center justify-center gap-2 bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
                 >
-                  Bergabung Sekarang
+                  Join Now
                   <ArrowRight className="w-5 h-5" />
                 </Link>
                 <a
                   href="#about"
                   className="inline-flex items-center justify-center gap-2 border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
                 >
-                  Pelajari Lebih Lanjut aja
+                  Learn More
                 </a>
               </div>
             </div>
@@ -89,19 +89,19 @@ export default function Homepage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="text-3xl sm:text-4xl font-bold text-blue-600 mb-2">5000+</div>
-              <p className="text-gray-600 font-medium">Anggota Aktif</p>
+              <p className="text-gray-600 font-medium">Active Members</p>
             </div>
             <div className="text-center">
               <div className="text-3xl sm:text-4xl font-bold text-blue-600 mb-2">50+</div>
-              <p className="text-gray-600 font-medium">Cabang Daerah</p>
+              <p className="text-gray-600 font-medium">Regional Branches</p>
             </div>
             <div className="text-center">
               <div className="text-3xl sm:text-4xl font-bold text-blue-600 mb-2">30+</div>
-              <p className="text-gray-600 font-medium">Tahun Berdiri</p>
+              <p className="text-gray-600 font-medium">Years Established</p>
             </div>
             <div className="text-center">
               <div className="text-3xl sm:text-4xl font-bold text-blue-600 mb-2">100%</div>
-              <p className="text-gray-600 font-medium">Profesional</p>
+              <p className="text-gray-600 font-medium">Professional</p>
             </div>
           </div>
         </div>
@@ -112,10 +112,10 @@ export default function Homepage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-              Tentang Kami
+              About Us
             </h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Kolegium Orthopaedi & Traumatologi Indonesia adalah organisasi profesional yang didirikan untuk meningkatkan standar pelayanan kesehatan orthopaedi dan traumatologi di Indonesia.
+              The Indonesian College of Orthopedics & Traumatology is a professional organization established to improve the standards of orthopedic and traumatology healthcare services in Indonesia.
             </p>
           </div>
 
@@ -136,10 +136,10 @@ export default function Homepage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-              Program Kami
+              Our Programs
             </h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Berbagai program unggulan untuk mendukung pengembangan profesional dan peningkatan kualitas pelayanan kesehatan.
+              Various flagship programs to support professional development and improve healthcare service quality.
             </p>
           </div>
 
@@ -150,7 +150,7 @@ export default function Homepage() {
                 <h3 className="text-2xl font-bold text-gray-900 mb-3">{program.title}</h3>
                 <p className="text-gray-600 mb-6">{program.description}</p>
                 <Link href="#" className="inline-flex items-center gap-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors">
-                  Pelajari Lebih Lanjut
+                  Learn More
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
@@ -165,16 +165,16 @@ export default function Homepage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-8">
-                Keuntungan Menjadi Anggota
+                Benefits of Membership
               </h2>
               <ul className="space-y-4">
                 {[
-                  "Akses ke program pendidikan dan pelatihan berkelanjutan",
-                  "Jaringan profesional dengan dokter spesialis terkemuka",
-                  "Sertifikasi dan kredensial internasional",
-                  "Akses ke jurnal dan publikasi ilmiah",
-                  "Dukungan dalam pengembangan karir",
-                  "Komunitas yang saling mendukung dan berbagi pengetahuan"
+                  "Access to continuing education and training programs",
+                  "Professional network with leading specialist doctors",
+                  "International certification and credentials",
+                  "Access to scientific journals and publications",
+                  "Career development support",
+                  "Supportive community for knowledge sharing"
                 ].map((benefit, index) => (
                   <li key={index} className="flex items-start gap-3">
                     <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" />
@@ -194,24 +194,24 @@ export default function Homepage() {
       <section id="contact" className="py-16 sm:py-24 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
-            Siap Bergabung dengan Kami?
+            Ready to Join Us?
           </h2>
           <p className="text-lg text-blue-100 mb-8 max-w-2xl mx-auto">
-            Daftar sekarang dan jadilah bagian dari komunitas profesional orthopaedi dan traumatologi terbesar di Indonesia.
+            Register now and become part of Indonesia's largest professional orthopedic and traumatology community.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/cms/register"
               className="inline-flex items-center justify-center gap-2 bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
             >
-              Daftar Sekarang
+              Register Now
               <ArrowRight className="w-5 h-5" />
             </Link>
             <a
               href="tel:+62274515151"
               className="inline-flex items-center justify-center gap-2 border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
             >
-              Hubungi Kami
+              Contact Us
             </a>
           </div>
         </div>
