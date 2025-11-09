@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DEPLOY_PATH = "/www/kolegium-orthopaedi"
+        DEPLOY_PATH = "/www/wwwroot/kolegium-orthopaedi"
         SERVER_IP = "31.97.188.192"
         GIT_REPO = "https://github.com/pullstackdevv/kolegium-orthopaedi.git"
         BRANCH = "main"
