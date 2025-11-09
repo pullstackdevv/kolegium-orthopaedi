@@ -5,40 +5,34 @@ pipeline {
         DEPLOY_PATH = "/www/kolegium-orthopaedi"
         SERVER_IP = "31.97.188.192"
         GIT_REPO = "https://github.com/pullstackdevv/kolegium-orthopaedi.git"
+        BRANCH = "main"
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: "${GIT_REPO}"
-            }
-        }
-
-        stage('Build Backend') {
+        stage('Deploy via SSH') {
             steps {
                 sh '''
-                composer install --no-interaction --prefer-dist
-                php artisan migrate --force
-                php artisan config:cache
-                php artisan route:cache
-                '''
-            }
-        }
+                echo "🚀 Connecting to VPS ${SERVER_IP} ..."
+                ssh -o StrictHostKeyChecking=no root@${SERVER_IP} "
+                    set -e
+                    echo '📦 Navigating to ${DEPLOY_PATH} ...'
+                    cd ${DEPLOY_PATH} || exit 1
 
-        stage('Build Frontend') {
-            steps {
-                sh '''               
-                npm install
-                npm run build
-                '''
-            }
-        }
+                    echo '🔄 Pulling latest code...'
+                    git fetch origin ${BRANCH} && git reset --hard origin/${BRANCH}
 
-        stage('Deploy to VPS') {
-            steps {
-                sh '''
-                rsync -avz --delete ./ root@${SERVER_IP}:${DEPLOY_PATH}
-                ssh root@${SERVER_IP} "cd ${DEPLOY_PATH} && php artisan migrate --force"
+                    echo '🧩 Installing dependencies...'
+                    composer install --no-interaction --prefer-dist --optimize-autoloader
+
+                    echo '⚙️  Optimizing Laravel...'
+                    php artisan migrate --force
+                    php artisan config:cache
+                    php artisan route:cache
+
+                    echo '🧱 Building frontend...'
+                    npm install
+                    npm run build
+                "
                 '''
             }
         }
@@ -46,10 +40,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ Deployment berhasil ke ${DEPLOY_PATH}!"
+            echo "✅ Deployment berhasil ke ${DEPLOY_PATH} di VPS ${SERVER_IP}!"
         }
         failure {
-            echo "❌ Deployment gagal, periksa log Jenkins."
+            echo "❌ Deployment gagal. Periksa log Jenkins dan VPS."
         }
     }
 }
