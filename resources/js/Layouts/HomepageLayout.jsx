@@ -79,7 +79,17 @@ export default function MarketplaceLayout({ children }) {
                                 </div>
                             </div>
 
-                            <Link 
+                             <Link 
+                                href="#peer-group" 
+                                className={`text-base font-medium transition-colors ${
+                                    isActive('/peer-group') 
+                                        ? 'text-blue-600' 
+                                        : 'text-gray-700 hover:text-blue-600'
+                                }`}
+                            >
+                                Peer Group
+                            </Link>
+                            {/* <Link 
                                 href="/resident" 
                                 className={`text-base font-medium transition-colors ${
                                     isActive('/resident') 
@@ -88,7 +98,7 @@ export default function MarketplaceLayout({ children }) {
                                 }`}
                             >
                                 Resident
-                            </Link>
+                            </Link> */}
 
                             <Link 
                                 href="/calendar-academic" 
@@ -101,7 +111,7 @@ export default function MarketplaceLayout({ children }) {
                                 Calender Academic
                             </Link>
 
-                            <Link 
+                            {/* <Link 
                                 href="#peer-group" 
                                 className={`text-base font-medium transition-colors ${
                                     isActive('/peer-group') 
@@ -110,7 +120,7 @@ export default function MarketplaceLayout({ children }) {
                                 }`}
                             >
                                 Peer Group
-                            </Link>
+                            </Link> */}
 
                             {/* About Us Dropdown */}
                             <div className="relative group">

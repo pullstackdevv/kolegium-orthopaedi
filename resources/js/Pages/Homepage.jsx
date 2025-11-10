@@ -25,21 +25,21 @@ export default function Homepage() {
   const examinations = [
     { 
       date: "18 Nov 2025", 
-      status: "Unas Lokal", 
+      status: "Ujian Lokal", 
       statusColor: "bg-red-500",
       title: "Pre-exam PPDS 1", 
       location: "Auditorium RSUP" 
     },
     { 
       date: "18 Nov 2025", 
-      status: "Internasional", 
+      status: "Ujian Nasional", 
       statusColor: "bg-green-500",
       title: "Konas PABOI 2026 - Pengumuman Lokasi", 
       location: "Jakarta Convention Center" 
     },
     { 
       date: "18 Nov 2025", 
-      status: "Unas Lokal", 
+      status: "Ujian Lokal", 
       statusColor: "bg-red-500",
       title: "Seminar Mikrochirurgi", 
       location: "RS Pendidikan" 
@@ -106,45 +106,57 @@ export default function Homepage() {
         {
           title: "Semester",
           data: [
-            { name: 'Semester 1', value: 30 },
-            { name: 'Semester 2', value: 25 },
+            { name: 'Semester 1', value: 20 },
+            { name: 'Semester 2', value: 20 },
             { name: 'Semester 3', value: 20 },
-            { name: 'Semester 4', value: 15 }
+            { name: 'Semester 4', value: 20 },
+            { name: 'Semester 5', value: 20 },
+            { name: 'Semester 6', value: 20 },
+            { name: 'Semester 7', value: 20 },
+            { name: 'Semester 8', value: 20 },
+            { name: 'Semester 9', value: 20 }
           ],
-          colors: ['#ec4899', '#8b5cf6', '#06b6d4', '#10b981'],
+          colors: ['#ec4899', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#84cc16', '#f97316'],
           legends: [
-            { label: 'Semester 1', value: 30 },
-            { label: 'Semester 2', value: 25 },
+            { label: 'Semester 1', value: 20 },
+            { label: 'Semester 2', value: 20 },
             { label: 'Semester 3', value: 20 },
-            { label: 'Semester 4', value: 15 }
+            { label: 'Semester 4', value: 20 },
+            { label: 'Semester 5', value: 20 }
           ],
-          total: 90
+          legendsRight: [
+            { label: 'Semester 6', value: 20 },
+            { label: 'Semester 7', value: 20 },
+            { label: 'Semester 8', value: 20 },
+            { label: 'Semester 9', value: 20 }
+          ],
+          total: 180
         },
         {
           title: "Gender",
           data: [
-            { name: 'Male', value: 70 },
-            { name: 'Female', value: 50 }
+            { name: 'Male', value: 20 },
+            { name: 'Female', value: 20 }
           ],
           colors: ['#3b82f6', '#93c5fd'],
           legends: [
-            { label: 'Male', value: 70 },
-            { label: 'Female', value: 50 }
+            { label: 'Male', value: 20 },
+            { label: 'Female', value: 20 }
           ],
-          total: 120
+          total: 40
         },
         {
           title: "Graduate",
           data: [
-            { name: 'Graduate', value: 80 },
-            { name: 'Non Graduate', value: 40 }
+            { name: 'Grad', value: 20 },
+            { name: 'Active', value: 20 }
           ],
           colors: ['#10b981', '#86efac'],
           legends: [
-            { label: 'Graduate', value: 80 },
-            { label: 'Non Graduate', value: 40 }
+            { label: 'Grad', value: 20 },
+            { label: 'Active', value: 20 }
           ],
-          total: 120
+          total: 40
         }
       ]
     },
@@ -155,12 +167,12 @@ export default function Homepage() {
       students: "30",
       charts: [
         {
-          title: "4 Penyelenggara",
+          title: "4 Organizer",
           data: [
-            { name: 'RSUP 1', value: 20 },
-            { name: 'RSUP 2', value: 20 },
-            { name: 'RSUP 3', value: 20 },
-            { name: 'RSUP 4', value: 20 }
+            { name: 'RSUP Dr. Sardjito', value: 20 },
+            { name: 'RSUD Dr. Saiful Anwar Malang', value: 20 },
+            { name: 'RSUD Dr. Moewardi Solo', value: 20 },
+            { name: 'RSUP Dr. Hasan Sadikin Bandung', value: 20 }
           ],
           colors: ['#10b981', '#86efac', '#34d399', '#6ee7b7'],
           legends: [
@@ -172,51 +184,61 @@ export default function Homepage() {
           total: 80
         },
         {
-          title: "Specialties",
+          title: "8 specialization",
           data: [
-            { name: 'Spine', value: 15 },
-            { name: 'Sports', value: 12 },
-            { name: 'Hand', value: 10 },
-            { name: 'Pediatric', value: 8 },
-            { name: 'Tumor', value: 8 },
-            { name: 'Foot & Ankle', value: 7 }
+            { name: 'Spine', value: 20 },
+            { name: 'Hip Knee', value: 20 },
+            { name: 'Oncology', value: 20 },
+            { name: 'Orthopaedic Trauma & Reconstruction', value: 20 },
+            { name: 'Sports Injury', value: 20 },
+            { name: 'Shoulder & Elbow', value: 20 },
+            { name: 'Advanced Orthopaedic', value: 20 },
+            { name: 'Hand, Upper Limb and Microsurgery', value: 20 },
+            { name: 'Pediatric Orthopaedic', value: 20 },
+            { name: 'Foot and Ankle', value: 20 }
           ],
-          colors: ['#3b82f6', '#ef4444', '#ec4899', '#f59e0b', '#8b5cf6', '#06b6d4'],
+          colors: ['#ef4444', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#06b6d4', '#10b981', '#84cc16', '#f97316', '#a855f7'],
           legends: [
-            { label: 'Spine', value: 15 },
-            { label: 'Sports', value: 12 },
-            { label: 'Hand', value: 10 },
-            { label: 'Pediatric', value: 8 },
-            { label: 'Tumor', value: 8 },
-            { label: 'Foot & Ankle', value: 7 }
+            { label: 'Spine', value: 20 },
+            { label: 'Hip Knee', value: 20 },
+            { label: 'Oncology', value: 20 },
+            { label: 'Orthopaedic Trauma & Reconstruction', value: 20 },
+            { label: 'Sports Injury', value: 20 }
           ],
-          total: 60
+          legendsRight: [
+            { label: 'Advanced Orthopaedic', value: 20 },
+            { label: 'Hand, Upper Limb and Microsurgery', value: 20 },
+            { label: 'Pediatric Orthopaedic', value: 20 },
+            { label: 'Foot and Ankle', value: 20 },
+            { label: 'Shoulder & Elbow', value: 20 }
+          ],
+          total: 200
         },
         {
           title: "Gender",
           data: [
-            { name: 'Male', value: 18 },
-            { name: 'Female', value: 12 }
+            { name: 'Male', value: 20 },
+            { name: 'Female', value: 20 }
           ],
           colors: ['#3b82f6', '#93c5fd'],
           legends: [
-            { label: 'Male', value: 18 },
-            { label: 'Female', value: 12 }
+            { label: 'Male', value: 20 },
+            { label: 'Female', value: 20 }
           ],
-          total: 30
+          total: 40
         },
         {
           title: "Graduate",
           data: [
-            { name: 'Graduate', value: 22 },
-            { name: 'Non Graduate', value: 8 }
+            { name: 'Grad', value: 20 },
+            { name: 'Active', value: 20 }
           ],
           colors: ['#10b981', '#86efac'],
           legends: [
-            { label: 'Graduate', value: 22 },
-            { label: 'Non Graduate', value: 8 }
+            { label: 'Grad', value: 20 },
+            { label: 'Active', value: 20 }
           ],
-          total: 30
+          total: 40
         }
       ]
     },
@@ -227,64 +249,74 @@ export default function Homepage() {
       students: "50",
       charts: [
         {
-          title: "8 Subspesialis",
+          title: "2 Study Program",
           data: [
-            { name: 'Sub 1', value: 10 },
-            { name: 'Sub 2', value: 10 }
+            { name: 'FK UI', value: 20 },
+            { name: 'FK UNAIR', value: 20 }
           ],
-          colors: ['#ef4444', '#fca5a5'],
+          colors: ['#dc2626', '#fca5a5'],
           legends: [
-            { label: 'Sp 1', value: 10 },
-            { label: 'Sp 2', value: 10 }
+            { label: 'FK UI', value: 20 },
+            { label: 'FK UNAIR', value: 20 }
           ],
-          total: 20
+          total: 40
         },
         {
-          title: "Specialties",
+          title: "8 excitement",
           data: [
-            { name: 'Type 1', value: 12 },
-            { name: 'Type 2', value: 10 },
-            { name: 'Type 3', value: 8 },
-            { name: 'Type 4', value: 7 },
-            { name: 'Type 5', value: 6 },
-            { name: 'Type 6', value: 5 }
+            { name: 'Spine', value: 20 },
+            { name: 'Hip Knee', value: 20 },
+            { name: 'Oncology', value: 20 },
+            { name: 'Orthopaedic Trauma & Reconstruction', value: 20 },
+            { name: 'Sports Injury', value: 20 },
+            { name: 'Shoulder & Elbow', value: 20 },
+            { name: 'Advanced Orthopaedic', value: 20 },
+            { name: 'Hand, Upper Limb and Microsurgery', value: 20 },
+            { name: 'Pediatric Orthopaedic', value: 20 },
+            { name: 'Foot and Ankle', value: 20 }
           ],
-          colors: ['#3b82f6', '#ef4444', '#ec4899', '#f59e0b', '#8b5cf6', '#06b6d4'],
+          colors: ['#ef4444', '#3b82f6', '#8b5cf6', '#ec4899', '#10b981', '#86efac', '#06b6d4', '#f59e0b', '#84cc16', '#f97316'],
           legends: [
-            { label: 'Adult Recon', value: 12 },
-            { label: 'Spine', value: 10 },
-            { label: 'Hand', value: 8 },
-            { label: 'Pediatric', value: 7 },
-            { label: 'Sports', value: 6 },
-            { label: 'Tumor', value: 5 }
+            { label: 'Spine', value: 20 },
+            { label: 'Hip Knee', value: 20 },
+            { label: 'Oncology', value: 20 },
+            { label: 'Orthopaedic Trauma & Reconstruction', value: 20 },
+            { label: 'Sports Injury', value: 20 }
           ],
-          total: 48
+          legendsRight: [
+            { label: 'Advanced Orthopaedic', value: 20 },
+            { label: 'Hand, Upper Limb and Microsurgery', value: 20 },
+            { label: 'Pediatric Orthopaedic', value: 20 },
+            { label: 'Foot and Ankle', value: 20 },
+            { label: 'Shoulder & Elbow', value: 20 }
+          ],
+          total: 200
         },
         {
           title: "Gender",
           data: [
-            { name: 'Male', value: 30 },
+            { name: 'Male', value: 20 },
             { name: 'Female', value: 20 }
           ],
           colors: ['#3b82f6', '#93c5fd'],
           legends: [
-            { label: 'Male', value: 30 },
+            { label: 'Male', value: 20 },
             { label: 'Female', value: 20 }
           ],
-          total: 50
+          total: 40
         },
         {
           title: "Graduate",
           data: [
-            { name: 'Graduate', value: 35 },
-            { name: 'Non Graduate', value: 15 }
+            { name: 'Grad', value: 20 },
+            { name: 'Active', value: 20 }
           ],
           colors: ['#10b981', '#86efac'],
           legends: [
-            { label: 'Graduate', value: 35 },
-            { label: 'Non Graduate', value: 15 }
+            { label: 'Grad', value: 20 },
+            { label: 'Active', value: 20 }
           ],
-          total: 50
+          total: 40
         }
       ]
     }
@@ -296,7 +328,7 @@ export default function Homepage() {
   return (
     <HomepageLayout>
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 py-20 sm:py-32 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 pt-20 sm:pt-32 pb-32 sm:pb-40 overflow-hidden">
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-blue-900/50 z-10"></div>
@@ -338,7 +370,7 @@ export default function Homepage() {
       </section>
 
       {/* Stats Section */}
-      <section className="bg-gray-50 py-16">
+      <section className="bg-gray-50 py-16 -mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {stats.map((stat, index) => (
@@ -364,27 +396,27 @@ export default function Homepage() {
       </section>
 
       {/* Upcoming Examination Section */}
-      <section className="bg-white py-12">
+      <section className="bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-8">Upcoming Examination</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {examinations.map((exam, index) => (
-              <div key={index} className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 group">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm text-gray-600 font-medium">{exam.date} •</span>
-                    <span className={`${exam.statusColor} text-white text-xs font-semibold px-3 py-1 rounded-full`}>
+              <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-300">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-700">{exam.date} •</span>
+                    <span className={`${exam.statusColor} text-white text-xs font-medium px-2.5 py-1 rounded`}>
                       {exam.status}
                     </span>
                   </div>
                   <Link 
                     href="#" 
-                    className="text-blue-600 hover:text-blue-700 font-medium text-sm transition"
+                    className="text-blue-600 hover:text-blue-700 text-sm transition"
                   >
                     Detail
                   </Link>
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                <h3 className="text-lg font-bold text-gray-900 mb-1">
                   {exam.title}
                 </h3>
                 <p className="text-sm text-gray-600">{exam.location}</p>
@@ -456,48 +488,64 @@ export default function Homepage() {
                 <div className="p-6 lg:p-8">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     {/* Column 1: Program Info - 3 cols */}
-                    <div className="lg:col-span-3 space-y-4">
-                      <div className="flex items-center gap-2">
-                        <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-md text-base font-bold">
-                          {program.id}
-                        </span>
-                        <span className="text-lg font-bold text-gray-900">{program.badge}</span>
+                    <div className="lg:col-span-3 flex items-center">
+                      <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 w-full hover:shadow-md transition-all duration-300">
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2">
+                            <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-md text-base font-bold">
+                              {program.id}
+                            </span>
+                            <span className="text-lg font-bold text-gray-900">{program.badge}</span>
+                          </div>
+                          <p className="text-sm text-gray-700 leading-relaxed">{program.description}</p>
+                          <p className="text-sm text-gray-900">
+                            <span className="text-gray-600">Mahasiswa Aktif:</span> <span className="font-bold">{program.students}</span>
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-sm text-gray-700 leading-relaxed">{program.description}</p>
-                      <p className="text-sm text-gray-900">
-                        <span className="text-gray-600">Mahasiswa Aktif:</span> <span className="font-bold">{program.students}</span>
-                      </p>
                     </div>
                     
                     {/* Column 2-4: 4 Chart Cards in 2x2 Grid - 9 cols */}
                     <div className="lg:col-span-9">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         {program.charts.map((chart, chartIdx) => (
-                          <div key={chartIdx} className="bg-gray-50 border border-gray-200 rounded-xl p-5 hover:bg-white hover:shadow-md transition-all duration-300">
-                            <h3 className="font-bold text-gray-900 mb-4 text-center">{chart.title}</h3>
-                            <div className="flex justify-center mb-4">
+                          <div key={chartIdx} className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-all duration-300">
+                            <div className="flex justify-center mb-5">
                               <DonutChart 
                                 data={chart.data}
                                 colors={chart.colors}
                                 centerText={chart.title}
-                                size={140}
+                                size={160}
                               />
                             </div>
-                            {/* Legend */}
-                            <div className="space-y-1.5 text-xs">
-                              {chart.legends.map((legend, legIdx) => (
-                                <div key={legIdx} className="flex items-center justify-between">
-                                  <div className="flex items-center gap-1.5">
-                                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: chart.colors[legIdx % chart.colors.length] }}></div>
-                                    <span className="text-gray-700">{legend.label}</span>
+                            {/* Legend in 2 columns */}
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                              {/* Left column legends */}
+                              <div className="space-y-2">
+                                {chart.legends.map((legend, legIdx) => (
+                                  <div key={legIdx} className="flex items-center justify-between text-xs">
+                                    <div className="flex items-center gap-1.5">
+                                      <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: chart.colors[legIdx % chart.colors.length] }}></div>
+                                      <span className="text-gray-700">{legend.label}</span>
+                                    </div>
+                                    <span className="font-medium text-gray-900">: {legend.value}</span>
                                   </div>
-                                  <span className="font-semibold text-gray-900">{legend.value}</span>
+                                ))}
+                              </div>
+                              {/* Right column legends (if exists) */}
+                              {chart.legendsRight && (
+                                <div className="space-y-2">
+                                  {chart.legendsRight.map((legend, legIdx) => (
+                                    <div key={legIdx} className="flex items-center justify-between text-xs">
+                                      <div className="flex items-center gap-1.5">
+                                        <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: chart.colors[(legIdx + chart.legends.length) % chart.colors.length] }}></div>
+                                        <span className="text-gray-700">{legend.label}</span>
+                                      </div>
+                                      <span className="font-medium text-gray-900">: {legend.value}</span>
+                                    </div>
+                                  ))}
                                 </div>
-                              ))}
-                            </div>
-                            <div className="mt-3 pt-2 border-t border-gray-200 flex items-center justify-between text-xs font-bold">
-                              <span className="text-gray-700">Total</span>
-                              <span className="text-gray-900">{chart.total}</span>
+                              )}
                             </div>
                           </div>
                         ))}
