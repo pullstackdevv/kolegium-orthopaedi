@@ -26,7 +26,7 @@ export default function MarketplaceLayout({ children }) {
 
     return (
         <AuthProvider>
-            <div className="min-h-screen bg-white">
+            <div className="min-h-screen bg-[#F8FAFC]">
             {/* Header */}
             <header className="bg-gray-50 shadow-sm sticky top-0 z-50 border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
