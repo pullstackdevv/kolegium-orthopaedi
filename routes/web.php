@@ -13,6 +13,11 @@ Route::get('/', function () {
     return Inertia::render('Homepage', ['layout' => 'HomepageLayout']);
 })->name('home');
 
+// Peer Group page
+Route::get('/peer-group', function () {
+    return Inertia::render('PeerGroup', ['layout' => 'HomepageLayout']);
+})->name('peer-group');
+
 // Login routes
 Route::middleware('guest')->group(function () {
     // GET /cms/login - Show login page
