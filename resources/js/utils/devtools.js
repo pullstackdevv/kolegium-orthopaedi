@@ -8,7 +8,15 @@ export const enableReactDevTools = () => {
   if (process.env.NODE_ENV === 'development') {
     // Enable React DevTools
     if (typeof window !== 'undefined') {
-      window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = window.__REACT_DEVTOOLS_GLOBAL_HOOK__ || {};
+      // Only initialize if not already set by browser extension
+      if (!window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
+        try {
+          window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = {};
+        } catch (error) {
+          // Property is read-only (set by browser extension), skip initialization
+          console.log('React DevTools already initialized by browser extension');
+        }
+      }
       
       // Add debugging helpers to window object
       window.debugReact = {
