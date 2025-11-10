@@ -87,7 +87,7 @@ export default function MarketplaceLayout({ children }) {
                                         : 'text-gray-700 hover:text-blue-600'
                                 }`}
                             >
-                                Resident
+                                Resident/Fellow/Trainee
                             </Link>
 
                             <Link 

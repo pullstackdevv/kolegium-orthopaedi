@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
-import { Users, Calendar, ChevronRight, Search } from "lucide-react";
+import { Users, Calendar, ChevronRight, ChevronLeft } from "lucide-react";
 import HomepageLayout from "../Layouts/HomepageLayout";
 
 export default function PeerGroup() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const peerGroupInfo = {
     name: "IOSSA",
     fullName: "Indonesian Orthopaedic Spine Surgeon Association",
@@ -26,11 +29,82 @@ export default function PeerGroup() {
     { name: "Dr. Riana Wardany Pribadi, Sp.OT(K)" }
   ];
 
-  const fellowships = [
-    { no: 1, name: "Dr. Surya Darma", organizer: "RSUP Dr. Sardjito Yogya", semester: "Semester 2", specialty: "Spine Surgery", badge: "Active", badgeColor: "bg-blue-500" },
-    { no: 2, name: "Dr. M. Mahfuz Yasin", organizer: "RSUP Dr. Hasan Sadikin Bdg", semester: "Semester 2", specialty: "Sports Medicine", badge: "Active", badgeColor: "bg-green-500" },
-    { no: 3, name: "Dr. Yogi Prabowo", organizer: "RSUP Dr. Wahidin Sudiro", semester: "Semester 1", specialty: "Hand Surgery", badge: "Active", badgeColor: "bg-blue-500" }
+  const allFellowships = [
+    // RSUD Dr. Saiful Anwar Malang
+    { no: 1, organizer: "RSUD Dr. Saiful Anwar Malang", name: "dr. Hamzah, SpOT", specialty: "Spine", year: "Desember 2023", status: "LULUS", statusColor: "bg-green-500" },
+    { no: 2, organizer: "RSUD Dr. Saiful Anwar Malang", name: "dr. Aditya Jaya Manggala, SpOT", specialty: "Spine", year: "Desember 2023", status: "LULUS", statusColor: "bg-green-500" },
+    { no: 3, organizer: "RSUD Dr. Saiful Anwar Malang", name: "dr. Hidayat, SpOT", specialty: "Spine", year: "Februari 2024", status: "LULUS", statusColor: "bg-green-500" },
+    { no: 4, organizer: "RSUD Dr. Saiful Anwar Malang", name: "dr. Teuku Arief Dian, SpOT", specialty: "Spine", year: "Februari 2024", status: "LULUS", statusColor: "bg-green-500" },
+    { no: 5, organizer: "RSUD Dr. Saiful Anwar Malang", name: "dr. Rudy, SpOT", specialty: "Spine", year: "Agustus 2024", status: "LULUS", statusColor: "bg-green-500" },
+    { no: 6, organizer: "RSUD Dr. Saiful Anwar Malang", name: "dr. Andi Firman Mubarak, SpOT", specialty: "Spine", year: "Agustus 2024", status: "LULUS", statusColor: "bg-green-500" },
+    { no: 7, organizer: "RSUD Dr. Saiful Anwar Malang", name: "dr. Paul Jonathan, SpOT", specialty: "Spine", year: "Agustus 2024", status: "LULUS", statusColor: "bg-green-500" },
+    { no: 8, organizer: "RSUD Dr. Saiful Anwar Malang", name: "dr. Abdul Waris Imran, SpOT", specialty: "Spine", year: "Februari 2025", status: "-", statusColor: "bg-blue-500" },
+    { no: 9, organizer: "RSUD Dr. Saiful Anwar Malang", name: "dr. Hendar Nugrahadi Priambodo, SpOT", specialty: "Spine", year: "Februari 2025", status: "-", statusColor: "bg-blue-500" },
+    { no: 10, organizer: "RSUD Dr. Saiful Anwar Malang", name: "dr. Umar Kharisma Islami, SpOT", specialty: "Spine", year: "Februari 2025", status: "-", statusColor: "bg-blue-500" },
+    { no: 11, organizer: "RSUD Dr. Saiful Anwar Malang", name: "dr. Pradana Wijayanta, SpOT", specialty: "Spine", year: "Februari 2025", status: "-", statusColor: "bg-blue-500" },
+    { no: 12, organizer: "RSUD Dr. Saiful Anwar Malang", name: "dr. Adimas Nofrianto Bayuadji, SpOT", specialty: "Spine", year: "Agustus 2025", status: "-", statusColor: "bg-blue-500" },
+    { no: 13, organizer: "RSUD Dr. Saiful Anwar Malang", name: "dr. David Kalim, SpOT", specialty: "Spine", year: "Agustus 2025", status: "-", statusColor: "bg-blue-500" },
+    
+    // RSUP Dr. Sardjito Yogyakarta
+    { no: 14, organizer: "RSUP Dr. Sardjito Yogyakarta", name: "dr. Adrianto Prasetyo Perbowo, SpOT", specialty: "Spine", year: "Februari 2025", status: "-", statusColor: "bg-blue-500" },
+    { no: 15, organizer: "RSUP Dr. Sardjito Yogyakarta", name: "dr. Aryo Budiyogo Andryanto, SpOT", specialty: "Spine", year: "Februari 2025", status: "-", statusColor: "bg-blue-500" },
+    { no: 16, organizer: "RSUP Dr. Sardjito Yogyakarta", name: "dr. Jodhy Mayangkoro M., SpOT", specialty: "Hip Knee", year: "Februari 2025", status: "-", statusColor: "bg-blue-500" },
+    { no: 17, organizer: "RSUP Dr. Sardjito Yogyakarta", name: "dr. Ainun Naim Sp.OT", specialty: "Spine", year: "Agustus 2025", status: "-", statusColor: "bg-blue-500" },
+    { no: 18, organizer: "RSUP Dr. Sardjito Yogyakarta", name: "dr. Haris Dwi Khoirur Rofiq, Sp.OT., Mked.Klin", specialty: "Oncology", year: "Agustus 2025", status: "-", statusColor: "bg-blue-500" },
+    { no: 19, organizer: "RSUP Dr. Sardjito Yogyakarta", name: "dr. Sinung Bawono, Sp.OT, M.Biomed", specialty: "Hip Knee", year: "Agustus 2025", status: "-", statusColor: "bg-blue-500" },
+    
+    // RSUD Dr. Moewardi Solo
+    { no: 20, organizer: "RSUD Dr. Moewardi Solo", name: "dr. Gana Adyaksa, Sp.O.T", specialty: "Orthopaedic Oncology & Reconstruction", year: "Februari 2025", status: "-", statusColor: "bg-blue-500" },
+    
+    // RSUP Dr. Hasan Sadikin Bandung
+    { no: 21, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Ida Bagus Gede Darma W, M. Biomed, SpOT", specialty: "Sports Injury", year: "Des 23", status: "-", statusColor: "bg-blue-500" },
+    { no: 22, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Muhammad Pandu Nugraha, SpOT", specialty: "Shoulder & Elbow", year: "Des 23", status: "-", statusColor: "bg-blue-500" },
+    { no: 23, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Priscilla, SpOT", specialty: "Advanced Orthopaedic Trauma", year: "Des 23", status: "-", statusColor: "bg-blue-500" },
+    { no: 24, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Dionysius Bramta Putra M., SpOT", specialty: "Hand, Upper Limb and Microsurgery", year: "24-Feb", status: "-", statusColor: "bg-blue-500" },
+    { no: 25, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Alam Rahmat Kusnadi, SpOT", specialty: "Hand, Upper Limb and Microsurgery", year: "24-Feb", status: "-", statusColor: "bg-blue-500" },
+    { no: 26, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Ameria Pribadi, SpOT", specialty: "Hand, Upper Limb and Microsurgery", year: "24-Feb", status: "-", statusColor: "bg-blue-500" },
+    { no: 27, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Mirna Phandu, SpOT", specialty: "Pediatric Orthopaedic", year: "24-Feb", status: "-", statusColor: "bg-blue-500" },
+    { no: 28, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Ricky Wibowo, SpOT", specialty: "Sports Injury", year: "24-Feb", status: "-", statusColor: "bg-blue-500" },
+    { no: 29, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Bagus Iman Brilianto, SpOT", specialty: "Foot and Ankle", year: "24-Feb", status: "-", statusColor: "bg-blue-500" },
+    { no: 30, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Charles Apulta Meliala, SpOT", specialty: "Foot and Ankle", year: "24-Feb", status: "-", statusColor: "bg-blue-500" },
+    { no: 31, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Amir Purnama Sidi, SpOT", specialty: "Shoulder and Elbow", year: "24-Feb", status: "-", statusColor: "bg-blue-500" },
+    { no: 32, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Dadan Gardea Gandadikusumah, SpOT", specialty: "Advanced Orthopaedic Trauma", year: "24-Feb", status: "Tidak lanjut pendidikan", statusColor: "bg-red-500" },
+    { no: 33, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Daffodilone Cahyadi, SpOT", specialty: "Sports Injury", year: "Ags 24", status: "-", statusColor: "bg-blue-500" },
+    { no: 34, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Aldico Sapardan, SpOT", specialty: "Sports Injury", year: "Ags 24", status: "-", statusColor: "bg-blue-500" },
+    { no: 35, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Zuwanda, SpOT", specialty: "Spine", year: "25-Feb", status: "-", statusColor: "bg-blue-500" },
+    { no: 36, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. I Wayan Agus Darmawan, SpOT", specialty: "Spine", year: "25-Feb", status: "-", statusColor: "bg-blue-500" },
+    { no: 37, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Kemas Abdul Mutholib Luthfi, SpOT", specialty: "Spine", year: "25-Feb", status: "-", statusColor: "bg-blue-500" },
+    { no: 38, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Rizky Priambodo Wisnubaroto, SpOT", specialty: "Sports Injury", year: "25-Feb", status: "-", statusColor: "bg-blue-500" },
+    { no: 39, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Faisal Rahman, SpOT", specialty: "Foot and Ankle", year: "25-Feb", status: "-", statusColor: "bg-blue-500" },
+    { no: 40, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Felais Hediyanto Pradana, SpOT", specialty: "Shoulder & Elbow", year: "25-Feb", status: "-", statusColor: "bg-blue-500" },
+    { no: 41, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Zainarda, SpOT", specialty: "Hand, Upper Limb and Microsurgery", year: "25-Feb", status: "-", statusColor: "bg-blue-500" },
+    { no: 42, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Claudia Santosa, SpOT", specialty: "Hand, Upper Limb and Microsurgery", year: "25-Feb", status: "-", statusColor: "bg-blue-500" },
+    { no: 43, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Anak Agung Gede Putra Prameswara, SpOT", specialty: "Advanced Orthopaedic Trauma", year: "25-Feb", status: "-", statusColor: "bg-blue-500" },
+    { no: 44, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Erich Svante Subagio, SpOT", specialty: "Foot and Ankle", year: "Ags 25", status: "-", statusColor: "bg-blue-500" },
+    { no: 45, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Sagitha Indryana, M.Biomed, SpOT", specialty: "Sports Injury", year: "Ags 25", status: "-", statusColor: "bg-blue-500" },
+    { no: 46, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Venansius Hery Perdana Suryanta, SpOT", specialty: "Sports Injury", year: "Ags 25", status: "-", statusColor: "bg-blue-500" },
+    { no: 47, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Sudaryanto, SpOT", specialty: "Pediatric Orthopaedic", year: "Ags 25", status: "-", statusColor: "bg-blue-500" },
+    { no: 48, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Wendy Yolanda Rosa, SpOT", specialty: "Advanced Orthopaedic Trauma", year: "Ags 25", status: "-", statusColor: "bg-blue-500" },
+    { no: 49, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Yanuar Kristianto, SpOT", specialty: "Spine", year: "Ags 25", status: "-", statusColor: "bg-blue-500" },
+    { no: 50, organizer: "RSUP Dr. Hasan Sadikin Bandung", name: "dr. Hendra, M.Ked(Surg), SpOT", specialty: "Spine", year: "Ags 25", status: "-", statusColor: "bg-blue-500" }
   ];
+
+  // Pagination logic
+  const totalItems = allFellowships.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const fellowships = allFellowships.slice(startIndex, endIndex);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleItemsPerPageChange = (value) => {
+    setItemsPerPage(value);
+    setCurrentPage(1);
+  };
 
   return (
     <HomepageLayout>
@@ -187,8 +261,28 @@ export default function PeerGroup() {
           {/* Fellowship Table */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-blue-700">Clinical Fellowship Members</h2>
-              <p className="text-sm text-gray-600 mt-1">Showing {fellowships.length} members</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-blue-700">Clinical Fellowship Members</h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Showing {startIndex + 1} to {Math.min(endIndex, totalItems)} of {totalItems} members
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm text-gray-600">Show:</label>
+                  <select
+                    value={itemsPerPage}
+                    onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                  </select>
+                  <span className="text-sm text-gray-600">entries</span>
+                </div>
+              </div>
             </div>
 
             <div className="overflow-x-auto">
@@ -196,30 +290,95 @@ export default function PeerGroup() {
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">No</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Name</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Institution</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Semester</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Specialty</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Penyelenggara</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Nama</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Peminatan</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Tahun Masuk</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Ket</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {fellowships.map((fellow, index) => (
                     <tr key={index} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{fellow.no}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{fellow.name}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{fellow.organizer}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{fellow.semester}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{fellow.specialty}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{fellow.organizer}</td>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{fellow.name}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{fellow.specialty}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{fellow.year}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`${fellow.badgeColor} text-white text-xs font-semibold px-3 py-1 rounded-full`}>
-                          {fellow.badge}
+                        <span className={`${fellow.statusColor} text-white text-xs font-semibold px-3 py-1 rounded-full`}>
+                          {fellow.status}
                         </span>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Pagination */}
+            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-600">
+                  Showing {startIndex + 1} to {Math.min(endIndex, totalItems)} of {totalItems} entries
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  {/* Previous Button */}
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="p-2 rounded-lg bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+
+                  {/* Page Numbers */}
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                      // Show first page, last page, current page, and pages around current
+                      if (
+                        page === 1 ||
+                        page === totalPages ||
+                        (page >= currentPage - 1 && page <= currentPage + 1)
+                      ) {
+                        return (
+                          <button
+                            key={page}
+                            onClick={() => handlePageChange(page)}
+                            className={`w-10 h-10 rounded-lg font-medium transition-colors ${
+                              currentPage === page
+                                ? "bg-blue-600 text-white"
+                                : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        );
+                      } else if (
+                        page === currentPage - 2 ||
+                        page === currentPage + 2
+                      ) {
+                        return (
+                          <span key={page} className="px-2 text-gray-500">
+                            ...
+                          </span>
+                        );
+                      }
+                      return null;
+                    })}
+                  </div>
+
+                  {/* Next Button */}
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="p-2 rounded-lg bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
