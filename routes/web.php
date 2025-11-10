@@ -26,6 +26,16 @@ Route::get('/profile-study-program/subspesialis', function () {
     return Inertia::render('ProfileStudyProgram/Subspesialis');
 })->name('profile.subspesialis');
 
+// Resident Route - Public Access
+Route::get('/resident', function () {
+    return Inertia::render('Resident');
+})->name('resident');
+
+// Calendar Academic Route - Public Access
+Route::get('/calendar-academic', function () {
+    return Inertia::render('CalendarAcademic');
+})->name('calendar.academic');
+
 // Login routes
 Route::middleware('guest')->group(function () {
     // GET /cms/login - Show login page
