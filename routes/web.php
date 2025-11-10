@@ -13,6 +13,19 @@ Route::get('/', function () {
     return Inertia::render('Homepage', ['layout' => 'HomepageLayout']);
 })->name('home');
 
+// Profile Study Program Routes - Public Access
+Route::get('/profile-study-program/ppds1', function () {
+    return Inertia::render('ProfileStudyProgram/PPDS1');
+})->name('profile.ppds1');
+
+Route::get('/profile-study-program/clinical-fellowship', function () {
+    return Inertia::render('ProfileStudyProgram/ClinicalFellowship');
+})->name('profile.clinical-fellowship');
+
+Route::get('/profile-study-program/subspesialis', function () {
+    return Inertia::render('ProfileStudyProgram/Subspesialis');
+})->name('profile.subspesialis');
+
 // Login routes
 Route::middleware('guest')->group(function () {
     // GET /cms/login - Show login page

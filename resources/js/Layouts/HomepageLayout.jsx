@@ -72,10 +72,10 @@ export default function MarketplaceLayout({ children }) {
                                     Profile Study Program
                                     <ChevronDown className="w-4 h-4" />
                                 </button>
-                                <div className="absolute left-0 mt-2 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
-                                    <Link href="#ppds1" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">PPDS 1</Link>
-                                    <Link href="#ppds2" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">PPDS 2</Link>
-                                    <Link href="#fellowship" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">Clinical Fellowship</Link>
+                                <div className="absolute left-0 mt-2 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                                    <Link href="/profile-study-program/ppds1" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">PPDS 1</Link>
+                                    <Link href="/profile-study-program/clinical-fellowship" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">Clinical Fellowship</Link>
+                                    <Link href="/profile-study-program/subspesialis" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">Subspesialis</Link>
                                 </div>
                             </div>
 
@@ -174,9 +174,9 @@ export default function MarketplaceLayout({ children }) {
                                 </button>
                                 {openDropdown === 'profile' && (
                                     <div className="pl-6 space-y-1 mt-1">
-                                        <Link href="#ppds1" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>PPDS 1</Link>
-                                        <Link href="#ppds2" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>PPDS 2</Link>
-                                        <Link href="#fellowship" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Clinical Fellowship</Link>
+                                        <Link href="/profile-study-program/ppds1" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>PPDS 1</Link>
+                                        <Link href="/profile-study-program/clinical-fellowship" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Clinical Fellowship</Link>
+                                        <Link href="/profile-study-program/subspesialis" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Subspesialis</Link>
                                     </div>
                                 )}
                             </div>
@@ -255,10 +255,9 @@ export default function MarketplaceLayout({ children }) {
                         <div>
                             <h3 className="text-lg font-bold text-gray-900 mb-4">Program</h3>
                             <ul className="space-y-2 text-sm text-gray-700">
-                                <li><Link href="#ppds1" className="hover:text-blue-600 transition">PPDS 1</Link></li>
-                                <li><Link href="#ppds2" className="hover:text-blue-600 transition">PPDS 2</Link></li>
-                                <li><Link href="#fellowship" className="hover:text-blue-600 transition">Clinical Fellowship</Link></li>
-                                <li><Link href="#subspecialis" className="hover:text-blue-600 transition">Subspecialis</Link></li>
+                                <li><Link href="/profile-study-program/ppds1" className="hover:text-blue-600 transition">PPDS 1</Link></li>
+                                <li><Link href="/profile-study-program/clinical-fellowship" className="hover:text-blue-600 transition">Clinical Fellowship</Link></li>
+                                <li><Link href="/profile-study-program/subspesialis" className="hover:text-blue-600 transition">Subspesialis</Link></li>
                             </ul>
                         </div>
 
