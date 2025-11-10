@@ -79,7 +79,7 @@ export default function MarketplaceLayout({ children }) {
                                 </div>
                             </div>
 
-                            <Link 
+                            {/* <Link 
                                 href="/resident" 
                                 className={`text-base font-medium transition-colors ${
                                     isActive('/resident') 
@@ -88,7 +88,7 @@ export default function MarketplaceLayout({ children }) {
                                 }`}
                             >
                                 Resident/Fellow/Trainee
-                            </Link>
+                            </Link> */}
 
                             <Link 
                                 href="/calendar-academic" 
