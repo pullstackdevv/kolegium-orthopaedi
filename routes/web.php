@@ -13,6 +13,10 @@ Route::get('/', function () {
     return Inertia::render('Homepage', ['layout' => 'HomepageLayout']);
 })->name('home');
 
+// Peer Group page
+Route::get('/peer-group', function () {
+    return Inertia::render('PeerGroup', ['layout' => 'HomepageLayout']);
+})->name('peer-group');
 // Profile Study Program Routes - Public Access
 Route::get('/profile-study-program/ppds1', function () {
     return Inertia::render('ProfileStudyProgram/PPDS1');
