@@ -8,7 +8,15 @@ export const enableReactDevTools = () => {
   if (process.env.NODE_ENV === 'development') {
     // Enable React DevTools
     if (typeof window !== 'undefined') {
-      window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = window.__REACT_DEVTOOLS_GLOBAL_HOOK__ || {};
+      // Try to set React DevTools hook safely
+      try {
+        if (!window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
+          window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = {};
+        }
+      } catch (error) {
+        // If property is read-only or already exists, just skip
+        console.debug('React DevTools hook already initialized');
+      }
       
       // Add debugging helpers to window object
       window.debugReact = {
