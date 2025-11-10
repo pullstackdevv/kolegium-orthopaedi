@@ -4,28 +4,28 @@ import HomepageLayout from "../../Layouts/HomepageLayout";
 export default function ClinicalFellowship() {
   const universities = [
     {
-      code: "FK",
-      name: "FK-UI",
-      fullName: "Universitas Indonesia",
+      code: "RS",
+      name: "RSUP Dr. Sardjito",
+      fullName: "Yogyakarta",
       description: "Program fellowship untuk subspesialisasi & pendidikan lanjutan orthopaedi.",
-      kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 30
+      kps: "Clinical Fellowship",
+      students: 80
     },
     {
-      code: "FK",
-      name: "FK-UI",
-      fullName: "Universitas Indonesia",
+      code: "RS",
+      name: "RSUD Dr. Saiful Anwar",
+      fullName: "Malang",
       description: "Program fellowship untuk subspesialisasi & pendidikan lanjutan orthopaedi.",
-      kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 30
+      kps: "Clinical Fellowship",
+      students: 60
     },
     {
-      code: "FK",
-      name: "FK-UI",
-      fullName: "Universitas Indonesia",
+      code: "RS",
+      name: "RSUD Dr. Moewardi",
+      fullName: "Solo",
       description: "Program fellowship untuk subspesialisasi & pendidikan lanjutan orthopaedi.",
-      kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 30
+      kps: "Clinical Fellowship",
+      students: 45
     }
   ];
 
@@ -67,9 +67,10 @@ export default function ClinicalFellowship() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {universities.map((university, index) => (
-              <div
+              <Link
                 key={index}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-300"
+                href={`/profile-study-program/clinical-fellowship/rsup-sardjito-${index + 1}`}
+                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-300 block"
               >
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -92,7 +93,7 @@ export default function ClinicalFellowship() {
                     <span className="text-lg font-bold text-blue-600">: {university.students}</span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

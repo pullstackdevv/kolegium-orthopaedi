@@ -120,9 +120,10 @@ export default function PPDS1() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {universities.map((university, index) => (
-              <div
+              <Link
                 key={index}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-300"
+                href={`/profile-study-program/ppds1/fk-ui-${index + 1}`}
+                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-300 block"
               >
                 {/* University Badge */}
                 <div className="flex items-center gap-3 mb-4">
@@ -149,7 +150,7 @@ export default function PPDS1() {
                     <span className="text-lg font-bold text-blue-600">: {university.students}</span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
