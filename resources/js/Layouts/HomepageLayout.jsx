@@ -26,7 +26,7 @@ export default function MarketplaceLayout({ children }) {
 
     return (
         <AuthProvider>
-            <div className="min-h-screen bg-white">
+            <div className="min-h-screen bg-[#F8FAFC]">
             {/* Header */}
             <header className="bg-gray-50 shadow-sm sticky top-0 z-50 border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -79,7 +79,7 @@ export default function MarketplaceLayout({ children }) {
                                 </div>
                             </div>
 
-                            <Link 
+                            {/* <Link 
                                 href="/resident" 
                                 className={`text-base font-medium transition-colors ${
                                     isActive('/resident') 
@@ -87,8 +87,8 @@ export default function MarketplaceLayout({ children }) {
                                         : 'text-gray-700 hover:text-blue-600'
                                 }`}
                             >
-                                Resident
-                            </Link>
+                                Resident/Fellow/Trainee
+                            </Link> */}
 
                             <Link 
                                 href="/calendar-academic" 
@@ -102,7 +102,7 @@ export default function MarketplaceLayout({ children }) {
                             </Link>
 
                             <Link 
-                                href="#peer-group" 
+                                href="/peer-group" 
                                 className={`text-base font-medium transition-colors ${
                                     isActive('/peer-group') 
                                         ? 'text-blue-600' 
@@ -181,9 +181,9 @@ export default function MarketplaceLayout({ children }) {
                                 )}
                             </div>
 
-                            <Link href="/resident" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Resident</Link>
-                            <Link href="/calendar-academic" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Calender Academic</Link>
-                            <Link href="#peer-group" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Peer Group</Link>
+                            <Link href="#resident" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Resident</Link>
+                            <Link href="#calendar" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Calender Academic</Link>
+                            <Link href="/peer-group" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Peer Group</Link>
                             
                             {/* Mobile About Us */}
                             <div>
@@ -242,10 +242,10 @@ export default function MarketplaceLayout({ children }) {
                             <h3 className="text-lg font-bold text-gray-900 mb-4">Menu</h3>
                             <ul className="space-y-2 text-sm text-gray-700">
                                 <li><Link href="/" className="hover:text-blue-600 transition">Home</Link></li>
-                                <li><Link href="/profile-study-program/ppds1" className="hover:text-blue-600 transition">Profile Study Program</Link></li>
-                                <li><Link href="/resident" className="hover:text-blue-600 transition">Resident</Link></li>
-                                <li><Link href="/calendar-academic" className="hover:text-blue-600 transition">Calender Academic</Link></li>
-                                <li><Link href="#peer-group" className="hover:text-blue-600 transition">Peer Group</Link></li>
+                                <li><Link href="#profile-study-program" className="hover:text-blue-600 transition">Profile Study Program</Link></li>
+                                <li><Link href="#resident" className="hover:text-blue-600 transition">Resident</Link></li>
+                                <li><Link href="#calendar-academic" className="hover:text-blue-600 transition">Calender Academic</Link></li>
+                                <li><Link href="/peer-group" className="hover:text-blue-600 transition">Peer Group</Link></li>
                                 <li><Link href="#about-us" className="hover:text-blue-600 transition">About Us</Link></li>
                                 <li><Link href="/cms/login" className="hover:text-blue-600 transition">Login</Link></li>
                             </ul>
