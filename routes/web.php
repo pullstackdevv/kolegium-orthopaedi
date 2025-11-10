@@ -17,6 +17,45 @@ Route::get('/', function () {
 Route::get('/peer-group', function () {
     return Inertia::render('PeerGroup', ['layout' => 'HomepageLayout']);
 })->name('peer-group');
+// Profile Study Program Routes - Public Access
+Route::get('/profile-study-program/ppds1', function () {
+    return Inertia::render('ProfileStudyProgram/PPDS1');
+})->name('profile.ppds1');
+
+Route::get('/profile-study-program/clinical-fellowship', function () {
+    return Inertia::render('ProfileStudyProgram/ClinicalFellowship');
+})->name('profile.clinical-fellowship');
+
+Route::get('/profile-study-program/subspesialis', function () {
+    return Inertia::render('ProfileStudyProgram/Subspesialis');
+})->name('profile.subspesialis');
+
+// University Detail Routes - Public Access
+// Clinical Fellowship Detail (has different layout)
+Route::get('/profile-study-program/clinical-fellowship/{id}', function ($id) {
+    return Inertia::render('ProfileStudyProgram/ClinicalFellowshipDetail', [
+        'fellowshipId' => $id
+    ]);
+})->name('profile.clinical-fellowship.detail');
+
+// PPDS1 and Subspesialis Detail (same layout)
+Route::get('/profile-study-program/{type}/{id}', function ($type, $id) {
+    return Inertia::render('ProfileStudyProgram/UniversityDetail', [
+        'type' => $type,
+        'universityId' => $id
+    ]);
+})->where('type', 'ppds1|subspesialis')
+->name('profile.university.detail');
+
+// Resident Route - Public Access
+Route::get('/resident', function () {
+    return Inertia::render('Resident');
+})->name('resident');
+
+// Calendar Academic Route - Public Access
+Route::get('/calendar-academic', function () {
+    return Inertia::render('CalendarAcademic');
+})->name('calendar.academic');
 
 // Login routes
 Route::middleware('guest')->group(function () {
