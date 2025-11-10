@@ -26,6 +26,23 @@ Route::get('/profile-study-program/subspesialis', function () {
     return Inertia::render('ProfileStudyProgram/Subspesialis');
 })->name('profile.subspesialis');
 
+// University Detail Routes - Public Access
+// Clinical Fellowship Detail (has different layout)
+Route::get('/profile-study-program/clinical-fellowship/{id}', function ($id) {
+    return Inertia::render('ProfileStudyProgram/ClinicalFellowshipDetail', [
+        'fellowshipId' => $id
+    ]);
+})->name('profile.clinical-fellowship.detail');
+
+// PPDS1 and Subspesialis Detail (same layout)
+Route::get('/profile-study-program/{type}/{id}', function ($type, $id) {
+    return Inertia::render('ProfileStudyProgram/UniversityDetail', [
+        'type' => $type,
+        'universityId' => $id
+    ]);
+})->where('type', 'ppds1|subspesialis')
+->name('profile.university.detail');
+
 // Resident Route - Public Access
 Route::get('/resident', function () {
     return Inertia::render('Resident');
