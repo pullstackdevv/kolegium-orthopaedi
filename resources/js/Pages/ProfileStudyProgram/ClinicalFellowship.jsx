@@ -90,18 +90,21 @@ export default function ClinicalFellowship() {
                 href={`/profile-study-program/clinical-fellowship/rsup-sardjito-${index + 1}`}
                 className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-300 block"
               >
+                {/* Hospital Badge & Name */}
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <span className="text-blue-600 font-bold text-lg">{university.code}</span>
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <span className="text-blue-600 font-bold text-base">{university.code}</span>
                   </div>
                   <h3 className="text-xl font-bold text-gray-900">{university.name}</h3>
                 </div>
 
-                <p className="text-sm text-gray-700 leading-relaxed mb-4">
+                {/* Description */}
+                <p className="text-sm text-gray-600 leading-relaxed mb-4">
                   {university.description}
                 </p>
 
-                <p className="text-xs text-gray-500 mb-4">
+                {/* Hospital Info & KPS */}
+                <p className="text-xs text-gray-500 mb-6">
                   {university.fullName} | {university.kps}
                 </p>
 
