@@ -108,30 +108,23 @@ export default function CalendarAcademic() {
   // Stats data
   const stats = [
     {
-      title: "Tahun Akademik",
+      title: "Academic Year",
       value: "2024/2025",
       icon: "mdi:calendar",
       iconBg: "bg-blue-100",
       iconColor: "text-blue-600"
     },
     {
-      title: "Semester Aktif",
-      value: "Ganjil",
-      icon: "mdi:play",
-      iconBg: "bg-green-100",
-      iconColor: "text-green-600"
-    },
-    {
-      title: "Hari Akademik",
+      title: "Examination Day",
       value: "82",
-      icon: "mdi:calendar-today",
+      icon: "mdi:briefcase",
       iconBg: "bg-orange-100",
       iconColor: "text-orange-600"
     },
     {
-      title: "Ujian Besar",
+      title: "Event Day",
       value: "6",
-      icon: "mdi:clipboard-check",
+      icon: "mdi:calendar-check",
       iconBg: "bg-red-100",
       iconColor: "text-red-600"
     }
@@ -398,16 +391,16 @@ export default function CalendarAcademic() {
           </h1>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             {stats.map((stat, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-                <div className="flex items-center justify-between">
+              <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
-                    <p className="text-2xl font-bold text-blue-700">{stat.value}</p>
+                    <p className="text-sm text-gray-600 mb-2">{stat.title}</p>
+                    <p className="text-3xl font-bold text-blue-700">{stat.value}</p>
                   </div>
-                  <div className={`w-14 h-14 ${stat.iconBg} rounded-full flex items-center justify-center flex-shrink-0`}>
-                    <Icon icon={stat.icon} className={`w-7 h-7 ${stat.iconColor}`} />
+                  <div className={`w-16 h-16 ${stat.iconBg} rounded-full flex items-center justify-center flex-shrink-0`}>
+                    <Icon icon={stat.icon} className={`w-8 h-8 ${stat.iconColor}`} />
                   </div>
                 </div>
               </div>
