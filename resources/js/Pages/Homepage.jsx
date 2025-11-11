@@ -1,6 +1,7 @@
 import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   FileText, 
   Users, 
@@ -127,6 +128,7 @@ const LegendColumn = ({ legends, colors, startIndex }) => {
 
 export default function Homepage() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
   
   const heroImages = [
     {
@@ -138,6 +140,10 @@ export default function Homepage() {
       alt: "Indonesian Orthopaedic Team - Image 2"
     }
   ];
+
+  const handleImageSwitch = () => {
+    setIsFlipped(!isFlipped);
+  };
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
@@ -524,40 +530,67 @@ export default function Homepage() {
                 E-Dashboard Indonesian Orthopaedic and Traumatology Education
               </h1>
               <p className="text-base sm:text-lg leading-relaxed max-w-xl opacity-95">
-                Memberikan informasi yang terbuka, aktual, dan akurat. Meningkatkan integrasi informasi akademik & kegiatan ilmiah melalui satu pintu.
+                Providing open, current, and accurate information. Enhancing integration of academic information & scientific activities through a single gateway.
               </p>
             </div>
             <div className="relative flex justify-end">
-              {/* Stacked Images Effect */}
-              <div className="relative h-[300px] w-full max-w-[500px]">
-                {/* Back Image */}
-                <div className="absolute top-4 -left-4 w-full h-full bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-xl transform rotate-[-2deg] z-0">
-                  <div className="w-full h-full overflow-hidden rounded-lg">
-                    <img 
-                      src={heroImages[1].src}
-                      alt={heroImages[1].alt}
-                      className="w-full h-full object-cover opacity-60"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                      }}
-                    />
-                  </div>
-                </div>
+              {/* Stacked Images Effect with Click to Switch */}
+              <div className="relative h-[300px] w-full max-w-[500px] cursor-pointer" onClick={handleImageSwitch}>
+                <AnimatePresence mode="wait">
+                  {/* Back Image */}
+                  <motion.div
+                    key={`back-${isFlipped}`}
+                    initial={{ opacity: 0, scale: 0.8, rotate: isFlipped ? 2 : -2 }}
+                    animate={{ 
+                      opacity: 1, 
+                      scale: 1, 
+                      rotate: isFlipped ? 2 : -2,
+                      x: isFlipped ? 16 : -16,
+                      y: 16
+                    }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.5, ease: "easeInOut" }}
+                    className="absolute w-full h-full bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-xl z-0"
+                  >
+                    <div className="w-full h-full overflow-hidden rounded-lg">
+                      <img 
+                        src={isFlipped ? heroImages[0].src : heroImages[1].src}
+                        alt={isFlipped ? heroImages[0].alt : heroImages[1].alt}
+                        className="w-full h-full object-cover opacity-60"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  </motion.div>
 
-                {/* Front Image */}
-                <div className="relative w-full h-full bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-2xl z-10 transform hover:scale-[1.02] transition-transform duration-300">
-                  <div className="relative w-full h-full overflow-hidden rounded-lg">
-                    <img 
-                      src={heroImages[0].src}
-                      alt={heroImages[0].alt}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.parentElement.innerHTML = '<div class="bg-gradient-to-br from-blue-50 to-blue-100 w-full h-full flex items-center justify-center rounded-lg"><svg class="w-32 h-32 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg></div>';
-                      }}
-                    />
-                  </div>
-                </div>
+                  {/* Front Image */}
+                  <motion.div
+                    key={`front-${isFlipped}`}
+                    initial={{ opacity: 0, scale: 0.9, rotate: 0 }}
+                    animate={{ 
+                      opacity: 1, 
+                      scale: 1, 
+                      rotate: 0
+                    }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.5, ease: "easeInOut" }}
+                    whileHover={{ scale: 1.02 }}
+                    className="relative w-full h-full bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-2xl z-10"
+                  >
+                    <div className="relative w-full h-full overflow-hidden rounded-lg">
+                      <img 
+                        src={isFlipped ? heroImages[1].src : heroImages[0].src}
+                        alt={isFlipped ? heroImages[1].alt : heroImages[0].alt}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.parentElement.innerHTML = '<div class="bg-gradient-to-br from-blue-50 to-blue-100 w-full h-full flex items-center justify-center rounded-lg"><svg class="w-32 h-32 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg></div>';
+                        }}
+                      />
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
               </div>
             </div>
           </div>
