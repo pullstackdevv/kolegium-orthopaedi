@@ -32,7 +32,7 @@ export default function Subspesialis() {
   const tabs = [
     { name: "PPDS1", href: "/profile-study-program/ppds1", active: false },
     { name: "Clinical Fellowship", href: "/profile-study-program/clinical-fellowship", active: false },
-    { name: "Subspesialis", href: "/profile-study-program/subspesialis", active: true }
+    { name: "Subspesialist", href: "/profile-study-program/subspesialis", active: true }
   ];
 
   return (
