@@ -111,14 +111,9 @@ export default function MarketplaceLayout({ children }) {
                                 Calender Academic
                             </NavLink>
 
-                            <NavDropdown 
-                                label="About Us" 
-                                active={isActive('/about')}
-                            >
-                                <DropdownLink href="#vision-mission">Vision & Mission</DropdownLink>
-                                <DropdownLink href="#structure">Organization Structure</DropdownLink>
-                                <DropdownLink href="#contact">Contact Us</DropdownLink>
-                            </NavDropdown>
+                            <NavLink href="/about-us" active={isActive('/about-us')}>
+                                About Us
+                            </NavLink>
                         </nav>
 
                         {/* Mobile menu button */}
@@ -170,23 +165,7 @@ export default function MarketplaceLayout({ children }) {
                             <Link href="#calendar" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Calender Academic</Link>
                             <Link href="/peer-group" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Peer Group</Link>
                             
-                            {/* Mobile About Us */}
-                            <div>
-                                <button
-                                    onClick={() => toggleDropdown('about')}
-                                    className="w-full flex items-center justify-between px-3 py-3 rounded-lg font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition"
-                                >
-                                    About Us
-                                    <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'about' ? 'rotate-180' : ''}`} />
-                                </button>
-                                {openDropdown === 'about' && (
-                                    <div className="pl-6 space-y-1 mt-1">
-                                        <Link href="#vision-mission" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Vision & Mission</Link>
-                                        <Link href="#structure" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Organization Structure</Link>
-                                        <Link href="#contact" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Contact Us</Link>
-                                    </div>
-                                )}
-                            </div>
+                            <Link href="/about-us" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>About Us</Link>
                         </div>
                     </div>
                 )}
