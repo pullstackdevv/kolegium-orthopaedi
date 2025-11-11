@@ -1,5 +1,6 @@
 import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
+import { useState } from "react";
 import { 
   FileText, 
   Users, 
@@ -7,41 +8,173 @@ import {
   Award,
   Calendar,
   MapPin,
-  ChevronRight
+  ChevronRight,
+  ChevronLeft
 } from "lucide-react";
 import HomepageLayout from "../Layouts/HomepageLayout";
 import DonutChart from "../components/DonutChart";
 
+// Program Card Component
+const ProgramCard = ({ program }) => {
+  return (
+    <div className="bg-white rounded-2xl overflow-hidden">
+      <div className="p-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Program Info - Left Side */}
+          <ProgramInfo program={program} />
+          
+          {/* Charts Grid - Right Side (2 columns) */}
+          <div className="lg:col-span-2">
+            <ChartsGrid charts={program.charts} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Program Info Component
+const ProgramInfo = ({ program }) => {
+  return (
+    <div className="flex flex-col justify-center">
+      <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-8 h-full flex flex-col justify-center">
+        <div className="space-y-6">
+          <div className="flex items-center gap-3">
+            <span className="bg-blue-600 text-white px-4 py-2 rounded-lg text-2xl font-bold">
+              {program.id}
+            </span>
+            <span className="text-2xl font-bold text-gray-900">{program.badge}</span>
+          </div>
+          <p className="text-base text-gray-700 leading-relaxed">
+            {program.description}
+          </p>
+          <div className="pt-4 border-t border-blue-200">
+            <p className="text-sm text-gray-600 mb-1">Active Resident:</p>
+            <p className="text-3xl font-bold text-blue-600">{program.students}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Charts Grid Component
+const ChartsGrid = ({ charts }) => {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {charts.map((chart, chartIdx) => (
+        <ChartCard key={chartIdx} chart={chart} />
+      ))}
+    </div>
+  );
+};
+
+// Chart Card Component
+const ChartCard = ({ chart }) => {
+  return (
+    <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-all duration-300">
+      <div className="flex justify-center mb-6">
+        <DonutChart 
+          data={chart.data}
+          colors={chart.colors}
+          centerText={chart.title}
+          size={180}
+        />
+      </div>
+      <ChartLegends chart={chart} />
+    </div>
+  );
+};
+
+// Chart Legends Component
+const ChartLegends = ({ chart }) => {
+  return (
+    <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+      {/* Left column legends */}
+      <LegendColumn legends={chart.legends} colors={chart.colors} startIndex={0} />
+      
+      {/* Right column legends */}
+      {chart.legendsRight && (
+        <LegendColumn 
+          legends={chart.legendsRight} 
+          colors={chart.colors} 
+          startIndex={chart.legends.length} 
+        />
+      )}
+    </div>
+  );
+};
+
+// Legend Column Component
+const LegendColumn = ({ legends, colors, startIndex }) => {
+  return (
+    <div className="space-y-2">
+      {legends.map((legend, legIdx) => (
+        <div key={legIdx} className="flex items-center justify-between text-xs">
+          <div className="flex items-center gap-1.5">
+            <div 
+              className="w-1.5 h-1.5 rounded-full" 
+              style={{ backgroundColor: colors[(startIndex + legIdx) % colors.length] }}
+            />
+            <span className="text-gray-700">{legend.label}</span>
+          </div>
+          <span className="font-medium text-gray-900">: {legend.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 export default function Homepage() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  const heroImages = [
+    {
+      src: "/assets/images/homepage/banner.png",
+      alt: "Indonesian Orthopaedic Team - Image 1"
+    },
+    {
+      src: "/assets/images/homepage/slide-2.png",
+      alt: "Indonesian Orthopaedic Team - Image 2"
+    }
+  ];
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + heroImages.length) % heroImages.length);
+  };
   // Stats data
   const stats = [
-    { icon: "mdi:home", value: "385", label: "Residen Active" },
-    { icon: "mdi:account", value: "385", label: "Fellow Active" },
-    { icon: "mdi:school", value: "385", label: "Trainee Active" },
-    { icon: "mdi:bank", value: "385", label: "Study Program" }
+    { icon: "mdi:school", value: "720", label: "Active Resident" },
+    { icon: "mdi:school", value: "42", label: "Active Fellow" },
+    { icon: "mdi:school", value: "64", label: "Active Trainee" },
+    { icon: "mdi:bank", value: "20", label: "Study Program" }
   ];
 
   // Upcoming Examination
   const examinations = [
     { 
-      date: "18 Nov 2025", 
-      status: "Ujian Lokal", 
-      statusColor: "bg-red-500",
+      date: "7 Dec 2025", 
+      status: "LOKAL", 
+      statusColor: "bg-purple-600",
       title: "Pre-exam PPDS 1", 
       location: "Auditorium RSUP" 
     },
     { 
-      date: "18 Nov 2025", 
-      status: "Ujian Nasional", 
-      statusColor: "bg-green-500",
-      title: "Konas PABOI 2026 - Pengumuman Lokasi", 
+      date: "7 Dec 2025", 
+      status: "NASIONAL", 
+      statusColor: "bg-blue-600",
+      title: "Fellowship Admission Test", 
       location: "Jakarta Convention Center" 
     },
     { 
-      date: "18 Nov 2025", 
-      status: "Ujian Lokal", 
-      statusColor: "bg-red-500",
-      title: "Seminar Mikrochirurgi", 
+      date: "7 Dec 2025", 
+      status: "LOKAL", 
+      statusColor: "bg-red-600",
+      title: "Subspec Board Examination (Traumatology)", 
       location: "RS Pendidikan" 
     }
   ];
@@ -49,22 +182,58 @@ export default function Homepage() {
   // Upcoming Event
   const events = [
     { 
-      date: "11", 
-      month: "NOV",
-      title: "23 National Congress",
-      description: "We'll get you directly seated and inside for you to enjoy the show."
+      date: "6-7 February 2026", 
+      title: "SRS Asia Pacific Meeting 2026",
+      description: "Scoliosis Research Society – Asia Pacific Meeting 2026",
+      location: "Fukuoka, Japan",
+      image: "/assets/images/event/event-3.jpeg",
+      registration: "https://www.srs.org/Meetings-Conferences/Regional-Scientific-Meeting/RSM-2026",
+      badge: "Event"
     },
     { 
-      date: "11", 
-      month: "NOV",
-      title: "23 National Congress",
-      description: "We'll get you directly seated and inside for you to enjoy the show."
+      date: "11-13 March 2026", 
+      title: "CSRS-AP 2026",
+      description: "16th Annual Meeting of Cervical Spine Research Society – Asia Pacific",
+      location: "Shanghai International Convention Center, China",
+      image: "/assets/images/event/event-4.jpeg",
+      registration: "https://www.csrs-ap2026.org/",
+      badge: "Event"
     },
     { 
-      date: "11", 
-      month: "NOV",
-      title: "23 National Congress",
-      description: "We'll get you directly seated and inside for you to enjoy the show."
+      date: "20-22 May 2026", 
+      title: "KSSS 2026",
+      description: "The 43rd International Congress of Korean Society of Spine Surgery",
+      location: "Lotte Hotel Seoul, South Korea",
+      image: "/assets/images/event/event-5.jpeg",
+      registration: "https://ksss2026.org/ksss/contents/01_06.php",
+      badge: "Event"
+    },
+    { 
+      date: "3-6 June 2026", 
+      title: "APSS Congress 2026",
+      description: "Asia Pacific Spine Society 32nd Annual Scientific Meeting and Philippine Spine Society Annual Meeting",
+      location: "Shangri-La Mactan, Cebu, Philippines",
+      image: "/assets/images/event/event-1.jpeg",
+      registration: "www.apss2026ph.org",
+      badge: "Event"
+    },
+    { 
+      date: "18-20 June 2026", 
+      title: "Asia Spine 2026",
+      description: "The 17th Annual Meeting of Asia Spine",
+      location: "Osaka International Convention Center, Osaka, Japan",
+      image: "/assets/images/event/event-6.jpeg",
+      registration: "https://cs-oto3.com/nsj2026-17amoas/en-greeting.html",
+      badge: "Event"
+    },
+    { 
+      date: "16-18 July 2026", 
+      title: "SMISS-ASEAN MISST-SSS Combine Meeting 2026",
+      description: "Combine Meeting of Society for Minimally Invasive Spine Surgery – Asia Pacific (SMISS-AP), 6th Meeting - Singapore Spine Society (SSS), 9th Meeting",
+      location: "Shangri-La Hotel, Singapore",
+      image: "/assets/images/event/event-2.jpeg",
+      registration: "https://www.smiss-aseanmisst-sss2026.org/",
+      badge: "Event"
     }
   ];
 
@@ -73,183 +242,191 @@ export default function Homepage() {
     {
       id: "P1",
       badge: "PPDS 1",
-      description: "Program pendidikan dokter spesialis pertama untuk Orthopaedi — fokus pada ortopedi umum & trauma.",
-      students: "120",
+      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      students: "720",
       charts: [
         {
-          title: "13 Prodi",
+          title: "Study Programs",
           data: [
-            { name: 'Lulus', value: 20 },
-            { name: 'Tidak Lulus', value: 15 },
-            { name: 'Belum', value: 10 },
-            { name: 'Pending', value: 8 }
+            { name: 'FK UI', value: 79 },
+            { name: 'FK UNAIR', value: 66 },
+            { name: 'FK UNPAD', value: 59 },
+            { name: 'FK UNHAS', value: 76 },
+            { name: 'FK UGM', value: 76 },
+            { name: 'FK UDAYANA', value: 78 },
+            { name: 'FK USU', value: 57 },
+            { name: 'FK UBRA', value: 69 },
+            { name: 'FK USRI', value: 40 },
+            { name: 'FK UNAN', value: 51 },
+            { name: 'FK UPK', value: 33 },
+            { name: 'FK ULM', value: 27 },
+            { name: 'RS SOEHARSSO', value: 9 }
           ],
-          colors: ['#3b82f6', '#ef4444', '#ec4899', '#f59e0b'],
+          colors: ['#dc2626', '#3b82f6', '#ec4899', '#8b5cf6', '#f59e0b', '#10b981', '#6b7280', '#06b6d4', '#84cc16', '#f97316', '#a855f7', '#14b8a6', '#64748b'],
           legends: [
-            { label: 'FK UI', value: 20 },
-            { label: 'FK UGM', value: 20 },
-            { label: 'FK UNPAD', value: 20 },
-            { label: 'FK UNAIR', value: 20 },
-            { label: 'FK UNAS', value: 20 },
-            { label: 'FK UNDIP', value: 20 }
+            { label: 'FK UI', value: 79 },
+            { label: 'FK UNAIR', value: 66 },
+            { label: 'FK UNPAD', value: 59 },
+            { label: 'FK UNHAS', value: 76 },
+            { label: 'FK UGM', value: 76 },
+            { label: 'FK UDAYANA', value: 78 },
+            { label: 'FK USU', value: 57 }
           ],
           legendsRight: [
-            { label: 'FK UI', value: 20 },
-            { label: 'FK UGM', value: 20 },
-            { label: 'FK UNPAD', value: 20 },
-            { label: 'FK UNAIR', value: 20 },
-            { label: 'FK UNAS', value: 20 },
-            { label: 'FK UNDIP', value: 20 }
+            { label: 'FK UBRA', value: 69 },
+            { label: 'FK USRI', value: 40 },
+            { label: 'FK UNAN', value: 51 },
+            { label: 'FK UPK', value: 33 },
+            { label: 'FK ULM', value: 27 },
+            { label: 'RS SOEHARSSO', value: 9 }
           ],
-          total: 120
+          total: 720
         },
         {
           title: "Semester",
           data: [
-            { name: 'Semester 1', value: 20 },
-            { name: 'Semester 2', value: 20 },
-            { name: 'Semester 3', value: 20 },
-            { name: 'Semester 4', value: 20 },
-            { name: 'Semester 5', value: 20 },
-            { name: 'Semester 6', value: 20 },
-            { name: 'Semester 7', value: 20 },
-            { name: 'Semester 8', value: 20 },
-            { name: 'Semester 9', value: 20 }
+            { name: 'Semester 1', value: 69 },
+            { name: 'Semester 2', value: 80 },
+            { name: 'Semester 3', value: 79 },
+            { name: 'Semester 4', value: 71 },
+            { name: 'Semester 5', value: 66 },
+            { name: 'Semester 6', value: 80 },
+            { name: 'Semester 7', value: 63 },
+            { name: 'Semester 8', value: 56 },
+            { name: 'Semester 9', value: 55 }
           ],
-          colors: ['#ec4899', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#84cc16', '#f97316'],
+          colors: ['#8b5cf6', '#ec4899', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#84cc16', '#f97316'],
           legends: [
-            { label: 'Semester 1', value: 20 },
-            { label: 'Semester 2', value: 20 },
-            { label: 'Semester 3', value: 20 },
-            { label: 'Semester 4', value: 20 },
-            { label: 'Semester 5', value: 20 }
+            { label: 'Semester 1', value: 69 },
+            { label: 'Semester 2', value: 80 },
+            { label: 'Semester 3', value: 79 },
+            { label: 'Semester 4', value: 71 },
+            { label: 'Semester 5', value: 66 }
           ],
           legendsRight: [
-            { label: 'Semester 6', value: 20 },
-            { label: 'Semester 7', value: 20 },
-            { label: 'Semester 8', value: 20 },
-            { label: 'Semester 9', value: 20 }
+            { label: 'Semester 6', value: 80 },
+            { label: 'Semester 7', value: 63 },
+            { label: 'Semester 8', value: 56 },
+            { label: 'Semester 9', value: 55 }
           ],
-          total: 180
+          total: 619
         },
         {
           title: "Gender",
           data: [
-            { name: 'Male', value: 20 },
-            { name: 'Female', value: 20 }
+            { name: 'Male', value: 628 },
+            { name: 'Female', value: 46 }
           ],
           colors: ['#3b82f6', '#93c5fd'],
           legends: [
-            { label: 'Male', value: 20 },
-            { label: 'Female', value: 20 }
+            { label: 'Male', value: 628 },
+            { label: 'Female', value: 46 }
           ],
-          total: 40
+          total: 674
         },
         {
-          title: "Graduate",
+          title: "Members",
           data: [
-            { name: 'Grad', value: 20 },
-            { name: 'Active', value: 20 }
+            { name: 'Graduated', value: 1157 },
+            { name: 'Active Students', value: 678 }
           ],
           colors: ['#10b981', '#86efac'],
           legends: [
-            { label: 'Grad', value: 20 },
-            { label: 'Active', value: 20 }
+            { label: 'Graduated', value: 1157 },
+            { label: 'Active Students', value: 678 }
           ],
-          total: 40
+          total: 1835
         }
       ]
     },
     {
       id: "CF",
       badge: "Clinical Fellowship",
-      description: "Program fellowship untuk subspesialisasi & pendidikan lanjutan.",
-      students: "30",
+      description: "Fellowship programs for subspecialization & continuing education.",
+      students: "42",
       charts: [
         {
-          title: "4 Organizer",
+          title: "Organizer",
           data: [
-            { name: 'RSUP Dr. Sardjito', value: 20 },
-            { name: 'RSUD Dr. Saiful Anwar Malang', value: 20 },
-            { name: 'RSUD Dr. Moewardi Solo', value: 20 },
-            { name: 'RSUP Dr. Hasan Sadikin Bandung', value: 20 }
+            { name: 'RSUD Dr. Saiful Anwar Malang', value: 6 },
+            { name: 'RSUP Dr. Hasan Sadikin Bandung', value: 10 },
+            { name: 'RSUP Dr. Sardjito Yogyakarta', value: 6 },
+            { name: 'RSUD Dr. Moewardi Solo', value: 1 }
           ],
           colors: ['#10b981', '#86efac', '#34d399', '#6ee7b7'],
           legends: [
-            { label: 'RSUP Dr. Sardjito', value: 20 },
-            { label: 'RSUD Dr. Saiful Anwar Malang', value: 20 },
-            { label: 'RSUD Dr. Moewardi Solo', value: 20 },
-            { label: 'RSUP Dr. Hasan Sadikin Bandung', value: 20 }
+            { label: 'RSUD Dr. Saiful Anwar Malang', value: 6 },
+            { label: 'RSUP Dr. Hasan Sadikin Bandung', value: 10 },
+            { label: 'RSUP Dr. Sardjito Yogyakarta', value: 6 },
+            { label: 'RSUD Dr. Moewardi Solo', value: 1 }
           ],
-          total: 80
+          total: 23
         },
         {
-          title: "8 specialization",
+          title: "specialization",
           data: [
-            { name: 'Spine', value: 20 },
-            { name: 'Hip Knee', value: 20 },
-            { name: 'Oncology', value: 20 },
-            { name: 'Orthopaedic Trauma & Reconstruction', value: 20 },
-            { name: 'Sports Injury', value: 20 },
-            { name: 'Shoulder & Elbow', value: 20 },
-            { name: 'Advanced Orthopaedic', value: 20 },
-            { name: 'Hand, Upper Limb and Microsurgery', value: 20 },
-            { name: 'Pediatric Orthopaedic', value: 20 },
-            { name: 'Foot and Ankle', value: 20 }
+            { name: 'Spine', value: 21 },
+            { name: 'Hip And Knee', value: 2 },
+            { name: 'Hand, Upper Limb and Microsurgery', value: 5 },
+            { name: 'Oncology and Reconstruction', value: 2 },
+            { name: 'Orthopaedic', value: 2 },
+            { name: 'Foot and Ankle', value: 3 },
+            { name: 'Shoulder and Elbow', value: 2 },
+            { name: 'Advanced Orthopaedic Trauma', value: 4 },
+            { name: 'Sport Injury', value: 7 }
           ],
-          colors: ['#ef4444', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#06b6d4', '#10b981', '#84cc16', '#f97316', '#a855f7'],
+          colors: ['#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#10b981', '#6b7280', '#06b6d4', '#84cc16'],
           legends: [
-            { label: 'Spine', value: 20 },
-            { label: 'Hip Knee', value: 20 },
-            { label: 'Oncology', value: 20 },
-            { label: 'Orthopaedic Trauma & Reconstruction', value: 20 },
-            { label: 'Sports Injury', value: 20 }
+            { label: 'Spine', value: 21 },
+            { label: 'Hip And Knee', value: 2 },
+            { label: 'Hand, Upper Limb and Microsurgery', value: 5 },
+            { label: 'Oncology and Reconstruction', value: 2 },
+            { label: 'Orthopaedic', value: 2 }
           ],
           legendsRight: [
-            { label: 'Advanced Orthopaedic', value: 20 },
-            { label: 'Hand, Upper Limb and Microsurgery', value: 20 },
-            { label: 'Pediatric Orthopaedic', value: 20 },
-            { label: 'Foot and Ankle', value: 20 },
-            { label: 'Shoulder & Elbow', value: 20 }
+            { label: 'Shoulder and Elbow', value: 2 },
+            { label: 'Advanced Orthopaedic Trauma', value: 4 },
+            { label: 'Sport Injury', value: 7 },
+            { label: 'Foot and Ankle', value: 3 }
           ],
-          total: 200
+          total: 48
         },
         {
           title: "Gender",
           data: [
-            { name: 'Male', value: 20 },
-            { name: 'Female', value: 20 }
+            { name: 'Male', value: 2 },
+            { name: 'Female', value: 39 }
           ],
           colors: ['#3b82f6', '#93c5fd'],
           legends: [
-            { label: 'Male', value: 20 },
-            { label: 'Female', value: 20 }
+            { label: 'Male', value: 2 },
+            { label: 'Female', value: 39 }
           ],
-          total: 40
+          total: 41
         },
         {
-          title: "Graduate",
+          title: "Members",
           data: [
-            { name: 'Grad', value: 20 },
-            { name: 'Active', value: 20 }
+            { name: 'Graduated', value: 21 },
+            { name: 'Active Students', value: 21 }
           ],
           colors: ['#10b981', '#86efac'],
           legends: [
-            { label: 'Grad', value: 20 },
-            { label: 'Active', value: 20 }
+            { label: 'Graduated', value: 21 },
+            { label: 'Active Students', value: 21 }
           ],
-          total: 40
+          total: 42
         }
       ]
     },
     {
       id: "SP",
       badge: "Subspesialis",
-      description: "Program lanjutan untuk Traumatologi — manajemen trauma & rekonstruksi.",
-      students: "50",
+      description: "Advanced program for Traumatology — trauma management & reconstruction.",
+      students: "64",
       charts: [
         {
-          title: "2 Study Program",
+          title: "Study Program",
           data: [
             { name: 'FK UI', value: 20 },
             { name: 'FK UNAIR', value: 20 }
@@ -262,61 +439,59 @@ export default function Homepage() {
           total: 40
         },
         {
-          title: "8 excitement",
+          title: "specialization",
           data: [
-            { name: 'Spine', value: 20 },
-            { name: 'Hip Knee', value: 20 },
-            { name: 'Oncology', value: 20 },
-            { name: 'Orthopaedic Trauma & Reconstruction', value: 20 },
-            { name: 'Sports Injury', value: 20 },
-            { name: 'Shoulder & Elbow', value: 20 },
-            { name: 'Advanced Orthopaedic', value: 20 },
-            { name: 'Hand, Upper Limb and Microsurgery', value: 20 },
-            { name: 'Pediatric Orthopaedic', value: 20 },
-            { name: 'Foot and Ankle', value: 20 }
+            { name: 'Spine', value: 21 },
+            { name: 'Hip And Knee', value: 2 },
+            { name: 'Hand, Upper Limb and Microsurgery', value: 5 },
+            { name: 'Oncology and Reconstruction', value: 2 },
+            { name: 'Orthopaedic', value: 2 },
+            { name: 'Foot and Ankle', value: 3 },
+            { name: 'Shoulder and Elbow', value: 2 },
+            { name: 'Advanced Orthopaedic Trauma', value: 4 },
+            { name: 'Sport Injury', value: 7 }
           ],
-          colors: ['#ef4444', '#3b82f6', '#8b5cf6', '#ec4899', '#10b981', '#86efac', '#06b6d4', '#f59e0b', '#84cc16', '#f97316'],
+          colors: ['#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#10b981', '#6b7280', '#06b6d4', '#84cc16'],
           legends: [
-            { label: 'Spine', value: 20 },
-            { label: 'Hip Knee', value: 20 },
-            { label: 'Oncology', value: 20 },
-            { label: 'Orthopaedic Trauma & Reconstruction', value: 20 },
-            { label: 'Sports Injury', value: 20 }
+            { label: 'Spine', value: 21 },
+            { label: 'Hip And Knee', value: 2 },
+            { label: 'Hand, Upper Limb and Microsurgery', value: 5 },
+            { label: 'Oncology and Reconstruction', value: 2 },
+            { label: 'Orthopaedic', value: 2 }
           ],
           legendsRight: [
-            { label: 'Advanced Orthopaedic', value: 20 },
-            { label: 'Hand, Upper Limb and Microsurgery', value: 20 },
-            { label: 'Pediatric Orthopaedic', value: 20 },
-            { label: 'Foot and Ankle', value: 20 },
-            { label: 'Shoulder & Elbow', value: 20 }
+            { label: 'Shoulder and Elbow', value: 2 },
+            { label: 'Advanced Orthopaedic Trauma', value: 4 },
+            { label: 'Sport Injury', value: 7 },
+            { label: 'Foot and Ankle', value: 3 }
           ],
-          total: 200
+          total: 48
         },
         {
           title: "Gender",
           data: [
-            { name: 'Male', value: 20 },
-            { name: 'Female', value: 20 }
+            { name: 'Male', value: 5 },
+            { name: 'Female', value: 59 }
           ],
           colors: ['#3b82f6', '#93c5fd'],
           legends: [
-            { label: 'Male', value: 20 },
-            { label: 'Female', value: 20 }
+            { label: 'Male', value: 5 },
+            { label: 'Female', value: 59 }
           ],
-          total: 40
+          total: 64
         },
         {
-          title: "Graduate",
+          title: "Members",
           data: [
-            { name: 'Grad', value: 20 },
-            { name: 'Active', value: 20 }
+            { name: 'Grad', value: 35 },
+            { name: 'Active', value: 64 }
           ],
           colors: ['#10b981', '#86efac'],
           legends: [
-            { label: 'Grad', value: 20 },
-            { label: 'Active', value: 20 }
+            { label: 'Grad', value: 35 },
+            { label: 'Active', value: 64 }
           ],
-          total: 40
+          total: 99
         }
       ]
     }
@@ -328,18 +503,18 @@ export default function Homepage() {
   return (
     <HomepageLayout>
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 pt-20 sm:pt-32 pb-32 sm:pb-40 overflow-hidden">
-        {/* Background Image with Overlay */}
+      <section className="relative pt-24 sm:pt-32 pb-32 sm:pb-40 overflow-hidden">
+        {/* Background Image with Gradient Overlay */}
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-blue-900/50 z-10"></div>
           <img 
-            src="/assets/images/Rectangle 3.png" 
-            alt="Background"
-            className="w-full h-full object-cover opacity-30"
+            src="/assets/images/homepage/banner.png" 
+            alt="Background Banner"
+            className="w-full h-full object-cover"
             onError={(e) => {
               e.target.style.display = 'none';
             }}
           />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-700/80 to-blue-600/70"></div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
@@ -348,21 +523,41 @@ export default function Homepage() {
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight">
                 E-Dashboard Indonesian Orthopaedic and Traumatology Education
               </h1>
-              <p className="text-base sm:text-lg leading-relaxed max-w-xl opacity-90">
+              <p className="text-base sm:text-lg leading-relaxed max-w-xl opacity-95">
                 Memberikan informasi yang terbuka, aktual, dan akurat. Meningkatkan integrasi informasi akademik & kegiatan ilmiah melalui satu pintu.
               </p>
             </div>
-            <div className="relative">
-              <div className="bg-white rounded-2xl overflow-hidden shadow-2xl transform hover:scale-105 transition-transform duration-300">
-                <img 
-                  src="/assets/images/Rectangle 3.png" 
-                  alt="Indonesian Orthopaedic Team"
-                  className="w-full h-auto object-cover"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.parentElement.innerHTML = '<div class="bg-gradient-to-br from-blue-100 to-blue-200 p-16 flex items-center justify-center h-80"><svg class="w-32 h-32 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg></div>';
-                  }}
-                />
+            <div className="relative flex justify-end">
+              {/* Stacked Images Effect */}
+              <div className="relative h-[300px] w-full max-w-[500px]">
+                {/* Back Image */}
+                <div className="absolute top-4 -left-4 w-full h-full bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-xl transform rotate-[-2deg] z-0">
+                  <div className="w-full h-full overflow-hidden rounded-lg">
+                    <img 
+                      src={heroImages[1].src}
+                      alt={heroImages[1].alt}
+                      className="w-full h-full object-cover opacity-60"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Front Image */}
+                <div className="relative w-full h-full bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-2xl z-10 transform hover:scale-[1.02] transition-transform duration-300">
+                  <div className="relative w-full h-full overflow-hidden rounded-lg">
+                    <img 
+                      src={heroImages[0].src}
+                      alt={heroImages[0].alt}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.parentElement.innerHTML = '<div class="bg-gradient-to-br from-blue-50 to-blue-100 w-full h-full flex items-center justify-center rounded-lg"><svg class="w-32 h-32 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg></div>';
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -376,18 +571,20 @@ export default function Homepage() {
             {stats.map((stat, index) => (
               <div 
                 key={index} 
-                className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 transform hover:-translate-y-2 cursor-pointer group"
+                className="bg-white rounded-xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
               >
-                <div className="flex flex-col items-center text-center space-y-4">
-                  <div className="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
-                    <Icon icon={stat.icon} className="w-10 h-10" />
+                <div className="flex items-center justify-center gap-4">
+                  <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Icon icon={stat.icon} className="w-7 h-7 text-blue-600" />
                   </div>
-                  <div className="text-5xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-                    {stat.value}
+                  <div className="flex-1">
+                    <div className="text-4xl font-bold text-gray-900 mb-0.5">
+                      {stat.value}
+                    </div>
+                    <p className="text-sm font-semibold text-gray-700">
+                      {stat.label}
+                    </p>
                   </div>
-                  <p className="text-sm font-medium text-gray-600 group-hover:text-gray-900 transition-colors">
-                    {stat.label}
-                  </p>
                 </div>
               </div>
             ))}
@@ -402,21 +599,22 @@ export default function Homepage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {examinations.map((exam, index) => (
               <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-300">
-                <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-700">{exam.date} •</span>
-                    <span className={`${exam.statusColor} text-white text-xs font-medium px-2.5 py-1 rounded`}>
+                    <span className="text-sm font-medium text-gray-700">{exam.date}</span>
+                    <span className="text-gray-400">•</span>
+                    <span className={`${exam.statusColor} text-white text-xs font-bold px-3 py-1 rounded`}>
                       {exam.status}
                     </span>
                   </div>
                   <Link 
                     href="#" 
-                    className="text-blue-600 hover:text-blue-700 text-sm transition"
+                    className="text-blue-600 hover:text-blue-700 text-sm font-medium transition"
                   >
                     Detail
                   </Link>
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-1">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">
                   {exam.title}
                 </h3>
                 <p className="text-sm text-gray-600">{exam.location}</p>
@@ -427,50 +625,48 @@ export default function Homepage() {
       </section>
 
       {/* Upcoming Event Section */}
-      <section className="bg-gray-50 py-12">
+      <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-8">Upcoming Event</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {events.map((event, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-2xl transition-all duration-300 group">
-                {/* Event Poster */}
-                <div className="relative bg-gradient-to-br from-red-700 to-red-900 h-56 overflow-hidden">
-                  {/* Decorative Header */}
-                  <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-r from-red-800 via-green-600 to-blue-600 opacity-80"></div>
-                  
-                  {/* Logo & Content */}
-                  <div className="relative h-full flex flex-col items-center justify-center p-6">
-                    {/* Logo Area */}
-                    <div className="w-20 h-20 bg-gradient-to-br from-yellow-600 to-yellow-700 rounded-lg mb-4 flex items-center justify-center border-4 border-yellow-500 shadow-lg">
-                      <Icon icon="mdi:medical-bag" className="w-12 h-12 text-white" />
-                    </div>
-                    
-                    {/* Event Title */}
-                    <h3 className="text-3xl font-bold text-white text-center mb-2 tracking-wide">
-                      NATIONAL<br/>CONGRESS
-                    </h3>
-                    
-                    {/* Organization */}
-                    <div className="bg-yellow-500 text-gray-900 px-4 py-1 rounded-full text-xs font-bold mt-2">
-                      INDONESIAN ORTHOPAEDIC ASSOCIATION
-                    </div>
-                  </div>
-                  
-                  {/* Date Badge */}
-                  <div className="absolute bottom-4 left-4 bg-white rounded-lg p-3 text-center shadow-xl">
-                    <div className="text-xs text-gray-600 font-semibold uppercase">{event.month}</div>
-                    <div className="text-3xl font-bold text-gray-900">{event.date}</div>
-                  </div>
+              <div key={index} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300">
+                {/* Event Image */}
+                <div className="relative h-48 overflow-hidden">
+                  <img 
+                    src={event.image}
+                    alt={event.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = '<div class="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center"><svg class="w-16 h-16 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>';
+                    }}
+                  />
                 </div>
                 
                 {/* Event Details */}
-                <div className="p-6">
-                  <h4 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                <div className="p-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-sm font-medium text-gray-700">{event.date}</span>
+                    <span className="text-gray-400">•</span>
+                    <span className="bg-purple-100 text-purple-700 text-xs font-semibold px-3 py-1 rounded">
+                      {event.badge}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
                     {event.title}
-                  </h4>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    {event.description}
-                  </p>
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-3">{event.location}</p>
+                  {event.registration && (
+                    <a 
+                      href={event.registration}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-700 text-sm font-medium inline-flex items-center gap-1"
+                    >
+                      Registration <ChevronRight className="w-4 h-4" />
+                    </a>
+                  )}
                 </div>
               </div>
             ))}
@@ -479,81 +675,13 @@ export default function Homepage() {
       </section>
 
       {/* Educational Dashboard Section */}
-      <section className="bg-gray-50 py-12">
+      <section className="py-12 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-8">Educational Dashboard</h2>
-          <div className="space-y-8">
+          
+          <div className="space-y-6">
             {programs.map((program, index) => (
-              <div key={index} className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <div className="p-6 lg:p-8">
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    {/* Column 1: Program Info - 3 cols */}
-                    <div className="lg:col-span-3 flex items-center">
-                      <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 w-full hover:shadow-md transition-all duration-300">
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-2">
-                            <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-md text-base font-bold">
-                              {program.id}
-                            </span>
-                            <span className="text-lg font-bold text-gray-900">{program.badge}</span>
-                          </div>
-                          <p className="text-sm text-gray-700 leading-relaxed">{program.description}</p>
-                          <p className="text-sm text-gray-900">
-                            <span className="text-gray-600">Mahasiswa Aktif:</span> <span className="font-bold">{program.students}</span>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Column 2-4: 4 Chart Cards in 2x2 Grid - 9 cols */}
-                    <div className="lg:col-span-9">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        {program.charts.map((chart, chartIdx) => (
-                          <div key={chartIdx} className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-all duration-300">
-                            <div className="flex justify-center mb-5">
-                              <DonutChart 
-                                data={chart.data}
-                                colors={chart.colors}
-                                centerText={chart.title}
-                                size={160}
-                              />
-                            </div>
-                            {/* Legend in 2 columns */}
-                            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                              {/* Left column legends */}
-                              <div className="space-y-2">
-                                {chart.legends.map((legend, legIdx) => (
-                                  <div key={legIdx} className="flex items-center justify-between text-xs">
-                                    <div className="flex items-center gap-1.5">
-                                      <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: chart.colors[legIdx % chart.colors.length] }}></div>
-                                      <span className="text-gray-700">{legend.label}</span>
-                                    </div>
-                                    <span className="font-medium text-gray-900">: {legend.value}</span>
-                                  </div>
-                                ))}
-                              </div>
-                              {/* Right column legends (if exists) */}
-                              {chart.legendsRight && (
-                                <div className="space-y-2">
-                                  {chart.legendsRight.map((legend, legIdx) => (
-                                    <div key={legIdx} className="flex items-center justify-between text-xs">
-                                      <div className="flex items-center gap-1.5">
-                                        <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: chart.colors[(legIdx + chart.legends.length) % chart.colors.length] }}></div>
-                                        <span className="text-gray-700">{legend.label}</span>
-                                      </div>
-                                      <span className="font-medium text-gray-900">: {legend.value}</span>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <ProgramCard key={index} program={program} />
             ))}
           </div>
         </div>

@@ -110,7 +110,7 @@ export default function MarketplaceLayout({ children }) {
                                 }`}
                             >
                                 Peer Group
-                            </Link> */}
+                            </Link> 
 
                             {/* About Us Dropdown */}
                             <div className="relative group">
