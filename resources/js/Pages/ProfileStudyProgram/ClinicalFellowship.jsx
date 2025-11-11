@@ -6,7 +6,7 @@ export default function ClinicalFellowship() {
     {
       code: "RS",
       name: "RSUD Dr. Saiful Anwar Malang",
-      fullName: "RSUP Dr. Sardjito",
+      fullName: "RSUP Dr.Sardjito",
       description: "A continuing education program for specialist doctors to deepen clinical expertise in a particular subspecialty area.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
       students: 6
@@ -14,7 +14,7 @@ export default function ClinicalFellowship() {
     {
       code: "RS",
       name: "RSUP Dr. Hasan Sadikin Bandung",
-      fullName: "RSUP Dr. Sardjito",
+      fullName: "RSUP Dr.Sardjito",
       description: "A continuing education program for specialist doctors to deepen clinical expertise in a particular subspecialty area.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
       students: 29
@@ -22,7 +22,7 @@ export default function ClinicalFellowship() {
     {
       code: "RS",
       name: "RSUP Dr. Sardjito Yogyakarta",
-      fullName: "RSUP Dr. Sardjito",
+      fullName: "RSUP Dr.Sardjito",
       description: "A continuing education program for specialist doctors to deepen clinical expertise in a particular subspecialty area.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
       students: 6
@@ -30,7 +30,7 @@ export default function ClinicalFellowship() {
     {
       code: "RS",
       name: "RSUD Dr. Moewardi Solo",
-      fullName: "RSUP Dr. Sardjito",
+      fullName: "RSUP Dr.Sardjito",
       description: "A continuing education program for specialist doctors to deepen clinical expertise in a particular subspecialty area.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
       students: 8
@@ -81,7 +81,7 @@ export default function ClinicalFellowship() {
       <section className="bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold" style={{ color: '#254D95' }}>Profil Program Studi</h1>
+            <h1 className="text-3xl font-bold" style={{ color: '#254D95' }}>Study Program Profile</h1>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {universities.map((university, index) => (
@@ -108,11 +108,10 @@ export default function ClinicalFellowship() {
                   {university.fullName} | {university.kps}
                 </p>
 
-                {/* Active Fellow Count */}
-                <div>
-                  <p className="text-sm text-gray-600">
-                    Active Fellow : <span className="font-bold text-gray-900">{university.students}</span>
-                  </p>
+                <div className="pt-4 border-t border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Active Fellow : {university.students}</span>
+                  </div>
                 </div>
               </Link>
             ))}

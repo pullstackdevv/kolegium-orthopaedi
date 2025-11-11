@@ -36,6 +36,14 @@ const ProgramCard = ({ program }) => {
 
 // Program Info Component
 const ProgramInfo = ({ program }) => {
+  // Determine label based on program ID
+  const getStudentLabel = () => {
+    if (program.id === "P1") return "Active Resident:";
+    if (program.id === "CF") return "Active Fellow:";
+    if (program.id === "SP") return "Active Trainee:";
+    return "Active Students:";
+  };
+
   return (
     <div className="flex flex-col justify-center">
       <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-8 h-full flex flex-col justify-center">
@@ -50,7 +58,7 @@ const ProgramInfo = ({ program }) => {
             {program.description}
           </p>
           <div className="pt-4 border-t border-blue-200">
-            <p className="text-sm text-gray-600 mb-1">Active Resident:</p>
+            <p className="text-sm text-gray-600 mb-1">{getStudentLabel()}</p>
             <p className="text-3xl font-bold text-blue-600">{program.students}</p>
           </div>
         </div>
