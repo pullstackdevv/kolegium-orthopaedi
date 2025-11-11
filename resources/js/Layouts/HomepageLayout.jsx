@@ -95,7 +95,7 @@ export default function MarketplaceLayout({ children }) {
                             </NavLink>
                             
                             <NavDropdown 
-                                label="Profile Study Program" 
+                                label="Study Program Profile" 
                                 active={isActive('/profile-study-program')}
                             >
                                 <DropdownLink href="/profile-study-program/ppds1">PPDS 1</DropdownLink>
@@ -190,14 +190,11 @@ export default function MarketplaceLayout({ children }) {
                                     onError={(e) => e.target.style.display = 'none'}
                                 />
                             </div>
-                            <div className="text-sm text-gray-700 space-y-1">
-                                <p className="font-semibold">Gedung Menara BCA, Lantai 8, Unit B</p>
-                                <p>Jl. Senen Raya No 135-137, Senen</p>
-                                <p>Jakarta Pusat 10410, INDONESIA</p>
+                            <div className="text-sm text-gray-700 space-y-1">                             
+                                <p>Gedung Menara Era, Lantai 8, Unit 8-04 Jl. Senen Raya 135 – 137, Jakarta 10410, INDONESIA</p>
                             </div>
                             <div className="text-sm text-gray-700 space-y-1">
-                                <p className="font-semibold">Sekretariat:</p>
-                                <p>H.T.R.I.K.M.M. (Gedung Kec. Kby, Baru, Kota Jakarta Selatan, Jakarta 12710, Indonesia</p>
+                                <p>Jl. Hang Jebat Blok F3, RT.5/RW.8, Gunung, Kec. Kby. Baru, Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12120, Indonesia</p>
                             </div>
                         </div>
 
@@ -206,7 +203,7 @@ export default function MarketplaceLayout({ children }) {
                             <h3 className="text-lg font-bold text-gray-900 mb-4">Menu</h3>
                             <ul className="space-y-2 text-sm text-gray-700">
                                 <li><Link href="/" className="hover:text-blue-600 transition">Home</Link></li>
-                                <li><Link href="#profile-study-program" className="hover:text-blue-600 transition">Profile Study Program</Link></li>
+                                <li><Link href="#profile-study-program" className="hover:text-blue-600 transition">Study Program Profile</Link></li>
                                 <li><Link href="#resident" className="hover:text-blue-600 transition">Resident</Link></li>
                                 <li><Link href="#calendar-academic" className="hover:text-blue-600 transition">Calender Academic</Link></li>
                                 <li><Link href="/peer-group" className="hover:text-blue-600 transition">Peer Group</Link></li>
@@ -240,7 +237,7 @@ export default function MarketplaceLayout({ children }) {
                     {/* Copyright & Social Media */}
                     <div className="pt-6 border-t border-blue-300 flex flex-col md:flex-row justify-between items-center gap-4">
                         <p className="text-sm text-gray-700">
-                            ©2025 E-Dashboard Pendidikan Orthopaedi dan Traumatologi Indonesia. All rights reserved.
+                            ©️2025 E-Dashboard Indonesian Orthopaedic and Traumatology Education. All rights reserved.
                         </p>
                         <div className="flex gap-4">
                             <a href="#" className="text-gray-700 hover:text-blue-600 transition">

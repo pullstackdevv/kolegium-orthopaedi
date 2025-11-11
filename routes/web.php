@@ -17,6 +17,15 @@ Route::get('/', function () {
 Route::get('/peer-group', function () {
     return Inertia::render('PeerGroup', ['layout' => 'HomepageLayout']);
 })->name('peer-group');
+
+// Peer Group Detail page
+Route::get('/peer-group/{id}', function ($id) {
+    return Inertia::render('PeerGroupDetail', [
+        'layout' => 'HomepageLayout',
+        'peerGroupId' => $id
+    ]);
+})->name('peer-group.detail');
+
 // Profile Study Program Routes - Public Access
 Route::get('/profile-study-program/ppds1', function () {
     return Inertia::render('ProfileStudyProgram/PPDS1');

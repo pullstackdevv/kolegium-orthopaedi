@@ -20,7 +20,7 @@ export default function DonutChart({ data, colors, centerText, size = 180 }) {
           align: 'center',
           verticalAlign: 'middle',
           style: {
-            fontSize: '24px',
+            fontSize: '14px',
             fontWeight: 'bold',
             color: '#1f2937'
           },
