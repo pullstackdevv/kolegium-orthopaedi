@@ -9,73 +9,105 @@ export default function PPDS1() {
       code: "FK",
       name: "FK-UI",
       fullName: "Universitas Indonesia",
-      description: "Program pendidikan dokter spesialis pertama untuk Orthopaedi — fokus bedah ortopedi umum & trauma.",
+      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
       students: 120
     },
     {
       code: "FK",
-      name: "FK-UI",
+      name: "FK-UNAIR",
       fullName: "Universitas Indonesia",
-      description: "Program pendidikan dokter spesialis pertama untuk Orthopaedi — fokus bedah ortopedi umum & trauma.",
+      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      kps: "KPS: dr. Ihsan Oesman, SpOT",
+      students: 110
+    },
+    {
+      code: "FK",
+      name: "FK-UNPAD",
+      fullName: "Universitas Indonesia",
+      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      kps: "KPS: dr. Ihsan Oesman, SpOT",
+      students: 145
+    },
+    {
+      code: "FK",
+      name: "FK-UNHAS",
+      fullName: "Universitas Indonesia",
+      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      kps: "KPS: dr. Ihsan Oesman, SpOT",
+      students: 66
+    },
+    {
+      code: "FK",
+      name: "FK-UGM",
+      fullName: "Universitas Indonesia",
+      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      kps: "KPS: dr. Ihsan Oesman, SpOT",
+      students: 179
+    },
+    {
+      code: "FK",
+      name: "FK-UDAYANA",
+      fullName: "Universitas Indonesia",
+      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      kps: "KPS: dr. Ihsan Oesman, SpOT",
+      students: 170
+    },
+    {
+      code: "FK",
+      name: "FK-USU",
+      fullName: "Universitas Indonesia",
+      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      kps: "KPS: dr. Ihsan Oesman, SpOT",
+      students: 145
+    },
+    {
+      code: "FK",
+      name: "FK-UBRA",
+      fullName: "Universitas Indonesia",
+      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
       students: 120
     },
     {
       code: "FK",
-      name: "FK-UI",
+      name: "FK-USRI",
       fullName: "Universitas Indonesia",
-      description: "Program pendidikan dokter spesialis pertama untuk Orthopaedi — fokus bedah ortopedi umum & trauma.",
+      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 120
+      students: 77
     },
     {
       code: "FK",
-      name: "FK-UI",
+      name: "FK-UNAN",
       fullName: "Universitas Indonesia",
-      description: "Program pendidikan dokter spesialis pertama untuk Orthopaedi — fokus bedah ortopedi umum & trauma.",
+      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 120
+      students: 80
     },
     {
       code: "FK",
-      name: "FK-UI",
+      name: "FK-USK",
       fullName: "Universitas Indonesia",
-      description: "Program pendidikan dokter spesialis pertama untuk Orthopaedi — fokus bedah ortopedi umum & trauma.",
+      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 120
+      students: 124
     },
     {
       code: "FK",
-      name: "FK-UI",
+      name: "FK-ULM",
       fullName: "Universitas Indonesia",
-      description: "Program pendidikan dokter spesialis pertama untuk Orthopaedi — fokus bedah ortopedi umum & trauma.",
+      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 120
+      students: 80
     },
     {
       code: "FK",
-      name: "FK-UI",
+      name: "RS SOEHARSO",
       fullName: "Universitas Indonesia",
-      description: "Program pendidikan dokter spesialis pertama untuk Orthopaedi — fokus bedah ortopedi umum & trauma.",
+      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 120
-    },
-    {
-      code: "FK",
-      name: "FK-UI",
-      fullName: "Universitas Indonesia",
-      description: "Program pendidikan dokter spesialis pertama untuk Orthopaedi — fokus bedah ortopedi umum & trauma.",
-      kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 120
-    },
-    {
-      code: "FK",
-      name: "FK-UI",
-      fullName: "Universitas Indonesia",
-      description: "Program pendidikan dokter spesialis pertama untuk Orthopaedi — fokus bedah ortopedi umum & trauma.",
-      kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 120
+      students: 95
     }
   ];
 
@@ -155,8 +187,7 @@ export default function PPDS1() {
                 {/* Student Count */}
                 <div className="pt-4 border-t border-gray-200">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Mahasiswa Aktif</span>
-                    <span className="text-lg font-bold text-blue-600">: {university.students}</span>
+                    <span className="text-sm text-gray-600">Active Resident : {university.students}</span>
                   </div>
                 </div>
               </Link>
