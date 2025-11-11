@@ -1,36 +1,83 @@
 import { useState } from "react";
 import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
-import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar, X, Plus, Trash2 } from "lucide-react";
 import HomepageLayout from "../Layouts/HomepageLayout";
 
 export default function CalendarAcademic() {
   const [currentMonth, setCurrentMonth] = useState(10); // November (0-indexed)
   const [currentYear, setCurrentYear] = useState(2025);
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showDatePickerModal, setShowDatePickerModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [eventToDelete, setEventToDelete] = useState(null);
+  const [tempMonth, setTempMonth] = useState(10);
+  const [tempYear, setTempYear] = useState(2025);
+  // Set default date to today for demo purposes
+  const todayDate = new Date();
+  todayDate.setHours(12, 0, 0, 0); // Set to noon to avoid timezone issues
+  
+  // Create dates for upcoming events
+  const tomorrow = new Date(todayDate);
+  tomorrow.setDate(todayDate.getDate() + 1);
+  
+  const nextWeekDate = new Date(todayDate);
+  nextWeekDate.setDate(todayDate.getDate() + 5);
+  
+  const [events, setEvents] = useState([
+    {
+      id: 1,
+      date: new Date(todayDate),
+      title: "Ujian Tulis Nasional/CBT (Session I)",
+      type: "ujian_nasional",
+      description: "Ujian tulis nasional untuk PPDS 1"
+    },
+    {
+      id: 2,
+      date: new Date(todayDate),
+      title: "23 National Congress",
+      type: "event_nasional",
+      description: "Indonesian Orthopaedic Association National Congress"
+    },
+    {
+      id: 3,
+      date: new Date(nextWeekDate),
+      title: "Presentasi Final Paper Kandidat",
+      type: "event_peer_group",
+      description: "Presentasi akhir paper untuk kandidat"
+    }
+  ]);
 
   // Stats data
   const stats = [
     {
-      label: "Tahun Akademik 2024/2025",
+      title: "Tahun Akademik",
+      value: "2024/2025",
       icon: "mdi:calendar",
       iconBg: "bg-blue-100",
       iconColor: "text-blue-600"
     },
     {
-      label: "Semester A419 Ganjil",
+      title: "Semester Aktif",
+      value: "Ganjil",
       icon: "mdi:play",
       iconBg: "bg-green-100",
       iconColor: "text-green-600"
     },
     {
-      label: "Unit Akademik B2",
-      icon: "mdi:school",
+      title: "Hari Akademik",
+      value: "82",
+      icon: "mdi:calendar-today",
       iconBg: "bg-orange-100",
       iconColor: "text-orange-600"
     },
     {
-      label: "Biro Senin 6",
-      icon: "mdi:map-marker",
+      title: "Ujian Besar",
+      value: "6",
+      icon: "mdi:clipboard-check",
       iconBg: "bg-red-100",
       iconColor: "text-red-600"
     }
@@ -38,51 +85,153 @@ export default function CalendarAcademic() {
 
   // Event types with colors
   const eventTypes = [
-    { name: "Blue Link", color: "bg-blue-500" },
-    { name: "Ujian Nasional", color: "bg-cyan-400" },
-    { name: "Event Lainbe", color: "bg-green-500" },
-    { name: "Semua Nasional", color: "bg-orange-500" },
-    { name: "Exam Peer Group", color: "bg-red-500" }
+    { id: "ujian_lokal", name: "Ujian Lokal", color: "bg-red-500", textColor: "text-red-700" },
+    { id: "ujian_nasional", name: "Ujian Nasional", color: "bg-blue-500", textColor: "text-blue-700" },
+    { id: "event_lokal", name: "Event Lokal", color: "bg-green-500", textColor: "text-green-700" },
+    { id: "event_nasional", name: "Event Nasional", color: "bg-orange-500", textColor: "text-orange-700" },
+    { id: "event_peer_group", name: "Event Peer Group", color: "bg-purple-500", textColor: "text-purple-700" }
   ];
 
-  // Ongoing events
-  const ongoingEvents = [
-    {
-      date: "5 Nov 2025",
-      type: "CRT",
-      title: "Ujian Tulis Nasional ICBT (Session I)",
-      image: "/assets/images/national-congress.jpg",
-      eventTitle: "23 National Congres"
-    }
-  ];
+  const getEventColor = (type) => {
+    const eventType = eventTypes.find(t => t.id === type);
+    return eventType || eventTypes[0];
+  };
 
-  // Upcoming tests
-  const upcomingTests = [
-    {
-      date: "5 Nov 2025",
-      type: "CRT",
-      title: "Ujian Tulis Nasional ICBT (Session I)"
-    }
-  ];
+  const getEventsForDate = (day, month, year) => {
+    return events.filter(event => {
+      const eventDate = new Date(event.date);
+      return eventDate.getDate() === day && 
+             eventDate.getMonth() === month && 
+             eventDate.getFullYear() === year;
+    });
+  };
 
-  // Upcoming events
-  const upcomingEvents = [
-    {
-      date: "5 Nov 2025",
-      title: "23 National Congres",
-      image: "/assets/images/national-congress.jpg"
-    },
-    {
-      date: "5 Nov 2025",
-      title: "23 National Congres",
-      image: "/assets/images/national-congress.jpg"
-    },
-    {
-      date: "5 Nov 2025",
-      title: "23 National Congres",
-      image: "/assets/images/national-congress.jpg"
+  const handleAddEvent = (newEvent) => {
+    setEvents([...events, { ...newEvent, id: Date.now() }]);
+    setShowEventModal(false);
+  };
+
+  const handleDeleteClick = (event) => {
+    setEventToDelete(event);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (eventToDelete) {
+      setEvents(events.filter(event => event.id !== eventToDelete.id));
+      setShowDeleteModal(false);
+      setShowDetailModal(false);
+      setEventToDelete(null);
     }
-  ];
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setEventToDelete(null);
+  };
+
+  const handleDateClick = (day, isCurrentMonth) => {
+    if (!isCurrentMonth) return;
+    setSelectedDate({ day, month: currentMonth, year: currentYear });
+    setShowEventModal(true);
+  };
+
+  const handleEventClick = (event, viewOnly = false) => {
+    setSelectedEvent({ ...event, viewOnly });
+    setShowDetailModal(true);
+  };
+
+  const handleOpenDatePicker = () => {
+    setTempMonth(currentMonth);
+    setTempYear(currentYear);
+    setShowDatePickerModal(true);
+  };
+
+  const handleApplyDatePicker = () => {
+    setCurrentMonth(tempMonth);
+    setCurrentYear(tempYear);
+    setShowDatePickerModal(false);
+  };
+
+  const generateYearRange = () => {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let i = currentYear - 10; i <= currentYear + 10; i++) {
+      years.push(i);
+    }
+    return years;
+  };
+
+  // Get today's date
+  const today = new Date();
+  
+  // Get ongoing events (events happening today)
+  const getOngoingEvents = () => {
+    return events.filter(event => {
+      const eventDate = new Date(event.date);
+      return eventDate.getDate() === today.getDate() &&
+             eventDate.getMonth() === today.getMonth() &&
+             eventDate.getFullYear() === today.getFullYear();
+    });
+  };
+  
+  // Categorize ongoing events
+  const categorizeOngoingEvents = () => {
+    const ongoing = getOngoingEvents();
+    const tests = ongoing.filter(e => e.type === 'ujian_lokal' || e.type === 'ujian_nasional');
+    const eventsList = ongoing.filter(e => e.type !== 'ujian_lokal' && e.type !== 'ujian_nasional');
+    return { tests, events: eventsList };
+  };
+
+  // Get upcoming tests (next 7 days)
+  const getUpcomingTests = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset to start of day
+    const nextWeek = new Date(today);
+    nextWeek.setDate(today.getDate() + 7);
+    nextWeek.setHours(23, 59, 59, 999); // End of day
+    
+    return events.filter(event => {
+      const eventDate = new Date(event.date);
+      eventDate.setHours(0, 0, 0, 0); // Reset to start of day for comparison
+      const isTest = event.type === 'ujian_lokal' || event.type === 'ujian_nasional';
+      return isTest && eventDate >= today && eventDate <= nextWeek;
+    });
+  };
+  
+  // Format date range for upcoming tests
+  const getUpcomingTestDateRange = () => {
+    const today = new Date();
+    const nextWeek = new Date(today);
+    nextWeek.setDate(today.getDate() + 7);
+    
+    return `${today.getDate()} ${monthNames[today.getMonth()].slice(0, 3)} ${today.getFullYear()} - ${nextWeek.getDate()} ${monthNames[nextWeek.getMonth()].slice(0, 3)} ${nextWeek.getFullYear()}`;
+  };
+
+  // Get upcoming events (next 7 days, excluding tests)
+  const getUpcomingEvents = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const nextWeek = new Date(today);
+    nextWeek.setDate(today.getDate() + 7);
+    nextWeek.setHours(23, 59, 59, 999);
+    
+    return events.filter(event => {
+      const eventDate = new Date(event.date);
+      eventDate.setHours(0, 0, 0, 0);
+      const isEvent = event.type !== 'ujian_lokal' && event.type !== 'ujian_nasional';
+      return isEvent && eventDate >= today && eventDate <= nextWeek;
+    });
+  };
+  
+  // Format date range for upcoming events
+  const getUpcomingEventDateRange = () => {
+    const today = new Date();
+    const nextWeek = new Date(today);
+    nextWeek.setDate(today.getDate() + 7);
+    
+    return `${today.getDate()} ${monthNames[today.getMonth()].slice(0, 3)} ${today.getFullYear()} - ${nextWeek.getDate()} ${monthNames[nextWeek.getMonth()].slice(0, 3)} ${nextWeek.getFullYear()}`;
+  };
 
   // Calendar data
   const monthNames = [
@@ -102,40 +251,53 @@ export default function CalendarAcademic() {
     const days = daysInMonth(currentMonth, currentYear);
     const firstDay = firstDayOfMonth(currentMonth, currentYear);
     const calendar = [];
+    const today = new Date();
 
     // Previous month days
-    const prevMonthDays = daysInMonth(currentMonth - 1, currentYear);
+    const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+    const prevMonthDays = daysInMonth(prevMonth, prevYear);
+    
     for (let i = firstDay - 1; i >= 0; i--) {
       calendar.push({
         day: prevMonthDays - i,
         isCurrentMonth: false,
-        events: []
+        month: prevMonth,
+        year: prevYear,
+        isToday: false,
+        events: getEventsForDate(prevMonthDays - i, prevMonth, prevYear)
       });
     }
 
     // Current month days
     for (let i = 1; i <= days; i++) {
-      const events = [];
-      
-      // Add sample events
-      if (i === 5) {
-        events.push({ title: "Ujian Tulis Nasional ICBT (Session I)", color: "bg-cyan-200" });
-      }
+      const isToday = today.getDate() === i && 
+                     today.getMonth() === currentMonth && 
+                     today.getFullYear() === currentYear;
       
       calendar.push({
         day: i,
         isCurrentMonth: true,
-        events
+        month: currentMonth,
+        year: currentYear,
+        isToday,
+        events: getEventsForDate(i, currentMonth, currentYear)
       });
     }
 
     // Next month days
-    const remaining = 42 - calendar.length; // 6 weeks
+    const nextMonth = currentMonth === 11 ? 0 : currentMonth + 1;
+    const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear;
+    const remaining = 42 - calendar.length;
+    
     for (let i = 1; i <= remaining; i++) {
       calendar.push({
         day: i,
         isCurrentMonth: false,
-        events: []
+        month: nextMonth,
+        year: nextYear,
+        isToday: false,
+        events: getEventsForDate(i, nextMonth, nextYear)
       });
     }
 
@@ -184,171 +346,571 @@ export default function CalendarAcademic() {
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             {stats.map((stat, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <div className="flex items-center gap-3">
-                  <div className={`w-12 h-12 ${stat.iconBg} rounded-lg flex items-center justify-center flex-shrink-0`}>
-                    <Icon icon={stat.icon} className={`w-6 h-6 ${stat.iconColor}`} />
+              <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
+                    <p className="text-2xl font-bold text-blue-700">{stat.value}</p>
                   </div>
-                  <p className="text-sm font-semibold text-gray-900">{stat.label}</p>
+                  <div className={`w-14 h-14 ${stat.iconBg} rounded-full flex items-center justify-center flex-shrink-0`}>
+                    <Icon icon={stat.icon} className={`w-7 h-7 ${stat.iconColor}`} />
+                  </div>
                 </div>
               </div>
             ))}
           </div>
 
           {/* Ongoing Today */}
-          <div className="mb-8">
-            <h2 className="text-xl font-bold text-blue-700 mb-4">
-              Ongoing Today <span className="text-gray-600 font-normal">05 November 2025</span>
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {ongoingEvents.map((event, index) => (
-                <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="p-4 border-b border-gray-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm text-gray-600">{event.date}</span>
-                      <span className="bg-red-500 text-white text-xs px-2 py-1 rounded">{event.type}</span>
-                    </div>
-                    <h3 className="font-bold text-gray-900">{event.title}</h3>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-green-600">Ongoing Today</h2>
+              <span className="text-gray-600 font-normal">
+                {today.getDate()} {monthNames[today.getMonth()]} {today.getFullYear()}
+              </span>
+            </div>
+            
+            {(() => {
+              const { tests, events: eventsList } = categorizeOngoingEvents();
+              const allOngoing = [...tests, ...eventsList];
+              
+              if (allOngoing.length === 0) {
+                return (
+                  <div className="text-center py-8 text-gray-500">
+                    <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                    <p>No events scheduled for today</p>
                   </div>
-                  <div className="relative bg-gradient-to-br from-red-700 to-red-900 h-48">
-                    <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-r from-red-800 via-green-600 to-blue-600 opacity-80"></div>
-                    <div className="relative h-full flex flex-col items-center justify-center p-6">
-                      <div className="w-16 h-16 bg-gradient-to-br from-yellow-600 to-yellow-700 rounded-lg mb-3 flex items-center justify-center border-4 border-yellow-500">
-                        <Icon icon="mdi:medical-bag" className="w-10 h-10 text-white" />
-                      </div>
-                      <h3 className="text-2xl font-bold text-white text-center">NATIONAL<br/>CONGRESS</h3>
-                      <div className="bg-yellow-500 text-gray-900 px-3 py-1 rounded-full text-xs font-bold mt-2">
-                        INDONESIAN ORTHOPAEDIC ASSOCIATION
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <h4 className="font-bold text-gray-900">{event.eventTitle}</h4>
+                );
+              }
+              
+              return (
+                <div className="overflow-x-auto -mx-6 px-6">
+                  <div className="flex gap-4 pb-2" style={{ minWidth: 'min-content' }}>
+                    {/* Tests */}
+                    {tests.map((test, index) => {
+                      const eventColor = getEventColor(test.type);
+                      const testDate = new Date(test.date);
+                      return (
+                        <div 
+                          key={`test-${index}`} 
+                          className="flex-shrink-0 w-64 bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
+                          onClick={() => handleEventClick(test)}
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-sm text-gray-600">
+                              {testDate.getDate()} {monthNames[testDate.getMonth()].slice(0, 3)} {testDate.getFullYear()}
+                            </span>
+                            <span className="text-xs px-2 py-1 rounded font-medium bg-red-100 text-red-700">
+                              Test
+                            </span>
+                          </div>
+                          <h3 className="font-bold text-gray-900 line-clamp-2">{test.title}</h3>
+                        </div>
+                      );
+                    })}
+                    
+                    {/* Events with Image */}
+                    {eventsList.map((event, index) => {
+                      const eventColor = getEventColor(event.type);
+                      const eventDate = new Date(event.date);
+                      return (
+                        <div 
+                          key={`event-${index}`} 
+                          className="flex-shrink-0 w-80 bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                          onClick={() => handleEventClick(event)}
+                        >
+                          <div className="relative bg-gradient-to-br from-red-700 to-red-900 h-40">
+                            <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-r from-red-800 via-green-600 to-blue-600 opacity-80"></div>
+                            <div className="relative h-full flex flex-col items-center justify-center p-4">
+                              <div className="w-14 h-14 bg-gradient-to-br from-yellow-600 to-yellow-700 rounded-lg mb-2 flex items-center justify-center border-4 border-yellow-500">
+                                <Icon icon="mdi:medical-bag" className="w-8 h-8 text-white" />
+                              </div>
+                              <h3 className="text-xl font-bold text-white text-center">NATIONAL<br/>CONGRESS</h3>
+                              <div className="bg-yellow-500 text-gray-900 px-2 py-1 rounded-full text-xs font-bold mt-1">
+                                INDONESIAN ORTHOPAEDIC ASSOCIATION
+                              </div>
+                            </div>
+                          </div>
+                          <div className="p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-sm text-gray-600">
+                                {eventDate.getDate()} {monthNames[eventDate.getMonth()].slice(0, 3)} {eventDate.getFullYear()}
+                              </span>
+                              <span className="text-xs px-2 py-1 rounded font-medium bg-purple-100 text-purple-700">
+                                Event
+                              </span>
+                            </div>
+                            <h4 className="font-bold text-gray-900 line-clamp-2">{event.title}</h4>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-              ))}
-            </div>
+              );
+            })()}
           </div>
 
           {/* Upcoming Test */}
-          <div className="mb-8">
-            <h2 className="text-xl font-bold text-blue-700 mb-4">
-              Upcoming Test <span className="text-gray-600 font-normal">05 Nov 2025 - 11 Nov 2025</span>
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {upcomingTests.map((test, index) => (
-                <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm text-gray-600">{test.date}</span>
-                    <span className="bg-red-500 text-white text-xs px-2 py-1 rounded">{test.type}</span>
-                  </div>
-                  <h3 className="font-semibold text-gray-900">{test.title}</h3>
-                </div>
-              ))}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-blue-600">Upcoming Test</h2>
+              <span className="text-gray-600 font-normal">{getUpcomingTestDateRange()}</span>
             </div>
+            
+            {(() => {
+              const upcomingTests = getUpcomingTests();
+              
+              if (upcomingTests.length === 0) {
+                return (
+                  <div className="text-center py-8 text-gray-500">
+                    <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                    <p>No upcoming tests in the next 7 days</p>
+                  </div>
+                );
+              }
+              
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {upcomingTests.map((test, index) => {
+                    const testDate = new Date(test.date);
+                    const eventColor = getEventColor(test.type);
+                    return (
+                      <div 
+                        key={index} 
+                        className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
+                        onClick={() => handleEventClick(test)}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-sm text-gray-600">
+                            {testDate.getDate()} {monthNames[testDate.getMonth()].slice(0, 3)} {testDate.getFullYear()}
+                          </span>
+                          <span className="text-xs px-2 py-1 rounded font-medium bg-red-100 text-red-700">
+                            Test
+                          </span>
+                        </div>
+                        <h3 className="font-bold text-gray-900">{test.title}</h3>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </div>
 
           {/* Upcoming Event */}
-          <div className="mb-8">
-            <h2 className="text-xl font-bold text-blue-700 mb-4">
-              Upcoming Event <span className="text-gray-600 font-normal">05 Nov 2025 - 11 Nov 2025</span>
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {upcomingEvents.map((event, index) => (
-                <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="relative bg-gradient-to-br from-red-700 to-red-900 h-48">
-                    <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-r from-red-800 via-green-600 to-blue-600 opacity-80"></div>
-                    <div className="relative h-full flex flex-col items-center justify-center p-6">
-                      <div className="w-16 h-16 bg-gradient-to-br from-yellow-600 to-yellow-700 rounded-lg mb-3 flex items-center justify-center border-4 border-yellow-500">
-                        <Icon icon="mdi:medical-bag" className="w-10 h-10 text-white" />
-                      </div>
-                      <h3 className="text-2xl font-bold text-white text-center">NATIONAL<br/>CONGRESS</h3>
-                      <div className="bg-yellow-500 text-gray-900 px-3 py-1 rounded-full text-xs font-bold mt-2">
-                        INDONESIAN ORTHOPAEDIC ASSOCIATION
-                      </div>
-                    </div>
-                    <div className="absolute bottom-4 left-4 bg-white rounded-lg px-3 py-2 text-center">
-                      <div className="text-xs text-gray-600 font-semibold">5 NOV</div>
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <h4 className="font-bold text-gray-900">{event.title}</h4>
-                  </div>
-                </div>
-              ))}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-blue-600">Upcoming Event</h2>
+              <span className="text-gray-600 font-normal">{getUpcomingEventDateRange()}</span>
             </div>
+            
+            {(() => {
+              const upcomingEvents = getUpcomingEvents();
+              
+              if (upcomingEvents.length === 0) {
+                return (
+                  <div className="text-center py-8 text-gray-500">
+                    <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                    <p>No upcoming events in the next 7 days</p>
+                  </div>
+                );
+              }
+              
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {upcomingEvents.map((event, index) => {
+                    const eventDate = new Date(event.date);
+                    const eventColor = getEventColor(event.type);
+                    return (
+                      <div 
+                        key={index} 
+                        className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                        onClick={() => handleEventClick(event, true)}
+                      >
+                        <div className="relative bg-gradient-to-br from-red-700 to-red-900 h-48">
+                          <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-r from-red-800 via-green-600 to-blue-600 opacity-80"></div>
+                          <div className="relative h-full flex flex-col items-center justify-center p-6">
+                            <div className="w-16 h-16 bg-gradient-to-br from-yellow-600 to-yellow-700 rounded-lg mb-3 flex items-center justify-center border-4 border-yellow-500">
+                              <Icon icon="mdi:medical-bag" className="w-10 h-10 text-white" />
+                            </div>
+                            <h3 className="text-2xl font-bold text-white text-center">NATIONAL<br/>CONGRESS</h3>
+                            <div className="bg-yellow-500 text-gray-900 px-3 py-1 rounded-full text-xs font-bold mt-2">
+                              INDONESIAN ORTHOPAEDIC ASSOCIATION
+                            </div>
+                          </div>
+                        </div>
+                        <div className="p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-sm text-gray-600">
+                              {eventDate.getDate()} {monthNames[eventDate.getMonth()].slice(0, 3)} {eventDate.getFullYear()}
+                            </span>
+                            <span className="text-xs px-2 py-1 rounded font-medium bg-purple-100 text-purple-700">
+                              Event
+                            </span>
+                          </div>
+                          <h4 className="font-bold text-gray-900">{event.title}</h4>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </div>
 
           {/* Calendar */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="mb-6">
-              <h2 className="text-xl font-bold text-blue-700 mb-4">Calender Academic</h2>
-              
-              {/* Calendar Header */}
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-gray-900">
-                  {monthNames[currentMonth]}, {currentYear}
-                </h3>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-600">Februari, 2025</span>
-                  <button
-                    onClick={handlePrevMonth}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <ChevronLeft className="w-5 h-5 text-gray-600" />
-                  </button>
-                  <button
-                    onClick={handleNextMonth}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <ChevronRight className="w-5 h-5 text-gray-600" />
-                  </button>
-                </div>
-              </div>
+            <h2 className="text-2xl font-bold text-blue-600 mb-6">Calender Academic</h2>
+            
+            {/* Calendar Header */}
+            <div className="flex items-center justify-between mb-6">
+              <button
+                onClick={handlePrevMonth}
+                className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"
+              >
+                <ChevronLeft className="w-5 h-5" />
+                <span>
+                  {monthNames[currentMonth === 0 ? 11 : currentMonth - 1]}, {currentMonth === 0 ? currentYear - 1 : currentYear}
+                </span>
+              </button>
 
-              {/* Calendar Grid */}
-              <div className="grid grid-cols-7 gap-2">
-                {/* Day Headers */}
-                {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((day) => (
-                  <div key={day} className="text-center text-xs font-semibold text-gray-600 py-2">
+              <h3 
+                className="text-2xl font-bold text-red-700 cursor-pointer hover:text-red-800 transition-colors"
+                onClick={handleOpenDatePicker}
+                title="Click to change month/year"
+              >
+                {monthNames[currentMonth]}, {currentYear}
+              </h3>
+
+              <button
+                onClick={handleNextMonth}
+                className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"
+              >
+                <span>
+                  {monthNames[currentMonth === 11 ? 0 : currentMonth + 1]}, {currentMonth === 11 ? currentYear + 1 : currentYear}
+                </span>
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Calendar Grid */}
+            <div className="border border-gray-300">
+              {/* Day Headers */}
+              <div className="grid grid-cols-7 border-b border-gray-300">
+                {["SUN", "MON", "TUE", "WED", "THUR", "FRI", "SAT"].map((day) => (
+                  <div key={day} className="text-center text-sm font-semibold text-gray-600 py-3 border-r border-gray-300 last:border-r-0 bg-gray-50">
                     {day}
                   </div>
                 ))}
+              </div>
 
-                {/* Calendar Days */}
+              {/* Calendar Days */}
+              <div className="grid grid-cols-7">
                 {generateCalendar().map((item, index) => (
                   <div
                     key={index}
-                    className={`min-h-24 border border-gray-200 p-2 ${
-                      !item.isCurrentMonth ? "bg-gray-50 text-gray-400" : "bg-white"
-                    }`}
+                    className={`min-h-[120px] border-r border-b border-gray-300 p-2 cursor-pointer hover:bg-gray-50 transition-colors last:border-r-0 ${
+                      !item.isCurrentMonth ? "bg-gray-50" : "bg-white"
+                    } ${item.isToday ? "bg-blue-50" : ""}`}
+                    onClick={() => handleDateClick(item.day, item.isCurrentMonth)}
                   >
-                    <div className="text-sm font-medium mb-1">{item.day}</div>
-                    {item.events.map((event, eventIndex) => (
-                      <div
-                        key={eventIndex}
-                        className={`text-xs p-1 rounded ${event.color} text-gray-800 mb-1`}
-                      >
-                        {event.title}
+                    <div className={`text-sm font-medium mb-1 ${
+                      !item.isCurrentMonth ? "text-gray-400" : "text-gray-900"
+                    } ${item.isToday ? "text-blue-600 font-bold" : ""}`}>
+                      {item.day}
+                    </div>
+                    {item.isToday && (
+                      <div className="text-xs bg-blue-200 text-blue-800 px-2 py-0.5 rounded mb-1 inline-block">
+                        Today
                       </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-
-              {/* Legend */}
-              <div className="flex flex-wrap items-center gap-4 mt-6 pt-6 border-t border-gray-200">
-                {eventTypes.map((type, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${type.color}`}></div>
-                    <span className="text-sm text-gray-700">{type.name}</span>
+                    )}
+                    <div className="space-y-1">
+                      {item.events.map((event, eventIndex) => {
+                        const eventColor = getEventColor(event.type);
+                        return (
+                          <div
+                            key={eventIndex}
+                            className={`text-xs p-1 rounded ${eventColor.color} bg-opacity-20 ${eventColor.textColor} cursor-pointer hover:bg-opacity-30 transition-colors`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEventClick(event);
+                            }}
+                          >
+                            {event.title}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
+
+            {/* Legend */}
+            <div className="flex flex-wrap items-center gap-6 mt-6 pt-6 border-t border-gray-200">
+              {eventTypes.map((type) => (
+                <div key={type.id} className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full ${type.color}`}></div>
+                  <span className="text-sm text-gray-700">{type.name}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
+
+      {/* Add Event Modal */}
+      {showEventModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-xl font-bold text-gray-900">Add Event</h3>
+              <button
+                onClick={() => setShowEventModal(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const newEvent = {
+                  date: new Date(selectedDate.year, selectedDate.month, selectedDate.day),
+                  title: formData.get('title'),
+                  type: formData.get('type'),
+                  description: formData.get('description')
+                };
+                handleAddEvent(newEvent);
+                e.target.reset();
+              }}
+              className="p-6 space-y-4"
+            >
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Date
+                </label>
+                <input
+                  type="text"
+                  value={selectedDate ? `${selectedDate.day} ${monthNames[selectedDate.month]} ${selectedDate.year}` : ''}
+                  readOnly
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Event Title *
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  required
+                  placeholder="Enter event title"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Event Type *
+                </label>
+                <select
+                  name="type"
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  {eventTypes.map((type) => (
+                    <option key={type.id} value={type.id}>
+                      {type.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Description
+                </label>
+                <textarea
+                  name="description"
+                  rows="3"
+                  placeholder="Enter event description (optional)"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                ></textarea>
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowEventModal(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  Add Event
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Event Detail Modal */}
+      {showDetailModal && selectedEvent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
+            <div className={`p-6 rounded-t-xl ${getEventColor(selectedEvent.type).color}`}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-white" />
+                  <span className="text-white font-medium text-sm">
+                    {new Date(selectedEvent.date).getDate()} {monthNames[new Date(selectedEvent.date).getMonth()]} {new Date(selectedEvent.date).getFullYear()}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setShowDetailModal(false)}
+                  className="text-white hover:text-gray-200 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <h3 className="text-xl font-bold text-white">{selectedEvent.title}</h3>
+            </div>
+            <div className="p-6">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-500 mb-1">Event Type</label>
+                <div className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full ${getEventColor(selectedEvent.type).color}`}></div>
+                  <span className="text-gray-900 font-medium">{getEventColor(selectedEvent.type).name}</span>
+                </div>
+              </div>
+              {selectedEvent.description && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-500 mb-1">Description</label>
+                  <p className="text-gray-700">{selectedEvent.description}</p>
+                </div>
+              )}
+              <div className="flex gap-3">
+                {!selectedEvent.viewOnly && (
+                  <button
+                    onClick={() => handleDeleteClick(selectedEvent)}
+                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center justify-center gap-2"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowDetailModal(false)}
+                  className={`${selectedEvent.viewOnly ? 'w-full' : 'flex-1'} px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium`}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Month/Year Picker Modal */}
+      {showDatePickerModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-xl font-bold text-gray-900">Select Month & Year</h3>
+              <button
+                onClick={() => setShowDatePickerModal(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Month
+                </label>
+                <select
+                  value={tempMonth}
+                  onChange={(e) => setTempMonth(parseInt(e.target.value))}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 font-medium"
+                >
+                  {monthNames.map((month, index) => (
+                    <option key={index} value={index}>
+                      {month}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Year
+                </label>
+                <select
+                  value={tempYear}
+                  onChange={(e) => setTempYear(parseInt(e.target.value))}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 font-medium"
+                >
+                  {generateYearRange().map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowDatePickerModal(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleApplyDatePicker}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  Apply
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && eventToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
+            <div className="p-6">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full">
+                <Trash2 className="w-8 h-8 text-red-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 text-center mb-2">Delete Event</h3>
+              <p className="text-gray-600 text-center mb-6">
+                Are you sure you want to delete "<span className="font-semibold text-gray-900">{eventToDelete.title}</span>"? This action cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleCancelDelete}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmDelete}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </HomepageLayout>
   );
 }
