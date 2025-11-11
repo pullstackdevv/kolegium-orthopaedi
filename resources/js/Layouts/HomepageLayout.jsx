@@ -203,7 +203,7 @@ export default function MarketplaceLayout({ children }) {
                             <h3 className="text-lg font-bold text-gray-900 mb-4">Menu</h3>
                             <ul className="space-y-2 text-sm text-gray-700">
                                 <li><Link href="/" className="hover:text-blue-600 transition">Home</Link></li>
-                                <li><Link href="#profile-study-program" className="hover:text-blue-600 transition">Study Program Profile</Link></li>
+                                <li><Link href="/profile-study-program/ppds1" className="hover:text-blue-600 transition">Study Program Profile</Link></li>
                                 {/* <li><Link href="#resident" className="hover:text-blue-600 transition">Resident</Link></li> */}
                                 <li><Link href="/calendar-academic" className="hover:text-blue-600 transition">Calender Academic</Link></li>
                                 <li><Link href="/peer-group" className="hover:text-blue-600 transition">Peer Group</Link></li>
