@@ -37,9 +37,16 @@ export default function Subspesialis() {
 
   return (
     <HomepageLayout>
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 py-12">
+      {/* Breadcrumb Section */}
+      <section className="bg-gradient-to-r from-blue-600 to-blue-800 py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-white">Profil Program Studi</h1>
+          <div className="flex items-center gap-2 text-white text-sm">
+            <Link href="/" className="hover:underline">Beranda</Link>
+            <span>/</span>
+            <Link href="/profile-study-program/ppds1" className="hover:underline">Profil Program Studi</Link>
+            <span>/</span>
+            <span>Subspesialis</span>
+          </div>
         </div>
       </section>
 
@@ -65,6 +72,9 @@ export default function Subspesialis() {
 
       <section className="bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-3xl font-bold" style={{ color: '#254D95' }}>Profil Program Studi</h1>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {universities.map((university, index) => (
               <Link
