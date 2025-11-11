@@ -5,8 +5,8 @@ import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import HomepageLayout from "../Layouts/HomepageLayout";
 
 export default function CalendarAcademic() {
-  const [currentMonth, setCurrentMonth] = useState(10); // November (0-indexed)
-  const [currentYear, setCurrentYear] = useState(2025);
+  const [currentMonth, setCurrentMonth] = useState(1); // February (0-indexed)
+  const [currentYear, setCurrentYear] = useState(2026);
 
   // Stats data
   const stats = [
@@ -48,39 +48,80 @@ export default function CalendarAcademic() {
   // Ongoing events
   const ongoingEvents = [
     {
-      date: "5 Nov 2025",
-      type: "CRT",
-      title: "Ujian Tulis Nasional ICBT (Session I)",
-      image: "/assets/images/national-congress.jpg",
-      eventTitle: "23 National Congres"
+      date: "6-7 February 2026",
+      type: "Event",
+      title: "SRS Asia Pacific Meeting 2026",
+      location: "Fukuoka, Japan",
+      image: "/assets/images/event/srs.jpeg",
+      eventTitle: "Scoliosis Research Society – Asia Pacific Meeting 2026"
     }
   ];
 
   // Upcoming tests
   const upcomingTests = [
     {
-      date: "5 Nov 2025",
-      type: "CRT",
-      title: "Ujian Tulis Nasional ICBT (Session I)"
+      date: "7 Dec 2025",
+      type: "LOKAL",
+      title: "Pre-exam PPDS 1",
+      location: "Auditorium RSUP"
+    },
+    {
+      date: "7 Dec 2025",
+      type: "NASIONAL",
+      title: "Fellowship Admission Test",
+      location: "Jakarta Convention Center"
+    },
+    {
+      date: "7 Dec 2025",
+      type: "LOKAL",
+      title: "Subspec Board Examination (Traumatology)",
+      location: "RS Pendidikan"
     }
   ];
 
-  // Upcoming events
+  // Upcoming events - All 6 spine surgery conferences
   const upcomingEvents = [
     {
-      date: "5 Nov 2025",
-      title: "23 National Congres",
-      image: "/assets/images/national-congress.jpg"
+      date: "6-7 February 2026",
+      title: "SRS Asia Pacific Meeting 2026",
+      description: "Scoliosis Research Society – Asia Pacific Meeting 2026",
+      location: "Fukuoka, Japan",
+      image: "/assets/images/event/srs.jpeg"
     },
     {
-      date: "5 Nov 2025",
-      title: "23 National Congres",
-      image: "/assets/images/national-congress.jpg"
+      date: "11-13 March 2026",
+      title: "CSRS-AP 2026",
+      description: "16th Annual Meeting of Cervical Spine Research Society – Asia Pacific",
+      location: "Shanghai, China",
+      image: "/assets/images/event/csrs-ap.jpeg"
     },
     {
-      date: "5 Nov 2025",
-      title: "23 National Congres",
-      image: "/assets/images/national-congress.jpg"
+      date: "20-22 May 2026",
+      title: "KSSS 2026",
+      description: "The 43rd International Congress of Korean Society of Spine Surgery",
+      location: "Seoul, South Korea",
+      image: "/assets/images/event/ksss.jpeg"
+    },
+    {
+      date: "3-6 June 2026",
+      title: "APSS Congress 2026",
+      description: "Asia Pacific Spine Society 32nd Annual Meeting",
+      location: "Cebu, Philippines",
+      image: "/assets/images/event/apss.jpeg"
+    },
+    {
+      date: "18-20 June 2026",
+      title: "Asia Spine 2026",
+      description: "The 17th Annual Meeting of Asia Spine",
+      location: "Osaka, Japan",
+      image: "/assets/images/event/asia-spine.jpeg"
+    },
+    {
+      date: "16-18 July 2026",
+      title: "SMISS-ASEAN MISST-SSS Combine Meeting 2026",
+      description: "Combine Meeting of Society for Minimally Invasive Spine Surgery",
+      location: "Singapore",
+      image: "/assets/images/event/smiss.jpeg"
     }
   ];
 
@@ -198,32 +239,31 @@ export default function CalendarAcademic() {
           {/* Ongoing Today */}
           <div className="mb-8">
             <h2 className="text-xl font-bold text-blue-700 mb-4">
-              Ongoing Today <span className="text-gray-600 font-normal">05 November 2025</span>
+              Ongoing Today <span className="text-gray-600 font-normal">06 February 2026</span>
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {ongoingEvents.map((event, index) => (
                 <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="p-4 border-b border-gray-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm text-gray-600">{event.date}</span>
-                      <span className="bg-red-500 text-white text-xs px-2 py-1 rounded">{event.type}</span>
-                    </div>
-                    <h3 className="font-bold text-gray-900">{event.title}</h3>
+                  <div className="relative h-48 overflow-hidden">
+                    <img 
+                      src={event.image}
+                      alt={event.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.parentElement.innerHTML = '<div class="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center"><svg class="w-16 h-16 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>';
+                      }}
+                    />
                   </div>
-                  <div className="relative bg-gradient-to-br from-red-700 to-red-900 h-48">
-                    <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-r from-red-800 via-green-600 to-blue-600 opacity-80"></div>
-                    <div className="relative h-full flex flex-col items-center justify-center p-6">
-                      <div className="w-16 h-16 bg-gradient-to-br from-yellow-600 to-yellow-700 rounded-lg mb-3 flex items-center justify-center border-4 border-yellow-500">
-                        <Icon icon="mdi:medical-bag" className="w-10 h-10 text-white" />
-                      </div>
-                      <h3 className="text-2xl font-bold text-white text-center">NATIONAL<br/>CONGRESS</h3>
-                      <div className="bg-yellow-500 text-gray-900 px-3 py-1 rounded-full text-xs font-bold mt-2">
-                        INDONESIAN ORTHOPAEDIC ASSOCIATION
-                      </div>
+                  <div className="p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-sm font-medium text-gray-700">{event.date}</span>
+                      <span className="text-gray-400">•</span>
+                      <span className="bg-purple-100 text-purple-700 text-xs font-semibold px-3 py-1 rounded">{event.type}</span>
                     </div>
-                  </div>
-                  <div className="p-4">
-                    <h4 className="font-bold text-gray-900">{event.eventTitle}</h4>
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">{event.title}</h3>
+                    <p className="text-sm text-gray-600 mb-2">{event.eventTitle}</p>
+                    <p className="text-sm text-gray-500">{event.location}</p>
                   </div>
                 </div>
               ))}
@@ -233,16 +273,20 @@ export default function CalendarAcademic() {
           {/* Upcoming Test */}
           <div className="mb-8">
             <h2 className="text-xl font-bold text-blue-700 mb-4">
-              Upcoming Test <span className="text-gray-600 font-normal">05 Nov 2025 - 11 Nov 2025</span>
+              Upcoming Examination <span className="text-gray-600 font-normal">December 2025</span>
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {upcomingTests.map((test, index) => (
-                <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm text-gray-600">{test.date}</span>
-                    <span className="bg-red-500 text-white text-xs px-2 py-1 rounded">{test.type}</span>
+                <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-sm font-medium text-gray-700">{test.date}</span>
+                    <span className="text-gray-400">•</span>
+                    <span className={`${test.type === 'NASIONAL' ? 'bg-blue-600' : test.type === 'LOKAL' ? 'bg-purple-600' : 'bg-red-600'} text-white text-xs font-bold px-3 py-1 rounded`}>
+                      {test.type}
+                    </span>
                   </div>
-                  <h3 className="font-semibold text-gray-900">{test.title}</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{test.title}</h3>
+                  <p className="text-sm text-gray-600">{test.location}</p>
                 </div>
               ))}
             </div>
@@ -251,28 +295,31 @@ export default function CalendarAcademic() {
           {/* Upcoming Event */}
           <div className="mb-8">
             <h2 className="text-xl font-bold text-blue-700 mb-4">
-              Upcoming Event <span className="text-gray-600 font-normal">05 Nov 2025 - 11 Nov 2025</span>
+              Upcoming Event <span className="text-gray-600 font-normal">February - July 2026</span>
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {upcomingEvents.map((event, index) => (
-                <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="relative bg-gradient-to-br from-red-700 to-red-900 h-48">
-                    <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-r from-red-800 via-green-600 to-blue-600 opacity-80"></div>
-                    <div className="relative h-full flex flex-col items-center justify-center p-6">
-                      <div className="w-16 h-16 bg-gradient-to-br from-yellow-600 to-yellow-700 rounded-lg mb-3 flex items-center justify-center border-4 border-yellow-500">
-                        <Icon icon="mdi:medical-bag" className="w-10 h-10 text-white" />
-                      </div>
-                      <h3 className="text-2xl font-bold text-white text-center">NATIONAL<br/>CONGRESS</h3>
-                      <div className="bg-yellow-500 text-gray-900 px-3 py-1 rounded-full text-xs font-bold mt-2">
-                        INDONESIAN ORTHOPAEDIC ASSOCIATION
-                      </div>
-                    </div>
-                    <div className="absolute bottom-4 left-4 bg-white rounded-lg px-3 py-2 text-center">
-                      <div className="text-xs text-gray-600 font-semibold">5 NOV</div>
-                    </div>
+                <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                  <div className="relative h-48 overflow-hidden">
+                    <img 
+                      src={event.image}
+                      alt={event.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.parentElement.innerHTML = '<div class="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center"><svg class="w-16 h-16 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>';
+                      }}
+                    />
                   </div>
-                  <div className="p-4">
-                    <h4 className="font-bold text-gray-900">{event.title}</h4>
+                  <div className="p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-sm font-medium text-gray-700">{event.date}</span>
+                      <span className="text-gray-400">•</span>
+                      <span className="bg-purple-100 text-purple-700 text-xs font-semibold px-3 py-1 rounded">Event</span>
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">{event.title}</h3>
+                    <p className="text-sm text-gray-600 mb-2 line-clamp-2">{event.description}</p>
+                    <p className="text-sm text-gray-500">{event.location}</p>
                   </div>
                 </div>
               ))}

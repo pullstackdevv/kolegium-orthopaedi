@@ -18,7 +18,7 @@
   <meta property="og:url" content="{{ url()->current() }}">
   <meta property="og:title" content="Kolegium Orthopaedi & Traumatologi Indonesia">
   <meta property="og:description" content="Organisasi profesional dokter spesialis orthopaedi dan traumatologi terkemuka di Indonesia. Bergabunglah dengan komunitas profesional terbesar.">
-  <meta property="og:image" content="{{ asset('assets/images/logos/kolegium.svg') }}">
+  <meta property="og:image" content="{{ asset('assets/images/logos/kolegium.png') }}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:site_name" content="Kolegium Orthopaedi & Traumatologi Indonesia">
@@ -29,14 +29,14 @@
   <meta property="twitter:url" content="{{ url()->current() }}">
   <meta property="twitter:title" content="Kolegium Orthopaedi & Traumatologi Indonesia">
   <meta property="twitter:description" content="Organisasi profesional dokter spesialis orthopaedi dan traumatologi terkemuka di Indonesia. Bergabunglah dengan komunitas profesional terbesar.">
-  <meta property="twitter:image" content="{{ asset('assets/images/logos/kolegium.svg') }}">
+  <meta property="twitter:image" content="{{ asset('assets/images/logos/kolegium.png') }}">
   
   <!-- WhatsApp Specific -->
   <meta property="og:image:alt" content="Logo Kolegium Orthopaedi & Traumatologi Indonesia">
   
   <!-- Favicon -->
-  <link rel="icon" href="{{ asset('assets/icons/icon.svg') }}" type="image/x-icon">
-  <link rel="apple-touch-icon" href="{{ asset('assets/images/logos/kolegium.svg') }}">
+  <link rel="icon" href="{{ asset('assets/images/logos/logo.png') }}" type="image/png">
+  <link rel="apple-touch-icon" href="{{ asset('assets/images/logos/logo.png') }}">
   
   @routes
   @viteReactRefresh
