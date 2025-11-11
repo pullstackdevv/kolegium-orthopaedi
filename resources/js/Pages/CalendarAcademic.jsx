@@ -31,9 +31,9 @@ export default function CalendarAcademic() {
     {
       id: 1,
       date: new Date(2025, 11, 6), // December 6, 2025
-      title: "Ujian Tulis Nasional/CBT (Session I)",
+      title: "National Board Examination (Session 2)",
       type: "ujian_nasional",
-      description: "Ujian tulis nasional untuk PPDS 1"
+      description: "National board examination for PPDS 1"
     },
     {
       id: 2,
@@ -137,6 +137,63 @@ export default function CalendarAcademic() {
     { id: "event_lokal", name: "Event Lokal", color: "bg-green-500", textColor: "text-green-700" },
     { id: "event_nasional", name: "Event Nasional", color: "bg-orange-500", textColor: "text-orange-700" },
     { id: "event_peer_group", name: "Event Peer Group", color: "bg-purple-500", textColor: "text-purple-700" }
+  ];
+
+  const new_events = [
+    { 
+      date: "6-7 February 2026", 
+      title: "SRS Asia Pacific Meeting 2026",
+      description: "Scoliosis Research Society – Asia Pacific Meeting 2026",
+      location: "Fukuoka, Japan",
+      image: "/assets/images/event/srs.jpeg",
+      registration: "https://www.srs.org/Meetings-Conferences/Regional-Scientific-Meeting/RSM-2026",
+      badge: "Event"
+    },
+    { 
+      date: "11-13 March 2026", 
+      title: "CSRS-AP 2026",
+      description: "16th Annual Meeting of Cervical Spine Research Society – Asia Pacific",
+      location: "Shanghai International Convention Center, China",
+      image: "/assets/images/event/csrs-ap.jpeg",
+      registration: "https://www.csrs-ap2026.org/",
+      badge: "Event"
+    },
+    { 
+      date: "20-22 May 2026", 
+      title: "KSSS 2026",
+      description: "The 43rd International Congress of Korean Society of Spine Surgery",
+      location: "Lotte Hotel Seoul, South Korea",
+      image: "/assets/images/event/ksss.jpeg",
+      registration: "https://ksss2026.org/ksss/contents/01_06.php",
+      badge: "Event"
+    },
+    { 
+      date: "3-6 June 2026", 
+      title: "APSS Congress 2026",
+      description: "Asia Pacific Spine Society 32nd Annual Scientific Meeting and Philippine Spine Society Annual Meeting",
+      location: "Shangri-La Mactan, Cebu, Philippines",
+      image: "/assets/images/event/apss.jpeg",
+      registration: "https://www.apss2026ph.org",
+      badge: "Event"
+    },
+    { 
+      date: "18-20 June 2026", 
+      title: "Asia Spine 2026",
+      description: "The 17th Annual Meeting of Asia Spine",
+      location: "Osaka International Convention Center, Osaka, Japan",
+      image: "/assets/images/event/asia-spine.jpeg",
+      registration: "https://cs-oto3.com/nsj2026-17amoas/en-greeting.html",
+      badge: "Event"
+    },
+    { 
+      date: "16-18 July 2026", 
+      title: "SMISS-ASEAN MISST-SSS Combine Meeting 2026",
+      description: "Combine Meeting of Society for Minimally Invasive Spine Surgery – Asia Pacific (SMISS-AP), 6th Meeting - Singapore Spine Society (SSS), 9th Meeting",
+      location: "Shangri-La Hotel, Singapore",
+      image: "/assets/images/event/smiss.jpeg",
+      registration: "https://www.smiss-aseanmisst-sss2026.org/",
+      badge: "Event"
+    }
   ];
 
   const getEventColor = (type) => {
@@ -257,25 +314,28 @@ export default function CalendarAcademic() {
 
   // Get upcoming events (next 7 days, excluding tests)
   const getUpcomingEvents = () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const nextWeek = new Date(today);
-    nextWeek.setDate(today.getDate() + 7);
-    nextWeek.setHours(23, 59, 59, 999);
+    // const today = new Date();
+    // today.setHours(0, 0, 0, 0);
+    // const nextWeek = new Date(today);
+    // nextWeek.setDate(today.getDate() + 7);
+    // nextWeek.setHours(23, 59, 59, 999);
     
-    return events.filter(event => {
-      const eventDate = new Date(event.date);
-      eventDate.setHours(0, 0, 0, 0);
-      const isEvent = event.type !== 'ujian_lokal' && event.type !== 'ujian_nasional';
-      return isEvent && eventDate >= today && eventDate <= nextWeek;
-    });
+    // return events.filter(event => {
+    //   const eventDate = new Date(event.date);
+    //   eventDate.setHours(0, 0, 0, 0);
+    //   const isEvent = event.type !== 'ujian_lokal' && event.type !== 'ujian_nasional';
+    //   return isEvent && eventDate >= today && eventDate <= nextWeek;
+    // });
+
+    return  new_events;
   };
+
   
   // Format date range for upcoming events
   const getUpcomingEventDateRange = () => {
-    const today = new Date();
+    const today = new Date(2026, 1, 6);
     const nextWeek = new Date(today);
-    nextWeek.setDate(today.getDate() + 7);
+    nextWeek.setDate(today.getDate() + 162);
     
     return `${today.getDate()} ${monthNames[today.getMonth()].slice(0, 3)} ${today.getFullYear()} - ${nextWeek.getDate()} ${monthNames[nextWeek.getMonth()].slice(0, 3)} ${nextWeek.getFullYear()}`;
   };
@@ -566,38 +626,49 @@ export default function CalendarAcademic() {
               return (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {upcomingEvents.map((event, index) => {
-                    const eventDate = new Date(event.date);
+                    // const eventDate = new Date(event.date);
+                    const eventDate = event.date;
                     const eventColor = getEventColor(event.type);
                     return (
-                      <div 
-                        key={index} 
-                        className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
-                        onClick={() => handleEventClick(event, true)}
-                      >
-                        <div className="relative bg-gradient-to-br from-red-700 to-red-900 h-48">
-                          <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-r from-red-800 via-green-600 to-blue-600 opacity-80"></div>
-                          <div className="relative h-full flex flex-col items-center justify-center p-6">
-                            <div className="w-16 h-16 bg-gradient-to-br from-yellow-600 to-yellow-700 rounded-lg mb-3 flex items-center justify-center border-4 border-yellow-500">
-                              <Icon icon="mdi:medical-bag" className="w-10 h-10 text-white" />
-                            </div>
-                            <h3 className="text-2xl font-bold text-white text-center">NATIONAL<br/>CONGRESS</h3>
-                            <div className="bg-yellow-500 text-gray-900 px-3 py-1 rounded-full text-xs font-bold mt-2">
-                              INDONESIAN ORTHOPAEDIC ASSOCIATION
-                            </div>
-                          </div>
-                        </div>
-                        <div className="p-4">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-sm text-gray-600">
-                              {eventDate.getDate()} {monthNames[eventDate.getMonth()].slice(0, 3)} {eventDate.getFullYear()}
-                            </span>
-                            <span className="text-xs px-2 py-1 rounded font-medium bg-purple-100 text-purple-700">
-                              Event
-                            </span>
-                          </div>
-                          <h4 className="font-bold text-gray-900">{event.title}</h4>
-                        </div>
+                      <div key={index} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300">
+                      {/* Event Image */}
+                      <div className="relative h-48 overflow-hidden">
+                        <img 
+                          src={event.image}
+                          alt={event.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.parentElement.innerHTML = '<div class="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center"><svg class="w-16 h-16 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>';
+                          }}
+                        />
                       </div>
+                      
+                      {/* Event Details */}
+                      <div className="p-5">
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="text-sm font-medium text-gray-700">{event.date}</span>
+                          <span className="text-gray-400">•</span>
+                          <span className="bg-purple-100 text-purple-700 text-xs font-semibold px-3 py-1 rounded">
+                            {event.badge}
+                          </span>
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
+                          {event.title}
+                        </h3>
+                        <p className="text-sm text-gray-600 mb-3">{event.location}</p>
+                        {event.registration && (
+                          <a 
+                            href={event.registration}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-700 text-sm font-medium inline-flex items-center gap-1"
+                          >
+                            Registration <ChevronRight className="w-4 h-4" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
                     );
                   })}
                 </div>
