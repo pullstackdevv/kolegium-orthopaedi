@@ -161,8 +161,8 @@ export default function MarketplaceLayout({ children }) {
                                 )}
                             </div>
 
-                            <Link href="#resident" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Resident</Link>
-                            <Link href="#calendar" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Calender Academic</Link>
+                            {/* <Link href="#resident" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Resident</Link> */}
+                            <Link href="/calendar-academic" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Calender Academic</Link>
                             <Link href="/peer-group" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Peer Group</Link>
                             
                             <Link href="/about-us" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>About Us</Link>
@@ -204,8 +204,8 @@ export default function MarketplaceLayout({ children }) {
                             <ul className="space-y-2 text-sm text-gray-700">
                                 <li><Link href="/" className="hover:text-blue-600 transition">Home</Link></li>
                                 <li><Link href="#profile-study-program" className="hover:text-blue-600 transition">Study Program Profile</Link></li>
-                                <li><Link href="#resident" className="hover:text-blue-600 transition">Resident</Link></li>
-                                <li><Link href="#calendar-academic" className="hover:text-blue-600 transition">Calender Academic</Link></li>
+                                {/* <li><Link href="#resident" className="hover:text-blue-600 transition">Resident</Link></li> */}
+                                <li><Link href="/calendar-academic" className="hover:text-blue-600 transition">Calender Academic</Link></li>
                                 <li><Link href="/peer-group" className="hover:text-blue-600 transition">Peer Group</Link></li>
                                 <li><Link href="#about-us" className="hover:text-blue-600 transition">About Us</Link></li>
                                 <li><Link href="/cms/login" className="hover:text-blue-600 transition">Login</Link></li>
