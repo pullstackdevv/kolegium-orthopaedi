@@ -2,6 +2,7 @@ import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
 import { MapPin, Phone, Mail, Globe } from "lucide-react";
 import HomepageLayout from "../../Layouts/HomepageLayout";
+import DonutChart from "../../components/DonutChart";
 
 export default function UniversityDetail({ university }) {
   // Sample data - akan diganti dengan data dari props/API
@@ -106,122 +107,180 @@ export default function UniversityDetail({ university }) {
       </section>
 
       {/* Main Content */}
-      <section className="bg-gray-50 py-12">
+      <section className="bg-gray-50 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Main Content */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* University Header Card */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="relative h-64 bg-gradient-to-br from-blue-100 to-blue-200">
-                  <img
-                    src={universityData.image}
-                    alt={universityData.fullName}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                  <div className="absolute bottom-6 left-6 text-white">
-                    <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mb-4 border-4 border-white">
-                      <Icon icon="mdi:school" className="w-10 h-10" />
+          {/* Header Card with Image and Info */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+            <div className="flex flex-col md:flex-row">
+              {/* Left: Image */}
+              <div className="md:w-48 h-48 md:h-auto bg-gradient-to-br from-blue-100 to-blue-200 flex-shrink-0">
+                <img
+                  src={universityData.image}
+                  alt={universityData.fullName}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
+              </div>
+              
+              {/* Right: Info */}
+              <div className="flex-1 p-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Icon icon="mdi:school" className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-600 mb-1">{universityData.description}</p>
+                    <h1 className="text-xl md:text-2xl font-bold text-blue-700 mb-3">
+                      {universityData.fullName}
+                    </h1>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <div className="text-2xl font-bold text-blue-600">{universityData.stats.activeResidents}</div>
+                        <div className="text-xs text-gray-600">Residen Aktif</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-blue-600">{universityData.stats.faculty}</div>
+                        <div className="text-xs text-gray-600">Staf Pengajar</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-blue-600">{universityData.stats.teachingHospitals}</div>
+                        <div className="text-xs text-gray-600">Specialist center</div>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div className="p-6">
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    {universityData.fullName}
-                  </h1>
-                  <p className="text-lg text-blue-600 font-semibold mb-4">
-                    {universityData.description}
-                  </p>
-                  
-                  {/* Stats */}
-                  <div className="grid grid-cols-3 gap-4 pt-6 border-t border-gray-200">
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-blue-600">
-                        {universityData.stats.activeResidents}
-                      </div>
-                      <div className="text-sm text-gray-600 mt-1">Residen Aktif</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Column - Main Content */}
+            <div className="lg:col-span-2 space-y-6">
+
+              {/* Profil Singkat */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                  <Icon icon="mdi:information-outline" className="w-5 h-5" />
+                  Profil Singkat
+                </h2>
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  {universityData.profileResident.description}
+                </p>
+              </div>
+
+              {/* Educational Dashboard FK-UI */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                  <Icon icon="mdi:chart-donut" className="w-5 h-5" />
+                  Educational Dashboard FK-UI
+                </h2>
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Residen Chart */}
+                  <div className="text-center">
+                    <div className="flex justify-center mb-2">
+                      <DonutChart
+                        data={[
+                          { name: 'Residen Aktif', value: 65 },
+                          { name: 'Lainnya', value: 35 }
+                        ]}
+                        colors={['#3B82F6', '#E5E7EB']}
+                        centerText="65"
+                        size={120}
+                      />
                     </div>
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-blue-600">
-                        {universityData.stats.faculty}
+                    <p className="text-xs font-semibold text-gray-900">Residen</p>
+                    <div className="flex items-center justify-center gap-2 mt-2">
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                        <span className="text-[10px] text-gray-600">Aktif: 65</span>
                       </div>
-                      <div className="text-sm text-gray-600 mt-1">Staf Pengajar</div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                        <span className="text-[10px] text-gray-600">Total: 100</span>
+                      </div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-blue-600">
-                        {universityData.stats.teachingHospitals}
+                  </div>
+
+                  {/* Alumni Chart */}
+                  <div className="text-center">
+                    <div className="flex justify-center mb-2">
+                      <DonutChart
+                        data={[
+                          { name: 'Alumni', value: 450 },
+                          { name: 'Lainnya', value: 50 }
+                        ]}
+                        colors={['#EC4899', '#E5E7EB']}
+                        centerText="450"
+                        size={120}
+                      />
+                    </div>
+                    <p className="text-xs font-semibold text-gray-900">Alumni</p>
+                    <div className="flex items-center justify-center gap-2 mt-2">
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full bg-pink-500"></div>
+                        <span className="text-[10px] text-gray-600">Alumni: 450</span>
                       </div>
-                      <div className="text-sm text-gray-600 mt-1">RS Pendidikan</div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                        <span className="text-[10px] text-gray-600">Total: 500</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Profil Residen */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 className="text-xl font-bold text-blue-700 mb-6 flex items-center gap-2">
-                  <Icon icon="mdi:account-circle" className="w-6 h-6" />
-                  Profil Residen
+              {/* Data Residen */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                  <Icon icon="mdi:chart-box-outline" className="w-5 h-5" />
+                  Data Residen
                 </h2>
-                <div className="flex items-start gap-6">
-                  <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Icon icon="mdi:account" className="w-16 h-16 text-blue-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-bold text-gray-900 mb-1">
-                      {universityData.profileResident.name}
-                    </h3>
-                    <p className="text-sm text-blue-600 mb-3">
-                      {universityData.profileResident.position}
-                    </p>
-                    <p className="text-sm text-gray-700 leading-relaxed">
-                      {universityData.profileResident.description}
-                    </p>
-                  </div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-gray-700">Total Residen Aktif</span>
+                  <span className="text-2xl font-bold text-blue-600">{universityData.stats.activeResidents}</span>
                 </div>
+                <Link href="#" className="text-sm text-blue-600 hover:underline">Lihat Detail Data Base</Link>
               </div>
 
               {/* Kontak Sekretariat */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 className="text-xl font-bold text-blue-700 mb-6 flex items-center gap-2">
-                  <Icon icon="mdi:map-marker" className="w-6 h-6" />
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                  <Icon icon="mdi:map-marker" className="w-5 h-5" />
                   Kontak Sekretariat
                 </h2>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2">
+                    <MapPin className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                     <div>
-                      <div className="text-sm font-semibold text-gray-900">Alamat</div>
-                      <div className="text-sm text-gray-700">{universityData.contact.address}</div>
+                      <div className="text-xs font-semibold text-gray-900">Alamat</div>
+                      <div className="text-xs text-gray-700">{universityData.contact.address}</div>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <Mail className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
+                  <div className="flex items-start gap-2">
+                    <Mail className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                     <div>
-                      <div className="text-sm font-semibold text-gray-900">Email</div>
-                      <a href={`mailto:${universityData.contact.email}`} className="text-sm text-blue-600 hover:underline">
+                      <div className="text-xs font-semibold text-gray-900">Email</div>
+                      <a href={`mailto:${universityData.contact.email}`} className="text-xs text-blue-600 hover:underline">
                         {universityData.contact.email}
                       </a>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <Phone className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
+                  <div className="flex items-start gap-2">
+                    <Phone className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                     <div>
-                      <div className="text-sm font-semibold text-gray-900">Telepon</div>
-                      <a href={`tel:${universityData.contact.phone}`} className="text-sm text-blue-600 hover:underline">
+                      <div className="text-xs font-semibold text-gray-900">Telepon</div>
+                      <a href={`tel:${universityData.contact.phone}`} className="text-xs text-blue-600 hover:underline">
                         {universityData.contact.phone}
                       </a>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <Globe className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
+                  <div className="flex items-start gap-2">
+                    <Globe className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                     <div>
-                      <div className="text-sm font-semibold text-gray-900">Website</div>
-                      <a href={`https://${universityData.contact.website}`} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
+                      <div className="text-xs font-semibold text-gray-900">Website</div>
+                      <a href={`https://${universityData.contact.website}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">
                         {universityData.contact.website}
                       </a>
                     </div>
@@ -229,70 +288,92 @@ export default function UniversityDetail({ university }) {
                 </div>
               </div>
 
-              {/* Staff Pengajar */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 className="text-xl font-bold text-blue-700 mb-6 flex items-center gap-2">
-                  <Icon icon="mdi:account-group" className="w-6 h-6" />
+              {/* Fakultas Kedokteran Universitas Indonesia */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                  <Icon icon="mdi:school-outline" className="w-5 h-5" />
+                  Fakultas Kedokteran Universitas Indonesia
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {universityData.staffList.slice(0, 4).map((staff, index) => (
+                    <div key={index} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Icon icon="mdi:account" className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-xs font-semibold text-gray-900">
+                            {staff.name}
+                          </h4>
+                          <p className="text-xs text-gray-600">{staff.specialization}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <Link href="#" className="text-sm text-blue-600 hover:underline mt-4 inline-block">Lihat Semua Staf</Link>
+              </div>
+
+              {/* Staf Pengajar */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                  <Icon icon="mdi:account-group" className="w-5 h-5" />
                   Staf Pengajar
                 </h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                   {universityData.staffList.map((staff, index) => (
-                    <div key={index} className="text-center">
-                      <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <Icon icon="mdi:account" className="w-12 h-12 text-blue-600" />
+                    <div key={index} className="bg-gray-50 rounded-lg p-3 border border-gray-200 text-center">
+                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <Icon icon="mdi:account" className="w-7 h-7 text-blue-600" />
                       </div>
-                      <h4 className="text-sm font-semibold text-gray-900 mb-1">
-                        {staff.name}
-                      </h4>
-                      <p className="text-xs text-gray-600">{staff.specialization}</p>
+                      <p className="text-[10px] text-gray-900 font-medium leading-tight">{staff.name.split(' ').slice(0, 2).join(' ')}</p>
+                      <p className="text-[9px] text-gray-600 mt-1">{staff.specialization}</p>
                     </div>
                   ))}
                 </div>
+                <Link href="#" className="text-sm text-blue-600 hover:underline mt-4 inline-block">Lihat Semua Staf Pengajar</Link>
               </div>
 
-              {/* Residen Tahun Pertama */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 className="text-xl font-bold text-blue-700 mb-6">
-                  Residen Tahun Pertama
+              {/* Kegiatan Akademik */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                  <Icon icon="mdi:calendar-check" className="w-5 h-5" />
+                  Kegiatan Akademik
                 </h2>
-                <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
-                  {universityData.residents.year1.map((resident, index) => (
-                    <div key={index} className="text-center">
-                      <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <Icon icon="mdi:account" className="w-10 h-10 text-gray-400" />
-                      </div>
-                      <p className="text-xs text-gray-700">{resident.name}</p>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3 pb-3 border-b border-gray-100">
+                    <div className="bg-blue-100 rounded px-2 py-1 text-center flex-shrink-0">
+                      <div className="text-xs font-bold text-blue-600">15</div>
+                      <div className="text-[10px] text-gray-600">NOV</div>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Residen Tahun Kedua */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 className="text-xl font-bold text-blue-700 mb-6">
-                  Residen Tahun Kedua
-                </h2>
-                <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
-                  {universityData.residents.year2.map((resident, index) => (
-                    <div key={index} className="text-center">
-                      <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <Icon icon="mdi:account" className="w-10 h-10 text-gray-400" />
-                      </div>
-                      <p className="text-xs text-gray-700">{resident.name}</p>
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-900">Workshop Trauma</h4>
+                      <p className="text-xs text-gray-600">Auditorium FK-UI</p>
                     </div>
-                  ))}
+                  </div>
+                  <div className="flex items-start gap-3 pb-3 border-b border-gray-100">
+                    <div className="bg-blue-100 rounded px-2 py-1 text-center flex-shrink-0">
+                      <div className="text-xs font-bold text-blue-600">20</div>
+                      <div className="text-[10px] text-gray-600">NOV</div>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-900">Seminar Nasional</h4>
+                      <p className="text-xs text-gray-600">Jakarta Convention Center</p>
+                    </div>
+                  </div>
                 </div>
+                <Link href="#" className="text-sm text-blue-600 hover:underline mt-3 inline-block">Lihat Semua Kegiatan</Link>
               </div>
 
               {/* Galeri */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 className="text-xl font-bold text-blue-700 mb-6 flex items-center gap-2">
-                  <Icon icon="mdi:image-multiple" className="w-6 h-6" />
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                  <Icon icon="mdi:image-multiple" className="w-5 h-5" />
                   Galeri
                 </h2>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                   {universityData.gallery.map((item, index) => (
-                    <div key={index} className="relative rounded-lg overflow-hidden bg-gradient-to-br from-blue-100 to-blue-200 h-48">
+                    <div key={index} className="relative rounded-lg overflow-hidden bg-gradient-to-br from-blue-100 to-blue-200 h-32">
                       <img
                         src={item.image}
                         alt={item.title}
@@ -301,8 +382,8 @@ export default function UniversityDetail({ university }) {
                           e.target.style.display = 'none';
                         }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
-                        <p className="text-white text-sm font-semibold">{item.title}</p>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-2">
+                        <p className="text-white text-xs font-semibold">{item.title}</p>
                       </div>
                     </div>
                   ))}
@@ -311,69 +392,75 @@ export default function UniversityDetail({ university }) {
             </div>
 
             {/* Right Column - Sidebar */}
-            <div className="lg:col-span-1 space-y-6">
-              {/* Informasi Fakultas */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 className="text-lg font-bold text-blue-700 mb-4">
-                  Informasi Fakultas Kedokteran
-                </h2>
-                <div className="space-y-3">
-                  <div>
-                    <div className="text-xs text-gray-600 mb-1">Akreditasi</div>
-                    <div className="text-sm font-semibold text-gray-900">
-                      {universityData.information.accreditation}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-600 mb-1">Tahun Berdiri</div>
-                    <div className="text-sm font-semibold text-gray-900">
-                      {universityData.information.established}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-600 mb-1">Lama Studi</div>
-                    <div className="text-sm font-semibold text-gray-900">
-                      {universityData.information.duration}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-600 mb-1">Kapasitas</div>
-                    <div className="text-sm font-semibold text-gray-900">
-                      {universityData.information.capacity}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Residen Tahun Pertama (Summary) */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="lg:col-span-1 space-y-4">
+              {/* Data Residen */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                 <h3 className="text-sm font-bold text-blue-700 mb-3">
-                  Residen Tahun Pertama
+                  Data Residen
                 </h3>
-                <div className="text-2xl font-bold text-gray-900 mb-2">
-                  {universityData.residents.year1.length}
+                <div className="bg-blue-50 rounded-lg p-3 text-center">
+                  <div className="text-3xl font-bold text-blue-600 mb-1">
+                    {universityData.stats.activeResidents}
+                  </div>
+                  <p className="text-xs text-gray-600">Total Residen Aktif</p>
                 </div>
-                <p className="text-xs text-gray-600">Total Residen</p>
               </div>
 
-              {/* Kegiatan Mendatang */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h3 className="text-sm font-bold text-blue-700 mb-4">
-                  Kegiatan Mendatang
+              {/* Rumah Sakit Pendidikan */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <h3 className="text-sm font-bold text-blue-700 mb-3 flex items-center gap-2">
+                  <Icon icon="mdi:hospital-building" className="w-4 h-4" />
+                  Rumah Sakit Pendidikan
                 </h3>
-                <div className="space-y-3">
-                  <div className="pb-3 border-b border-gray-200">
-                    <div className="text-xs text-gray-600 mb-1">15 Nov 2025</div>
-                    <div className="text-sm font-semibold text-gray-900">Workshop Trauma</div>
-                  </div>
-                  <div className="pb-3 border-b border-gray-200">
-                    <div className="text-xs text-gray-600 mb-1">20 Nov 2025</div>
-                    <div className="text-sm font-semibold text-gray-900">Seminar Nasional</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-600 mb-1">25 Nov 2025</div>
-                    <div className="text-sm font-semibold text-gray-900">Ujian OSCE</div>
-                  </div>
+                <ul className="space-y-2 text-xs text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-600 mt-0.5">•</span>
+                    <span>RSCM Kencana</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-600 mt-0.5">•</span>
+                    <span>RS Fatmawati</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-600 mt-0.5">•</span>
+                    <span>RS Persahabatan</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Informasi System Guides */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <h3 className="text-sm font-bold text-blue-700 mb-3">
+                  Informasi System Guides
+                </h3>
+                <p className="text-xs text-gray-700 mb-3">
+                  Panduan lengkap sistem akademik dan administrasi
+                </p>
+                <Link href="#" className="text-xs text-blue-600 hover:underline">Download Panduan</Link>
+              </div>
+
+              {/* Well-Being Survey */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <h3 className="text-sm font-bold text-blue-700 mb-3 flex items-center gap-2">
+                  <Icon icon="mdi:clipboard-text" className="w-4 h-4" />
+                  Well-Being Survey
+                </h3>
+                <div className="bg-red-50 rounded-lg p-3 mb-3">
+                  <Icon icon="mdi:youtube" className="w-8 h-8 text-red-600 mx-auto mb-2" />
+                  <p className="text-xs text-center text-gray-700">Survey Kesejahteraan Residen</p>
+                </div>
+                <Link href="#" className="text-xs text-blue-600 hover:underline block text-center">Isi Survey</Link>
+              </div>
+
+              {/* Promo/Forum */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <h3 className="text-sm font-bold text-blue-700 mb-3">
+                  Promo/Forum
+                </h3>
+                <div className="space-y-2 text-xs text-gray-700">
+                  <p>• Diskusi Kasus Orthopaedi</p>
+                  <p>• Workshop Gratis</p>
+                  <p>• Seminar Nasional 2025</p>
                 </div>
               </div>
             </div>
