@@ -10,65 +10,74 @@ export default function PeerGroup() {
     {
       id: 1,
       name: "IOSSA",
+      fullName: "Indonesian Orthopaedic Spine Surgeon Association",
       president: "Dr. dr. I Gusti Lanang Ngurah Agung Artha Wiguna, Sp.OT(K)",
-      agenda: "Annual seminar (April), microsurgery workshop (September), monthly case review.",
-      members: 8
+      description: "A professional organization dedicated to advancing spine surgery in Indonesia. IOSSA promotes excellence in education, research, and clinical practice through academic collaboration, training programs, and national symposia.",
+      members: 80
     },
     {
       id: 2,
       name: "INAMSOS",
-      president: "Dr. dr. I Gusti Lanang Ngurah Agung Artha Wiguna, Sp.OT(K)",
-      agenda: "Annual seminar (April), microsurgery workshop (September), monthly case review.",
-      members: 15
+      fullName: "Indonesian Musculoskeletal Oncology Society",
+      president: "dr. Mujaddid Idulhaq, Sp.OT(K)",
+      description: "INAMSOS focuses on the study, research, and treatment of musculoskeletal tumors. The society supports clinical collaboration, oncologic education, and innovation in orthopaedic oncology across Indonesia.",
+      members: 65
     },
     {
       id: 3,
       name: "IHKS",
-      president: "Dr. dr. I Gusti Lanang Ngurah Agung Artha Wiguna, Sp.OT(K)",
-      agenda: "Annual seminar (April), microsurgery workshop (September), monthly case review.",
-      members: 20
+      fullName: "Indonesian Hip and Knee Society",
+      president: "dr. Kiki Novito, Sp.OT(K)",
+      description: "IHKS unites orthopaedic surgeons specializing in hip and knee surgery. It aims to improve patient outcomes through continuous education, joint replacement research, and professional development.",
+      members: 95
     },
     {
       id: 4,
-      name: "IOSSA",
-      president: "Dr. dr. I Gusti Lanang Ngurah Agung Artha Wiguna, Sp.OT(K)",
-      agenda: "Annual seminar (April), microsurgery workshop (September), monthly case review.",
-      members: 48
-    },
-    {
-      id: 5,
-      name: "INAMSOS",
-      president: "Dr. dr. I Gusti Lanang Ngurah Agung Artha Wiguna, Sp.OT(K)",
-      agenda: "Annual seminar (April), microsurgery workshop (September), monthly case review.",
-      members: 77
-    },
-    {
-      id: 6,
-      name: "IHKS",
-      president: "Dr. dr. I Gusti Lanang Ngurah Agung Artha Wiguna, Sp.OT(K)",
-      agenda: "Annual seminar (April), microsurgery workshop (September), monthly case review.",
+      name: "INASES",
+      fullName: "Indonesian Shoulder and Elbow Society",
+      president: "Committee-led organization",
+      description: "INASES brings together experts in shoulder and elbow surgery to enhance knowledge, research, and surgical skills through fellowship, workshops, and academic exchange.",
       members: 45
     },
     {
+      id: 5,
+      name: "IPOS",
+      fullName: "Indonesian Pediatric Orthopaedic Society",
+      president: "Prof. Dr. Yoyos Dias Ismiarto, dr., Sp.OT.Subsp.A.(K)., M.Kes., CCD",
+      description: "IPOS is committed to improving musculoskeletal health in children through education, research, and community outreach in pediatric orthopaedics.",
+      members: 72
+    },
+    {
+      id: 6,
+      name: "IOSSMA",
+      fullName: "Indonesian Orthopaedic Sports Medicine Association",
+      president: "dr. Ghuna Arioharjo Utoyo, AIFO-K, Sp.OT(K)",
+      description: "IOSSMA promotes excellence in sports medicine and injury management. It supports clinical advancement, scientific publication, and national collaboration in orthopaedic sports medicine.",
+      members: 88
+    },
+    {
       id: 7,
-      name: "IOSSA",
-      president: "Dr. dr. I Gusti Lanang Ngurah Agung Artha Wiguna, Sp.OT(K)",
-      agenda: "Annual seminar (April), microsurgery workshop (September), monthly case review.",
-      members: 49
+      name: "INASHUM",
+      fullName: "Indonesian Society for Upper Limb and Microsurgery",
+      president: "Dr. dr. Made Bramantya Karna, Sp.OT(K)",
+      description: "INASHUM focuses on upper limb reconstruction, microsurgery, and functional restoration. The society enhances surgeon competency through education, research, and clinical innovation.",
+      members: 54
     },
     {
       id: 8,
-      name: "INAMSOS",
-      president: "Dr. dr. I Gusti Lanang Ngurah Agung Artha Wiguna, Sp.OT(K)",
-      agenda: "Annual seminar (April), microsurgery workshop (September), monthly case review.",
-      members: 12
+      name: "INAFAS",
+      fullName: "Indonesian Foot and Ankle Society",
+      president: "dr. Andri Primadhi, Sp.OT(K)",
+      description: "INAFAS develops knowledge and best practices in foot and ankle surgery. It promotes collaborative learning, research, and improved patient care in this subspecialty field.",
+      members: 61
     },
     {
       id: 9,
-      name: "IHKS",
-      president: "Dr. dr. I Gusti Lanang Ngurah Agung Artha Wiguna, Sp.OT(K)",
-      agenda: "Annual seminar (April), microsurgery workshop (September), monthly case review.",
-      members: 17
+      name: "IOTS",
+      fullName: "Indonesian Orthopaedic Trauma Society",
+      president: "Not specified",
+      description: "IOTS focuses on trauma management, fracture care, and post-injury reconstruction. The society advances trauma education, clinical standards, and multidisciplinary cooperation in orthopaedic trauma care.",
+      members: 78
     }
   ];
 
@@ -103,18 +112,18 @@ export default function PeerGroup() {
                 
                 {/* President */}
                 <div className="mb-4">
-                  <p className="text-xs text-gray-500 mb-1">President: Dr. dr. I Gusti Lanang Ngurah Agung Artha Wiguna, Sp.OT(K)</p>
+                  <p className="text-xs text-gray-500">President: {group.president}</p>
                 </div>
                 
-                {/* Agenda */}
+                {/* Description */}
                 <div className="mb-4">
-                  <p className="text-sm text-gray-700">{group.agenda}</p>
+                  <p className="text-sm text-gray-700 leading-relaxed">{group.description}</p>
                 </div>
                 
                 {/* Footer */}
                 <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-600">Anggota : {group.members}</span>
+                    <span className="text-sm text-gray-600">Members : {group.members}</span>
                   </div>
                   <Link 
                     href={`/peer-group/${group.id}`}
