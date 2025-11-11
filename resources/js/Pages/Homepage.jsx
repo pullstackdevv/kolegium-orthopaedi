@@ -163,25 +163,25 @@ export default function Homepage() {
   // Upcoming Examination
   const examinations = [
     { 
-      date: "7 Dec 2025", 
-      status: "LOKAL", 
-      statusColor: "bg-purple-600",
+      date: "04 Des 2025", 
+      status: "National Exam", 
+      statusColor: "bg-blue-600",
       title: "Pre-exam PPDS 1", 
-      location: "Auditorium RSUP" 
+      location: "Jakarta" 
     },
     { 
-      date: "7 Dec 2025", 
-      status: "NASIONAL", 
+      date: "6-7 Des 2025", 
+      status: "National Exam", 
+      statusColor: "bg-blue-600",
+      title: "National Board Examination (Session 2)", 
+      location: "Jakarta" 
+    },
+    { 
+      date: "17 Jan 2026", 
+      status: "National Exam", 
       statusColor: "bg-blue-600",
       title: "Fellowship Admission Test", 
-      location: "Jakarta Convention Center" 
-    },
-    { 
-      date: "7 Dec 2025", 
-      status: "LOKAL", 
-      statusColor: "bg-red-600",
-      title: "Subspec Board Examination (Traumatology)", 
-      location: "RS Pendidikan" 
+      location: "Jakarta" 
     }
   ];
 
@@ -220,7 +220,7 @@ export default function Homepage() {
       description: "Asia Pacific Spine Society 32nd Annual Scientific Meeting and Philippine Spine Society Annual Meeting",
       location: "Shangri-La Mactan, Cebu, Philippines",
       image: "/assets/images/event/apss.jpeg",
-      registration: "www.apss2026ph.org",
+      registration: "https://www.apss2026ph.org",
       badge: "Event"
     },
     { 
@@ -632,11 +632,11 @@ export default function Homepage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {examinations.map((exam, index) => (
               <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-300">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-700">{exam.date}</span>
+                    <span className="text-sm text-gray-700">{exam.date}</span>
                     <span className="text-gray-400">•</span>
-                    <span className={`${exam.statusColor} text-white text-xs font-bold px-3 py-1 rounded`}>
+                    <span className={`${exam.statusColor} text-white text-xs font-semibold px-3 py-1 rounded`}>
                       {exam.status}
                     </span>
                   </div>

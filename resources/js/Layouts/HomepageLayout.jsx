@@ -190,14 +190,11 @@ export default function MarketplaceLayout({ children }) {
                                     onError={(e) => e.target.style.display = 'none'}
                                 />
                             </div>
-                            <div className="text-sm text-gray-700 space-y-1">
-                                <p className="font-semibold">Gedung Menara BCA, Lantai 8, Unit B</p>
-                                <p>Jl. Senen Raya No 135-137, Senen</p>
-                                <p>Jakarta Pusat 10410, INDONESIA</p>
+                            <div className="text-sm text-gray-700 space-y-1">                             
+                                <p>Gedung Menara Era, Lantai 8, Unit 8-04 Jl. Senen Raya 135 – 137, Jakarta 10410, INDONESIA</p>
                             </div>
                             <div className="text-sm text-gray-700 space-y-1">
-                                <p className="font-semibold">Sekretariat:</p>
-                                <p>H.T.R.I.K.M.M. (Gedung Kec. Kby, Baru, Kota Jakarta Selatan, Jakarta 12710, Indonesia</p>
+                                <p>Jl. Hang Jebat Blok F3, RT.5/RW.8, Gunung, Kec. Kby. Baru, Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12120, Indonesia</p>
                             </div>
                         </div>
 
