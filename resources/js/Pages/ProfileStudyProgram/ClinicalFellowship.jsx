@@ -40,7 +40,7 @@ export default function ClinicalFellowship() {
   const tabs = [
     { name: "PPDS1", href: "/profile-study-program/ppds1", active: false },
     { name: "Clinical Fellowship", href: "/profile-study-program/clinical-fellowship", active: true },
-    { name: "Subspesialis", href: "/profile-study-program/subspesialis", active: false }
+    { name: "Subspesialist", href: "/profile-study-program/subspesialis", active: false }
   ];
 
   return (
