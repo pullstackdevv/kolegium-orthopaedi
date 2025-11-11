@@ -11,6 +11,47 @@ import {
 import { Icon } from "@iconify/react";
 import { AuthProvider } from "../contexts/AuthContext";
 
+// Navigation Components
+const NavLink = ({ href, active, children }) => (
+    <Link 
+        href={href}
+        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            active 
+                ? 'text-blue-600 bg-blue-50' 
+                : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+        }`}
+    >
+        {children}
+    </Link>
+);
+
+const NavDropdown = ({ label, active, children }) => (
+    <div className="relative group">
+        <button 
+            className={`flex items-center gap-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                active 
+                    ? 'text-blue-600 bg-blue-50' 
+                    : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+            }`}
+        >
+            {label}
+            <ChevronDown className="w-4 h-4" />
+        </button>
+        <div className="absolute left-0 mt-1 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
+            {children}
+        </div>
+    </div>
+);
+
+const DropdownLink = ({ href, children }) => (
+    <Link 
+        href={href}
+        className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition"
+    >
+        {children}
+    </Link>
+);
+
 export default function MarketplaceLayout({ children }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [openDropdown, setOpenDropdown] = useState(null);
@@ -28,121 +69,65 @@ export default function MarketplaceLayout({ children }) {
         <AuthProvider>
             <div className="min-h-screen bg-[#F8FAFC]">
             {/* Header */}
-            <header className="bg-gray-50 shadow-sm sticky top-0 z-50 border-b border-gray-200">
+            <header className="bg-white shadow-sm sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-20">
                         {/* Logo */}
-                        <div className="flex items-center">
-                            <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity duration-200">
-                                <img src="/assets/icons/poboi.svg" alt="POBOI Logo" className="h-12 w-auto" 
-                                    onError={(e) => {
-                                        e.target.style.display = 'none';
-                                    }}
-                                />
-                                <img src="/assets/images/logos/kolegium.svg" alt="Kolegium Logo" className="h-12 w-auto"
-                                    onError={(e) => {
-                                        e.target.style.display = 'none';
-                                    }}
-                                />
-                            </Link>
-                        </div>
+                        <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+                            <img 
+                                src="/assets/icons/poboi.svg" 
+                                alt="POBOI Logo" 
+                                className="h-14 w-auto" 
+                                onError={(e) => e.target.style.display = 'none'}
+                            />
+                            <img 
+                                src="/assets/images/logos/kolegium.svg" 
+                                alt="Kolegium Logo" 
+                                className="h-14 w-auto"
+                                onError={(e) => e.target.style.display = 'none'}
+                            />
+                        </Link>
 
                         {/* Desktop Navigation */}
-                        <nav className="hidden lg:flex items-center space-x-8">
-                            <Link 
-                                href="/" 
-                                className={`text-base font-medium transition-colors ${
-                                    isActive('/') && url === '/' 
-                                        ? 'text-blue-600' 
-                                        : 'text-gray-700 hover:text-blue-600'
-                                }`}
-                            >
+                        <nav className="hidden lg:flex items-center space-x-1">
+                            <NavLink href="/" active={isActive('/') && url === '/'}>
                                 Home
-                            </Link>
+                            </NavLink>
                             
-                            {/* Profile Study Program Dropdown */}
-                            <div className="relative group">
-                                <button 
-                                    className={`flex items-center gap-1 text-base font-medium transition-colors ${
-                                        isActive('/profile-study-program') 
-                                            ? 'text-blue-600' 
-                                            : 'text-gray-700 hover:text-blue-600'
-                                    }`}
-                                >
-                                    Profile Study Program
-                                    <ChevronDown className="w-4 h-4" />
-                                </button>
-                                <div className="absolute left-0 mt-2 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                                    <Link href="/profile-study-program/ppds1" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">PPDS 1</Link>
-                                    <Link href="/profile-study-program/clinical-fellowship" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">Clinical Fellowship</Link>
-                                    <Link href="/profile-study-program/subspesialis" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">Subspesialis</Link>
-                                </div>
-                            </div>
-
-                            {/* <Link 
-                                href="/resident" 
-                                className={`text-base font-medium transition-colors ${
-                                    isActive('/resident') 
-                                        ? 'text-blue-600' 
-                                        : 'text-gray-700 hover:text-blue-600'
-                                }`}
+                            <NavDropdown 
+                                label="Profile Study Program" 
+                                active={isActive('/profile-study-program')}
                             >
-                                Resident/Fellow/Trainee
-                            </Link> */}
+                                <DropdownLink href="/profile-study-program/ppds1">PPDS 1</DropdownLink>
+                                <DropdownLink href="/profile-study-program/clinical-fellowship">Clinical Fellowship</DropdownLink>
+                                <DropdownLink href="/profile-study-program/subspesialis">Subspesialis</DropdownLink>
+                            </NavDropdown>
 
-                            <Link 
-                                href="/calendar-academic" 
-                                className={`text-base font-medium transition-colors ${
-                                    isActive('/calendar-academic') 
-                                        ? 'text-blue-600' 
-                                        : 'text-gray-700 hover:text-blue-600'
-                                }`}
-                            >
-                                Calender Academic
-                            </Link>
-
-                            <Link 
-                                href="/peer-group" 
-                                className={`text-base font-medium transition-colors ${
-                                    isActive('/peer-group') 
-                                        ? 'text-blue-600' 
-                                        : 'text-gray-700 hover:text-blue-600'
-                                }`}
-                            >
+                            <NavLink href="/peer-group" active={isActive('/peer-group')}>
                                 Peer Group
-                            </Link>
+                            </NavLink>
 
-                            {/* About Us Dropdown */}
-                            <div className="relative group">
-                                <button 
-                                    className={`flex items-center gap-1 text-base font-medium transition-colors ${
-                                        isActive('/about') 
-                                            ? 'text-blue-600' 
-                                            : 'text-gray-700 hover:text-blue-600'
-                                    }`}
-                                >
-                                    About Us
-                                    <ChevronDown className="w-4 h-4" />
-                                </button>
-                                <div className="absolute left-0 mt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
-                                    <Link href="#vision-mission" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">Vision & Mission</Link>
-                                    <Link href="#structure" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">Organization Structure</Link>
-                                    <Link href="#contact" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">Contact Us</Link>
-                                </div>
-                            </div>
+                            <NavLink href="/calendar-academic" active={isActive('/calendar-academic')}>
+                                Calender Academic
+                            </NavLink>
+
+                            <NavDropdown 
+                                label="About Us" 
+                                active={isActive('/about')}
+                            >
+                                <DropdownLink href="#vision-mission">Vision & Mission</DropdownLink>
+                                <DropdownLink href="#structure">Organization Structure</DropdownLink>
+                                <DropdownLink href="#contact">Contact Us</DropdownLink>
+                            </NavDropdown>
                         </nav>
 
                         {/* Mobile menu button */}
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="lg:hidden p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100 transition-colors"
+                            className="lg:hidden p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100 transition"
                             aria-label="Toggle menu"
                         >
-                            {isMobileMenuOpen ? (
-                                <X className="h-6 w-6" />
-                            ) : (
-                                <Menu className="h-6 w-6" />
-                            )}
+                            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                         </button>
                     </div>
                 </div>
