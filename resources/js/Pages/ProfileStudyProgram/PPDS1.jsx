@@ -184,11 +184,11 @@ export default function PPDS1() {
                   {university.fullName} | {university.kps}
                 </p>
 
-                {/* Active Resident Count */}
-                <div>
-                  <p className="text-sm text-gray-600">
-                    Active Resident : <span className="font-bold text-gray-900">{university.students}</span>
-                  </p>
+                {/* Student Count */}
+                <div className="pt-4 border-t border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Active Resident : {university.students}</span>
+                  </div>
                 </div>
               </Link>
             ))}

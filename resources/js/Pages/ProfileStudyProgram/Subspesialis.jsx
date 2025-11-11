@@ -18,14 +18,6 @@ export default function Subspesialis() {
       description: "Program lanjutan untuk Traumatologi — manajemen trauma & rekonstruksi.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
       students: 50
-    },
-    {
-      code: "FK",
-      name: "FK-UI",
-      fullName: "Universitas Indonesia",
-      description: "Program lanjutan untuk Traumatologi — manajemen trauma & rekonstruksi.",
-      kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 50
     }
   ];
 
