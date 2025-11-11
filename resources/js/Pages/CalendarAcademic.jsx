@@ -30,7 +30,7 @@ export default function CalendarAcademic() {
   const [events, setEvents] = useState([
     {
       id: 1,
-      date: new Date(todayDate),
+      date: new Date(2025, 11, 6), // December 6, 2025
       title: "Ujian Tulis Nasional/CBT (Session I)",
       type: "ujian_nasional",
       description: "Ujian tulis nasional untuk PPDS 1"
@@ -232,7 +232,7 @@ export default function CalendarAcademic() {
 
   // Get upcoming tests (next 7 days)
   const getUpcomingTests = () => {
-    const today = new Date();
+    const today = new Date(2025, 11, 6);
     today.setHours(0, 0, 0, 0); // Reset to start of day
     const nextWeek = new Date(today);
     nextWeek.setDate(today.getDate() + 7);
@@ -248,9 +248,9 @@ export default function CalendarAcademic() {
   
   // Format date range for upcoming tests
   const getUpcomingTestDateRange = () => {
-    const today = new Date();
+    const today = new Date(2025, 11, 6);
     const nextWeek = new Date(today);
-    nextWeek.setDate(today.getDate() + 7);
+    nextWeek.setDate(today.getDate() + 1);
     
     return `${today.getDate()} ${monthNames[today.getMonth()].slice(0, 3)} ${today.getFullYear()} - ${nextWeek.getDate()} ${monthNames[nextWeek.getMonth()].slice(0, 3)} ${nextWeek.getFullYear()}`;
   };
@@ -433,7 +433,7 @@ export default function CalendarAcademic() {
                 <div className="overflow-x-auto -mx-6 px-6">
                   <div className="flex gap-4 pb-2" style={{ minWidth: 'min-content' }}>
                     {/* Tests */}
-                    {tests.map((test, index) => {
+                    {/* {tests.map((test, index) => {
                       const eventColor = getEventColor(test.type);
                       const testDate = new Date(test.date);
                       return (
@@ -453,7 +453,7 @@ export default function CalendarAcademic() {
                           <h3 className="font-bold text-gray-900 line-clamp-2">{test.title}</h3>
                         </div>
                       );
-                    })}
+                    })} */}
                     
                     {/* Events with Image */}
                     {eventsList.map((event, index) => {
@@ -500,7 +500,7 @@ export default function CalendarAcademic() {
           {/* Upcoming Test */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-blue-600">Upcoming Test</h2>
+              <h2 className="text-xl font-bold text-blue-600">Upcoming Examination</h2>
               <span className="text-gray-600 font-normal">{getUpcomingTestDateRange()}</span>
             </div>
             
