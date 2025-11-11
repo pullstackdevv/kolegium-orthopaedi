@@ -186,7 +186,7 @@ export default function Homepage() {
       title: "SRS Asia Pacific Meeting 2026",
       description: "Scoliosis Research Society – Asia Pacific Meeting 2026",
       location: "Fukuoka, Japan",
-      image: "/assets/images/event/event-3.jpeg",
+      image: "/assets/images/event/srs.jpeg",
       registration: "https://www.srs.org/Meetings-Conferences/Regional-Scientific-Meeting/RSM-2026",
       badge: "Event"
     },
@@ -195,7 +195,7 @@ export default function Homepage() {
       title: "CSRS-AP 2026",
       description: "16th Annual Meeting of Cervical Spine Research Society – Asia Pacific",
       location: "Shanghai International Convention Center, China",
-      image: "/assets/images/event/event-4.jpeg",
+      image: "/assets/images/event/csrs-ap.jpeg",
       registration: "https://www.csrs-ap2026.org/",
       badge: "Event"
     },
@@ -204,7 +204,7 @@ export default function Homepage() {
       title: "KSSS 2026",
       description: "The 43rd International Congress of Korean Society of Spine Surgery",
       location: "Lotte Hotel Seoul, South Korea",
-      image: "/assets/images/event/event-5.jpeg",
+      image: "/assets/images/event/ksss.jpeg",
       registration: "https://ksss2026.org/ksss/contents/01_06.php",
       badge: "Event"
     },
@@ -213,7 +213,7 @@ export default function Homepage() {
       title: "APSS Congress 2026",
       description: "Asia Pacific Spine Society 32nd Annual Scientific Meeting and Philippine Spine Society Annual Meeting",
       location: "Shangri-La Mactan, Cebu, Philippines",
-      image: "/assets/images/event/event-1.jpeg",
+      image: "/assets/images/event/apss.jpeg",
       registration: "www.apss2026ph.org",
       badge: "Event"
     },
@@ -222,7 +222,7 @@ export default function Homepage() {
       title: "Asia Spine 2026",
       description: "The 17th Annual Meeting of Asia Spine",
       location: "Osaka International Convention Center, Osaka, Japan",
-      image: "/assets/images/event/event-6.jpeg",
+      image: "/assets/images/event/asia-spine.jpeg",
       registration: "https://cs-oto3.com/nsj2026-17amoas/en-greeting.html",
       badge: "Event"
     },
@@ -231,7 +231,7 @@ export default function Homepage() {
       title: "SMISS-ASEAN MISST-SSS Combine Meeting 2026",
       description: "Combine Meeting of Society for Minimally Invasive Spine Surgery – Asia Pacific (SMISS-AP), 6th Meeting - Singapore Spine Society (SSS), 9th Meeting",
       location: "Shangri-La Hotel, Singapore",
-      image: "/assets/images/event/event-2.jpeg",
+      image: "/assets/images/event/smiss.jpeg",
       registration: "https://www.smiss-aseanmisst-sss2026.org/",
       badge: "Event"
     }
