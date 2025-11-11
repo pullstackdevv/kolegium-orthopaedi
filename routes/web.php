@@ -57,6 +57,11 @@ Route::get('/calendar-academic', function () {
     return Inertia::render('CalendarAcademic');
 })->name('calendar.academic');
 
+// About Us Route - Public Access
+Route::get('/about-us', function () {
+    return Inertia::render('AboutUs');
+})->name('about.us');
+
 // Login routes
 Route::middleware('guest')->group(function () {
     // GET /cms/login - Show login page
