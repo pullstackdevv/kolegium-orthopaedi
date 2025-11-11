@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
-import { ChevronLeft, ChevronRight, Calendar, X, Plus, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar, X, Plus, Trash2, MapPin } from "lucide-react";
 import HomepageLayout from "../Layouts/HomepageLayout";
 
 export default function CalendarAcademic() {
@@ -48,6 +48,60 @@ export default function CalendarAcademic() {
       title: "Presentasi Final Paper Kandidat",
       type: "event_peer_group",
       description: "Presentasi akhir paper untuk kandidat"
+    },
+    {
+      id: 4,
+      date: new Date(2026, 1, 6), // February 6, 2026
+      title: "SRS Asia Pacific Meeting 2026",
+      type: "event_nasional",
+      description: "Scoliosis Research Society – Asia Pacific Meeting 2026. Location: Fukuoka, Japan",
+      location: "Fukuoka, Japan",
+      registration: "https://www.srs.org/Meetings-Conferences/Regional-Scientific-Meeting/RSM-2026"
+    },
+    {
+      id: 5,
+      date: new Date(2026, 2, 11), // March 11, 2026
+      title: "CSRS-AP 2026",
+      type: "event_nasional",
+      description: "16th Annual Meeting of Cervical Spine Research Society – Asia Pacific. Location: Shanghai International Convention Center, China",
+      location: "Shanghai International Convention Center, China",
+      registration: "https://www.csrs-ap2026.org/"
+    },
+    {
+      id: 6,
+      date: new Date(2026, 4, 20), // May 20, 2026
+      title: "KSSS 2026",
+      type: "event_nasional",
+      description: "The 43rd International Congress of Korean Society of Spine Surgery. Location: Lotte Hotel Seoul, South Korea",
+      location: "Lotte Hotel Seoul, South Korea",
+      registration: "https://ksss2026.org/ksss/contents/01_06.php"
+    },
+    {
+      id: 7,
+      date: new Date(2026, 5, 3), // June 3, 2026
+      title: "APSS Congress 2026",
+      type: "event_nasional",
+      description: "Asia Pacific Spine Society 32nd Annual Scientific Meeting and Philippine Spine Society Annual Meeting. Location: Shangri-La Mactan, Cebu, Philippines",
+      location: "Shangri-La Mactan, Cebu, Philippines",
+      registration: "www.apss2026ph.org"
+    },
+    {
+      id: 8,
+      date: new Date(2026, 5, 18), // June 18, 2026
+      title: "Asia Spine 2026",
+      type: "event_nasional",
+      description: "The 17th Annual Meeting of Asia Spine. Location: Osaka International Convention Center, Osaka, Japan",
+      location: "Osaka International Convention Center, Osaka, Japan",
+      registration: "https://cs-oto3.com/nsj2026-17amoas/en-greeting.html"
+    },
+    {
+      id: 9,
+      date: new Date(2026, 6, 16), // July 16, 2026
+      title: "SMISS-ASEAN MISST-SSS Combine Meeting 2026",
+      type: "event_nasional",
+      description: "Combine Meeting of Society for Minimally Invasive Spine Surgery – Asia Pacific (SMISS-AP), 6th Meeting - Singapore Spine Society (SSS), 9th Meeting. Location: Shangri-La Hotel, Singapore",
+      location: "Shangri-La Hotel, Singapore",
+      registration: "https://www.smiss-aseanmisst-sss2026.org/"
     }
   ]);
 
@@ -790,6 +844,28 @@ export default function CalendarAcademic() {
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-500 mb-1">Description</label>
                   <p className="text-gray-700">{selectedEvent.description}</p>
+                </div>
+              )}
+              {selectedEvent.location && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-500 mb-1">Location</label>
+                  <p className="text-gray-700 flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-gray-500" />
+                    {selectedEvent.location}
+                  </p>
+                </div>
+              )}
+              {selectedEvent.registration && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-500 mb-1">Registration</label>
+                  <a 
+                    href={selectedEvent.registration}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-700 hover:underline break-all"
+                  >
+                    {selectedEvent.registration}
+                  </a>
                 </div>
               )}
               <div className="flex gap-3">
