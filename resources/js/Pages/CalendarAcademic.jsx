@@ -7,6 +7,16 @@ import HomepageLayout from "../Layouts/HomepageLayout";
 export default function CalendarAcademic() {
   const [currentMonth, setCurrentMonth] = useState(1); // February (0-indexed)
   const [currentYear, setCurrentYear] = useState(2026);
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showDatePickerModal, setShowDatePickerModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [eventToDelete, setEventToDelete] = useState(null);
+  const [tempMonth, setTempMonth] = useState(1);
+  const [tempYear, setTempYear] = useState(2026);
+  const [events, setEvents] = useState([]);
 
   // Stats data
   const stats = [
@@ -218,6 +228,74 @@ export default function CalendarAcademic() {
     }
   };
 
+  const getEventsForDate = (day, month, year) => {
+    return events.filter(event => {
+      const eventDate = new Date(event.date);
+      return eventDate.getDate() === day && 
+             eventDate.getMonth() === month && 
+             eventDate.getFullYear() === year;
+    });
+  };
+
+  const getEventColor = (eventType) => {
+    const type = eventTypes.find(t => t.id === eventType);
+    return type || eventTypes[0];
+  };
+
+  const handleDateClick = (day, isCurrentMonth) => {
+    if (!isCurrentMonth) return;
+    setSelectedDate({ day, month: currentMonth, year: currentYear });
+    setShowEventModal(true);
+  };
+
+  const handleEventClick = (event) => {
+    setSelectedEvent(event);
+    setShowDetailModal(true);
+  };
+
+  const handleAddEvent = (newEvent) => {
+    setEvents([...events, newEvent]);
+    setShowEventModal(false);
+  };
+
+  const handleDeleteClick = (event) => {
+    setEventToDelete(event);
+    setShowDetailModal(false);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    setEvents(events.filter(e => e !== eventToDelete));
+    setShowDeleteModal(false);
+    setEventToDelete(null);
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setEventToDelete(null);
+  };
+
+  const handleOpenDatePicker = () => {
+    setTempMonth(currentMonth);
+    setTempYear(currentYear);
+    setShowDatePickerModal(true);
+  };
+
+  const handleApplyDatePicker = () => {
+    setCurrentMonth(tempMonth);
+    setCurrentYear(tempYear);
+    setShowDatePickerModal(false);
+  };
+
+  const generateYearRange = () => {
+    const currentYearNow = new Date().getFullYear();
+    const years = [];
+    for (let i = currentYearNow - 5; i <= currentYearNow + 10; i++) {
+      years.push(i);
+    }
+    return years;
+  };
+
   return (
     <HomepageLayout>
       {/* Breadcrumb Section */}
@@ -286,8 +364,8 @@ export default function CalendarAcademic() {
                     <p className="text-sm text-gray-500">{event.location}</p>
                   </div>
                 </div>
-              );
-            })()}
+              ))}
+            </div>
           </div>
 
           {/* Upcoming Test */}
@@ -308,8 +386,8 @@ export default function CalendarAcademic() {
                   <h3 className="text-lg font-bold text-gray-900 mb-2">{test.title}</h3>
                   <p className="text-sm text-gray-600">{test.location}</p>
                 </div>
-              );
-            })()}
+              ))}
+            </div>
           </div>
 
           {/* Upcoming Event */}
@@ -342,8 +420,8 @@ export default function CalendarAcademic() {
                     <p className="text-sm text-gray-500">{event.location}</p>
                   </div>
                 </div>
-              );
-            })()}
+              ))}
+            </div>
           </div>
 
           {/* Calendar */}
