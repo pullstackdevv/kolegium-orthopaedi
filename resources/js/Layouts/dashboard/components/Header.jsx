@@ -8,6 +8,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const Header = ({ title = "Dashboard" }) => {
   return (
@@ -24,8 +25,9 @@ const Header = ({ title = "Dashboard" }) => {
         </Breadcrumb>
       </div>
 
-      {/* Search - Right Side */}
+      {/* Right Side */}
       <div className="ml-auto flex items-center gap-2 px-4">
+        {/* Search */}
         <div className="relative hidden md:block">
           <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -34,6 +36,9 @@ const Header = ({ title = "Dashboard" }) => {
             className="h-8 w-64 pl-8 bg-muted/50 border-0"
           />
         </div>
+        
+        {/* Theme Toggle */}
+        <ThemeToggle />
       </div>
     </header>
   );
