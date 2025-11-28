@@ -26,7 +26,7 @@ export const sidebarMenu = [
       {
         title: "Dashboard",
         icon: LayoutDashboard,
-        href: "/cms/dashboard",
+        href: "/cms/coming-soon/dashboard",
         permission: "dashboard.view",
       },
     ],
@@ -73,17 +73,6 @@ export const sidebarMenu = [
   },
 
   // ===== Kolegium Content Menus (baru, placeholder) =====
-  {
-    group: "Dashboard (Content)",
-    items: [
-      {
-        title: "Overview",
-        icon: LayoutDashboard,
-        href: "/cms/coming-soon/dashboard-overview",
-        permission: null,
-      },
-    ],
-  },
 
   {
     group: "Kolegium Profile",
