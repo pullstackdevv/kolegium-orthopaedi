@@ -4,45 +4,40 @@ import DashboardLayout from "@/Layouts/DashboardLayout";
 import UserSettings from "./UserSettings";
 import RoleSettings from "./RoleSettings";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
 
 function SettingsPage({ activeMenu: initialActiveMenu = "user" }) {
   const [activeMenu, setActiveMenu] = useState(initialActiveMenu);
 
   return (
-    <DashboardLayout>
-      <div className="p-6 space-y-6">
+    <DashboardLayout title="Settings">
+      <div className="space-y-6">
+        {/* Page Header */}
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Kolegium Settings</h1>
-          <p className="text-muted-foreground mt-1">Kelola pengaturan sistem, pengguna, dan hak akses</p>
+          <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+          <p className="text-muted-foreground">
+            Kelola pengaturan sistem, pengguna, dan hak akses
+          </p>
         </div>
         
-        <Tabs value={activeMenu} onValueChange={setActiveMenu} className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="user" className="flex items-center gap-2">
+        {/* Tabs */}
+        <Tabs value={activeMenu} onValueChange={setActiveMenu} className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="user" className="gap-2">
               <Users className="h-4 w-4" />
-              User Management
+              Users
             </TabsTrigger>
-            <TabsTrigger value="role" className="flex items-center gap-2">
+            <TabsTrigger value="role" className="gap-2">
               <ShieldCheck className="h-4 w-4" />
-              Role & Permissions
+              Roles
             </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="user" className="mt-6">
-            <Card>
-              <CardContent className="p-0">
-                <UserSettings />
-              </CardContent>
-            </Card>
+          <TabsContent value="user" className="space-y-4">
+            <UserSettings />
           </TabsContent>
           
-          <TabsContent value="role" className="mt-6">
-            <Card>
-              <CardContent className="p-0">
-                <RoleSettings />
-              </CardContent>
-            </Card>
+          <TabsContent value="role" className="space-y-4">
+            <RoleSettings />
           </TabsContent>
         </Tabs>
       </div>

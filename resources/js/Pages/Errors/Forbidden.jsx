@@ -1,32 +1,40 @@
-import React from 'react';
-import { Icon } from '@iconify/react';
-import { Link } from '@inertiajs/react';
+import { Link } from "@inertiajs/react";
+import { ShieldX, ArrowLeft, Home } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Forbidden() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="max-w-lg w-full text-center">
-        <div className="mx-auto w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mb-6">
-          <Icon icon="mdi:block-helper" className="text-red-600" width={36} height={36} />
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <div className="max-w-md w-full text-center space-y-6">
+        <div className="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center">
+          <ShieldX className="h-8 w-8 text-destructive" />
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">403 Forbidden</h1>
-        <p className="text-gray-600 mb-6">
-          Anda tidak memiliki izin untuk mengakses halaman ini. Jika Anda merasa ini kesalahan,
-          silakan hubungi administrator untuk meminta akses.
-        </p>
+        
+        <div className="space-y-2">
+          <h1 className="text-4xl font-bold tracking-tight">403</h1>
+          <h2 className="text-xl font-semibold text-muted-foreground">
+            Access Forbidden
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Anda tidak memiliki izin untuk mengakses halaman ini. 
+            Silakan hubungi administrator jika Anda merasa ini kesalahan.
+          </p>
+        </div>
+
         <div className="flex items-center justify-center gap-3">
-          <button
-            onClick={() => (window.history.length > 1 ? window.history.back() : (window.location.href = '/cms/dashboard'))}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+          <Button
+            variant="outline"
+            onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = "/cms/dashboard"}
           >
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Kembali
-          </button>
-          <Link
-            href="/cms/dashboard"
-            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md transition-colors"
-          >
-            Ke Dashboard
-          </Link>
+          </Button>
+          <Button asChild>
+            <Link href="/cms/dashboard">
+              <Home className="mr-2 h-4 w-4" />
+              Dashboard
+            </Link>
+          </Button>
         </div>
       </div>
     </div>
