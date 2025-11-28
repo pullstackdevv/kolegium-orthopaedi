@@ -20,6 +20,67 @@ class AuthController extends Controller
         //
     }
 
+    /**
+     * Web login for CMS (session-based)
+     */
+    public function webLogin(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $credentials = $request->only('email', 'password');
+
+            if (!Auth::attempt($credentials, $request->filled('remember'))) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Email atau password salah'
+                ], 401);
+            }
+
+            $user = Auth::user();
+
+            // Check if user is active
+            if (!$user->is_active) {
+                Auth::logout();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Akun Anda tidak aktif. Hubungi administrator.'
+                ], 403);
+            }
+
+            // Regenerate session
+            $request->session()->regenerate();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Login berhasil!',
+                'data' => [
+                    'user' => $user->load('roles')
+                ]
+            ]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan: ' . $th->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * API login (token-based)
+     */
     public function login(Request $request)
     {
         $validator = Validator::make(

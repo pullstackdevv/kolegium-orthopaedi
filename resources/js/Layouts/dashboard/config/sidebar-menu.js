@@ -3,9 +3,8 @@ import {
   Users, 
   Settings, 
   HelpCircle,
-  ChevronRight,
   ShieldCheck,
-  UserCog
+  Key,
 } from "lucide-react";
 
 export const sidebarMenu = [
@@ -16,7 +15,7 @@ export const sidebarMenu = [
         title: "Dashboard",
         icon: LayoutDashboard,
         href: "/cms/dashboard",
-        permission: "dashboard",
+        permission: "dashboard.view",
       },
     ],
   },
@@ -27,27 +26,33 @@ export const sidebarMenu = [
         title: "Users",
         icon: Users,
         href: "/cms/settings/user",
-        permission: "users",
+        permission: "users.view",
       },
       {
         title: "Roles",
         icon: ShieldCheck,
         href: "/cms/settings/role",
-        permission: "users",
+        permission: "roles.view",
+      },
+      {
+        title: "Permissions",
+        icon: Key,
+        href: "/cms/settings/permission",
+        permission: "settings.edit",
       },
     ],
   },
   {
-    group: "Other",
+    group: "System",
     items: [
       {
         title: "Settings",
         icon: Settings,
         href: "/cms/settings",
-        permission: "settings",
+        permission: "settings.view",
       },
       {
-        title: "Help Center",
+        title: "Help",
         icon: HelpCircle,
         href: "#",
         permission: null,

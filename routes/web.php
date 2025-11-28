@@ -122,6 +122,10 @@ Route::middleware([Authenticate::class, HandleInertiaRequests::class])
             return Inertia::render('Settings/index', ['activeMenu' => 'role']);
         })->name('settings.role');
 
+        Route::get('/settings/permission', function () {
+            return Inertia::render('Settings/index', ['activeMenu' => 'permission']);
+        })->name('settings.permission');
+
         // User management routes
         Route::get('/settings/users/create', function () {
             return Inertia::render('Settings/AddEditUser', ['mode' => 'create']);

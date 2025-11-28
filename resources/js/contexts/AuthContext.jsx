@@ -16,17 +16,28 @@ export const AuthProvider = ({ children }) => {
     
     const user = auth?.user || null;
     const role = user?.role || null;
-    const permissions = role?.permissions || [];
+    // Get permissions from user.permissions (all permissions including from roles)
+    const permissions = user?.permissions || [];
     
     // Check if user has permission
     const hasPermission = (permission) => {
+        if (!permission) return true;
         if (!permissions || permissions.length === 0) return false;
         
-        // Owner has all permissions
+        // Owner/wildcard has all permissions
         if (permissions.includes('*')) return true;
         
-        // Check specific permission
-        return permissions.includes(permission);
+        // Check exact permission
+        if (permissions.includes(permission)) return true;
+        
+        // Check wildcard permissions (e.g., 'users.*' matches 'users.view')
+        const permissionParts = permission.split('.');
+        if (permissionParts.length > 1) {
+            const wildcardPerm = permissionParts[0] + '.*';
+            if (permissions.includes(wildcardPerm)) return true;
+        }
+        
+        return false;
     };
     
     // Check if user has any of the permissions
@@ -65,7 +76,6 @@ export const AuthProvider = ({ children }) => {
         isOwner: hasRole('owner'),
         isAdmin: hasRole('admin'),
         isStaff: hasRole('staff'),
-        isCashier: hasRole('cashier')
     }), [user, role, permissions]);
     
     return (

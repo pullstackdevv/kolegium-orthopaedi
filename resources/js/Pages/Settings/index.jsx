@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Users, ShieldCheck } from "lucide-react";
+import { Users, ShieldCheck, Key } from "lucide-react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import UserSettings from "./UserSettings";
 import RoleSettings from "./RoleSettings";
+import PermissionSettings from "./PermissionSettings";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 function SettingsPage({ activeMenu: initialActiveMenu = "user" }) {
@@ -30,6 +31,10 @@ function SettingsPage({ activeMenu: initialActiveMenu = "user" }) {
               <ShieldCheck className="h-4 w-4" />
               Roles
             </TabsTrigger>
+            <TabsTrigger value="permission" className="gap-2">
+              <Key className="h-4 w-4" />
+              Permissions
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="user" className="space-y-4">
@@ -38,6 +43,10 @@ function SettingsPage({ activeMenu: initialActiveMenu = "user" }) {
           
           <TabsContent value="role" className="space-y-4">
             <RoleSettings />
+          </TabsContent>
+
+          <TabsContent value="permission" className="space-y-4">
+            <PermissionSettings />
           </TabsContent>
         </Tabs>
       </div>

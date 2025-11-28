@@ -246,4 +246,84 @@ class RoleController extends Controller
             'data' => $permissions
         ]);
     }
+
+    // Permission CRUD
+    public function storePermission(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:permissions,name',
+            'display_name' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:255',
+            'module' => 'nullable|string|max:100',
+        ]);
+
+        try {
+            $permission = Permission::create([
+                'name' => $validated['name'],
+                'display_name' => $validated['display_name'] ?? ucwords(str_replace(['.', '_', '-'], ' ', $validated['name'])),
+                'description' => $validated['description'] ?? null,
+                'module' => $validated['module'] ?? explode('.', $validated['name'])[0] ?? null,
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Permission created successfully',
+                'data' => $permission
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create permission: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updatePermission(Request $request, Permission $permission): JsonResponse
+    {
+        $validated = $request->validate([
+            'display_name' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:255',
+            'module' => 'nullable|string|max:100',
+        ]);
+
+        try {
+            $permission->update($validated);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Permission updated successfully',
+                'data' => $permission
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update permission: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function destroyPermission(Permission $permission): JsonResponse
+    {
+        try {
+            // Check if permission is used by any role
+            if ($permission->roles()->exists()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Cannot delete permission that is assigned to roles'
+                ], 400);
+            }
+
+            $permission->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Permission deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete permission: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

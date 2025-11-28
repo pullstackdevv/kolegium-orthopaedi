@@ -19,7 +19,7 @@ trait HasRoles
     /**
      * Get the direct permissions for the user.
      */
-    public function permissions(): BelongsToMany
+    public function directPermissions(): BelongsToMany
     {
         return $this->belongsToMany(Permission::class, 'user_has_permissions');
     }
@@ -68,7 +68,7 @@ trait HasRoles
     public function hasPermission(string $permission): bool
     {
         // Check direct permissions first
-        if ($this->permissions->contains('name', $permission)) {
+        if ($this->directPermissions->contains('name', $permission)) {
             return true;
         }
 
@@ -171,7 +171,7 @@ trait HasRoles
             $permModel = $permission instanceof Permission 
                 ? $permission 
                 : Permission::where('name', $permission)->firstOrFail();
-            $this->permissions()->syncWithoutDetaching($permModel);
+            $this->directPermissions()->syncWithoutDetaching($permModel);
         }
 
         return $this;
@@ -189,7 +189,7 @@ trait HasRoles
                 ? $permission 
                 : Permission::where('name', $permission)->first();
             if ($permModel) {
-                $this->permissions()->detach($permModel);
+                $this->directPermissions()->detach($permModel);
             }
         }
 
@@ -201,7 +201,8 @@ trait HasRoles
      */
     public function getAllPermissions(): array
     {
-        $permissions = $this->permissions->pluck('name')->toArray();
+        // Use the relation directly to avoid accessor conflict
+        $permissions = $this->directPermissions()->pluck('name')->toArray();
 
         foreach ($this->roles as $role) {
             $permissions = array_merge($permissions, $role->getPermissionNames());

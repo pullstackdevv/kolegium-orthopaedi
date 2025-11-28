@@ -42,7 +42,7 @@ class User extends Authenticatable
      *
      * @var array<string>
      */
-    protected $appends = ['role'];
+    protected $appends = ['role', 'permissions'];
 
     /**
      * Get the attributes that should be cast.
@@ -75,6 +75,14 @@ class User extends Authenticatable
             'name' => $primaryRole->name,
             'description' => $primaryRole->description,
         ];
+    }
+
+    /**
+     * Get all permissions attribute (for frontend).
+     */
+    public function getPermissionsAttribute(): array
+    {
+        return $this->getAllPermissions();
     }
 
     /**
