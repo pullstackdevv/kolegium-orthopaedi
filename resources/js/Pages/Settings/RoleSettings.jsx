@@ -1,10 +1,32 @@
 import { useState, useEffect } from "react";
-import { Icon } from "@iconify/react";
-import TableComponent from "../../components/ui/table/TableComponent";
-
+import { ShieldCheck, Pencil, AlertCircle, Loader2 } from "lucide-react";
 import api from "@/api/axios";
-import * as AuthAPI from "@/api/auth";
 import Swal from "sweetalert2";
+
+// Shadcn UI Components
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export default function RoleSettings() {
   const [roles, setRoles] = useState([]);
@@ -164,213 +186,173 @@ export default function RoleSettings() {
     }
   };
 
-  const columns = [
-    {
-      key: "no",
-      label: "No",
-      render: (_, i) => <span>{i + 1}.</span>,
-    },
-    {
-      key: "role",
-      label: "Role",
-      render: (row) => {
-        const roleLabels = {
-          'owner': 'Owner',
-          'admin': 'Administrator', 
-          'staff': 'Staff',
-          'warehouse': 'Staff Gudang'
-        };
-        return <b className="capitalize">{roleLabels[row.role] || row.role}</b>;
-      },
-    },
-    {
-      key: "description",
-      label: "Deskripsi",
-      render: (row) => <span className="text-gray-600">{row.description}</span>,
-    },
-    {
-      key: "permissions",
-      label: "Permissions",
-      render: (row) => {
-        const permissions = row.permissions || [];
-        
-        return (
-          <div className="max-w-xs">
-            {permissions.length > 0 ? (
-              <div className="text-xs space-y-1">
-                {permissions.slice(0, 3).map((perm, idx) => (
-                  <div key={idx} className="bg-blue-100 text-blue-800 px-2 py-1 rounded truncate capitalize">
-                    {perm}
-                  </div>
-                ))}
-                {permissions.length > 3 && (
-                  <div className="text-gray-500">+{permissions.length - 3} more</div>
-                )}
-              </div>
-            ) : (
-              <span className="bg-gray-200 px-2 py-1 rounded text-xs">No permissions</span>
-            )}
-          </div>
-        );
-      },
-    },
-    {
-      key: "actions",
-      label: "Aksi",
-      render: (row) => (
-        <div className="flex gap-2">
-          <button
-            onClick={() => openEditModal(row)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors shadow-sm hover:shadow-md"
-          >
-            <Icon icon="mdi:pencil" width={16} height={16} />
-            Edit
-          </button>
-        </div>
-      ),
-    },
-  ];
+  const getRoleLabel = (role) => {
+    const roleLabels = {
+      'owner': 'Owner',
+      'admin': 'Administrator', 
+      'staff': 'Staff',
+      'warehouse': 'Staff Gudang'
+    };
+    return roleLabels[role] || role;
+  };
 
   return (
-    <>
+    <div className="space-y-6 p-6">
+      {/* Header */}
+      <div className="flex justify-between items-center pb-6 border-b">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">Role Settings</h2>
+          <p className="text-muted-foreground mt-1">Kelola role dan permissions sistem</p>
+        </div>
+      </div>
+
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : error ? (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg flex items-start gap-3" role="alert">
-          <Icon icon="solar:danger-outline" className="w-5 h-5 mt-0.5 flex-shrink-0" />
-          <div>
-            <p className="font-semibold">Error!</p>
-            <p className="text-sm mt-1">{error}</p>
-          </div>
-        </div>
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error!</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : (
-        <>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="text-3xl font-bold text-gray-900">Role Settings</h2>
-                  <p className="text-gray-600 mt-2">Kelola role dan permissions sistem</p>
+        <Card>
+          <CardHeader>
+            <CardTitle>Data Role</CardTitle>
+            <CardDescription>Daftar semua role dan permissions yang tersedia</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {roles.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="p-4 bg-muted rounded-full mb-4">
+                  <ShieldCheck className="h-8 w-8 text-muted-foreground" />
                 </div>
+                <p className="text-muted-foreground text-center font-medium">Belum ada data role</p>
+                <p className="text-muted-foreground text-sm mt-1">Tidak ada role yang tersedia saat ini</p>
               </div>
-            </div>
-            <div className="p-6">
-              {roles.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="p-4 bg-gray-100 rounded-full inline-block mb-4">
-                    <Icon icon="mdi:shield-account-outline" width={48} height={48} className="text-gray-400" />
-                  </div>
-                  <p className="text-gray-600 font-medium">Belum ada data role</p>
-                  <p className="text-gray-500 text-sm mt-1">Tidak ada role yang tersedia saat ini</p>
-                </div>
-              ) : (
-                <TableComponent columns={columns} data={roles} />
-              )}
-            </div>
-          </div>
-        </>
-       )}
-
-      {/* Modal for Edit Role */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm" 
-            onClick={closeModal}
-          ></div>
-          
-          {/* Modal Content */}
-          <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            {/* Header */}
-            <div className="sticky top-0 flex items-center justify-between p-6 border-b border-gray-200 bg-white rounded-t-xl">
-              <div>
-                <h3 className="text-xl font-bold text-gray-900">
-                  Edit Role: <span className="text-blue-600 capitalize">{formData.role}</span>
-                </h3>
-                <p className="text-sm text-gray-500 mt-1">Kelola deskripsi dan permissions untuk role ini</p>
-              </div>
-              <button
-                onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600 transition-colors p-1 hover:bg-gray-100 rounded-lg"
-              >
-                <Icon icon="mdi:close" width={24} height={24} />
-              </button>
-            </div>
-
-            {/* Body */}
-            <div className="p-6 space-y-6">
-              {formError && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start gap-3" role="alert">
-                  <Icon icon="solar:danger-outline" className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="font-semibold">Error!</p>
-                    <p className="text-sm mt-1">{formError}</p>
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Deskripsi Role
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
-                  rows={3}
-                  placeholder="Masukkan deskripsi role..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-3">
-                  Permissions
-                </label>
-                <div className="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-4 bg-gray-50">
-                  {availablePermissions.map((permission) => (
-                    <label key={permission} className="flex items-center space-x-3 cursor-pointer hover:bg-white p-3 rounded-lg transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={formData.permissions.includes(permission)}
-                        onChange={() => handlePermissionChange(permission)}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4"
-                      />
-                      <span className="text-sm font-medium text-gray-700 capitalize">
-                        {permission}
-                      </span>
-                    </label>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">No</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Deskripsi</TableHead>
+                    <TableHead>Permissions</TableHead>
+                    <TableHead className="text-right">Aksi</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {roles.map((role, index) => (
+                    <TableRow key={role.role}>
+                      <TableCell className="font-medium">{index + 1}.</TableCell>
+                      <TableCell>
+                        <span className="font-semibold capitalize">{getRoleLabel(role.role)}</span>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground max-w-xs truncate">
+                        {role.description}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1 max-w-xs">
+                          {(role.permissions || []).length > 0 ? (
+                            <>
+                              {role.permissions.slice(0, 3).map((perm, idx) => (
+                                <Badge key={idx} variant="secondary" className="capitalize text-xs">
+                                  {perm}
+                                </Badge>
+                              ))}
+                              {role.permissions.length > 3 && (
+                                <Badge variant="outline" className="text-xs">
+                                  +{role.permissions.length - 3} more
+                                </Badge>
+                              )}
+                            </>
+                          ) : (
+                            <Badge variant="outline" className="text-xs">No permissions</Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="outline" size="sm" onClick={() => openEditModal(role)}>
+                          <Pencil className="h-4 w-4 mr-1" />
+                          Edit
+                        </Button>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </div>
-              </div>
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Dialog for Edit Role */}
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              Edit Role: <span className="text-primary capitalize">{formData.role}</span>
+            </DialogTitle>
+            <DialogDescription>
+              Kelola deskripsi dan permissions untuk role ini
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            {formError && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error!</AlertTitle>
+                <AlertDescription>{formError}</AlertDescription>
+              </Alert>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Deskripsi Role</Label>
+              <Textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                placeholder="Masukkan deskripsi role..."
+                rows={3}
+              />
             </div>
 
-            {/* Footer */}
-            <div className="flex justify-end gap-3 p-6 border-t border-gray-200">
-              <button
-                onClick={closeModal}
-                className="px-6 py-2.5 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors font-medium"
-                disabled={formLoading}
-              >
-                Batal
-              </button>
-              <button
-                onClick={updateRole}
-                disabled={formLoading}
-                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 font-medium flex items-center gap-2"
-              >
-                {formLoading && (
-                  <Icon icon="solar:loading-outline" className="animate-spin w-4 h-4" />
-                )}
-                Simpan
-              </button>
+            <div className="space-y-3">
+              <Label>Permissions</Label>
+              <div className="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto border rounded-lg p-4 bg-muted/30">
+                {availablePermissions.map((permission) => (
+                  <div key={permission} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-background transition-colors">
+                    <Checkbox
+                      id={`permission-${permission}`}
+                      checked={formData.permissions.includes(permission)}
+                      onCheckedChange={() => handlePermissionChange(permission)}
+                    />
+                    <Label 
+                      htmlFor={`permission-${permission}`} 
+                      className="cursor-pointer capitalize font-normal"
+                    >
+                      {permission}
+                    </Label>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </>
+
+          <DialogFooter className="pt-4">
+            <Button variant="outline" onClick={closeModal} disabled={formLoading}>
+              Batal
+            </Button>
+            <Button onClick={updateRole} disabled={formLoading}>
+              {formLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              Simpan
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

@@ -1,42 +1,50 @@
 import { useState } from "react";
-import { Icon } from "@iconify/react";
-import { Link } from "@inertiajs/react";
-import DashboardLayout from "../../Layouts/DashboardLayout";
+import { Users, ShieldCheck } from "lucide-react";
+import DashboardLayout from "@/Layouts/DashboardLayout";
 import UserSettings from "./UserSettings";
 import RoleSettings from "./RoleSettings";
-
-const menus = [
-  { key: "user", label: "User Management", icon: "mdi:account-outline" },
-  { key: "role", label: "Role & Permissions", icon: "mdi:shield-account-outline" },
-];
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
 
 function SettingsPage({ activeMenu: initialActiveMenu = "user" }) {
   const [activeMenu, setActiveMenu] = useState(initialActiveMenu);
 
   return (
     <DashboardLayout>
-      <div className="p-6">
-        <h1 className="text-2xl font-bold mb-6">Kolegium Settings</h1>
-        <div className="flex flex-wrap gap-3 mb-6">
-          {menus.map((menu) => (
-            <Link
-              key={menu.key}
-              href={`/cms/settings/${menu.key}`}
-              className={`px-6 py-3 rounded-lg border flex items-center gap-2 transition-all font-medium ${
-                activeMenu === menu.key 
-                  ? "bg-blue-600 text-white border-blue-600 shadow-md" 
-                  : "border-gray-300 text-gray-700 hover:bg-blue-50 hover:border-blue-400"
-              }`}
-            >
-              <Icon icon={menu.icon} width={22} height={22} />
-              {menu.label}
-            </Link>
-          ))}
+      <div className="p-6 space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Kolegium Settings</h1>
+          <p className="text-muted-foreground mt-1">Kelola pengaturan sistem, pengguna, dan hak akses</p>
         </div>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          {activeMenu === "user" && <UserSettings />}
-          {activeMenu === "role" && <RoleSettings />}
-        </div>
+        
+        <Tabs value={activeMenu} onValueChange={setActiveMenu} className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="user" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              User Management
+            </TabsTrigger>
+            <TabsTrigger value="role" className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4" />
+              Role & Permissions
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="user" className="mt-6">
+            <Card>
+              <CardContent className="p-0">
+                <UserSettings />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="role" className="mt-6">
+            <Card>
+              <CardContent className="p-0">
+                <RoleSettings />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </DashboardLayout>
   );
