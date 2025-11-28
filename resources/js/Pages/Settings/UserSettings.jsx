@@ -360,37 +360,45 @@ export default function UserSettings() {
       ) : (
         <>
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total User</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{users.length}</div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">User Aktif</CardTitle>
-                <CheckCircle className="h-4 w-4 text-green-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-green-600">
-                  {users.filter(u => u.is_active).length}
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Card className="relative overflow-hidden">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-muted-foreground">Total User</p>
+                    <p className="text-3xl font-bold">{users.length}</p>
+                  </div>
+                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Users className="h-6 w-6 text-primary" />
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">User Nonaktif</CardTitle>
-                <XCircle className="h-4 w-4 text-red-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-red-600">
-                  {users.filter(u => !u.is_active).length}
+            <Card className="relative overflow-hidden">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-muted-foreground">User Aktif</p>
+                    <p className="text-3xl font-bold text-emerald-600">{users.filter(u => u.is_active).length}</p>
+                  </div>
+                  <div className="h-12 w-12 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                    <CheckCircle className="h-6 w-6 text-emerald-500" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="relative overflow-hidden">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-muted-foreground">User Nonaktif</p>
+                    <p className="text-3xl font-bold text-rose-600">{users.filter(u => !u.is_active).length}</p>
+                  </div>
+                  <div className="h-12 w-12 rounded-full bg-rose-500/10 flex items-center justify-center">
+                    <XCircle className="h-6 w-6 text-rose-500" />
+                  </div>
                 </div>
               </CardContent>
             </Card>
