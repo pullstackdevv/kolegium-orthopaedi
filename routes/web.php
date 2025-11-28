@@ -139,6 +139,11 @@ Route::middleware([Authenticate::class, HandleInertiaRequests::class])
         // Change Password Route
         Route::post('/change-password', [\App\Http\Controllers\UserController::class, 'changePasswordWeb'])->name('change-password');
 
+        // Generic coming soon page for not-yet-developed CMS menus
+        Route::get('/coming-soon/{slug}', function ($slug) {
+            return Inertia::render('ComingSoon', ['slug' => $slug]);
+        })->name('coming-soon');
+
     });
 
 Route::fallback(function () {
