@@ -84,24 +84,6 @@ export const sidebarMenu = [
         permission: null,
       },
       {
-        title: "Logo & Photos",
-        icon: Images,
-        href: "/cms/coming-soon/kolegium-logo-photos",
-        permission: null,
-      },
-      {
-        title: "Histories",
-        icon: History,
-        href: "/cms/coming-soon/kolegium-histories",
-        permission: null,
-      },
-      {
-        title: "Vision & Mission",
-        icon: Eye,
-        href: "/cms/coming-soon/kolegium-vision-mission",
-        permission: null,
-      },
-      {
         title: "Org. Structure (KOTI)",
         icon: Users,
         href: "/cms/coming-soon/kolegium-structure-koti",
@@ -113,6 +95,12 @@ export const sidebarMenu = [
         href: "/cms/coming-soon/kolegium-structure-kolkes",
         permission: null,
       },
+      {
+        title: "Event Gallery",
+        icon: Images,
+        href: "/cms/coming-soon/kolegium-gallery-events",
+        permission: null,
+      },
     ],
   },
 
@@ -120,33 +108,33 @@ export const sidebarMenu = [
     group: "Kolegium Agenda",
     items: [
       {
+        title: "Academic Calendar",
+        icon: CalendarDays,
+        href: "/cms/coming-soon/agenda-national-exam",
+        permission: null,
+      },
+      {
         title: "National Examination",
         icon: CalendarDays,
         href: "/cms/coming-soon/agenda-national-exam",
         permission: null,
       },
       {
-        title: "National Events",
+        title: "Local Examination",
         icon: CalendarDays,
-        href: "/cms/coming-soon/agenda-national-events",
+        href: "/cms/coming-soon/agenda-local-exam",
         permission: null,
       },
       {
-        title: "Local Events",
+        title: "Nasional Event",
+        icon: CalendarDays,
+        href: "/cms/coming-soon/agenda-nasional-events",
+        permission: null,
+      },
+      {
+        title: "Local Event",
         icon: CalendarDays,
         href: "/cms/coming-soon/agenda-local-events",
-        permission: null,
-      },
-    ],
-  },
-
-  {
-    group: "Kolegium Gallery",
-    items: [
-      {
-        title: "Event Gallery",
-        icon: Images,
-        href: "/cms/coming-soon/kolegium-gallery-events",
         permission: null,
       },
     ],
@@ -162,7 +150,7 @@ export const sidebarMenu = [
         permission: null,
       },
       {
-        title: "Resident - Management",
+        title: "Resident - Organizational Structure",
         icon: Users,
         href: "/cms/coming-soon/resident-management",
         permission: null,
@@ -199,7 +187,7 @@ export const sidebarMenu = [
         permission: null,
       },
       {
-        title: "Fellow (CF) - Management",
+        title: "Fellow (CF) - Organizational Structure",
         icon: Users,
         href: "/cms/coming-soon/fellow-management",
         permission: null,
@@ -236,7 +224,7 @@ export const sidebarMenu = [
         permission: null,
       },
       {
-        title: "Trainee - Management",
+        title: "Trainee - Organizational Structure",
         icon: Users,
         href: "/cms/coming-soon/trainee-management",
         permission: null,
@@ -277,36 +265,37 @@ export const sidebarMenu = [
         href: "/cms/coming-soon/peergroup-profile",
         permission: null,
       },
-      {
-        title: "Peer Group - Logo & Photos",
-        icon: Images,
-        href: "/cms/coming-soon/peergroup-logo-photos",
-        permission: null,
-      },
-      {
-        title: "Peer Group - Histories",
-        icon: History,
-        href: "/cms/coming-soon/peergroup-histories",
-        permission: null,
-      },
-      {
-        title: "Peer Group - Vision & Mission",
-        icon: Eye,
-        href: "/cms/coming-soon/peergroup-vision-mission",
-        permission: null,
-      },
-      {
-        title: "Peer Group - Org. Structure",
-        icon: Users,
-        href: "/cms/coming-soon/peergroup-structure",
-        permission: null,
-      },
-      {
-        title: "Peer Group - Secretariat Contact",
-        icon: Info,
-        href: "/cms/coming-soon/peergroup-secretariat",
-        permission: null,
-      },
+      // ,
+      // {
+      //   title: "Peer Group - Logo & Photos",
+      //   icon: Images,
+      //   href: "/cms/coming-soon/peergroup-logo-photos",
+      //   permission: null,
+      // },
+      // {
+      //   title: "Peer Group - Histories",
+      //   icon: History,
+      //   href: "/cms/coming-soon/peergroup-histories",
+      //   permission: null,
+      // },
+      // {
+      //   title: "Peer Group - Vision & Mission",
+      //   icon: Eye,
+      //   href: "/cms/coming-soon/peergroup-vision-mission",
+      //   permission: null,
+      // },
+      // {
+      //   title: "Peer Group - Org. Structure",
+      //   icon: Users,
+      //   href: "/cms/coming-soon/peergroup-structure",
+      //   permission: null,
+      // },
+      // {
+      //   title: "Peer Group - Secretariat Contact",
+      //   icon: Info,
+      //   href: "/cms/coming-soon/peergroup-secretariat",
+      //   permission: null,
+      // },
 
       {
         title: "Member Database",
@@ -314,15 +303,8 @@ export const sidebarMenu = [
         href: "/cms/coming-soon/peergroup-members",
         permission: null,
       },
-
       {
-        title: "Peer Group - Local Exam",
-        icon: CalendarDays,
-        href: "/cms/coming-soon/peergroup-local-exam",
-        permission: null,
-      },
-      {
-        title: "Peer Group - Local Event",
+        title: "Peer Group - National Event",
         icon: CalendarDays,
         href: "/cms/coming-soon/peergroup-local-event",
         permission: null,
@@ -338,30 +320,6 @@ export const sidebarMenu = [
         title: "Peer Group - Gallery",
         icon: Images,
         href: "/cms/coming-soon/peergroup-gallery",
-        permission: null,
-      },
-    ],
-  },
-
-  {
-    group: "Academic & Calendar",
-    items: [
-      {
-        title: "Important Dates",
-        icon: CalendarDays,
-        href: "/cms/coming-soon/academic-important-dates",
-        permission: null,
-      },
-      {
-        title: "Exam Schedules",
-        icon: CalendarDays,
-        href: "/cms/coming-soon/academic-exam-schedules",
-        permission: null,
-      },
-      {
-        title: "Holidays & Breaks",
-        icon: CalendarDays,
-        href: "/cms/coming-soon/academic-holidays-breaks",
         permission: null,
       },
     ],
