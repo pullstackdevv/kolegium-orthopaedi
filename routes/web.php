@@ -122,6 +122,10 @@ Route::middleware([Authenticate::class, HandleInertiaRequests::class])
             return Inertia::render('Settings/index', ['activeMenu' => 'role']);
         })->name('settings.role');
 
+        Route::get('/settings/permission', function () {
+            return Inertia::render('Settings/index', ['activeMenu' => 'permission']);
+        })->name('settings.permission');
+
         // User management routes
         Route::get('/settings/users/create', function () {
             return Inertia::render('Settings/AddEditUser', ['mode' => 'create']);
@@ -134,6 +138,11 @@ Route::middleware([Authenticate::class, HandleInertiaRequests::class])
 
         // Change Password Route
         Route::post('/change-password', [\App\Http\Controllers\UserController::class, 'changePasswordWeb'])->name('change-password');
+
+        // Generic coming soon page for not-yet-developed CMS menus
+        Route::get('/coming-soon/{slug}', function ($slug) {
+            return Inertia::render('ComingSoon', ['slug' => $slug]);
+        })->name('coming-soon');
 
     });
 
