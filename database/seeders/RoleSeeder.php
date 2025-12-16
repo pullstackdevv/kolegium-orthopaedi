@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Role;
 
@@ -25,40 +24,36 @@ class RoleSeeder extends Seeder
                 'name' => 'admin',
                 'description' => 'Akses ke semua fitur kecuali management user',
                 'permissions' => [
-                    'dashboard',
-                    'orders',
-                    'products',
-                    'customers',
-                    'stock',
-                    'vouchers',
-                    'expenses',
-                    'reports',
-                    'settings'
+                    'dashboard.view',
+                    'users.view', 'users.create', 'users.edit',
+                    'roles.view',
+                    'settings.view', 'settings.edit',
                 ],
                 'is_active' => true,
                 'is_system' => true
             ],
             [
                 'name' => 'staff',
-                'description' => 'Akses ke orders, products, dan customers',
+                'description' => 'Akses dasar ke dashboard',
                 'permissions' => [
-                    'dashboard',
-                    'orders',
-                    'products',
-                    'customers',
-                    'reports'
+                    'dashboard.view',
                 ],
                 'is_active' => true,
                 'is_system' => true
             ],
-            
         ];
 
         foreach ($roles as $roleData) {
-            Role::updateOrCreate(
+            $permissions = $roleData['permissions'];
+            unset($roleData['permissions']);
+
+            $role = Role::updateOrCreate(
                 ['name' => $roleData['name']],
                 $roleData
             );
+
+            // Sync permissions using pivot table
+            $role->syncPermissions($permissions);
         }
     }
 }

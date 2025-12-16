@@ -1,42 +1,54 @@
 import { useState } from "react";
-import { Icon } from "@iconify/react";
-import { Link } from "@inertiajs/react";
-import DashboardLayout from "../../Layouts/DashboardLayout";
+import { Users, ShieldCheck, Key } from "lucide-react";
+import DashboardLayout from "@/Layouts/DashboardLayout";
 import UserSettings from "./UserSettings";
 import RoleSettings from "./RoleSettings";
-
-const menus = [
-  { key: "user", label: "User Management", icon: "mdi:account-outline" },
-  { key: "role", label: "Role & Permissions", icon: "mdi:shield-account-outline" },
-];
+import PermissionSettings from "./PermissionSettings";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 function SettingsPage({ activeMenu: initialActiveMenu = "user" }) {
   const [activeMenu, setActiveMenu] = useState(initialActiveMenu);
 
   return (
-    <DashboardLayout>
-      <div className="p-6">
-        <h1 className="text-2xl font-bold mb-6">Kolegium Settings</h1>
-        <div className="flex flex-wrap gap-3 mb-6">
-          {menus.map((menu) => (
-            <Link
-              key={menu.key}
-              href={`/cms/settings/${menu.key}`}
-              className={`px-6 py-3 rounded-lg border flex items-center gap-2 transition-all font-medium ${
-                activeMenu === menu.key 
-                  ? "bg-blue-600 text-white border-blue-600 shadow-md" 
-                  : "border-gray-300 text-gray-700 hover:bg-blue-50 hover:border-blue-400"
-              }`}
-            >
-              <Icon icon={menu.icon} width={22} height={22} />
-              {menu.label}
-            </Link>
-          ))}
+    <DashboardLayout title="Settings">
+      <div className="space-y-6">
+        {/* Page Header */}
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+          <p className="text-muted-foreground">
+            Kelola pengaturan sistem, pengguna, dan hak akses
+          </p>
         </div>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          {activeMenu === "user" && <UserSettings />}
-          {activeMenu === "role" && <RoleSettings />}
-        </div>
+        
+        {/* Tabs */}
+        <Tabs value={activeMenu} onValueChange={setActiveMenu} className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="user" className="gap-2">
+              <Users className="h-4 w-4" />
+              Users
+            </TabsTrigger>
+            <TabsTrigger value="role" className="gap-2">
+              <ShieldCheck className="h-4 w-4" />
+              Roles
+            </TabsTrigger>
+            <TabsTrigger value="permission" className="gap-2">
+              <Key className="h-4 w-4" />
+              Permissions
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="user" className="space-y-4">
+            <UserSettings />
+          </TabsContent>
+          
+          <TabsContent value="role" className="space-y-4">
+            <RoleSettings />
+          </TabsContent>
+
+          <TabsContent value="permission" className="space-y-4">
+            <PermissionSettings />
+          </TabsContent>
+        </Tabs>
       </div>
     </DashboardLayout>
   );

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -12,7 +13,7 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -23,7 +24,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role_id',
         'is_active',
     ];
 
@@ -38,6 +38,13 @@ class User extends Authenticatable
     ];
 
     /**
+     * The attributes to append to the model's array form.
+     *
+     * @var array<string>
+     */
+    protected $appends = ['role', 'permissions'];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -48,95 +55,71 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
-
         ];
     }
 
-    // Relationships
-    public function role()
+    /**
+     * Get the primary role attribute (for frontend compatibility).
+     * Returns the first role as an object with name property.
+     */
+    public function getRoleAttribute(): ?object
     {
-        return $this->belongsTo(Role::class);
-    }
+        $primaryRole = $this->roles->first();
+        
+        if (!$primaryRole) {
+            return null;
+        }
 
-    public function isOwner(): bool
-    {
-        return $this->role && $this->role->name === 'owner';
-    }
-
-    public function isAdmin(): bool
-    {
-        return $this->role && $this->role->name === 'admin';
-    }
-
-    public function isStaff(): bool
-    {
-        return $this->role && $this->role->name === 'staff';
-    }
-
-    public function isWarehouse(): bool
-    {
-        return $this->role && $this->role->name === 'warehouse';
+        return (object) [
+            'id' => $primaryRole->id,
+            'name' => $primaryRole->name,
+            'description' => $primaryRole->description,
+        ];
     }
 
     /**
-     * Check if user has specific role
+     * Get all permissions attribute (for frontend).
      */
-    public function hasRole(string $roleName): bool
+    public function getPermissionsAttribute(): array
     {
-        return $this->role && strtolower($this->role->name) === strtolower($roleName);
+        return $this->getAllPermissions();
     }
 
-    // Permission methods based on role
-    public function hasPermission(string $permission): bool
-    {
-        if (!$this->is_active) {
-            return false;
-        }
-
-        // Owner has all permissions
-        if ($this->isOwner()) {
-            return true;
-        }
-
-        // Get role-based permissions
-        $rolePermissions = $this->getRolePermissions();
-        
-        // Check if permission matches any role permission pattern
-        foreach ($rolePermissions as $rolePermission) {
-            if ($rolePermission === '*' || $this->matchesPermissionPattern($permission, $rolePermission)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private function matchesPermissionPattern(string $permission, string $pattern): bool
-    {
-        // Convert pattern to regex (e.g., 'orders.*' becomes '/^orders\..+$/')
-        if (str_ends_with($pattern, '.*')) {
-            $prefix = str_replace('.*', '', $pattern);
-            return str_starts_with($permission, $prefix . '.');
-        }
-        
-        return $permission === $pattern;
-    }
-
-    public function getRolePermissions(): array
-    {
-        if (!$this->role) {
-            return [];
-        }
-
-        return $this->role->permissions ?? [];
-    }
-
+    /**
+     * Get role description string.
+     */
     public function getRoleDescription(): string
     {
-        if (!$this->role) {
+        $roles = $this->roles;
+        
+        if ($roles->isEmpty()) {
             return 'Tidak ada akses';
         }
 
-        return $this->role->description ?? 'Tidak ada deskripsi';
+        return $roles->pluck('description')->implode(', ');
+    }
+
+    /**
+     * Check if user is warehouse staff.
+     */
+    public function isWarehouse(): bool
+    {
+        return $this->hasRole('warehouse');
+    }
+
+    /**
+     * Check if user is owner.
+     */
+    public function isOwner(): bool
+    {
+        return $this->hasRole('owner');
+    }
+
+    /**
+     * Check if user is admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('admin');
     }
 }
