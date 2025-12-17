@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { ShieldCheck, Pencil, AlertCircle, Loader2, Plus } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { ShieldCheck, Pencil, AlertCircle, Loader2, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import api from "@/api/axios";
 import Swal from "sweetalert2";
 import PermissionGuard from "@/components/PermissionGuard";
@@ -38,6 +38,17 @@ export default function RoleSettings() {
   const [availablePermissions, setAvailablePermissions] = useState([]);
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState(null);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
+
+  // Pagination logic
+  const totalPages = Math.ceil(roles.length / itemsPerPage);
+  const paginatedRoles = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return roles.slice(startIndex, startIndex + itemsPerPage);
+  }, [roles, currentPage, itemsPerPage]);
 
   // Permission groups for better organization
   const permissionGroups = {
@@ -308,7 +319,7 @@ export default function RoleSettings() {
               </CardContent>
             </Card>
           ) : (
-            roles.map((role) => (
+            paginatedRoles.map((role) => (
               <Card key={role.role} className="overflow-hidden">
                 <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
                   <div className="space-y-1">
@@ -364,6 +375,46 @@ export default function RoleSettings() {
                 </CardContent>
               </Card>
             ))
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4 pt-4 border-t">
+              <p className="text-sm text-muted-foreground">
+                Menampilkan {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, roles.length)} dari {roles.length} role
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                    <Button
+                      key={page}
+                      variant={currentPage === page ? "default" : "outline"}
+                      size="sm"
+                      className="w-8 h-8 p-0"
+                      onClick={() => setCurrentPage(page)}
+                    >
+                      {page}
+                    </Button>
+                  ))}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           )}
         </div>
       )}

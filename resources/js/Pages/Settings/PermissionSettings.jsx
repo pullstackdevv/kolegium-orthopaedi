@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Key, Plus, Pencil, Trash2, AlertCircle, Loader2, Search } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Key, Plus, Pencil, Trash2, AlertCircle, Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import api from "@/api/axios";
 import Swal from "sweetalert2";
 import PermissionGuard from "@/components/PermissionGuard";
@@ -45,6 +45,10 @@ export default function PermissionSettings() {
 
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState(null);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   useEffect(() => {
     fetchPermissions();
@@ -248,13 +252,27 @@ export default function PermissionSettings() {
   }, {});
 
   // Filter permissions by search query
-  const filteredPermissions = searchQuery
-    ? permissions.filter(p =>
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.module?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : permissions;
+  const filteredPermissions = useMemo(() => {
+    return searchQuery
+      ? permissions.filter(p =>
+          p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          p.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          p.module?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      : permissions;
+  }, [permissions, searchQuery]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredPermissions.length / itemsPerPage);
+  const paginatedPermissions = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredPermissions.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredPermissions, currentPage, itemsPerPage]);
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   return (
     <div className="space-y-6">
@@ -317,6 +335,7 @@ export default function PermissionSettings() {
                 </p>
               </div>
             ) : (
+              <>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -329,9 +348,9 @@ export default function PermissionSettings() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredPermissions.map((permission, index) => (
+                  {paginatedPermissions.map((permission, index) => (
                     <TableRow key={permission.id}>
-                      <TableCell className="font-medium">{index + 1}</TableCell>
+                      <TableCell className="font-medium">{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
                       <TableCell>
                         <code className="text-xs bg-muted px-1.5 py-0.5 rounded">
                           {permission.name}
@@ -375,6 +394,59 @@ export default function PermissionSettings() {
                   ))}
                 </TableBody>
               </Table>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                  <p className="text-sm text-muted-foreground">
+                    Menampilkan {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, filteredPermissions.length)} dari {filteredPermissions.length} data
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                        let page;
+                        if (totalPages <= 5) {
+                          page = i + 1;
+                        } else if (currentPage <= 3) {
+                          page = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          page = totalPages - 4 + i;
+                        } else {
+                          page = currentPage - 2 + i;
+                        }
+                        return (
+                          <Button
+                            key={page}
+                            variant={currentPage === page ? "default" : "outline"}
+                            size="sm"
+                            className="w-8 h-8 p-0"
+                            onClick={() => setCurrentPage(page)}
+                          >
+                            {page}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
             )}
           </CardContent>
         </Card>
