@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Role;
 use App\Models\Permission;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +15,25 @@ class RoleController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        // Check permission
+        $authUser = Auth::user();
+        if (
+            !$authUser instanceof User
+            || !(
+                $authUser->hasPermission('roles.view')
+                || $authUser->hasPermission('users.view')
+                || $authUser->hasPermission('users.create')
+                || $authUser->hasPermission('users.edit')
+            )
+        ) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized. You do not have permission to view roles.'
+            ], 403);
+        }
+
         $roles = Role::withCount('users')
+            ->where('is_active', true)
             ->when($request->search, function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%");
             })
@@ -46,7 +65,8 @@ class RoleController extends Controller
     public function store(Request $request): JsonResponse
     {
         // Check permission
-        if (!Auth::user()->hasPermission('roles.create')) {
+        $authUser = Auth::user();
+        if (!$authUser instanceof User || !$authUser->hasPermission('roles.create')) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Unauthorized. You do not have permission to create roles.'
@@ -110,7 +130,8 @@ class RoleController extends Controller
     public function update(Request $request, string $roleName): JsonResponse
     {
         // Check permission
-        if (!Auth::user()->hasPermission('roles.edit')) {
+        $authUser = Auth::user();
+        if (!$authUser instanceof User || !$authUser->hasPermission('roles.edit')) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Unauthorized. You do not have permission to edit roles.'
@@ -159,7 +180,8 @@ class RoleController extends Controller
     public function destroy(Role $role): JsonResponse
     {
         // Check permission
-        if (!Auth::user()->hasPermission('roles.delete')) {
+        $authUser = Auth::user();
+        if (!$authUser instanceof User || !$authUser->hasPermission('roles.delete')) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Unauthorized. You do not have permission to delete roles.'
@@ -231,6 +253,15 @@ class RoleController extends Controller
 
     public function getPermissions(): JsonResponse
     {
+        // Check permission
+        $authUser = Auth::user();
+        if (!$authUser instanceof User || !$authUser->hasPermission('roles.view')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized. You do not have permission to view roles.'
+            ], 403);
+        }
+
         return response()->json([
             'status' => 'success',
             'data' => Role::getAllPermissions()
@@ -239,6 +270,15 @@ class RoleController extends Controller
 
     public function getAllPermissions(): JsonResponse
     {
+        // Check permission
+        $authUser = Auth::user();
+        if (!$authUser instanceof User || !$authUser->hasPermission('permissions.view')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized. You do not have permission to view permissions.'
+            ], 403);
+        }
+
         $permissions = Permission::orderBy('module')->orderBy('name')->get();
 
         return response()->json([
@@ -250,6 +290,15 @@ class RoleController extends Controller
     // Permission CRUD
     public function storePermission(Request $request): JsonResponse
     {
+        // Check permission
+        $authUser = Auth::user();
+        if (!$authUser instanceof User || !$authUser->hasPermission('permissions.create')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized. You do not have permission to create permissions.'
+            ], 403);
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:permissions,name',
             'display_name' => 'nullable|string|max:255',
@@ -280,6 +329,15 @@ class RoleController extends Controller
 
     public function updatePermission(Request $request, Permission $permission): JsonResponse
     {
+        // Check permission
+        $authUser = Auth::user();
+        if (!$authUser instanceof User || !$authUser->hasPermission('permissions.edit')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized. You do not have permission to edit permissions.'
+            ], 403);
+        }
+
         $validated = $request->validate([
             'display_name' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:255',
@@ -305,6 +363,15 @@ class RoleController extends Controller
     public function destroyPermission(Permission $permission): JsonResponse
     {
         try {
+            // Check permission
+            $authUser = Auth::user();
+            if (!$authUser instanceof User || !$authUser->hasPermission('permissions.delete')) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized. You do not have permission to delete permissions.'
+                ], 403);
+            }
+
             // Check if permission is used by any role
             if ($permission->roles()->exists()) {
                 return response()->json([

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Users, UserPlus, Pencil, Trash2, CheckCircle, XCircle, AlertCircle, Loader2 } from "lucide-react";
 import api from "@/api/axios";
 import Swal from "sweetalert2";
+import PermissionGuard from "@/components/PermissionGuard";
 
 // Shadcn UI Components
 import { Button } from "@/components/ui/button";
@@ -75,6 +76,18 @@ export default function UserSettings() {
     setSelectedUser(null);
   };
 
+  const getRoleLabel = (roleName) => {
+    const labels = {
+      super_admin: 'Super Admin',
+      admin_kolegium: 'Admin Kolegium',
+      admin_study_program: 'Admin Study Program',
+      admin_peer_group: 'Admin Peer Group',
+      staff: 'Staff',
+    };
+
+    return labels[roleName] || roleName || '-';
+  };
+
   const openCreateModal = () => {
     resetForm();
     setModalType('create');
@@ -145,7 +158,7 @@ export default function UserSettings() {
         setFormError(errors.join(', '));
       } else if (err.response?.status === 401) {
         setFormError('Sesi Anda telah berakhir. Silakan login kembali.');
-        setTimeout(() => window.location.href = '/login', 2000);
+        setTimeout(() => window.location.href = '/cms/login', 2000);
       } else if (err.response?.status === 403) {
         setFormError('Anda tidak memiliki akses untuk membuat user.');
       } else {
@@ -195,7 +208,7 @@ export default function UserSettings() {
         setFormError(errors.join(', '));
       } else if (err.response?.status === 401) {
         setFormError('Sesi Anda telah berakhir. Silakan login kembali.');
-        setTimeout(() => window.location.href = '/login', 2000);
+        setTimeout(() => window.location.href = '/cms/login', 2000);
       } else if (err.response?.status === 403) {
         setFormError('Anda tidak memiliki akses untuk memperbarui user.');
       } else {
@@ -325,10 +338,11 @@ export default function UserSettings() {
 
   const getRoleBadgeVariant = (roleName) => {
     const variants = {
-      'owner': 'default',
-      'admin': 'secondary',
+      'super_admin': 'default',
+      'admin_kolegium': 'secondary',
+      'admin_study_program': 'secondary',
+      'admin_peer_group': 'secondary',
       'staff': 'outline',
-      'warehouse': 'outline'
     };
     return variants[roleName?.toLowerCase()] || 'outline';
   };
@@ -341,10 +355,12 @@ export default function UserSettings() {
           <h2 className="text-2xl font-bold tracking-tight">Pengaturan User</h2>
           <p className="text-muted-foreground mt-1">Kelola data pengguna dan permission</p>
         </div>
-        <Button onClick={openCreateModal} className="gap-2">
-          <UserPlus className="h-4 w-4" />
-          Tambah User
-        </Button>
+        <PermissionGuard permission="users.create">
+          <Button onClick={openCreateModal} className="gap-2">
+            <UserPlus className="h-4 w-4" />
+            Tambah User
+          </Button>
+        </PermissionGuard>
       </div>
 
       {loading ? (
@@ -446,7 +462,7 @@ export default function UserSettings() {
                         <TableCell className="text-muted-foreground">{user.email}</TableCell>
                         <TableCell>
                           <Badge variant={getRoleBadgeVariant(user.role?.name)}>
-                            {user.role?.name || 'Unknown'}
+                            {getRoleLabel(user.role?.name) || 'Unknown'}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -459,14 +475,18 @@ export default function UserSettings() {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
-                            <Button variant="outline" size="sm" onClick={() => openEditModal(user)}>
-                              <Pencil className="h-4 w-4 mr-1" />
-                              Edit
-                            </Button>
-                            <Button variant="destructive" size="sm" onClick={() => deleteUser(user)}>
-                              <Trash2 className="h-4 w-4 mr-1" />
-                              Hapus
-                            </Button>
+                            <PermissionGuard permission="users.edit">
+                              <Button variant="outline" size="sm" onClick={() => openEditModal(user)}>
+                                <Pencil className="h-4 w-4 mr-1" />
+                                Edit
+                              </Button>
+                            </PermissionGuard>
+                            <PermissionGuard permission="users.delete">
+                              <Button variant="destructive" size="sm" onClick={() => deleteUser(user)}>
+                                <Trash2 className="h-4 w-4 mr-1" />
+                                Hapus
+                              </Button>
+                            </PermissionGuard>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -565,7 +585,7 @@ export default function UserSettings() {
                 <SelectContent>
                   {roles.map((role, index) => (
                     <SelectItem key={index} value={role.role}>
-                      {role.role}
+                      {getRoleLabel(role.role)}
                     </SelectItem>
                   ))}
                 </SelectContent>

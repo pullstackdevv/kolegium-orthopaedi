@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Key, Plus, Pencil, Trash2, AlertCircle, Loader2, Search } from "lucide-react";
 import api from "@/api/axios";
 import Swal from "sweetalert2";
+import PermissionGuard from "@/components/PermissionGuard";
 
 // Shadcn UI Components
 import { Button } from "@/components/ui/button";
@@ -265,10 +266,12 @@ export default function PermissionSettings() {
             Kelola semua permission yang tersedia dalam sistem.
           </p>
         </div>
-        <Button onClick={openCreateModal} size="sm">
-          <Plus className="h-4 w-4 mr-2" />
-          Tambah Permission
-        </Button>
+        <PermissionGuard permission="permissions.create">
+          <Button onClick={openCreateModal} size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            Tambah Permission
+          </Button>
+        </PermissionGuard>
       </div>
 
       {/* Search */}
@@ -347,21 +350,25 @@ export default function PermissionSettings() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openEditModal(permission)}
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-destructive hover:text-destructive"
-                            onClick={() => deletePermission(permission)}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
+                          <PermissionGuard permission="permissions.edit">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openEditModal(permission)}
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                          </PermissionGuard>
+                          <PermissionGuard permission="permissions.delete">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-destructive hover:text-destructive"
+                              onClick={() => deletePermission(permission)}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </PermissionGuard>
                         </div>
                       </TableCell>
                     </TableRow>

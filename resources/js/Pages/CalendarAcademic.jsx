@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
-import { ChevronLeft, ChevronRight, Calendar, X, Plus, Trash2, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar, X, Trash2, MapPin } from "lucide-react";
 import HomepageLayout from "../Layouts/HomepageLayout";
+import api from "@/api/axios";
 
 export default function CalendarAcademic() {
-  const [currentMonth, setCurrentMonth] = useState(10); // November (0-indexed)
-  const [currentYear, setCurrentYear] = useState(2025);
+  const now = new Date();
+  const [currentMonth, setCurrentMonth] = useState(now.getMonth());
+  const [currentYear, setCurrentYear] = useState(now.getFullYear());
   const [showEventModal, setShowEventModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showDatePickerModal, setShowDatePickerModal] = useState(false);
@@ -14,8 +16,8 @@ export default function CalendarAcademic() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [eventToDelete, setEventToDelete] = useState(null);
-  const [tempMonth, setTempMonth] = useState(10);
-  const [tempYear, setTempYear] = useState(2025);
+  const [tempMonth, setTempMonth] = useState(now.getMonth());
+  const [tempYear, setTempYear] = useState(now.getFullYear());
   // Set default date to today for demo purposes
   const todayDate = new Date();
   todayDate.setHours(12, 0, 0, 0); // Set to noon to avoid timezone issues
@@ -25,175 +27,127 @@ export default function CalendarAcademic() {
   tomorrow.setDate(todayDate.getDate() + 1);
   
   const nextWeekDate = new Date(todayDate);
-  nextWeekDate.setDate(todayDate.getDate() + 5);
+  nextWeekDate.setDate(todayDate.getDate() + 7);
   
-  const [events, setEvents] = useState([
-    {
-      id: 1,
-      date: new Date(2025, 11, 6), // December 6, 2025
-      title: "National Board Examination (Session 2)",
-      type: "ujian_nasional",
-      description: "National board examination for PPDS 1"
-    },
-    {
-      id: 2,
-      date: new Date(todayDate),
-      title: "23 National Congress",
-      type: "event_nasional",
-      description: "Indonesian Orthopaedic Association National Congress"
-    },
-    {
-      id: 3,
-      date: new Date(nextWeekDate),
-      title: "Presentasi Final Paper Kandidat",
-      type: "event_peer_group",
-      description: "Presentasi akhir paper untuk kandidat"
-    },
-    {
-      id: 4,
-      date: new Date(2026, 1, 6), // February 6, 2026
-      title: "SRS Asia Pacific Meeting 2026",
-      type: "event_nasional",
-      description: "Scoliosis Research Society – Asia Pacific Meeting 2026. Location: Fukuoka, Japan",
-      location: "Fukuoka, Japan",
-      registration: "https://www.srs.org/Meetings-Conferences/Regional-Scientific-Meeting/RSM-2026"
-    },
-    {
-      id: 5,
-      date: new Date(2026, 2, 11), // March 11, 2026
-      title: "CSRS-AP 2026",
-      type: "event_nasional",
-      description: "16th Annual Meeting of Cervical Spine Research Society – Asia Pacific. Location: Shanghai International Convention Center, China",
-      location: "Shanghai International Convention Center, China",
-      registration: "https://www.csrs-ap2026.org/"
-    },
-    {
-      id: 6,
-      date: new Date(2026, 4, 20), // May 20, 2026
-      title: "KSSS 2026",
-      type: "event_nasional",
-      description: "The 43rd International Congress of Korean Society of Spine Surgery. Location: Lotte Hotel Seoul, South Korea",
-      location: "Lotte Hotel Seoul, South Korea",
-      registration: "https://ksss2026.org/ksss/contents/01_06.php"
-    },
-    {
-      id: 7,
-      date: new Date(2026, 5, 3), // June 3, 2026
-      title: "APSS Congress 2026",
-      type: "event_nasional",
-      description: "Asia Pacific Spine Society 32nd Annual Scientific Meeting and Philippine Spine Society Annual Meeting. Location: Shangri-La Mactan, Cebu, Philippines",
-      location: "Shangri-La Mactan, Cebu, Philippines",
-      registration: "www.apss2026ph.org"
-    },
-    {
-      id: 8,
-      date: new Date(2026, 5, 18), // June 18, 2026
-      title: "Asia Spine 2026",
-      type: "event_nasional",
-      description: "The 17th Annual Meeting of Asia Spine. Location: Osaka International Convention Center, Osaka, Japan",
-      location: "Osaka International Convention Center, Osaka, Japan",
-      registration: "https://cs-oto3.com/nsj2026-17amoas/en-greeting.html"
-    },
-    {
-      id: 9,
-      date: new Date(2026, 6, 16), // July 16, 2026
-      title: "SMISS-ASEAN MISST-SSS Combine Meeting 2026",
-      type: "event_nasional",
-      description: "Combine Meeting of Society for Minimally Invasive Spine Surgery – Asia Pacific (SMISS-AP), 6th Meeting - Singapore Spine Society (SSS), 9th Meeting. Location: Shangri-La Hotel, Singapore",
-      location: "Shangri-La Hotel, Singapore",
-      registration: "https://www.smiss-aseanmisst-sss2026.org/"
-    }
-  ]);
+  const [events, setEvents] = useState([]);
+
+  const academicYear = useMemo(() => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const startYear = d.getMonth() >= 6 ? year : year - 1;
+
+    const start = new Date(startYear, 6, 1);
+    start.setHours(12, 0, 0, 0);
+    const end = new Date(startYear + 1, 5, 30);
+    end.setHours(12, 0, 0, 0);
+
+    return {
+      start,
+      end,
+      label: `${startYear}/${startYear + 1}`,
+    };
+  }, []);
+
+  const academicYearCounts = useMemo(() => {
+    const inRange = events.filter((event) => {
+      const evStart = event.startDate ? new Date(event.startDate) : new Date(event.date);
+      const evEnd = event.endDate ? new Date(event.endDate) : evStart;
+      evStart.setHours(12, 0, 0, 0);
+      evEnd.setHours(12, 0, 0, 0);
+      return evStart <= academicYear.end && evEnd >= academicYear.start;
+    });
+
+    const exams = inRange.filter((e) => String(e.type || "").startsWith("ujian_")).length;
+    const agendaEvents = inRange.filter((e) => String(e.type || "").startsWith("event_")).length;
+
+    return { exams, agendaEvents };
+  }, [academicYear.end, academicYear.start, events]);
+
+  useEffect(() => {
+    const fetchAgendaEvents = async () => {
+      try {
+        let scopeParam = null;
+        if (typeof window !== "undefined") {
+          scopeParam = new URLSearchParams(window.location.search).get("scope");
+        }
+
+        const params = {};
+        if (scopeParam) {
+          params.scope = scopeParam;
+        }
+
+        const response = await api.get("/public/agenda-events", { params });
+
+        if (response.data?.status !== "success") {
+          setEvents([]);
+          return;
+        }
+
+        const mapped = (response.data?.data || []).map((ev) => {
+          const start = new Date(ev.start_date);
+          start.setHours(12, 0, 0, 0);
+
+          const end = ev.end_date ? new Date(ev.end_date) : new Date(ev.start_date);
+          end.setHours(12, 0, 0, 0);
+
+          return {
+            id: ev.id,
+            date: start,
+            startDate: start,
+            endDate: end,
+            title: ev.title,
+            type: ev.type,
+            description: ev.description,
+            location: ev.location,
+            registration: ev.registration_url,
+            image: ev.image_url,
+          };
+        });
+
+        setEvents(mapped);
+      } catch (e) {
+        setEvents([]);
+      }
+    };
+
+    fetchAgendaEvents();
+  }, []);
 
   // Stats data
-  const stats = [
-    {
-      title: "Academic Year",
-      value: "2024/2025",
-      icon: "mdi:calendar",
-      iconBg: "bg-blue-100",
-      iconColor: "text-blue-600"
-    },
-    {
-      title: "Examination Day",
-      value: "82",
-      icon: "mdi:briefcase",
-      iconBg: "bg-orange-100",
-      iconColor: "text-orange-600"
-    },
-    {
-      title: "Event Day",
-      value: "6",
-      icon: "mdi:calendar-check",
-      iconBg: "bg-red-100",
-      iconColor: "text-red-600"
-    }
-  ];
+  const stats = useMemo(() => {
+    return [
+      {
+        title: "Academic Year",
+        value: academicYear.label,
+        icon: "mdi:calendar",
+        iconBg: "bg-blue-100",
+        iconColor: "text-blue-600",
+      },
+      {
+        title: "Examination Day",
+        value: String(academicYearCounts.exams),
+        icon: "mdi:briefcase",
+        iconBg: "bg-orange-100",
+        iconColor: "text-orange-600",
+      },
+      {
+        title: "Event Day",
+        value: String(academicYearCounts.agendaEvents),
+        icon: "mdi:calendar-check",
+        iconBg: "bg-red-100",
+        iconColor: "text-red-600",
+      },
+    ];
+  }, [academicYear.label, academicYearCounts.agendaEvents, academicYearCounts.exams]);
 
   // Event types with colors
   const eventTypes = [
-    { id: "ujian_lokal", name: "Ujian Lokal", color: "bg-red-500", textColor: "text-red-700" },
-    { id: "ujian_nasional", name: "Ujian Nasional", color: "bg-blue-500", textColor: "text-blue-700" },
-    { id: "event_lokal", name: "Event Lokal", color: "bg-green-500", textColor: "text-green-700" },
-    { id: "event_nasional", name: "Event Nasional", color: "bg-orange-500", textColor: "text-orange-700" },
-    { id: "event_peer_group", name: "Event Peer Group", color: "bg-purple-500", textColor: "text-purple-700" }
-  ];
-
-  const new_events = [
-    { 
-      date: "6-7 February 2026", 
-      title: "SRS Asia Pacific Meeting 2026",
-      description: "Scoliosis Research Society – Asia Pacific Meeting 2026",
-      location: "Fukuoka, Japan",
-      image: "/assets/images/event/srs.jpeg",
-      registration: "https://www.srs.org/Meetings-Conferences/Regional-Scientific-Meeting/RSM-2026",
-      badge: "Event"
-    },
-    { 
-      date: "11-13 March 2026", 
-      title: "CSRS-AP 2026",
-      description: "16th Annual Meeting of Cervical Spine Research Society – Asia Pacific",
-      location: "Shanghai International Convention Center, China",
-      image: "/assets/images/event/csrs-ap.jpeg",
-      registration: "https://www.csrs-ap2026.org/",
-      badge: "Event"
-    },
-    { 
-      date: "20-22 May 2026", 
-      title: "KSSS 2026",
-      description: "The 43rd International Congress of Korean Society of Spine Surgery",
-      location: "Lotte Hotel Seoul, South Korea",
-      image: "/assets/images/event/ksss.jpeg",
-      registration: "https://ksss2026.org/ksss/contents/01_06.php",
-      badge: "Event"
-    },
-    { 
-      date: "3-6 June 2026", 
-      title: "APSS Congress 2026",
-      description: "Asia Pacific Spine Society 32nd Annual Scientific Meeting and Philippine Spine Society Annual Meeting",
-      location: "Shangri-La Mactan, Cebu, Philippines",
-      image: "/assets/images/event/apss.jpeg",
-      registration: "https://www.apss2026ph.org",
-      badge: "Event"
-    },
-    { 
-      date: "18-20 June 2026", 
-      title: "Asia Spine 2026",
-      description: "The 17th Annual Meeting of Asia Spine",
-      location: "Osaka International Convention Center, Osaka, Japan",
-      image: "/assets/images/event/asia-spine.jpeg",
-      registration: "https://cs-oto3.com/nsj2026-17amoas/en-greeting.html",
-      badge: "Event"
-    },
-    { 
-      date: "16-18 July 2026", 
-      title: "SMISS-ASEAN MISST-SSS Combine Meeting 2026",
-      description: "Combine Meeting of Society for Minimally Invasive Spine Surgery – Asia Pacific (SMISS-AP), 6th Meeting - Singapore Spine Society (SSS), 9th Meeting",
-      location: "Shangri-La Hotel, Singapore",
-      image: "/assets/images/event/smiss.jpeg",
-      registration: "https://www.smiss-aseanmisst-sss2026.org/",
-      badge: "Event"
-    }
+    { id: "ujian_lokal", name: "Local Exam", color: "bg-red-500", textColor: "text-red-700" },
+    { id: "ujian_nasional", name: "National Exam", color: "bg-blue-500", textColor: "text-blue-700" },
+    { id: "event_lokal", name: "Local Event", color: "bg-green-500", textColor: "text-green-700" },
+    { id: "event_nasional", name: "National Event", color: "bg-orange-500", textColor: "text-orange-700" },
+    { id: "event_peer_group", name: "Peer Group Event International", color: "bg-purple-500", textColor: "text-purple-700" },
+    { id: "event_peer_group_nasional", name: "Peer Group Event National", color: "bg-indigo-500", textColor: "text-indigo-700" }
   ];
 
   const getEventColor = (type) => {
@@ -202,11 +156,16 @@ export default function CalendarAcademic() {
   };
 
   const getEventsForDate = (day, month, year) => {
+    const target = new Date(year, month, day);
+    target.setHours(12, 0, 0, 0);
+
     return events.filter(event => {
-      const eventDate = new Date(event.date);
-      return eventDate.getDate() === day && 
-             eventDate.getMonth() === month && 
-             eventDate.getFullYear() === year;
+      const start = event.startDate ? new Date(event.startDate) : new Date(event.date);
+      const end = event.endDate ? new Date(event.endDate) : new Date(event.date);
+      start.setHours(12, 0, 0, 0);
+      end.setHours(12, 0, 0, 0);
+
+      return target >= start && target <= end;
     });
   };
 
@@ -236,8 +195,10 @@ export default function CalendarAcademic() {
 
   const handleDateClick = (day, isCurrentMonth) => {
     if (!isCurrentMonth) return;
-    setSelectedDate({ day, month: currentMonth, year: currentYear });
-    setShowEventModal(true);
+    const dayEvents = getEventsForDate(day, currentMonth, currentYear);
+    if (dayEvents.length > 0) {
+      handleEventClick(dayEvents[0], true);
+    }
   };
 
   const handleEventClick = (event, viewOnly = false) => {
@@ -272,10 +233,15 @@ export default function CalendarAcademic() {
   // Get ongoing events (events happening today)
   const getOngoingEvents = () => {
     return events.filter(event => {
-      const eventDate = new Date(event.date);
-      return eventDate.getDate() === today.getDate() &&
-             eventDate.getMonth() === today.getMonth() &&
-             eventDate.getFullYear() === today.getFullYear();
+      const start = event.startDate ? new Date(event.startDate) : new Date(event.date);
+      const end = event.endDate ? new Date(event.endDate) : new Date(event.date);
+      start.setHours(12, 0, 0, 0);
+      end.setHours(12, 0, 0, 0);
+
+      const t = new Date(today);
+      t.setHours(12, 0, 0, 0);
+
+      return t >= start && t <= end;
     });
   };
   
@@ -289,55 +255,90 @@ export default function CalendarAcademic() {
 
   // Get upcoming tests (next 7 days)
   const getUpcomingTests = () => {
-    const today = new Date(2025, 11, 6);
-    today.setHours(0, 0, 0, 0); // Reset to start of day
-    const nextWeek = new Date(today);
-    nextWeek.setDate(today.getDate() + 7);
-    nextWeek.setHours(23, 59, 59, 999); // End of day
-    
-    return events.filter(event => {
-      const eventDate = new Date(event.date);
-      eventDate.setHours(0, 0, 0, 0); // Reset to start of day for comparison
-      const isTest = event.type === 'ujian_lokal' || event.type === 'ujian_nasional';
-      return isTest && eventDate >= today && eventDate <= nextWeek;
-    });
+    const start = new Date();
+    start.setHours(12, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 14);
+    end.setHours(12, 0, 0, 0);
+
+    return events
+      .filter((event) => {
+        const evStart = event.startDate ? new Date(event.startDate) : new Date(event.date);
+        const evEnd = event.endDate ? new Date(event.endDate) : evStart;
+        evStart.setHours(12, 0, 0, 0);
+        evEnd.setHours(12, 0, 0, 0);
+
+        const isTest = String(event.type || "").startsWith("ujian_");
+        const overlaps = evStart <= end && evEnd >= start;
+        return isTest && overlaps;
+      })
+      .sort((a, b) => {
+        const aStart = a.startDate ? new Date(a.startDate) : new Date(a.date);
+        const bStart = b.startDate ? new Date(b.startDate) : new Date(b.date);
+        return aStart.getTime() - bStart.getTime();
+      });
   };
   
   // Format date range for upcoming tests
   const getUpcomingTestDateRange = () => {
-    const today = new Date(2025, 11, 6);
-    const nextWeek = new Date(today);
-    nextWeek.setDate(today.getDate() + 1);
+    const start = new Date();
+    start.setHours(12, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 14);
+    end.setHours(12, 0, 0, 0);
     
-    return `${today.getDate()} ${monthNames[today.getMonth()].slice(0, 3)} ${today.getFullYear()} - ${nextWeek.getDate()} ${monthNames[nextWeek.getMonth()].slice(0, 3)} ${nextWeek.getFullYear()}`;
+    return `${start.getDate()} ${monthNames[start.getMonth()].slice(0, 3)} ${start.getFullYear()} - ${end.getDate()} ${monthNames[end.getMonth()].slice(0, 3)} ${end.getFullYear()}`;
   };
 
   // Get upcoming events (next 7 days, excluding tests)
   const getUpcomingEvents = () => {
-    // const today = new Date();
-    // today.setHours(0, 0, 0, 0);
-    // const nextWeek = new Date(today);
-    // nextWeek.setDate(today.getDate() + 7);
-    // nextWeek.setHours(23, 59, 59, 999);
-    
-    // return events.filter(event => {
-    //   const eventDate = new Date(event.date);
-    //   eventDate.setHours(0, 0, 0, 0);
-    //   const isEvent = event.type !== 'ujian_lokal' && event.type !== 'ujian_nasional';
-    //   return isEvent && eventDate >= today && eventDate <= nextWeek;
-    // });
+    const start = new Date();
+    start.setHours(12, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 14);
+    end.setHours(12, 0, 0, 0);
 
-    return  new_events;
+    const isEventType = (type) => String(type || "").startsWith("event_");
+
+    return events
+      .filter((event) => {
+        const evStart = event.startDate ? new Date(event.startDate) : new Date(event.date);
+        const evEnd = event.endDate ? new Date(event.endDate) : evStart;
+        evStart.setHours(12, 0, 0, 0);
+        evEnd.setHours(12, 0, 0, 0);
+
+        const overlaps = evStart <= end && evEnd >= start;
+        return isEventType(event.type) && overlaps;
+      })
+      .sort((a, b) => {
+        const aStart = a.startDate ? new Date(a.startDate) : new Date(a.date);
+        const bStart = b.startDate ? new Date(b.startDate) : new Date(b.date);
+        return aStart.getTime() - bStart.getTime();
+      })
+      .map((event) => {
+        const startDate = event.startDate ? new Date(event.startDate) : new Date(event.date);
+        const endDate = event.endDate ? new Date(event.endDate) : startDate;
+
+        const startLabel = `${startDate.getDate()} ${monthNames[startDate.getMonth()].slice(0, 3)} ${startDate.getFullYear()}`;
+        const endLabel = `${endDate.getDate()} ${monthNames[endDate.getMonth()].slice(0, 3)} ${endDate.getFullYear()}`;
+
+        return {
+          ...event,
+          dateLabel: startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`,
+        };
+      });
   };
 
   
   // Format date range for upcoming events
   const getUpcomingEventDateRange = () => {
-    const today = new Date(2026, 1, 6);
-    const nextWeek = new Date(today);
-    nextWeek.setDate(today.getDate() + 162);
+    const start = new Date();
+    start.setHours(12, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 14);
+    end.setHours(12, 0, 0, 0);
     
-    return `${today.getDate()} ${monthNames[today.getMonth()].slice(0, 3)} ${today.getFullYear()} - ${nextWeek.getDate()} ${monthNames[nextWeek.getMonth()].slice(0, 3)} ${nextWeek.getFullYear()}`;
+    return `${start.getDate()} ${monthNames[start.getMonth()].slice(0, 3)} ${start.getFullYear()} - ${end.getDate()} ${monthNames[end.getMonth()].slice(0, 3)} ${end.getFullYear()}`;
   };
 
   // Calendar data
@@ -429,6 +430,14 @@ export default function CalendarAcademic() {
     }
   };
 
+  const selectedEventStartDate = (() => {
+    if (!selectedEvent) return null;
+    const raw = selectedEvent.startDate ?? selectedEvent.date;
+    const d = raw instanceof Date ? raw : new Date(raw);
+    if (Number.isNaN(d.getTime())) return null;
+    return d;
+  })();
+
   return (
     <HomepageLayout>
       {/* Breadcrumb Section */}
@@ -447,7 +456,7 @@ export default function CalendarAcademic() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Title */}
           <h1 className="text-3xl font-bold text-blue-700 mb-8">
-            Calender Academic 2024/2025
+            Calender Academic {academicYear.label}
           </h1>
 
           {/* Stats Cards */}
@@ -518,32 +527,34 @@ export default function CalendarAcademic() {
                     {/* Events with Image */}
                     {eventsList.map((event, index) => {
                       const eventColor = getEventColor(event.type);
-                      const eventDate = new Date(event.date);
+                      const eventDate = new Date(event.startDate ?? event.date);
                       return (
                         <div 
                           key={`event-${index}`} 
                           className="flex-shrink-0 w-80 bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
-                          onClick={() => handleEventClick(event)}
+                          onClick={() => handleEventClick(event, true)}
                         >
-                          <div className="relative bg-gradient-to-br from-red-700 to-red-900 h-40">
-                            <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-r from-red-800 via-green-600 to-blue-600 opacity-80"></div>
-                            <div className="relative h-full flex flex-col items-center justify-center p-4">
-                              <div className="w-14 h-14 bg-gradient-to-br from-yellow-600 to-yellow-700 rounded-lg mb-2 flex items-center justify-center border-4 border-yellow-500">
-                                <Icon icon="mdi:medical-bag" className="w-8 h-8 text-white" />
-                              </div>
-                              <h3 className="text-xl font-bold text-white text-center">NATIONAL<br/>CONGRESS</h3>
-                              <div className="bg-yellow-500 text-gray-900 px-2 py-1 rounded-full text-xs font-bold mt-1">
-                                INDONESIAN ORTHOPAEDIC ASSOCIATION
-                              </div>
-                            </div>
+                          <div className="relative h-40 bg-gray-100">
+                            {event.image ? (
+                              <img
+                                src={event.image}
+                                alt={event.title}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = "none";
+                                }}
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200" />
+                            )}
                           </div>
                           <div className="p-4">
                             <div className="flex items-center gap-2 mb-2">
                               <span className="text-sm text-gray-600">
                                 {eventDate.getDate()} {monthNames[eventDate.getMonth()].slice(0, 3)} {eventDate.getFullYear()}
                               </span>
-                              <span className="text-xs px-2 py-1 rounded font-medium bg-purple-100 text-purple-700">
-                                Event
+                              <span className={`text-xs px-2 py-1 rounded font-medium ${eventColor.color} bg-opacity-20 ${eventColor.textColor}`}>
+                                {eventColor.name}
                               </span>
                             </div>
                             <h4 className="font-bold text-gray-900 line-clamp-2">{event.title}</h4>
@@ -571,7 +582,7 @@ export default function CalendarAcademic() {
                 return (
                   <div className="text-center py-8 text-gray-500">
                     <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                    <p>No upcoming tests in the next 7 days</p>
+                    <p>No upcoming tests in the next 14 days</p>
                   </div>
                 );
               }
@@ -579,20 +590,23 @@ export default function CalendarAcademic() {
               return (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {upcomingTests.map((test, index) => {
-                    const testDate = new Date(test.date);
                     const eventColor = getEventColor(test.type);
+                    const startDate = test.startDate ? new Date(test.startDate) : new Date(test.date);
+                    const endDate = test.endDate ? new Date(test.endDate) : startDate;
+                    const startLabel = `${startDate.getDate()} ${monthNames[startDate.getMonth()].slice(0, 3)} ${startDate.getFullYear()}`;
+                    const endLabel = `${endDate.getDate()} ${monthNames[endDate.getMonth()].slice(0, 3)} ${endDate.getFullYear()}`;
                     return (
                       <div 
                         key={index} 
                         className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
-                        onClick={() => handleEventClick(test)}
+                        onClick={() => handleEventClick(test, true)}
                       >
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-sm text-gray-600">
-                            {testDate.getDate()} {monthNames[testDate.getMonth()].slice(0, 3)} {testDate.getFullYear()}
+                            {startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`}
                           </span>
-                          <span className="text-xs px-2 py-1 rounded font-medium bg-red-100 text-red-700">
-                            Test
+                          <span className={`text-xs px-2 py-1 rounded font-medium ${eventColor.color} bg-opacity-20 ${eventColor.textColor}`}>
+                            {eventColor.name}
                           </span>
                         </div>
                         <h3 className="font-bold text-gray-900">{test.title}</h3>
@@ -618,7 +632,7 @@ export default function CalendarAcademic() {
                 return (
                   <div className="text-center py-8 text-gray-500">
                     <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                    <p>No upcoming events in the next 7 days</p>
+                    <p>No upcoming events in the next 14 days</p>
                   </div>
                 );
               }
@@ -626,9 +640,16 @@ export default function CalendarAcademic() {
               return (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {upcomingEvents.map((event, index) => {
-                    // const eventDate = new Date(event.date);
-                    const eventDate = event.date;
                     const eventColor = getEventColor(event.type);
+                    const dateLabel = event.dateLabel
+                      ? event.dateLabel
+                      : (() => {
+                          const startDate = event.startDate ? new Date(event.startDate) : new Date(event.date);
+                          const endDate = event.endDate ? new Date(event.endDate) : startDate;
+                          const startLabel = `${startDate.getDate()} ${monthNames[startDate.getMonth()].slice(0, 3)} ${startDate.getFullYear()}`;
+                          const endLabel = `${endDate.getDate()} ${monthNames[endDate.getMonth()].slice(0, 3)} ${endDate.getFullYear()}`;
+                          return startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`;
+                        })();
                     return (
                       <div key={index} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300">
                       {/* Event Image */}
@@ -647,10 +668,10 @@ export default function CalendarAcademic() {
                       {/* Event Details */}
                       <div className="p-5">
                         <div className="flex items-center gap-2 mb-3">
-                          <span className="text-sm font-medium text-gray-700">{event.date}</span>
+                          <span className="text-sm font-medium text-gray-700">{dateLabel}</span>
                           <span className="text-gray-400">•</span>
-                          <span className="bg-purple-100 text-purple-700 text-xs font-semibold px-3 py-1 rounded">
-                            {event.badge}
+                          <span className={`${eventColor.color} bg-opacity-20 ${eventColor.textColor} text-xs font-semibold px-3 py-1 rounded`}>
+                            {eventColor.name}
                           </span>
                         </div>
                         <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
@@ -751,7 +772,7 @@ export default function CalendarAcademic() {
                             className={`text-xs p-1 rounded ${eventColor.color} bg-opacity-20 ${eventColor.textColor} cursor-pointer hover:bg-opacity-30 transition-colors`}
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleEventClick(event);
+                              handleEventClick(event, true);
                             }}
                           >
                             {event.title}
@@ -884,7 +905,9 @@ export default function CalendarAcademic() {
                 <div className="flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-white" />
                   <span className="text-white font-medium text-sm">
-                    {new Date(selectedEvent.date).getDate()} {monthNames[new Date(selectedEvent.date).getMonth()]} {new Date(selectedEvent.date).getFullYear()}
+                    {selectedEventStartDate
+                      ? `${selectedEventStartDate.getDate()} ${monthNames[selectedEventStartDate.getMonth()]} ${selectedEventStartDate.getFullYear()}`
+                      : String(selectedEvent.date || "")}
                   </span>
                 </div>
                 <button
@@ -897,6 +920,18 @@ export default function CalendarAcademic() {
               <h3 className="text-xl font-bold text-white">{selectedEvent.title}</h3>
             </div>
             <div className="p-6">
+              {selectedEvent.image ? (
+                <div className="mb-4 overflow-hidden rounded-lg border border-gray-200">
+                  <img
+                    src={selectedEvent.image}
+                    alt={selectedEvent.title}
+                    className="w-full h-48 object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                </div>
+              ) : null}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-500 mb-1">Event Type</label>
                 <div className="flex items-center gap-2">

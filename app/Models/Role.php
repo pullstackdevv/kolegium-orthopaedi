@@ -177,41 +177,40 @@ class Role extends Model
     public static function getAllPermissions(): array
     {
         return [
-            // Dashboard
             'dashboard.view',
-            
-            // Orders
-            'orders.view', 'orders.create', 'orders.edit', 'orders.delete',
-            'orders.print', 'orders.invoice', 'orders.shipping-label',
-            
-            // Products
-            'products.view', 'products.create', 'products.edit', 'products.delete',
-            'products.variants.view', 'products.variants.create', 'products.variants.edit', 'products.variants.delete',
-            
-            // Customers
-            'customers.view', 'customers.create', 'customers.edit', 'customers.delete',
-            'customers.addresses.view', 'customers.addresses.create', 'customers.addresses.edit', 'customers.addresses.delete',
-            
-            // Stock Management
-            'stock.view', 'stock.create', 'stock.edit', 'stock.delete',
-            'stock-movements.view', 'stock-movements.create', 'stock-movements.edit', 'stock-movements.delete',
-            'stock-opnames.view', 'stock-opnames.create', 'stock-opnames.edit', 'stock-opnames.delete',
-            
-            // Vouchers
-            'vouchers.view', 'vouchers.create', 'vouchers.edit', 'vouchers.delete',
-            
-            // Expenses
-            'expenses.view', 'expenses.create', 'expenses.edit', 'expenses.delete',
-            
-            // Reports
-            'reports.view', 'reports.sales', 'reports.stock', 'reports.user-performance', 'reports.payments',
-            'reports.export', 'reports.analyzer',
-            
-            // Settings
-            'settings.general', 'settings.order', 'settings.product', 'settings.customer',
-            'settings.payment', 'settings.courier', 'settings.courier-rates', 'settings.origin',
-            'settings.template', 'settings.dashboard', 'settings.api',
-            'settings.users', 'settings.roles'
+
+            'users.view',
+            'users.create',
+            'users.edit',
+            'users.delete',
+
+            'roles.view',
+            'roles.create',
+            'roles.edit',
+            'roles.delete',
+
+            'permissions.view',
+            'permissions.create',
+            'permissions.edit',
+            'permissions.delete',
+
+            'agenda.kolegium.view',
+            'agenda.kolegium.create',
+            'agenda.kolegium.edit',
+            'agenda.kolegium.delete',
+            'agenda.kolegium.publish',
+
+            'agenda.study_program.view',
+            'agenda.study_program.create',
+            'agenda.study_program.edit',
+            'agenda.study_program.delete',
+            'agenda.study_program.publish',
+
+            'agenda.peer_group.view',
+            'agenda.peer_group.create',
+            'agenda.peer_group.edit',
+            'agenda.peer_group.delete',
+            'agenda.peer_group.publish',
         ];
     }
 }

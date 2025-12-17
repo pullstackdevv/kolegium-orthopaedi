@@ -20,7 +20,7 @@ class UserSeeder extends Seeder
                 'email' => 'admin@gmail.com',
                 'password' => Hash::make('password'),
                 'is_active' => true,
-                'role' => 'owner',
+                'role' => 'super_admin',
             ],
             [
                 'name' => 'Staff User',

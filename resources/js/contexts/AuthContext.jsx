@@ -29,12 +29,16 @@ export const AuthProvider = ({ children }) => {
         
         // Check exact permission
         if (permissions.includes(permission)) return true;
-        
-        // Check wildcard permissions (e.g., 'users.*' matches 'users.view')
-        const permissionParts = permission.split('.');
-        if (permissionParts.length > 1) {
-            const wildcardPerm = permissionParts[0] + '.*';
-            if (permissions.includes(wildcardPerm)) return true;
+
+        // Check wildcard permissions (e.g., 'users.*' matches 'users.view',
+        // 'agenda.kolegium.*' matches 'agenda.kolegium.view')
+        for (const perm of permissions) {
+            if (typeof perm === 'string' && perm.endsWith('.*')) {
+                const prefix = perm.slice(0, -2);
+                if (permission.startsWith(prefix + '.')) {
+                    return true;
+                }
+            }
         }
         
         return false;
@@ -73,6 +77,10 @@ export const AuthProvider = ({ children }) => {
         hasRole,
         hasAnyRole,
         isAuthenticated: !!user,
+        isSuperAdmin: hasRole('super_admin') || hasRole('owner'),
+        isAdminKolegium: hasRole('admin_kolegium'),
+        isAdminStudyProgram: hasRole('admin_study_program'),
+        isAdminPeerGroup: hasRole('admin_peer_group'),
         isOwner: hasRole('owner'),
         isAdmin: hasRole('admin'),
         isStaff: hasRole('staff'),

@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Link, usePage } from "@inertiajs/react";
 import { ChevronsUpDown, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -24,10 +25,48 @@ import {
 } from "@/components/ui/sidebar";
 import { sidebarMenu } from "../config/sidebar-menu";
 import PermissionGuard from "@/components/PermissionGuard";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function AppSidebar({ user }) {
   const { url } = usePage();
   const currentPath = url || "/";
+  const { hasPermission, hasAnyPermission, hasAllPermissions, hasRole, hasAnyRole } = useAuth();
+
+  const hasAccess = ({ permission, permissions, role, roles, requireAll = false } = {}) => {
+    let ok = false;
+
+    if (permission) {
+      ok = hasPermission(permission);
+    }
+
+    if (permissions && Array.isArray(permissions)) {
+      ok = requireAll ? hasAllPermissions(permissions) : hasAnyPermission(permissions);
+    }
+
+    if (role) {
+      ok = hasRole(role);
+    }
+
+    if (roles && Array.isArray(roles)) {
+      ok = hasAnyRole(roles);
+    }
+
+    if (!permission && !permissions && !role && !roles) {
+      ok = true;
+    }
+
+    return ok;
+  };
+
+  const filteredSidebarMenu = useMemo(() => {
+    return sidebarMenu
+      .filter((group) => hasAccess(group))
+      .map((group) => {
+        const items = (group.items || []).filter((item) => hasAccess(item));
+        return { ...group, items };
+      })
+      .filter((group) => (group.items || []).length > 0);
+  }, [hasAllPermissions, hasAnyPermission, hasAnyRole, hasPermission, hasRole]);
 
   const getInitials = (name) => {
     return name
@@ -70,13 +109,19 @@ export function AppSidebar({ user }) {
 
       {/* Content */}
       <SidebarContent>
-        {sidebarMenu.map((group, groupIndex) => (
+        {filteredSidebarMenu.map((group, groupIndex) => (
           <SidebarGroup key={groupIndex}>
             <SidebarGroupLabel>{group.group}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {group.items.map((item, itemIndex) => (
-                  <PermissionGuard key={itemIndex} permission={item.permission}>
+                  <PermissionGuard
+                    key={itemIndex}
+                    permission={item.permission}
+                    permissions={item.permissions}
+                    role={item.role}
+                    roles={item.roles}
+                  >
                     <SidebarMenuItem>
                       <SidebarMenuButton
                         asChild

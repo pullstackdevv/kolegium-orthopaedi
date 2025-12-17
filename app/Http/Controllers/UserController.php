@@ -15,6 +15,15 @@ class UserController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        // Check permission
+        $authUser = Auth::user();
+        if (!$authUser instanceof User || !$authUser->hasPermission('users.view')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized. You do not have permission to view users.'
+            ], 403);
+        }
+
         $users = User::query()
             ->with(['roles' => function ($query) {
                 $query->select('roles.id', 'roles.name', 'roles.description');
@@ -46,7 +55,8 @@ class UserController extends Controller
     public function store(Request $request): JsonResponse
     {
         // Check permission
-        if (!Auth::user()->hasPermission('users.create')) {
+        $authUser = Auth::user();
+        if (!$authUser instanceof User || !$authUser->hasPermission('users.create')) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Unauthorized. You do not have permission to create users.'
@@ -98,6 +108,15 @@ class UserController extends Controller
 
     public function show(User $user): JsonResponse
     {
+        // Check permission
+        $authUser = Auth::user();
+        if (!$authUser instanceof User || !$authUser->hasPermission('users.view')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized. You do not have permission to view users.'
+            ], 403);
+        }
+
         return response()->json([
             'status' => 'success',
             'data' => $user->load([
@@ -113,7 +132,8 @@ class UserController extends Controller
     public function update(Request $request, User $user): JsonResponse
     {
         // Check permission
-        if (!Auth::user()->hasPermission('users.edit')) {
+        $authUser = Auth::user();
+        if (!$authUser instanceof User || !$authUser->hasPermission('users.edit')) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Unauthorized. You do not have permission to edit users.'
@@ -182,7 +202,8 @@ class UserController extends Controller
     public function destroy(User $user): JsonResponse
     {
         // Check permission
-        if (!Auth::user()->hasPermission('users.delete')) {
+        $authUser = Auth::user();
+        if (!$authUser instanceof User || !$authUser->hasPermission('users.delete')) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Unauthorized. You do not have permission to delete users.'
@@ -214,6 +235,15 @@ class UserController extends Controller
 
     public function toggleStatus(User $user): JsonResponse
     {
+        // Check permission
+        $authUser = Auth::user();
+        if (!$authUser instanceof User || !$authUser->hasPermission('users.edit')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized. You do not have permission to edit users.'
+            ], 403);
+        }
+
         try {
             DB::beginTransaction();
 
@@ -236,6 +266,15 @@ class UserController extends Controller
 
     public function changePassword(Request $request, User $user): JsonResponse
     {
+        // Check permission
+        $authUser = Auth::user();
+        if (!$authUser instanceof User || !$authUser->hasPermission('users.edit')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized. You do not have permission to edit users.'
+            ], 403);
+        }
+
         $validated = $request->validate([
             'current_password' => 'required|string',
             'new_password' => 'required|string|min:8|confirmed'
@@ -280,6 +319,11 @@ class UserController extends Controller
         ]);
 
         $user = Auth::user();
+        if (!$user instanceof User) {
+            return back()->withErrors([
+                'current_password' => 'User tidak ditemukan'
+            ]);
+        }
 
         // Verify current password
         if (!Hash::check($validated['current_password'], $user->password)) {
@@ -310,6 +354,15 @@ class UserController extends Controller
 
     public function getRolePermissions(): JsonResponse
     {
+        // Check permission
+        $authUser = Auth::user();
+        if (!$authUser instanceof User || !$authUser->hasPermission('users.view')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized. You do not have permission to view roles.'
+            ], 403);
+        }
+
         $roles = Role::where('is_active', true)->get();
         
         $rolePermissions = [];

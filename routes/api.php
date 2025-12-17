@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AgendaEventController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -51,4 +52,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('permissions', [RoleController::class, 'storePermission']);
     Route::put('permissions/{permission}', [RoleController::class, 'updatePermission']);
     Route::delete('permissions/{permission}', [RoleController::class, 'destroyPermission']);
+
+    // Agenda (CMS) routes
+    Route::get('agenda-events', [AgendaEventController::class, 'index']);
+    Route::post('agenda-events/upload-image', [AgendaEventController::class, 'uploadImage']);
+    Route::post('agenda-events', [AgendaEventController::class, 'store']);
+    Route::put('agenda-events/{agendaEvent}', [AgendaEventController::class, 'update']);
+    Route::delete('agenda-events/{agendaEvent}', [AgendaEventController::class, 'destroy']);
+    Route::post('agenda-events/{agendaEvent}/upload-image', [AgendaEventController::class, 'uploadImageForEvent']);
+    Route::post('agenda-events/{agendaEvent}/publish', [AgendaEventController::class, 'publish']);
+    Route::post('agenda-events/{agendaEvent}/unpublish', [AgendaEventController::class, 'unpublish']);
 });
+
+// Public agenda routes (landing pages)
+Route::get('public/agenda-events', [AgendaEventController::class, 'publicIndex']);
