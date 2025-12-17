@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             UserSeeder::class,
+            HomepageAgendaEventsSeeder::class,
         ]);
 
         $this->command->info('Kolegium database seeded successfully!');

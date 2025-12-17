@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
 import { ChevronLeft, ChevronRight, Calendar, X, Trash2, MapPin } from "lucide-react";
@@ -6,8 +6,9 @@ import HomepageLayout from "../Layouts/HomepageLayout";
 import api from "@/api/axios";
 
 export default function CalendarAcademic() {
-  const [currentMonth, setCurrentMonth] = useState(10); // November (0-indexed)
-  const [currentYear, setCurrentYear] = useState(2025);
+  const now = new Date();
+  const [currentMonth, setCurrentMonth] = useState(now.getMonth());
+  const [currentYear, setCurrentYear] = useState(now.getFullYear());
   const [showEventModal, setShowEventModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showDatePickerModal, setShowDatePickerModal] = useState(false);
@@ -15,8 +16,8 @@ export default function CalendarAcademic() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [eventToDelete, setEventToDelete] = useState(null);
-  const [tempMonth, setTempMonth] = useState(10);
-  const [tempYear, setTempYear] = useState(2025);
+  const [tempMonth, setTempMonth] = useState(now.getMonth());
+  const [tempYear, setTempYear] = useState(now.getFullYear());
   // Set default date to today for demo purposes
   const todayDate = new Date();
   todayDate.setHours(12, 0, 0, 0); // Set to noon to avoid timezone issues
@@ -30,14 +31,52 @@ export default function CalendarAcademic() {
   
   const [events, setEvents] = useState([]);
 
+  const academicYear = useMemo(() => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const startYear = d.getMonth() >= 6 ? year : year - 1;
+
+    const start = new Date(startYear, 6, 1);
+    start.setHours(12, 0, 0, 0);
+    const end = new Date(startYear + 1, 5, 30);
+    end.setHours(12, 0, 0, 0);
+
+    return {
+      start,
+      end,
+      label: `${startYear}/${startYear + 1}`,
+    };
+  }, []);
+
+  const academicYearCounts = useMemo(() => {
+    const inRange = events.filter((event) => {
+      const evStart = event.startDate ? new Date(event.startDate) : new Date(event.date);
+      const evEnd = event.endDate ? new Date(event.endDate) : evStart;
+      evStart.setHours(12, 0, 0, 0);
+      evEnd.setHours(12, 0, 0, 0);
+      return evStart <= academicYear.end && evEnd >= academicYear.start;
+    });
+
+    const exams = inRange.filter((e) => String(e.type || "").startsWith("ujian_")).length;
+    const agendaEvents = inRange.filter((e) => String(e.type || "").startsWith("event_")).length;
+
+    return { exams, agendaEvents };
+  }, [academicYear.end, academicYear.start, events]);
+
   useEffect(() => {
     const fetchAgendaEvents = async () => {
       try {
-        const response = await api.get("/public/agenda-events", {
-          params: {
-            scope: "kolegium",
-          },
-        });
+        let scopeParam = null;
+        if (typeof window !== "undefined") {
+          scopeParam = new URLSearchParams(window.location.search).get("scope");
+        }
+
+        const params = {};
+        if (scopeParam) {
+          params.scope = scopeParam;
+        }
+
+        const response = await api.get("/public/agenda-events", { params });
 
         if (response.data?.status !== "success") {
           setEvents([]);
@@ -75,37 +114,40 @@ export default function CalendarAcademic() {
   }, []);
 
   // Stats data
-  const stats = [
-    {
-      title: "Academic Year",
-      value: "2024/2025",
-      icon: "mdi:calendar",
-      iconBg: "bg-blue-100",
-      iconColor: "text-blue-600"
-    },
-    {
-      title: "Examination Day",
-      value: "82",
-      icon: "mdi:briefcase",
-      iconBg: "bg-orange-100",
-      iconColor: "text-orange-600"
-    },
-    {
-      title: "Event Day",
-      value: "6",
-      icon: "mdi:calendar-check",
-      iconBg: "bg-red-100",
-      iconColor: "text-red-600"
-    }
-  ];
+  const stats = useMemo(() => {
+    return [
+      {
+        title: "Academic Year",
+        value: academicYear.label,
+        icon: "mdi:calendar",
+        iconBg: "bg-blue-100",
+        iconColor: "text-blue-600",
+      },
+      {
+        title: "Examination Day",
+        value: String(academicYearCounts.exams),
+        icon: "mdi:briefcase",
+        iconBg: "bg-orange-100",
+        iconColor: "text-orange-600",
+      },
+      {
+        title: "Event Day",
+        value: String(academicYearCounts.agendaEvents),
+        icon: "mdi:calendar-check",
+        iconBg: "bg-red-100",
+        iconColor: "text-red-600",
+      },
+    ];
+  }, [academicYear.label, academicYearCounts.agendaEvents, academicYearCounts.exams]);
 
   // Event types with colors
   const eventTypes = [
-    { id: "ujian_lokal", name: "Ujian Lokal", color: "bg-red-500", textColor: "text-red-700" },
-    { id: "ujian_nasional", name: "Ujian Nasional", color: "bg-blue-500", textColor: "text-blue-700" },
-    { id: "event_lokal", name: "Event Lokal", color: "bg-green-500", textColor: "text-green-700" },
-    { id: "event_nasional", name: "Event Nasional", color: "bg-orange-500", textColor: "text-orange-700" },
-    { id: "event_peer_group", name: "Event Peer Group", color: "bg-purple-500", textColor: "text-purple-700" }
+    { id: "ujian_lokal", name: "Local Exam", color: "bg-red-500", textColor: "text-red-700" },
+    { id: "ujian_nasional", name: "National Exam", color: "bg-blue-500", textColor: "text-blue-700" },
+    { id: "event_lokal", name: "Local Event", color: "bg-green-500", textColor: "text-green-700" },
+    { id: "event_nasional", name: "National Event", color: "bg-orange-500", textColor: "text-orange-700" },
+    { id: "event_peer_group", name: "Peer Group Event International", color: "bg-purple-500", textColor: "text-purple-700" },
+    { id: "event_peer_group_nasional", name: "Peer Group Event National", color: "bg-indigo-500", textColor: "text-indigo-700" }
   ];
 
   const getEventColor = (type) => {
@@ -216,15 +258,25 @@ export default function CalendarAcademic() {
     const start = new Date();
     start.setHours(12, 0, 0, 0);
     const end = new Date(start);
-    end.setDate(start.getDate() + 7);
+    end.setDate(start.getDate() + 14);
     end.setHours(12, 0, 0, 0);
-    
-    return events.filter(event => {
-      const eventDate = event.startDate ? new Date(event.startDate) : new Date(event.date);
-      eventDate.setHours(12, 0, 0, 0);
-      const isTest = event.type === 'ujian_lokal' || event.type === 'ujian_nasional';
-      return isTest && eventDate >= start && eventDate <= end;
-    });
+
+    return events
+      .filter((event) => {
+        const evStart = event.startDate ? new Date(event.startDate) : new Date(event.date);
+        const evEnd = event.endDate ? new Date(event.endDate) : evStart;
+        evStart.setHours(12, 0, 0, 0);
+        evEnd.setHours(12, 0, 0, 0);
+
+        const isTest = String(event.type || "").startsWith("ujian_");
+        const overlaps = evStart <= end && evEnd >= start;
+        return isTest && overlaps;
+      })
+      .sort((a, b) => {
+        const aStart = a.startDate ? new Date(a.startDate) : new Date(a.date);
+        const bStart = b.startDate ? new Date(b.startDate) : new Date(b.date);
+        return aStart.getTime() - bStart.getTime();
+      });
   };
   
   // Format date range for upcoming tests
@@ -232,7 +284,7 @@ export default function CalendarAcademic() {
     const start = new Date();
     start.setHours(12, 0, 0, 0);
     const end = new Date(start);
-    end.setDate(start.getDate() + 7);
+    end.setDate(start.getDate() + 14);
     end.setHours(12, 0, 0, 0);
     
     return `${start.getDate()} ${monthNames[start.getMonth()].slice(0, 3)} ${start.getFullYear()} - ${end.getDate()} ${monthNames[end.getMonth()].slice(0, 3)} ${end.getFullYear()}`;
@@ -243,16 +295,25 @@ export default function CalendarAcademic() {
     const start = new Date();
     start.setHours(12, 0, 0, 0);
     const end = new Date(start);
-    end.setDate(start.getDate() + 180);
+    end.setDate(start.getDate() + 14);
     end.setHours(12, 0, 0, 0);
 
-    const isEventType = (type) => type !== 'ujian_lokal' && type !== 'ujian_nasional';
+    const isEventType = (type) => String(type || "").startsWith("event_");
 
     return events
       .filter((event) => {
-        const eventDate = event.startDate ? new Date(event.startDate) : new Date(event.date);
-        eventDate.setHours(12, 0, 0, 0);
-        return isEventType(event.type) && eventDate >= start && eventDate <= end;
+        const evStart = event.startDate ? new Date(event.startDate) : new Date(event.date);
+        const evEnd = event.endDate ? new Date(event.endDate) : evStart;
+        evStart.setHours(12, 0, 0, 0);
+        evEnd.setHours(12, 0, 0, 0);
+
+        const overlaps = evStart <= end && evEnd >= start;
+        return isEventType(event.type) && overlaps;
+      })
+      .sort((a, b) => {
+        const aStart = a.startDate ? new Date(a.startDate) : new Date(a.date);
+        const bStart = b.startDate ? new Date(b.startDate) : new Date(b.date);
+        return aStart.getTime() - bStart.getTime();
       })
       .map((event) => {
         const startDate = event.startDate ? new Date(event.startDate) : new Date(event.date);
@@ -263,8 +324,7 @@ export default function CalendarAcademic() {
 
         return {
           ...event,
-          date: startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`,
-          badge: "Event",
+          dateLabel: startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`,
         };
       });
   };
@@ -275,7 +335,7 @@ export default function CalendarAcademic() {
     const start = new Date();
     start.setHours(12, 0, 0, 0);
     const end = new Date(start);
-    end.setDate(start.getDate() + 180);
+    end.setDate(start.getDate() + 14);
     end.setHours(12, 0, 0, 0);
     
     return `${start.getDate()} ${monthNames[start.getMonth()].slice(0, 3)} ${start.getFullYear()} - ${end.getDate()} ${monthNames[end.getMonth()].slice(0, 3)} ${end.getFullYear()}`;
@@ -370,6 +430,14 @@ export default function CalendarAcademic() {
     }
   };
 
+  const selectedEventStartDate = (() => {
+    if (!selectedEvent) return null;
+    const raw = selectedEvent.startDate ?? selectedEvent.date;
+    const d = raw instanceof Date ? raw : new Date(raw);
+    if (Number.isNaN(d.getTime())) return null;
+    return d;
+  })();
+
   return (
     <HomepageLayout>
       {/* Breadcrumb Section */}
@@ -388,7 +456,7 @@ export default function CalendarAcademic() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Title */}
           <h1 className="text-3xl font-bold text-blue-700 mb-8">
-            Calender Academic 2024/2025
+            Calender Academic {academicYear.label}
           </h1>
 
           {/* Stats Cards */}
@@ -459,32 +527,34 @@ export default function CalendarAcademic() {
                     {/* Events with Image */}
                     {eventsList.map((event, index) => {
                       const eventColor = getEventColor(event.type);
-                      const eventDate = new Date(event.date);
+                      const eventDate = new Date(event.startDate ?? event.date);
                       return (
                         <div 
                           key={`event-${index}`} 
                           className="flex-shrink-0 w-80 bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
                           onClick={() => handleEventClick(event, true)}
                         >
-                          <div className="relative bg-gradient-to-br from-red-700 to-red-900 h-40">
-                            <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-r from-red-800 via-green-600 to-blue-600 opacity-80"></div>
-                            <div className="relative h-full flex flex-col items-center justify-center p-4">
-                              <div className="w-14 h-14 bg-gradient-to-br from-yellow-600 to-yellow-700 rounded-lg mb-2 flex items-center justify-center border-4 border-yellow-500">
-                                <Icon icon="mdi:medical-bag" className="w-8 h-8 text-white" />
-                              </div>
-                              <h3 className="text-xl font-bold text-white text-center">NATIONAL<br/>CONGRESS</h3>
-                              <div className="bg-yellow-500 text-gray-900 px-2 py-1 rounded-full text-xs font-bold mt-1">
-                                INDONESIAN ORTHOPAEDIC ASSOCIATION
-                              </div>
-                            </div>
+                          <div className="relative h-40 bg-gray-100">
+                            {event.image ? (
+                              <img
+                                src={event.image}
+                                alt={event.title}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = "none";
+                                }}
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200" />
+                            )}
                           </div>
                           <div className="p-4">
                             <div className="flex items-center gap-2 mb-2">
                               <span className="text-sm text-gray-600">
                                 {eventDate.getDate()} {monthNames[eventDate.getMonth()].slice(0, 3)} {eventDate.getFullYear()}
                               </span>
-                              <span className="text-xs px-2 py-1 rounded font-medium bg-purple-100 text-purple-700">
-                                Event
+                              <span className={`text-xs px-2 py-1 rounded font-medium ${eventColor.color} bg-opacity-20 ${eventColor.textColor}`}>
+                                {eventColor.name}
                               </span>
                             </div>
                             <h4 className="font-bold text-gray-900 line-clamp-2">{event.title}</h4>
@@ -512,7 +582,7 @@ export default function CalendarAcademic() {
                 return (
                   <div className="text-center py-8 text-gray-500">
                     <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                    <p>No upcoming tests in the next 7 days</p>
+                    <p>No upcoming tests in the next 14 days</p>
                   </div>
                 );
               }
@@ -520,8 +590,11 @@ export default function CalendarAcademic() {
               return (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {upcomingTests.map((test, index) => {
-                    const testDate = new Date(test.date);
                     const eventColor = getEventColor(test.type);
+                    const startDate = test.startDate ? new Date(test.startDate) : new Date(test.date);
+                    const endDate = test.endDate ? new Date(test.endDate) : startDate;
+                    const startLabel = `${startDate.getDate()} ${monthNames[startDate.getMonth()].slice(0, 3)} ${startDate.getFullYear()}`;
+                    const endLabel = `${endDate.getDate()} ${monthNames[endDate.getMonth()].slice(0, 3)} ${endDate.getFullYear()}`;
                     return (
                       <div 
                         key={index} 
@@ -530,10 +603,10 @@ export default function CalendarAcademic() {
                       >
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-sm text-gray-600">
-                            {testDate.getDate()} {monthNames[testDate.getMonth()].slice(0, 3)} {testDate.getFullYear()}
+                            {startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`}
                           </span>
-                          <span className="text-xs px-2 py-1 rounded font-medium bg-red-100 text-red-700">
-                            Test
+                          <span className={`text-xs px-2 py-1 rounded font-medium ${eventColor.color} bg-opacity-20 ${eventColor.textColor}`}>
+                            {eventColor.name}
                           </span>
                         </div>
                         <h3 className="font-bold text-gray-900">{test.title}</h3>
@@ -559,7 +632,7 @@ export default function CalendarAcademic() {
                 return (
                   <div className="text-center py-8 text-gray-500">
                     <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                    <p>No upcoming events in the next 7 days</p>
+                    <p>No upcoming events in the next 14 days</p>
                   </div>
                 );
               }
@@ -567,9 +640,16 @@ export default function CalendarAcademic() {
               return (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {upcomingEvents.map((event, index) => {
-                    // const eventDate = new Date(event.date);
-                    const eventDate = event.date;
                     const eventColor = getEventColor(event.type);
+                    const dateLabel = event.dateLabel
+                      ? event.dateLabel
+                      : (() => {
+                          const startDate = event.startDate ? new Date(event.startDate) : new Date(event.date);
+                          const endDate = event.endDate ? new Date(event.endDate) : startDate;
+                          const startLabel = `${startDate.getDate()} ${monthNames[startDate.getMonth()].slice(0, 3)} ${startDate.getFullYear()}`;
+                          const endLabel = `${endDate.getDate()} ${monthNames[endDate.getMonth()].slice(0, 3)} ${endDate.getFullYear()}`;
+                          return startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`;
+                        })();
                     return (
                       <div key={index} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300">
                       {/* Event Image */}
@@ -588,10 +668,10 @@ export default function CalendarAcademic() {
                       {/* Event Details */}
                       <div className="p-5">
                         <div className="flex items-center gap-2 mb-3">
-                          <span className="text-sm font-medium text-gray-700">{event.date}</span>
+                          <span className="text-sm font-medium text-gray-700">{dateLabel}</span>
                           <span className="text-gray-400">•</span>
-                          <span className="bg-purple-100 text-purple-700 text-xs font-semibold px-3 py-1 rounded">
-                            {event.badge}
+                          <span className={`${eventColor.color} bg-opacity-20 ${eventColor.textColor} text-xs font-semibold px-3 py-1 rounded`}>
+                            {eventColor.name}
                           </span>
                         </div>
                         <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
@@ -825,7 +905,9 @@ export default function CalendarAcademic() {
                 <div className="flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-white" />
                   <span className="text-white font-medium text-sm">
-                    {new Date(selectedEvent.date).getDate()} {monthNames[new Date(selectedEvent.date).getMonth()]} {new Date(selectedEvent.date).getFullYear()}
+                    {selectedEventStartDate
+                      ? `${selectedEventStartDate.getDate()} ${monthNames[selectedEventStartDate.getMonth()]} ${selectedEventStartDate.getFullYear()}`
+                      : String(selectedEvent.date || "")}
                   </span>
                 </div>
                 <button
@@ -838,6 +920,18 @@ export default function CalendarAcademic() {
               <h3 className="text-xl font-bold text-white">{selectedEvent.title}</h3>
             </div>
             <div className="p-6">
+              {selectedEvent.image ? (
+                <div className="mb-4 overflow-hidden rounded-lg border border-gray-200">
+                  <img
+                    src={selectedEvent.image}
+                    alt={selectedEvent.title}
+                    className="w-full h-48 object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                </div>
+              ) : null}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-500 mb-1">Event Type</label>
                 <div className="flex items-center gap-2">

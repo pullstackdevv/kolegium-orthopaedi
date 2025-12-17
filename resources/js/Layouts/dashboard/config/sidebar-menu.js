@@ -22,6 +22,7 @@ export const sidebarMenu = [
   // ===== Core CMS Menus (lama) =====
   {
     group: "General",
+    roles: ["super_admin", "admin_kolegium", "admin_study_program", "admin_peer_group"],
     items: [
       {
         title: "Dashboard",
@@ -33,6 +34,7 @@ export const sidebarMenu = [
   },
   {
     group: "Management",
+    roles: ["super_admin"],
     items: [
       {
         title: "Users",
@@ -56,11 +58,12 @@ export const sidebarMenu = [
   },
   {
     group: "System",
+    roles: ["super_admin"],
     items: [
       {
         title: "Settings",
         icon: Settings,
-        href: "/cms/settings",
+        href: "/cms/coming-soon/settings-program",
         permissions: ["users.view", "roles.view", "permissions.view"],
       },
       {
@@ -76,6 +79,7 @@ export const sidebarMenu = [
 
   {
     group: "Kolegium Profile",
+    roles: ["super_admin", "admin_kolegium"],
     items: [
       {
         title: "About Kolegium",
@@ -106,42 +110,50 @@ export const sidebarMenu = [
 
   {
     group: "Kolegium Agenda",
+    roles: ["super_admin", "admin_kolegium"],
     items: [
       {
         title: "Academic Calendar",
         icon: CalendarDays,
-        href: "/cms/agenda",
+        href: "/cms/agenda?scope=kolegium",
         permission: "agenda.kolegium.view",
       },
-      {
-        title: "National Examination",
-        icon: CalendarDays,
-        href: "/cms/agenda",
-        permission: "agenda.kolegium.view",
-      },
-      {
-        title: "Local Examination",
-        icon: CalendarDays,
-        href: "/cms/agenda",
-        permission: "agenda.kolegium.view",
-      },
-      {
-        title: "Nasional Event",
-        icon: CalendarDays,
-        href: "/cms/agenda",
-        permission: "agenda.kolegium.view",
-      },
-      {
-        title: "Local Event",
-        icon: CalendarDays,
-        href: "/cms/agenda",
-        permission: "agenda.kolegium.view",
-      },
+      // {
+      //   title: "National Examination",
+      //   icon: CalendarDays,
+      //   href: "/cms/agenda",
+      //   permission: "agenda.kolegium.view",
+      // },
+      // {
+      //   title: "Local Examination",
+      //   icon: CalendarDays,
+      //   href: "/cms/agenda",
+      //   permission: "agenda.kolegium.view",
+      // },
+      // {
+      //   title: "Nasional Event",
+      //   icon: CalendarDays,
+      //   href: "/cms/agenda",
+      //   permission: "agenda.kolegium.view",
+      // },
+      // {
+      //   title: "Local Event",
+      //   icon: CalendarDays,
+      //   href: "/cms/agenda",
+      //   permission: "agenda.kolegium.view",
+      // },
     ],
   },
 
   {
     group: "Study Programs",
+    roles: [
+      "super_admin",
+      "admin_study_program",
+      "admin_study_program_resident",
+      "admin_study_program_fellow",
+      "admin_study_program_trainee",
+    ],
     items: [
       {
         title: "Resident - Profile",
@@ -170,8 +182,8 @@ export const sidebarMenu = [
       {
         title: "Resident - Agenda",
         icon: CalendarDays,
-        href: "/cms/coming-soon/resident-agenda",
-        permission: null,
+        href: "/cms/agenda?scope=study_program&section=resident",
+        permissions: ["agenda.study_program.view", "agenda.study_program.resident.view"],
       },
       {
         title: "Resident - Gallery",
@@ -207,8 +219,8 @@ export const sidebarMenu = [
       {
         title: "Fellow (CF) - Agenda",
         icon: CalendarDays,
-        href: "/cms/coming-soon/fellow-agenda",
-        permission: null,
+        href: "/cms/agenda?scope=study_program&section=fellow",
+        permissions: ["agenda.study_program.view", "agenda.study_program.fellow.view"],
       },
       {
         title: "Fellow (CF) - Gallery",
@@ -244,8 +256,8 @@ export const sidebarMenu = [
       {
         title: "Trainee - Agenda",
         icon: CalendarDays,
-        href: "/cms/coming-soon/trainee-agenda",
-        permission: null,
+        href: "/cms/agenda?scope=study_program&section=trainee",
+        permissions: ["agenda.study_program.view", "agenda.study_program.trainee.view"],
       },
       {
         title: "Trainee - Gallery",
@@ -258,6 +270,7 @@ export const sidebarMenu = [
 
   {
     group: "Peer Groups",
+    roles: ["super_admin", "admin_peer_group"],
     items: [
       {
         title: "Peer Group - Profile",
@@ -306,14 +319,14 @@ export const sidebarMenu = [
       {
         title: "Peer Group - National Event",
         icon: CalendarDays,
-        href: "/cms/coming-soon/peergroup-local-event",
-        permission: null,
+        href: "/cms/agenda?scope=peer_group&type=event_peer_group_nasional",
+        permission: "agenda.peer_group.view",
       },
       {
         title: "Peer Group - International Event",
         icon: CalendarDays,
-        href: "/cms/coming-soon/peergroup-international-event",
-        permission: null,
+        href: "/cms/agenda?scope=peer_group&type=event_peer_group",
+        permission: "agenda.peer_group.view",
       },
 
       {

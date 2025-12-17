@@ -4,11 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AgendaEvent extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'scope',
+        'section',
         'type',
         'title',
         'description',

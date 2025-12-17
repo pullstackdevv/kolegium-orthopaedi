@@ -1,10 +1,12 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
 import { MapPin, Phone, Mail, Globe } from "lucide-react";
 import HomepageLayout from "../../Layouts/HomepageLayout";
 import DonutChart from "../../components/DonutChart";
+import api from "@/api/axios";
 
-export default function UniversityDetail({ university }) {
+export default function UniversityDetail({ university, type }) {
   // Sample data - akan diganti dengan data dari props/API
   const universityData = university || {
     id: "fk-ui",
@@ -90,6 +92,88 @@ export default function UniversityDetail({ university }) {
       { image: "/assets/images/gallery-4.jpg", title: "Praktik Klinik" }
     ]
   };
+
+  const agendaSection = useMemo(() => {
+    if (type === "ppds1") return "resident";
+    if (type === "subspesialis") return "trainee";
+    return null;
+  }, [type]);
+
+  const [academicActivities, setAcademicActivities] = useState([]);
+  const [academicActivitiesLoading, setAcademicActivitiesLoading] = useState(true);
+
+  const toYmd = (date) => {
+    const d = new Date(date);
+    if (Number.isNaN(d.getTime())) return "";
+    d.setHours(12, 0, 0, 0);
+    return d.toISOString().slice(0, 10);
+  };
+
+  const formatDayMonth = (dateStr) => {
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) {
+      return { day: "-", month: "-" };
+    }
+
+    const day = String(d.getDate());
+    const month = d.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
+    return { day, month };
+  };
+
+  useEffect(() => {
+    const fetchAcademicActivities = async () => {
+      try {
+        setAcademicActivitiesLoading(true);
+
+        const start = new Date();
+        start.setHours(12, 0, 0, 0);
+        const end = new Date(start);
+        end.setDate(start.getDate() + 14);
+        end.setHours(12, 0, 0, 0);
+
+        const params = {
+          scope: "study_program",
+          from: toYmd(start),
+          to: toYmd(end),
+        };
+
+        if (agendaSection) {
+          params.section = agendaSection;
+        }
+
+        const response = await api.get("/public/agenda-events", { params });
+
+        if (response.data?.status !== "success") {
+          setAcademicActivities([]);
+          return;
+        }
+
+        const items = Array.isArray(response.data?.data) ? response.data.data : [];
+        const mapped = items
+          .filter((ev) => String(ev?.type || "").startsWith("event_"))
+          .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
+          .slice(0, 2)
+          .map((ev) => {
+            const meta = formatDayMonth(ev.start_date);
+            return {
+              id: ev.id,
+              day: meta.day,
+              month: meta.month,
+              title: ev.title,
+              location: ev.location,
+            };
+          });
+
+        setAcademicActivities(mapped);
+      } catch (e) {
+        setAcademicActivities([]);
+      } finally {
+        setAcademicActivitiesLoading(false);
+      }
+    };
+
+    fetchAcademicActivities();
+  }, [agendaSection]);
 
   return (
     <HomepageLayout>
@@ -341,28 +425,29 @@ export default function UniversityDetail({ university }) {
                   Kegiatan Akademik
                 </h2>
                 <div className="space-y-3">
-                  <div className="flex items-start gap-3 pb-3 border-b border-gray-100">
-                    <div className="bg-blue-100 rounded px-2 py-1 text-center flex-shrink-0">
-                      <div className="text-xs font-bold text-blue-600">15</div>
-                      <div className="text-[10px] text-gray-600">NOV</div>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-semibold text-gray-900">Workshop Trauma</h4>
-                      <p className="text-xs text-gray-600">Auditorium FK-UI</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3 pb-3 border-b border-gray-100">
-                    <div className="bg-blue-100 rounded px-2 py-1 text-center flex-shrink-0">
-                      <div className="text-xs font-bold text-blue-600">20</div>
-                      <div className="text-[10px] text-gray-600">NOV</div>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-semibold text-gray-900">Seminar Nasional</h4>
-                      <p className="text-xs text-gray-600">Jakarta Convention Center</p>
-                    </div>
-                  </div>
+                  {academicActivitiesLoading ? (
+                    <div className="text-xs text-gray-600">Memuat kegiatan...</div>
+                  ) : academicActivities.length === 0 ? (
+                    <div className="text-xs text-gray-600">Belum ada kegiatan.</div>
+                  ) : (
+                    academicActivities.map((item, index) => (
+                      <div
+                        key={item.id || index}
+                        className={`flex items-start gap-3 pb-3 ${index !== academicActivities.length - 1 ? "border-b border-gray-100" : ""}`}
+                      >
+                        <div className="bg-blue-100 rounded px-2 py-1 text-center flex-shrink-0">
+                          <div className="text-xs font-bold text-blue-600">{item.day}</div>
+                          <div className="text-[10px] text-gray-600">{item.month}</div>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-semibold text-gray-900">{item.title}</h4>
+                          <p className="text-xs text-gray-600">{item.location || "-"}</p>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
-                <Link href="#" className="text-sm text-blue-600 hover:underline mt-3 inline-block">Lihat Semua Kegiatan</Link>
+                <Link href="/calendar-academic" className="text-sm text-blue-600 hover:underline mt-3 inline-block">Lihat Semua Kegiatan</Link>
               </div>
 
               {/* Galeri */}

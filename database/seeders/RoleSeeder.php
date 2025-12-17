@@ -43,6 +43,24 @@ class RoleSeeder extends Seeder
             'agenda.study_program.delete',
             'agenda.study_program.publish',
 
+            'agenda.study_program.resident.view',
+            'agenda.study_program.resident.create',
+            'agenda.study_program.resident.edit',
+            'agenda.study_program.resident.delete',
+            'agenda.study_program.resident.publish',
+
+            'agenda.study_program.fellow.view',
+            'agenda.study_program.fellow.create',
+            'agenda.study_program.fellow.edit',
+            'agenda.study_program.fellow.delete',
+            'agenda.study_program.fellow.publish',
+
+            'agenda.study_program.trainee.view',
+            'agenda.study_program.trainee.create',
+            'agenda.study_program.trainee.edit',
+            'agenda.study_program.trainee.delete',
+            'agenda.study_program.trainee.publish',
+
             'agenda.peer_group.view',
             'agenda.peer_group.create',
             'agenda.peer_group.edit',
@@ -92,6 +110,48 @@ class RoleSeeder extends Seeder
                     'agenda.study_program.edit',
                     'agenda.study_program.delete',
                     'agenda.study_program.publish',
+                ],
+                'is_active' => true,
+                'is_system' => true
+            ],
+            [
+                'name' => 'admin_study_program_resident',
+                'description' => 'Mengelola konten agenda untuk Study Program - Resident',
+                'permissions' => [
+                    'dashboard.view',
+                    'agenda.study_program.resident.view',
+                    'agenda.study_program.resident.create',
+                    'agenda.study_program.resident.edit',
+                    'agenda.study_program.resident.delete',
+                    'agenda.study_program.resident.publish',
+                ],
+                'is_active' => true,
+                'is_system' => true
+            ],
+            [
+                'name' => 'admin_study_program_fellow',
+                'description' => 'Mengelola konten agenda untuk Study Program - Fellow',
+                'permissions' => [
+                    'dashboard.view',
+                    'agenda.study_program.fellow.view',
+                    'agenda.study_program.fellow.create',
+                    'agenda.study_program.fellow.edit',
+                    'agenda.study_program.fellow.delete',
+                    'agenda.study_program.fellow.publish',
+                ],
+                'is_active' => true,
+                'is_system' => true
+            ],
+            [
+                'name' => 'admin_study_program_trainee',
+                'description' => 'Mengelola konten agenda untuk Study Program - Trainee',
+                'permissions' => [
+                    'dashboard.view',
+                    'agenda.study_program.trainee.view',
+                    'agenda.study_program.trainee.create',
+                    'agenda.study_program.trainee.edit',
+                    'agenda.study_program.trainee.delete',
+                    'agenda.study_program.trainee.publish',
                 ],
                 'is_active' => true,
                 'is_system' => true

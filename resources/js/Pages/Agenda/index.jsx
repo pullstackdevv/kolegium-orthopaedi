@@ -5,6 +5,7 @@ import api from "@/api/axios";
 import Swal from "sweetalert2";
 import PermissionGuard from "@/components/PermissionGuard";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePage } from "@inertiajs/react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,7 +37,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 
 const EVENT_TYPES = [
@@ -44,30 +44,189 @@ const EVENT_TYPES = [
   { id: "ujian_nasional", name: "Ujian Nasional" },
   { id: "event_lokal", name: "Event Lokal" },
   { id: "event_nasional", name: "Event Nasional" },
-  { id: "event_peer_group", name: "Event Peer Group" },
+  { id: "event_peer_group", name: "Event Peer Group International" },
+  { id: "event_peer_group_nasional", name: "Event Peer Group National" },
 ];
 
-const SCOPES = [
-  { id: "kolegium", label: "Kolegium" },
-  { id: "study_program", label: "Study Program" },
-  { id: "peer_group", label: "Peer Group" },
-];
+const EVENT_TYPE_COLORS = {
+  ujian_lokal: { bg: "bg-red-500", text: "text-red-700" },
+  ujian_nasional: { bg: "bg-blue-500", text: "text-blue-700" },
+  event_lokal: { bg: "bg-green-500", text: "text-green-700" },
+  event_nasional: { bg: "bg-orange-500", text: "text-orange-700" },
+  event_peer_group: { bg: "bg-purple-500", text: "text-purple-700" },
+  event_peer_group_nasional: { bg: "bg-indigo-500", text: "text-indigo-700" },
+};
+
+const SCOPE_LABELS = {
+  kolegium: "Kolegium",
+  study_program: "Study Program",
+  peer_group: "Peer Group",
+};
+
+const SECTION_LABELS = {
+  resident: "Resident",
+  fellow: "Fellow",
+  trainee: "Trainee",
+};
+
+const buildAgendaTitle = ({ scope, section, type }) => {
+  const scopeLabel = scope ? SCOPE_LABELS[scope] : null;
+  const sectionLabel = section ? SECTION_LABELS[section] : null;
+  const typeLabel = type ? EVENT_TYPES.find((t) => t.id === type)?.name || type : null;
+
+  if (!scopeLabel) return "Agenda";
+
+  if (scope === "study_program" && sectionLabel) {
+    return `Agenda ${scopeLabel} - ${sectionLabel}`;
+  }
+
+  if (typeLabel) {
+    return `Agenda ${scopeLabel} - ${typeLabel}`;
+  }
+
+  return `Agenda ${scopeLabel}`;
+};
 
 export default function AgendaPage() {
-  const { hasPermission } = useAuth();
+  const { url: inertiaUrl } = usePage();
 
-  const tabs = useMemo(() => {
-    return SCOPES.map((s) => ({
-      value: s.id,
-      label: s.label,
-      enabled: hasPermission(`agenda.${s.id}.view`),
-    })).filter((t) => t.enabled);
-  }, [hasPermission]);
+  const queryParams = useMemo(() => {
+    const query = (inertiaUrl || "").split("?")[1] || "";
+    return new URLSearchParams(query);
+  }, [inertiaUrl]);
 
-  const allowedValues = useMemo(() => tabs.map((t) => t.value), [tabs]);
+  const pageTitle = useMemo(() => {
+    return buildAgendaTitle({
+      scope: queryParams.get("scope"),
+      section: queryParams.get("section"),
+      type: queryParams.get("type"),
+    });
+  }, [queryParams]);
+
+  return (
+    <DashboardLayout title={pageTitle}>
+      <AgendaContent />
+    </DashboardLayout>
+  );
+}
+
+function AgendaContent() {
+  const { hasPermission, hasAnyPermission } = useAuth();
+  const { url: inertiaUrl } = usePage();
+
+  const queryParams = useMemo(() => {
+    const query = (inertiaUrl || "").split("?")[1] || "";
+    return new URLSearchParams(query);
+  }, [inertiaUrl]);
+
+  const scopeFromUrl = queryParams.get("scope");
+  const sectionFromUrl = queryParams.get("section");
+  const typeFromUrl = queryParams.get("type");
+  const fixedType = useMemo(() => {
+    if (!typeFromUrl) return null;
+    return EVENT_TYPES.some((t) => t.id === typeFromUrl) ? typeFromUrl : null;
+  }, [typeFromUrl]);
+
+  const toDateInputValue = (value) => {
+    if (!value) return "";
+
+    if (typeof value === "string") {
+      const match = value.match(/^(\d{4}-\d{2}-\d{2})/);
+      if (match?.[1]) return match[1];
+      return value;
+    }
+
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+    return d.toISOString().slice(0, 10);
+  };
+
+  const formatDateHuman = (dateStr) => {
+    if (!dateStr) return "-";
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const formatDateRangeHuman = (startStr, endStr) => {
+    const start = formatDateHuman(startStr);
+    if (!endStr) return start;
+    const end = formatDateHuman(endStr);
+    return `${start} - ${end}`;
+  };
+
+  const resolveImageUrl = (raw) => {
+    if (!raw) return "";
+    const s = String(raw).trim();
+    if (!s) return "";
+
+    if (
+      s.startsWith("http://") ||
+      s.startsWith("https://") ||
+      s.startsWith("data:") ||
+      s.startsWith("//")
+    ) {
+      return s;
+    }
+
+    if (s.startsWith("/")) return s;
+    if (s.startsWith("public/")) return `/${s.replace(/^public\//, "")}`;
+    if (s.startsWith("storage/")) return `/${s}`;
+    if (s.startsWith("assets/")) return `/${s}`;
+    if (s.startsWith("agenda-images/")) return `/storage/${s}`;
+
+    return `/${s}`;
+  };
+
+  const allowedValues = useMemo(() => {
+    const canViewStudyProgram = hasAnyPermission([
+      "agenda.study_program.view",
+      "agenda.study_program.resident.view",
+      "agenda.study_program.fellow.view",
+      "agenda.study_program.trainee.view",
+    ]);
+
+    const map = {
+      kolegium: hasPermission("agenda.kolegium.view"),
+      peer_group: hasPermission("agenda.peer_group.view"),
+      study_program: canViewStudyProgram,
+    };
+
+    return Object.entries(map)
+      .filter(([, ok]) => !!ok)
+      .map(([key]) => key);
+  }, [hasAnyPermission, hasPermission]);
+
   const defaultScope = allowedValues[0] || "kolegium";
 
-  const [activeScope, setActiveScope] = useState(defaultScope);
+  const routeScopeLocked = !!scopeFromUrl;
+  const routeScopeAllowed = !routeScopeLocked || allowedValues.includes(scopeFromUrl);
+
+  const allowedSections = useMemo(() => {
+    const canViewAll = hasPermission("agenda.study_program.view");
+    const all = ["resident", "fellow", "trainee"];
+    return all.filter((s) => canViewAll || hasPermission(`agenda.study_program.${s}.view`));
+  }, [hasPermission]);
+
+  const activeScope = useMemo(() => scopeFromUrl || defaultScope, [scopeFromUrl, defaultScope]);
+
+  const activeSection = useMemo(() => {
+    if (activeScope !== "study_program") return null;
+    if (sectionFromUrl && allowedSections.includes(sectionFromUrl)) return sectionFromUrl;
+    return null;
+  }, [activeScope, allowedSections, sectionFromUrl]);
+
+  const pageHeading = useMemo(() => {
+    return buildAgendaTitle({
+      scope: activeScope,
+      section: activeSection,
+      type: fixedType,
+    });
+  }, [activeScope, activeSection, fixedType]);
 
   const [events, setEvents] = useState([]);
   const [pagination, setPagination] = useState({
@@ -81,7 +240,7 @@ export default function AgendaPage() {
   const [error, setError] = useState(null);
 
   const [filters, setFilters] = useState({
-    type: "all",
+    type: fixedType || "all",
     from: "",
     to: "",
     per_page: "10",
@@ -92,6 +251,8 @@ export default function AgendaPage() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState(null);
+  const [showImagePreview, setShowImagePreview] = useState(false);
+  const [imagePreview, setImagePreview] = useState({ url: "", title: "" });
   const [formData, setFormData] = useState({
     type: "event_nasional",
     title: "",
@@ -104,21 +265,33 @@ export default function AgendaPage() {
     is_published: false,
   });
 
-  useEffect(() => {
-    if (!allowedValues.includes(activeScope)) {
-      setActiveScope(defaultScope);
+  const [imageMode, setImageMode] = useState("url");
+  const [imageFile, setImageFile] = useState(null);
+  const [imageUploading, setImageUploading] = useState(false);
+
+  const getPermissionsForAction = (action) => {
+    if (activeScope === "study_program") {
+      const perms = [`agenda.study_program.${action}`];
+      if (activeSection) perms.push(`agenda.study_program.${activeSection}.${action}`);
+      return perms;
     }
-  }, [activeScope, allowedValues, defaultScope]);
+
+    return [`agenda.${activeScope}.${action}`];
+  };
 
   const getTypeLabel = (type) => {
     return EVENT_TYPES.find((t) => t.id === type)?.name || type || "-";
+  };
+
+  const getTypeColor = (type) => {
+    return EVENT_TYPE_COLORS[type] || EVENT_TYPE_COLORS.ujian_lokal;
   };
 
   const resetForm = () => {
     setSelectedEvent(null);
     setFormError(null);
     setFormData({
-      type: "event_nasional",
+      type: fixedType || "event_nasional",
       title: "",
       description: "",
       location: "",
@@ -128,6 +301,8 @@ export default function AgendaPage() {
       end_date: "",
       is_published: false,
     });
+    setImageMode("url");
+    setImageFile(null);
   };
 
   const openCreateModal = () => {
@@ -146,12 +321,101 @@ export default function AgendaPage() {
       location: event.location || "",
       registration_url: event.registration_url || "",
       image_url: event.image_url || "",
-      start_date: event.start_date || "",
-      end_date: event.end_date || "",
+      start_date: toDateInputValue(event.start_date),
+      end_date: toDateInputValue(event.end_date),
       is_published: !!event.is_published,
     });
+    setImageMode("url");
+    setImageFile(null);
     setModalType("edit");
     setShowModal(true);
+  };
+
+  const uploadImageFile = async (file) => {
+    if (!file) return;
+
+    try {
+      setImageUploading(true);
+      setFormError(null);
+
+      const form = new FormData();
+      form.append("image", file);
+
+      let endpoint = "/agenda-events/upload-image";
+      if (modalType === "edit" && selectedEvent?.id) {
+        endpoint = `/agenda-events/${selectedEvent.id}/upload-image`;
+      } else {
+        form.append("scope", activeScope);
+        if (activeScope === "study_program" && activeSection) {
+          form.append("section", activeSection);
+        }
+      }
+
+      const response = await api.post(endpoint, form);
+
+      if (response.data?.status === "success" && response.data?.data?.url) {
+        const url = response.data.data.url;
+
+        setFormData((p) => ({ ...p, image_url: url }));
+
+        if (modalType === "edit" && selectedEvent?.id) {
+          setSelectedEvent((p) => (p ? { ...p, image_url: url } : p));
+          setEvents((prev) =>
+            Array.isArray(prev)
+              ? prev.map((ev) => (ev.id === selectedEvent.id ? { ...ev, image_url: url } : ev))
+              : prev
+          );
+        }
+        return;
+      }
+
+      setFormError("Gagal upload gambar.");
+    } catch (err) {
+      console.log(err);
+      
+      if (err.response?.status === 422 && err.response.data?.errors) {
+        const errors = Object.values(err.response.data.errors).flat();
+        setFormError(errors.join(", "));
+      } else if (err.response?.status === 403) {
+        setFormError("Anda tidak memiliki akses untuk upload gambar.");
+      } else {
+        setFormError("Terjadi kesalahan saat upload gambar.");
+      }
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
+  const handleTogglePublish = async (event) => {
+    try {
+      const target = event.is_published ? "unpublish" : "publish";
+      const response = await api.post(`/agenda-events/${event.id}/${target}`);
+
+      if (response.data?.status === "success") {
+        Swal.fire({
+          icon: "success",
+          title: "Berhasil!",
+          text: event.is_published ? "Agenda berhasil di-unpublish" : "Agenda berhasil dipublish",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        fetchEvents({ scope: activeScope, page: pagination.current_page });
+        return;
+      }
+
+      Swal.fire({
+        icon: "error",
+        title: "Gagal!",
+        text: "Gagal memperbarui status publish.",
+      });
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Gagal!",
+        text: "Gagal memperbarui status publish.",
+      });
+    }
   };
 
   const closeModal = () => {
@@ -159,10 +423,29 @@ export default function AgendaPage() {
     resetForm();
   };
 
+  const openImagePreview = (event) => {
+    const url = resolveImageUrl(event?.image_url);
+    if (!url) return;
+    setImagePreview({ url, title: event.title || "Preview" });
+    setShowImagePreview(true);
+  };
+
   const fetchEvents = async ({ scope = activeScope, page = 1 } = {}) => {
     try {
       setLoading(true);
       setError(null);
+
+      if (scope === "study_program" && !activeSection) {
+        setError("Section Study Program wajib dipilih dari menu (Resident/Fellow/Trainee)." );
+        setEvents([]);
+        setPagination((p) => ({
+          ...p,
+          current_page: 1,
+          last_page: 1,
+          total: 0,
+        }));
+        return;
+      }
 
       const params = {
         scope,
@@ -170,7 +453,15 @@ export default function AgendaPage() {
         per_page: Number(filters.per_page || 10),
       };
 
-      if (filters.type && filters.type !== "all") params.type = filters.type;
+      if (scope === "study_program") {
+        if (activeSection) params.section = activeSection;
+      }
+
+      if (fixedType) {
+        params.type = fixedType;
+      }
+
+      if (!fixedType && filters.type && filters.type !== "all") params.type = filters.type;
       if (filters.from) params.from = filters.from;
       if (filters.to) params.to = filters.to;
 
@@ -205,9 +496,15 @@ export default function AgendaPage() {
   };
 
   useEffect(() => {
-    if (tabs.length === 0) return;
+    if (allowedValues.length === 0) return;
+    if (!routeScopeAllowed) return;
     fetchEvents({ scope: activeScope, page: 1 });
-  }, [activeScope, filters.type, filters.from, filters.to, filters.per_page]);
+  }, [activeScope, activeSection, filters.type, filters.from, filters.to, filters.per_page, routeScopeAllowed, allowedValues.length]);
+
+  useEffect(() => {
+    if (!fixedType) return;
+    setFilters((p) => ({ ...p, type: fixedType }));
+  }, [fixedType]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -220,6 +517,14 @@ export default function AgendaPage() {
         ...formData,
         scope: activeScope,
       };
+
+      if (fixedType) {
+        payload.type = fixedType;
+      }
+
+      if (activeScope === "study_program") {
+        if (activeSection) payload.section = activeSection;
+      }
 
       if (!payload.end_date) delete payload.end_date;
       if (!payload.description) delete payload.description;
@@ -292,73 +597,35 @@ export default function AgendaPage() {
     }
   };
 
-  const handleTogglePublish = async (event) => {
-    const target = event.is_published ? "unpublish" : "publish";
-
-    try {
-      const response = await api.post(`/agenda-events/${event.id}/${target}`);
-      if (response.data?.status === "success") {
-        Swal.fire({
-          icon: "success",
-          title: "Berhasil!",
-          text: event.is_published ? "Agenda berhasil di-unpublish" : "Agenda berhasil dipublish",
-          timer: 1500,
-          showConfirmButton: false,
-        });
-        fetchEvents({ scope: activeScope, page: pagination.current_page });
-        return;
-      }
-
-      Swal.fire({
-        icon: "error",
-        title: "Gagal!",
-        text: "Gagal memperbarui status publish.",
-      });
-    } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "Gagal!",
-        text: "Gagal memperbarui status publish.",
-      });
-    }
-  };
-
-  const canCreate = hasPermission(`agenda.${activeScope}.create`);
+  const canCreateSectioned =
+    hasAnyPermission(getPermissionsForAction("create")) &&
+    (activeScope !== "study_program" || !!activeSection) &&
+    routeScopeAllowed;
 
   return (
-    <DashboardLayout title="Agenda">
+    <>
       <div className="space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Agenda</h1>
+            <h1 className="text-2xl font-bold tracking-tight">{pageHeading}</h1>
             <p className="text-muted-foreground">
-              Kelola agenda dan kalender untuk ditampilkan pada landing page.
+              Kelola agenda dan kalender.
             </p>
           </div>
-          <PermissionGuard permission={`agenda.${activeScope}.create`}>
-            <Button onClick={openCreateModal} className="gap-2" disabled={!canCreate || tabs.length === 0}>
+          <PermissionGuard permissions={getPermissionsForAction("create")}>
+            <Button onClick={openCreateModal} className="gap-2" disabled={!canCreateSectioned || allowedValues.length === 0}>
               <Plus className="h-4 w-4" />
               Tambah Agenda
             </Button>
           </PermissionGuard>
         </div>
 
-        {tabs.length === 0 ? (
+        {allowedValues.length === 0 || !routeScopeAllowed ? (
           <div className="rounded-lg border p-6 text-sm text-muted-foreground">
             Anda tidak memiliki akses untuk membuka halaman ini.
           </div>
         ) : (
-          <Tabs value={activeScope} onValueChange={setActiveScope} className="space-y-4">
-            <TabsList>
-              {tabs.map((tab) => (
-                <TabsTrigger key={tab.value} value={tab.value} className="gap-2">
-                  <CalendarDays className="h-4 w-4" />
-                  {tab.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-
-            <TabsContent value={activeScope} className="space-y-4">
+          <div className="space-y-4">
               <Card>
                 <CardHeader>
                   <CardTitle>Filter</CardTitle>
@@ -366,22 +633,29 @@ export default function AgendaPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-4 md:grid-cols-4">
-                    <div className="space-y-2">
-                      <Label>Type</Label>
-                      <Select value={filters.type} onValueChange={(v) => setFilters((p) => ({ ...p, type: v }))}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Pilih type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Semua</SelectItem>
-                          {EVENT_TYPES.map((t) => (
-                            <SelectItem key={t.id} value={t.id}>
-                              {t.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    {fixedType ? (
+                      <div className="space-y-2">
+                        <Label>Type</Label>
+                        <Input value={getTypeLabel(fixedType)} readOnly />
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <Label>Type</Label>
+                        <Select value={filters.type} onValueChange={(v) => setFilters((p) => ({ ...p, type: v }))}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Pilih type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Semua</SelectItem>
+                            {EVENT_TYPES.map((t) => (
+                              <SelectItem key={t.id} value={t.id}>
+                                {t.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
 
                     <div className="space-y-2">
                       <Label>Dari</Label>
@@ -454,6 +728,7 @@ export default function AgendaPage() {
                           <TableHeader>
                             <TableRow>
                               <TableHead>Judul</TableHead>
+                              <TableHead>Gambar</TableHead>
                               <TableHead>Type</TableHead>
                               <TableHead>Tanggal</TableHead>
                               <TableHead>Status</TableHead>
@@ -472,14 +747,44 @@ export default function AgendaPage() {
                                   </div>
                                 </TableCell>
                                 <TableCell>
-                                  <Badge variant="secondary" className="capitalize">
+                                  <div
+                                    className={`h-10 w-10 rounded bg-muted overflow-hidden flex items-center justify-center ${
+                                      resolveImageUrl(event.image_url) ? "cursor-pointer" : ""
+                                    }`}
+                                    onClick={() => openImagePreview(event)}
+                                    role={resolveImageUrl(event.image_url) ? "button" : undefined}
+                                    tabIndex={resolveImageUrl(event.image_url) ? 0 : undefined}
+                                    onKeyDown={(e) => {
+                                      if (!resolveImageUrl(event.image_url)) return;
+                                      if (e.key === "Enter" || e.key === " ") {
+                                        e.preventDefault();
+                                        openImagePreview(event);
+                                      }
+                                    }}
+                                  >
+                                    {resolveImageUrl(event.image_url) ? (
+                                      <img
+                                        src={resolveImageUrl(event.image_url)}
+                                        alt={event.title}
+                                        className="h-full w-full object-cover"
+                                        onError={(e) => {
+                                          e.currentTarget.style.display = "none";
+                                        }}
+                                      />
+                                    ) : null}
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge
+                                    variant="secondary"
+                                    className={`capitalize ${getTypeColor(event.type).bg} bg-opacity-20 ${getTypeColor(event.type).text}`}
+                                  >
                                     {getTypeLabel(event.type)}
                                   </Badge>
                                 </TableCell>
                                 <TableCell>
                                   <div className="text-sm">
-                                    {event.start_date}
-                                    {event.end_date ? ` - ${event.end_date}` : ""}
+                                    {formatDateRangeHuman(event.start_date, event.end_date)}
                                   </div>
                                 </TableCell>
                                 <TableCell>
@@ -491,14 +796,14 @@ export default function AgendaPage() {
                                 </TableCell>
                                 <TableCell className="text-right">
                                   <div className="flex justify-end gap-2">
-                                    <PermissionGuard permission={`agenda.${activeScope}.edit`}>
+                                    <PermissionGuard permissions={getPermissionsForAction("edit")}>
                                       <Button variant="outline" size="sm" onClick={() => openEditModal(event)}>
                                         <Pencil className="h-4 w-4 mr-1" />
                                         Edit
                                       </Button>
                                     </PermissionGuard>
 
-                                    <PermissionGuard permission={`agenda.${activeScope}.publish`}>
+                                    <PermissionGuard permissions={getPermissionsForAction("publish")}>
                                       <Button
                                         variant={event.is_published ? "outline" : "default"}
                                         size="sm"
@@ -519,7 +824,7 @@ export default function AgendaPage() {
                                       </Button>
                                     </PermissionGuard>
 
-                                    <PermissionGuard permission={`agenda.${activeScope}.delete`}>
+                                    <PermissionGuard permissions={getPermissionsForAction("delete")}>
                                       <Button variant="destructive" size="sm" onClick={() => handleDelete(event)}>
                                         <Trash2 className="h-4 w-4 mr-1" />
                                         Hapus
@@ -560,8 +865,7 @@ export default function AgendaPage() {
                   </CardContent>
                 </Card>
               )}
-            </TabsContent>
-          </Tabs>
+          </div>
         )}
       </div>
 
@@ -586,21 +890,28 @@ export default function AgendaPage() {
             ) : null}
 
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Type *</Label>
-                <Select value={formData.type} onValueChange={(v) => setFormData((p) => ({ ...p, type: v }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {EVENT_TYPES.map((t) => (
-                      <SelectItem key={t.id} value={t.id}>
-                        {t.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {fixedType ? (
+                <div className="space-y-2">
+                  <Label>Type *</Label>
+                  <Input value={getTypeLabel(fixedType)} readOnly />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label>Type *</Label>
+                  <Select value={formData.type} onValueChange={(v) => setFormData((p) => ({ ...p, type: v }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {EVENT_TYPES.map((t) => (
+                        <SelectItem key={t.id} value={t.id}>
+                          {t.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label>Judul *</Label>
@@ -650,13 +961,60 @@ export default function AgendaPage() {
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <Label>Image URL</Label>
-                <Input
-                  value={formData.image_url}
-                  onChange={(e) => setFormData((p) => ({ ...p, image_url: e.target.value }))}
-                  placeholder="https://..."
-                />
+                <Label>Sumber Gambar</Label>
+                <Select
+                  value={imageMode}
+                  onValueChange={(v) => {
+                    setImageMode(v);
+                    if (v !== "upload") {
+                      setImageFile(null);
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih sumber" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="upload">Upload gambar</SelectItem>
+                    <SelectItem value="url">Image URL</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+
+              {imageMode === "upload" ? (
+                <div className="space-y-2 md:col-span-2">
+                  <Label>Upload Gambar</Label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      setImageFile(file);
+                      if (file) {
+                        uploadImageFile(file);
+                      }
+                    }}
+                  />
+                  {imageUploading ? (
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      Uploading...
+                    </div>
+                  ) : null}
+                  {formData.image_url ? (
+                    <Input value={formData.image_url} readOnly />
+                  ) : null}
+                </div>
+              ) : (
+                <div className="space-y-2 md:col-span-2">
+                  <Label>Image URL</Label>
+                  <Input
+                    value={formData.image_url}
+                    onChange={(e) => setFormData((p) => ({ ...p, image_url: e.target.value }))}
+                    placeholder="https://..."
+                  />
+                </div>
+              )}
 
               <div className="space-y-2 md:col-span-2">
                 <Label>Deskripsi</Label>
@@ -686,7 +1044,7 @@ export default function AgendaPage() {
               <Button type="button" variant="outline" onClick={closeModal} disabled={formLoading}>
                 Batal
               </Button>
-              <Button type="submit" disabled={formLoading}>
+              <Button type="submit" disabled={formLoading || imageUploading}>
                 {formLoading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -702,6 +1060,33 @@ export default function AgendaPage() {
           </form>
         </DialogContent>
       </Dialog>
-    </DashboardLayout>
+
+      <Dialog
+        open={showImagePreview}
+        onOpenChange={(open) => {
+          setShowImagePreview(open);
+          if (!open) setImagePreview({ url: "", title: "" });
+        }}
+      >
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>{imagePreview.title || "Preview"}</DialogTitle>
+            <DialogDescription>Preview gambar agenda</DialogDescription>
+          </DialogHeader>
+          <div className="w-full overflow-hidden rounded-md border bg-muted">
+            {imagePreview.url ? (
+              <img
+                src={imagePreview.url}
+                alt={imagePreview.title || "Preview"}
+                className="w-full max-h-[75vh] object-contain"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                }}
+              />
+            ) : null}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

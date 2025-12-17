@@ -111,7 +111,7 @@ Route::middleware([Authenticate::class, HandleInertiaRequests::class])
 
         // Settings
         Route::get('/settings', function () {
-            return redirect()->route('cms.settings.user');
+            return Inertia::render('ComingSoon', ['slug' => 'settings-program']);
         })->name('settings.index');
 
         Route::get('/settings/user', function () {

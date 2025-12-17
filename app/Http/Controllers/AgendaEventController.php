@@ -11,16 +11,46 @@ use Illuminate\Support\Facades\DB;
 
 class AgendaEventController extends Controller
 {
-    private function scopePermission(string $scope, string $action): string
+    private function scopePermission(string $scope, string $action, ?string $section = null): string
     {
+        if ($scope === 'study_program' && $section) {
+            return "agenda.{$scope}.{$section}.{$action}";
+        }
+
         return "agenda.{$scope}.{$action}";
     }
 
-    private function ensurePermission(string $scope, string $action): ?JsonResponse
+    private function ensurePermission(string $scope, string $action, ?string $section = null): ?JsonResponse
     {
         $authUser = Auth::user();
 
         if (!$authUser instanceof User) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized.'
+            ], 403);
+        }
+
+        if ($scope === 'study_program' && $section) {
+            if ($authUser->hasPermission("agenda.study_program.{$action}")) {
+                return null;
+            }
+
+            if ($authUser->hasPermission($this->scopePermission($scope, $action, $section))) {
+                return null;
+            }
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized.'
+            ], 403);
+        }
+
+        if ($scope === 'study_program' && !$section) {
+            if ($authUser->hasPermission("agenda.study_program.{$action}")) {
+                return null;
+            }
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Unauthorized.'
@@ -39,10 +69,14 @@ class AgendaEventController extends Controller
 
     public function publicIndex(Request $request): JsonResponse
     {
-        $query = AgendaEvent::query()->where('is_published', true);
+        $query = AgendaEvent::query()->where('is_published', 1);
 
         if ($request->filled('scope')) {
             $query->where('scope', $request->string('scope')->toString());
+        }
+
+        if ($request->filled('section')) {
+            $query->where('section', $request->string('section')->toString());
         }
 
         if ($request->filled('type')) {
@@ -68,12 +102,32 @@ class AgendaEventController extends Controller
     public function index(Request $request): JsonResponse
     {
         $scope = $request->string('scope', 'kolegium')->toString();
+        $section = $request->string('section')->toString();
 
-        if ($resp = $this->ensurePermission($scope, 'view')) {
-            return $resp;
+        $authUser = Auth::user();
+
+        if ($scope === 'study_program') {
+            if (!$request->filled('section') && !($authUser instanceof User && $authUser->hasPermission('agenda.study_program.view'))) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Section is required.'
+                ], 403);
+            }
+
+            if ($resp = $this->ensurePermission($scope, 'view', $request->filled('section') ? $section : null)) {
+                return $resp;
+            }
+        } else {
+            if ($resp = $this->ensurePermission($scope, 'view')) {
+                return $resp;
+            }
         }
 
         $query = AgendaEvent::query()->where('scope', $scope);
+
+        if ($scope === 'study_program' && $request->filled('section')) {
+            $query->where('section', $section);
+        }
 
         if ($request->filled('type')) {
             $query->where('type', $request->string('type')->toString());
@@ -99,7 +153,8 @@ class AgendaEventController extends Controller
     {
         $validated = $request->validate([
             'scope' => 'required|string|in:kolegium,study_program,peer_group',
-            'type' => 'required|string|in:ujian_lokal,ujian_nasional,event_lokal,event_nasional,event_peer_group',
+            'section' => 'nullable|required_if:scope,study_program|string|in:resident,fellow,trainee',
+            'type' => 'required|string|in:ujian_lokal,ujian_nasional,event_lokal,event_nasional,event_peer_group,event_peer_group_nasional',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'location' => 'nullable|string|max:255',
@@ -111,8 +166,9 @@ class AgendaEventController extends Controller
         ]);
 
         $scope = $validated['scope'];
+        $section = $validated['section'] ?? null;
 
-        if ($resp = $this->ensurePermission($scope, 'create')) {
+        if ($resp = $this->ensurePermission($scope, 'create', $section)) {
             return $resp;
         }
 
@@ -148,7 +204,7 @@ class AgendaEventController extends Controller
     public function update(Request $request, AgendaEvent $agendaEvent): JsonResponse
     {
         $validated = $request->validate([
-            'type' => 'sometimes|required|string|in:ujian_lokal,ujian_nasional,event_lokal,event_nasional,event_peer_group',
+            'type' => 'sometimes|required|string|in:ujian_lokal,ujian_nasional,event_lokal,event_nasional,event_peer_group,event_peer_group_nasional',
             'title' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
             'location' => 'nullable|string|max:255',
@@ -159,8 +215,9 @@ class AgendaEventController extends Controller
         ]);
 
         $scope = $agendaEvent->scope;
+        $section = $agendaEvent->section;
 
-        if ($resp = $this->ensurePermission($scope, 'edit')) {
+        if ($resp = $this->ensurePermission($scope, 'edit', $section)) {
             return $resp;
         }
 
@@ -176,8 +233,9 @@ class AgendaEventController extends Controller
     public function destroy(AgendaEvent $agendaEvent): JsonResponse
     {
         $scope = $agendaEvent->scope;
+        $section = $agendaEvent->section;
 
-        if ($resp = $this->ensurePermission($scope, 'delete')) {
+        if ($resp = $this->ensurePermission($scope, 'delete', $section)) {
             return $resp;
         }
 
@@ -192,8 +250,9 @@ class AgendaEventController extends Controller
     public function publish(AgendaEvent $agendaEvent): JsonResponse
     {
         $scope = $agendaEvent->scope;
+        $section = $agendaEvent->section;
 
-        if ($resp = $this->ensurePermission($scope, 'publish')) {
+        if ($resp = $this->ensurePermission($scope, 'publish', $section)) {
             return $resp;
         }
 
@@ -212,8 +271,9 @@ class AgendaEventController extends Controller
     public function unpublish(AgendaEvent $agendaEvent): JsonResponse
     {
         $scope = $agendaEvent->scope;
+        $section = $agendaEvent->section;
 
-        if ($resp = $this->ensurePermission($scope, 'publish')) {
+        if ($resp = $this->ensurePermission($scope, 'publish', $section)) {
             return $resp;
         }
 
@@ -226,6 +286,65 @@ class AgendaEventController extends Controller
             'status' => 'success',
             'message' => 'Agenda event unpublished successfully',
             'data' => $agendaEvent->fresh(),
+        ]);
+    }
+
+    public function uploadImage(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'scope' => 'required|string|in:kolegium,study_program,peer_group',
+            'section' => 'nullable|required_if:scope,study_program|string|in:resident,fellow,trainee',
+            'image' => 'required|file|image|max:5120',
+        ]);
+
+        $scope = $validated['scope'];
+        $section = $validated['section'] ?? null;
+
+        if ($resp = $this->ensurePermission($scope, 'create', $section)) {
+            return $resp;
+        }
+
+        $path = $request->file('image')->store('agenda-events', 'public');
+        $url = asset('storage/' . $path);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Image uploaded successfully',
+            'data' => [
+                'path' => $path,
+                'url' => $url,
+            ],
+        ]);
+    }
+
+    public function uploadImageForEvent(Request $request, AgendaEvent $agendaEvent): JsonResponse
+    {
+        $request->validate([
+            'image' => 'required|file|image|max:5120',
+        ]);
+
+        $scope = $agendaEvent->scope;
+        $section = $agendaEvent->section;
+
+        if ($resp = $this->ensurePermission($scope, 'edit', $section)) {
+            return $resp;
+        }
+
+        $path = $request->file('image')->store('agenda-events', 'public');
+        $url = asset('storage/' . $path);
+
+        $agendaEvent->update([
+            'image_url' => $url,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Image uploaded successfully',
+            'data' => [
+                'path' => $path,
+                'url' => $url,
+                'event' => $agendaEvent->fresh(),
+            ],
         ]);
     }
 }

@@ -47,6 +47,9 @@ export default function RoleSettings() {
     'Permissions': ['permissions.view', 'permissions.create', 'permissions.edit', 'permissions.delete'],
     'Agenda - Kolegium': ['agenda.kolegium.view', 'agenda.kolegium.create', 'agenda.kolegium.edit', 'agenda.kolegium.delete', 'agenda.kolegium.publish'],
     'Agenda - Study Program': ['agenda.study_program.view', 'agenda.study_program.create', 'agenda.study_program.edit', 'agenda.study_program.delete', 'agenda.study_program.publish'],
+    'Agenda - Study Program (Resident)': ['agenda.study_program.resident.view', 'agenda.study_program.resident.create', 'agenda.study_program.resident.edit', 'agenda.study_program.resident.delete', 'agenda.study_program.resident.publish'],
+    'Agenda - Study Program (Fellow)': ['agenda.study_program.fellow.view', 'agenda.study_program.fellow.create', 'agenda.study_program.fellow.edit', 'agenda.study_program.fellow.delete', 'agenda.study_program.fellow.publish'],
+    'Agenda - Study Program (Trainee)': ['agenda.study_program.trainee.view', 'agenda.study_program.trainee.create', 'agenda.study_program.trainee.edit', 'agenda.study_program.trainee.delete', 'agenda.study_program.trainee.publish'],
     'Agenda - Peer Group': ['agenda.peer_group.view', 'agenda.peer_group.create', 'agenda.peer_group.edit', 'agenda.peer_group.delete', 'agenda.peer_group.publish'],
   };
 

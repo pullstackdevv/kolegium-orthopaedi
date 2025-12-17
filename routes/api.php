@@ -55,9 +55,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Agenda (CMS) routes
     Route::get('agenda-events', [AgendaEventController::class, 'index']);
+    Route::post('agenda-events/upload-image', [AgendaEventController::class, 'uploadImage']);
     Route::post('agenda-events', [AgendaEventController::class, 'store']);
     Route::put('agenda-events/{agendaEvent}', [AgendaEventController::class, 'update']);
     Route::delete('agenda-events/{agendaEvent}', [AgendaEventController::class, 'destroy']);
+    Route::post('agenda-events/{agendaEvent}/upload-image', [AgendaEventController::class, 'uploadImageForEvent']);
     Route::post('agenda-events/{agendaEvent}/publish', [AgendaEventController::class, 'publish']);
     Route::post('agenda-events/{agendaEvent}/unpublish', [AgendaEventController::class, 'unpublish']);
 });
