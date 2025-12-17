@@ -1,6 +1,6 @@
 import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   FileText, 
@@ -9,11 +9,13 @@ import {
   Award,
   Calendar,
   MapPin,
+  X,
   ChevronRight,
   ChevronLeft
 } from "lucide-react";
 import HomepageLayout from "../Layouts/HomepageLayout";
 import DonutChart from "../components/DonutChart";
+import api from "@/api/axios";
 
 // Program Card Component
 const ProgramCard = ({ program }) => {
@@ -36,6 +38,14 @@ const ProgramCard = ({ program }) => {
 
 // Program Info Component
 const ProgramInfo = ({ program }) => {
+  // Determine label based on program ID
+  const getStudentLabel = () => {
+    if (program.id === "P1") return "Active Resident:";
+    if (program.id === "CF") return "Active Fellow:";
+    if (program.id === "SP") return "Active Trainee:";
+    return "Active Students:";
+  };
+
   return (
     <div className="flex flex-col justify-center">
       <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-8 h-full flex flex-col justify-center">
@@ -50,7 +60,7 @@ const ProgramInfo = ({ program }) => {
             {program.description}
           </p>
           <div className="pt-4 border-t border-blue-200">
-            <p className="text-sm text-gray-600 mb-1">Active Resident:</p>
+            <p className="text-sm text-gray-600 mb-1">{getStudentLabel()}</p>
             <p className="text-3xl font-bold text-blue-600">{program.students}</p>
           </div>
         </div>
@@ -129,6 +139,9 @@ const LegendColumn = ({ legends, colors, startIndex }) => {
 export default function Homepage() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [agendaEvents, setAgendaEvents] = useState([]);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   
   const heroImages = [
     {
@@ -145,6 +158,186 @@ export default function Homepage() {
     setIsFlipped(!isFlipped);
   };
 
+  const eventTypes = [
+    {
+      id: "ujian_lokal",
+      examLabel: "Local Exam",
+      name: "Ujian Lokal",
+      solidBg: "bg-red-600",
+      softBg: "bg-red-100",
+      softText: "text-red-700",
+    },
+    {
+      id: "ujian_nasional",
+      examLabel: "National Exam",
+      name: "Ujian Nasional",
+      solidBg: "bg-blue-600",
+      softBg: "bg-blue-100",
+      softText: "text-blue-700",
+    },
+    {
+      id: "event_lokal",
+      examLabel: "Local Event",
+      name: "Event Lokal",
+      solidBg: "bg-green-600",
+      softBg: "bg-green-100",
+      softText: "text-green-700",
+    },
+    {
+      id: "event_nasional",
+      examLabel: "National Event",
+      name: "Event Nasional",
+      solidBg: "bg-orange-600",
+      softBg: "bg-orange-100",
+      softText: "text-orange-700",
+    },
+    {
+      id: "event_peer_group",
+      examLabel: "Peer Group International",
+      name: "Event Peer Group International",
+      solidBg: "bg-purple-600",
+      softBg: "bg-purple-100",
+      softText: "text-purple-700",
+    },
+    {
+      id: "event_peer_group_nasional",
+      examLabel: "Peer Group National",
+      name: "Event Peer Group National",
+      solidBg: "bg-indigo-600",
+      softBg: "bg-indigo-100",
+      softText: "text-indigo-700",
+    },
+  ];
+
+  const getTypeMeta = (type) => {
+    return (
+      eventTypes.find((t) => t.id === type) || {
+        id: String(type || ""),
+        examLabel: "Event",
+        name: "Event",
+        solidBg: "bg-blue-600",
+        softBg: "bg-blue-100",
+        softText: "text-blue-700",
+      }
+    );
+  };
+
+  const openDetailModal = (ev) => {
+    setSelectedEvent(ev);
+    setShowDetailModal(true);
+  };
+
+  const monthShortId = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+  const monthLongEn = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const formatIsoDate = (d) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const isValidDate = (d) => d instanceof Date && !Number.isNaN(d.getTime());
+
+  const parseLocalNoon = (value) => {
+    if (!value) return null;
+
+    if (value instanceof Date) {
+      const d = new Date(value);
+      d.setHours(12, 0, 0, 0);
+      return isValidDate(d) ? d : null;
+    }
+
+    const str = String(value);
+
+    if (str.includes("T") || str.includes(" ")) {
+      const d = new Date(str);
+      d.setHours(12, 0, 0, 0);
+      return isValidDate(d) ? d : null;
+    }
+
+    const d = new Date(`${str}T12:00:00`);
+    return isValidDate(d) ? d : null;
+  };
+
+  const formatExamDateLabel = (start, end) => {
+    if (!isValidDate(start) || !isValidDate(end)) return "-";
+    const sameDay = start.toDateString() === end.toDateString();
+    if (sameDay) {
+      const day = String(start.getDate()).padStart(2, "0");
+      return `${day} ${monthShortId[start.getMonth()]} ${start.getFullYear()}`;
+    }
+
+    if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+      return `${start.getDate()}-${end.getDate()} ${monthShortId[start.getMonth()]} ${start.getFullYear()}`;
+    }
+
+    return `${start.getDate()} ${monthShortId[start.getMonth()]} ${start.getFullYear()}-${end.getDate()} ${monthShortId[end.getMonth()]} ${end.getFullYear()}`;
+  };
+
+  const formatEventDateLabel = (start, end) => {
+    if (!isValidDate(start) || !isValidDate(end)) return "-";
+    const sameDay = start.toDateString() === end.toDateString();
+    if (sameDay) {
+      return `${start.getDate()} ${monthLongEn[start.getMonth()]} ${start.getFullYear()}`;
+    }
+
+    if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+      return `${start.getDate()}-${end.getDate()} ${monthLongEn[start.getMonth()]} ${start.getFullYear()}`;
+    }
+
+    return `${start.getDate()} ${monthLongEn[start.getMonth()]} ${start.getFullYear()}-${end.getDate()} ${monthLongEn[end.getMonth()]} ${end.getFullYear()}`;
+  };
+
+  useEffect(() => {
+    const fetchAgendaEvents = async () => {
+      try {
+        const from = new Date();
+        from.setHours(12, 0, 0, 0);
+
+        const to = new Date(from);
+        to.setDate(to.getDate() + 365);
+
+        const response = await api.get("/public/agenda-events", {
+          params: {
+            from: formatIsoDate(from),
+            to: formatIsoDate(to),
+          },
+        });
+
+        if (response.data?.status !== "success") {
+          setAgendaEvents([]);
+          return;
+        }
+
+        const data = Array.isArray(response.data?.data) ? response.data.data : [];
+        const sorted = [...data].sort((a, b) => {
+          const aDate = parseLocalNoon(a.start_date) ?? new Date(0);
+          const bDate = parseLocalNoon(b.start_date) ?? new Date(0);
+          return aDate - bDate;
+        });
+        setAgendaEvents(sorted);
+      } catch (e) {
+        setAgendaEvents([]);
+      }
+    };
+
+    fetchAgendaEvents();
+  }, []);
+
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
   };
@@ -160,88 +353,63 @@ export default function Homepage() {
     { icon: "mdi:bank", value: "20", label: "Study Program" }
   ];
 
-  // Upcoming Examination
-  const examinations = [
-    { 
-      date: "7 Dec 2025", 
-      status: "LOKAL", 
-      statusColor: "bg-purple-600",
-      title: "Pre-exam PPDS 1", 
-      location: "Auditorium RSUP" 
-    },
-    { 
-      date: "7 Dec 2025", 
-      status: "NASIONAL", 
-      statusColor: "bg-blue-600",
-      title: "Fellowship Admission Test", 
-      location: "Jakarta Convention Center" 
-    },
-    { 
-      date: "7 Dec 2025", 
-      status: "LOKAL", 
-      statusColor: "bg-red-600",
-      title: "Subspec Board Examination (Traumatology)", 
-      location: "RS Pendidikan" 
-    }
-  ];
+  const examinations = useMemo(() => {
+    const list = agendaEvents
+      .filter((ev) => String(ev.type || "").startsWith("ujian_"))
+      .slice(0, 3)
+      .map((ev) => {
+        const start = parseLocalNoon(ev.start_date);
+        const end = parseLocalNoon(ev.end_date) ?? start;
+        const meta = getTypeMeta(ev.type);
 
-  // Upcoming Event
-  const events = [
-    { 
-      date: "6-7 February 2026", 
-      title: "SRS Asia Pacific Meeting 2026",
-      description: "Scoliosis Research Society – Asia Pacific Meeting 2026",
-      location: "Fukuoka, Japan",
-      image: "/assets/images/event/srs.jpeg",
-      registration: "https://www.srs.org/Meetings-Conferences/Regional-Scientific-Meeting/RSM-2026",
-      badge: "Event"
-    },
-    { 
-      date: "11-13 March 2026", 
-      title: "CSRS-AP 2026",
-      description: "16th Annual Meeting of Cervical Spine Research Society – Asia Pacific",
-      location: "Shanghai International Convention Center, China",
-      image: "/assets/images/event/csrs-ap.jpeg",
-      registration: "https://www.csrs-ap2026.org/",
-      badge: "Event"
-    },
-    { 
-      date: "20-22 May 2026", 
-      title: "KSSS 2026",
-      description: "The 43rd International Congress of Korean Society of Spine Surgery",
-      location: "Lotte Hotel Seoul, South Korea",
-      image: "/assets/images/event/ksss.jpeg",
-      registration: "https://ksss2026.org/ksss/contents/01_06.php",
-      badge: "Event"
-    },
-    { 
-      date: "3-6 June 2026", 
-      title: "APSS Congress 2026",
-      description: "Asia Pacific Spine Society 32nd Annual Scientific Meeting and Philippine Spine Society Annual Meeting",
-      location: "Shangri-La Mactan, Cebu, Philippines",
-      image: "/assets/images/event/apss.jpeg",
-      registration: "www.apss2026ph.org",
-      badge: "Event"
-    },
-    { 
-      date: "18-20 June 2026", 
-      title: "Asia Spine 2026",
-      description: "The 17th Annual Meeting of Asia Spine",
-      location: "Osaka International Convention Center, Osaka, Japan",
-      image: "/assets/images/event/asia-spine.jpeg",
-      registration: "https://cs-oto3.com/nsj2026-17amoas/en-greeting.html",
-      badge: "Event"
-    },
-    { 
-      date: "16-18 July 2026", 
-      title: "SMISS-ASEAN MISST-SSS Combine Meeting 2026",
-      description: "Combine Meeting of Society for Minimally Invasive Spine Surgery – Asia Pacific (SMISS-AP), 6th Meeting - Singapore Spine Society (SSS), 9th Meeting",
-      location: "Shangri-La Hotel, Singapore",
-      image: "/assets/images/event/smiss.jpeg",
-      registration: "https://www.smiss-aseanmisst-sss2026.org/",
-      badge: "Event"
-    }
-  ];
+        return {
+          id: ev.id,
+          date: start && end ? formatExamDateLabel(start, end) : "-",
+          dateLabel: start && end ? formatExamDateLabel(start, end) : "-",
+          startDate: start,
+          endDate: end,
+          type: ev.type,
+          status: meta.examLabel || "Exam",
+          statusColor: meta.solidBg || "bg-blue-600",
+          title: ev.title,
+          location: ev.location || "",
+          description: ev.description,
+          registration: ev.registration_url,
+          image: ev.image_url,
+        };
+      });
+
+    return list;
+  }, [agendaEvents]);
+
+  const events = useMemo(() => {
+    const list = agendaEvents
+      .filter((ev) => String(ev.type || "").startsWith("event_"))
+      .slice(0, 6)
+      .map((ev) => {
+        const start = parseLocalNoon(ev.start_date);
+        const end = parseLocalNoon(ev.end_date) ?? start;
+        const meta = getTypeMeta(ev.type);
+
+        return {
+          id: ev.id,
+          date: start && end ? formatEventDateLabel(start, end) : "-",
+          dateLabel: start && end ? formatEventDateLabel(start, end) : "-",
+          startDate: start,
+          endDate: end,
+          type: ev.type,
+          title: ev.title,
+          description: ev.description,
+          location: ev.location || "",
+          image: ev.image_url,
+          registration: ev.registration_url,
+          badge: meta.examLabel || "Event",
+          badgeClass: `${meta.softBg || "bg-purple-100"} ${meta.softText || "text-purple-700"}`,
+        };
+      });
+
+    return list;
+  }, [agendaEvents]);
 
   // Educational Dashboard Programs
   const programs = [
@@ -631,21 +799,41 @@ export default function Homepage() {
           <h2 className="text-3xl font-bold text-gray-900 mb-8">Upcoming Examination</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {examinations.map((exam, index) => (
-              <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-300">
-                <div className="flex items-center justify-between mb-4">
+              <div
+                key={exam.id ?? index}
+                className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-300 cursor-pointer"
+                onClick={() => openDetailModal(exam)}
+              >
+                <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-700">{exam.date}</span>
+                    <span className="text-sm text-gray-700">{exam.date}</span>
                     <span className="text-gray-400">•</span>
-                    <span className={`${exam.statusColor} text-white text-xs font-bold px-3 py-1 rounded`}>
+                    <span className={`${exam.statusColor} text-white text-xs font-semibold px-3 py-1 rounded`}>
                       {exam.status}
                     </span>
                   </div>
-                  <Link 
-                    href="#" 
-                    className="text-blue-600 hover:text-blue-700 text-sm font-medium transition"
-                  >
-                    Detail
-                  </Link>
+                  {exam.registration ? (
+                    <a
+                      href={exam.registration}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-700 text-sm font-medium transition"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Detail
+                    </a>
+                  ) : (
+                    <button
+                      type="button"
+                      className="text-blue-600 hover:text-blue-700 text-sm font-medium transition"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openDetailModal(exam);
+                      }}
+                    >
+                      Detail
+                    </button>
+                  )}
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-2">
                   {exam.title}
@@ -663,7 +851,11 @@ export default function Homepage() {
           <h2 className="text-3xl font-bold text-gray-900 mb-8">Upcoming Event</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {events.map((event, index) => (
-              <div key={index} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300">
+              <div
+                key={event.id ?? index}
+                className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
+                onClick={() => openDetailModal(event)}
+              >
                 {/* Event Image */}
                 <div className="relative h-48 overflow-hidden">
                   <img 
@@ -682,7 +874,7 @@ export default function Homepage() {
                   <div className="flex items-center gap-2 mb-3">
                     <span className="text-sm font-medium text-gray-700">{event.date}</span>
                     <span className="text-gray-400">•</span>
-                    <span className="bg-purple-100 text-purple-700 text-xs font-semibold px-3 py-1 rounded">
+                    <span className={`${event.badgeClass || "bg-purple-100 text-purple-700"} text-xs font-semibold px-3 py-1 rounded`}>
                       {event.badge}
                     </span>
                   </div>
@@ -696,6 +888,7 @@ export default function Homepage() {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:text-blue-700 text-sm font-medium inline-flex items-center gap-1"
+                      onClick={(e) => e.stopPropagation()}
                     >
                       Registration <ChevronRight className="w-4 h-4" />
                     </a>
@@ -719,6 +912,88 @@ export default function Homepage() {
           </div>
         </div>
       </section>
+
+      {showDetailModal && selectedEvent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
+            <div className={`p-6 rounded-t-xl ${getTypeMeta(selectedEvent.type).solidBg}`}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-white" />
+                  <span className="text-white font-medium text-sm">
+                    {selectedEvent.dateLabel || selectedEvent.date || "-"}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setShowDetailModal(false)}
+                  className="text-white hover:text-gray-200 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <h3 className="text-xl font-bold text-white">{selectedEvent.title}</h3>
+            </div>
+            <div className="p-6">
+              {selectedEvent.image ? (
+                <div className="mb-4 overflow-hidden rounded-lg border border-gray-200">
+                  <img
+                    src={selectedEvent.image}
+                    alt={selectedEvent.title}
+                    className="w-full h-48 object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                </div>
+              ) : null}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-500 mb-1">Event Type</label>
+                <div className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full ${getTypeMeta(selectedEvent.type).solidBg}`}></div>
+                  <span className="text-gray-900 font-medium">{getTypeMeta(selectedEvent.type).name}</span>
+                </div>
+              </div>
+              {selectedEvent.description && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-500 mb-1">Description</label>
+                  <p className="text-gray-700">{selectedEvent.description}</p>
+                </div>
+              )}
+              {selectedEvent.location && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-500 mb-1">Location</label>
+                  <p className="text-gray-700 flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-gray-500" />
+                    {selectedEvent.location}
+                  </p>
+                </div>
+              )}
+              {selectedEvent.registration && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-500 mb-1">Registration</label>
+                  <a
+                    href={selectedEvent.registration}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-700 hover:underline break-all"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {selectedEvent.registration}
+                  </a>
+                </div>
+              )}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDetailModal(false)}
+                  className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </HomepageLayout>
   );

@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Collection;
 
 class Role extends Model
 {
@@ -12,24 +14,33 @@ class Role extends Model
     protected $fillable = [
         'name',
         'description',
-        'permissions',
         'is_active',
         'is_system',
     ];
 
     protected $casts = [
-        'permissions' => 'array',
         'is_active' => 'boolean',
         'is_system' => 'boolean',
     ];
 
-    public function users()
+    /**
+     * Get the users that have this role.
+     */
+    public function users(): BelongsToMany
     {
-        return $this->hasMany(User::class, 'role_id');
+        return $this->belongsToMany(User::class, 'user_has_roles');
     }
 
     /**
-     * Check if role has a specific permission
+     * Get the permissions for this role.
+     */
+    public function permissions(): BelongsToMany
+    {
+        return $this->belongsToMany(Permission::class, 'role_has_permissions');
+    }
+
+    /**
+     * Check if role has a specific permission.
      */
     public function hasPermission(string $permission): bool
     {
@@ -37,15 +48,15 @@ class Role extends Model
             return false;
         }
 
-        $permissions = $this->permissions ?? [];
+        $permissions = $this->permissions()->pluck('name');
         
         // Owner has all permissions
-        if (in_array('*', $permissions)) {
+        if ($permissions->contains('*')) {
             return true;
         }
 
         // Check exact permission
-        if (in_array($permission, $permissions)) {
+        if ($permissions->contains($permission)) {
             return true;
         }
 
@@ -62,6 +73,9 @@ class Role extends Model
         return false;
     }
 
+    /**
+     * Check if role has any of the given permissions.
+     */
     public function hasAnyPermission(array $permissions): bool
     {
         foreach ($permissions as $permission) {
@@ -72,6 +86,9 @@ class Role extends Model
         return false;
     }
 
+    /**
+     * Check if role has all of the given permissions.
+     */
     public function hasAllPermissions(array $permissions): bool
     {
         foreach ($permissions as $permission) {
@@ -83,46 +100,117 @@ class Role extends Model
     }
 
     /**
+     * Assign permission(s) to role.
+     */
+    public function givePermissionTo(string|array|Permission $permissions): self
+    {
+        $permissions = is_array($permissions) ? $permissions : [$permissions];
+
+        foreach ($permissions as $permission) {
+            $permModel = $permission instanceof Permission 
+                ? $permission 
+                : Permission::where('name', $permission)->firstOrFail();
+            $this->permissions()->syncWithoutDetaching($permModel);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove permission(s) from role.
+     */
+    public function revokePermissionTo(string|array|Permission $permissions): self
+    {
+        $permissions = is_array($permissions) ? $permissions : [$permissions];
+
+        foreach ($permissions as $permission) {
+            $permModel = $permission instanceof Permission 
+                ? $permission 
+                : Permission::where('name', $permission)->first();
+            if ($permModel) {
+                $this->permissions()->detach($permModel);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Sync permissions (replace all existing permissions).
+     * Creates permissions if they don't exist.
+     */
+    public function syncPermissions(array $permissions): self
+    {
+        $permissionIds = collect($permissions)->map(function ($permission) {
+            if ($permission instanceof Permission) {
+                return $permission->id;
+            }
+            
+            // Find or create permission
+            $perm = Permission::firstOrCreate(
+                ['name' => $permission],
+                [
+                    'display_name' => ucwords(str_replace(['.', '_', '-'], ' ', $permission)),
+                    'module' => explode('.', $permission)[0] ?? null,
+                ]
+            );
+            
+            return $perm->id;
+        });
+
+        $this->permissions()->sync($permissionIds);
+
+        return $this;
+    }
+
+    /**
+     * Get all permission names for this role.
+     */
+    public function getPermissionNames(): array
+    {
+        return $this->permissions()->pluck('name')->toArray();
+    }
+
+    /**
      * Get all available permissions in the system
      */
     public static function getAllPermissions(): array
     {
         return [
-            // Dashboard
             'dashboard.view',
-            
-            // Orders
-            'orders.view', 'orders.create', 'orders.edit', 'orders.delete',
-            'orders.print', 'orders.invoice', 'orders.shipping-label',
-            
-            // Products
-            'products.view', 'products.create', 'products.edit', 'products.delete',
-            'products.variants.view', 'products.variants.create', 'products.variants.edit', 'products.variants.delete',
-            
-            // Customers
-            'customers.view', 'customers.create', 'customers.edit', 'customers.delete',
-            'customers.addresses.view', 'customers.addresses.create', 'customers.addresses.edit', 'customers.addresses.delete',
-            
-            // Stock Management
-            'stock.view', 'stock.create', 'stock.edit', 'stock.delete',
-            'stock-movements.view', 'stock-movements.create', 'stock-movements.edit', 'stock-movements.delete',
-            'stock-opnames.view', 'stock-opnames.create', 'stock-opnames.edit', 'stock-opnames.delete',
-            
-            // Vouchers
-            'vouchers.view', 'vouchers.create', 'vouchers.edit', 'vouchers.delete',
-            
-            // Expenses
-            'expenses.view', 'expenses.create', 'expenses.edit', 'expenses.delete',
-            
-            // Reports
-            'reports.view', 'reports.sales', 'reports.stock', 'reports.user-performance', 'reports.payments',
-            'reports.export', 'reports.analyzer',
-            
-            // Settings
-            'settings.general', 'settings.order', 'settings.product', 'settings.customer',
-            'settings.payment', 'settings.courier', 'settings.courier-rates', 'settings.origin',
-            'settings.template', 'settings.dashboard', 'settings.api',
-            'settings.users', 'settings.roles'
+
+            'users.view',
+            'users.create',
+            'users.edit',
+            'users.delete',
+
+            'roles.view',
+            'roles.create',
+            'roles.edit',
+            'roles.delete',
+
+            'permissions.view',
+            'permissions.create',
+            'permissions.edit',
+            'permissions.delete',
+
+            'agenda.kolegium.view',
+            'agenda.kolegium.create',
+            'agenda.kolegium.edit',
+            'agenda.kolegium.delete',
+            'agenda.kolegium.publish',
+
+            'agenda.study_program.view',
+            'agenda.study_program.create',
+            'agenda.study_program.edit',
+            'agenda.study_program.delete',
+            'agenda.study_program.publish',
+
+            'agenda.peer_group.view',
+            'agenda.peer_group.create',
+            'agenda.peer_group.edit',
+            'agenda.peer_group.delete',
+            'agenda.peer_group.publish',
         ];
     }
 }

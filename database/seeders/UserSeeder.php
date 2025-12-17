@@ -14,34 +14,37 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get role IDs
-        $ownerRole = Role::where('name', 'owner')->first();
-        $adminRole = Role::where('name', 'admin')->first();
-        $staffRole = Role::where('name', 'staff')->first();
-        
         $users = [
             [
-                'name' => 'Owner Bisnis',
-                'email' => 'owner@gmail.com',
-                'password' => Hash::make('secret'),
-                'role_id' => $ownerRole?->id,
-                'is_active' => true,
-            ],
-            
-            [
-                'name' => 'Administrator',
+                'name' => 'Super Admin',
                 'email' => 'admin@gmail.com',
-                'password' => Hash::make('secret'),
-                'role_id' => $adminRole?->id,
+                'password' => Hash::make('password'),
                 'is_active' => true,
+                'role' => 'super_admin',
+            ],
+            [
+                'name' => 'Staff User',
+                'email' => 'staff@gmail.com',
+                'password' => Hash::make('password'),
+                'is_active' => true,
+                'role' => 'staff',
             ],
         ];
 
         foreach ($users as $userData) {
-            User::updateOrCreate(
+            $roleName = $userData['role'];
+            unset($userData['role']);
+
+            $user = User::updateOrCreate(
                 ['email' => $userData['email']],
                 $userData
             );
+
+            // Assign role
+            $role = Role::where('name', $roleName)->first();
+            if ($role) {
+                $user->syncRoles([$role]);
+            }
         }
     }
 }

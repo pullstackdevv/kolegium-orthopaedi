@@ -17,6 +17,15 @@ Route::get('/', function () {
 Route::get('/peer-group', function () {
     return Inertia::render('PeerGroup', ['layout' => 'HomepageLayout']);
 })->name('peer-group');
+
+// Peer Group Detail page
+Route::get('/peer-group/{id}', function ($id) {
+    return Inertia::render('PeerGroupDetail', [
+        'layout' => 'HomepageLayout',
+        'peerGroupId' => $id
+    ]);
+})->name('peer-group.detail');
+
 // Profile Study Program Routes - Public Access
 Route::get('/profile-study-program/ppds1', function () {
     return Inertia::render('ProfileStudyProgram/PPDS1');
@@ -57,6 +66,11 @@ Route::get('/calendar-academic', function () {
     return Inertia::render('CalendarAcademic');
 })->name('calendar.academic');
 
+// About Us Route - Public Access
+Route::get('/about-us', function () {
+    return Inertia::render('AboutUs');
+})->name('about.us');
+
 // Login routes
 Route::middleware('guest')->group(function () {
     // GET /cms/login - Show login page
@@ -91,13 +105,13 @@ Route::middleware([Authenticate::class, HandleInertiaRequests::class])
         })->name('logout');
 
         Route::get('/dashboard', function () {
-            return redirect()->route('cms.settings.user');
+            return redirect()->route('cms.coming-soon', ['slug' => 'dashboard']);
         })->name('dashboard');
 
 
         // Settings
         Route::get('/settings', function () {
-            return redirect()->route('cms.settings.user');
+            return Inertia::render('ComingSoon', ['slug' => 'settings-program']);
         })->name('settings.index');
 
         Route::get('/settings/user', function () {
@@ -108,18 +122,32 @@ Route::middleware([Authenticate::class, HandleInertiaRequests::class])
             return Inertia::render('Settings/index', ['activeMenu' => 'role']);
         })->name('settings.role');
 
+        Route::get('/settings/permission', function () {
+            return Inertia::render('Settings/index', ['activeMenu' => 'permission']);
+        })->name('settings.permission');
+
+        // Agenda
+        Route::get('/agenda', function () {
+            return Inertia::render('Agenda/index');
+        })->name('agenda.index');
+
         // User management routes
         Route::get('/settings/users/create', function () {
-            return Inertia::render('Settings/AddEditUser', ['mode' => 'create']);
+            return redirect()->route('cms.settings.user');
         })->name('settings.users.create');
 
         Route::get('/settings/users/{id}/edit', function ($id) {
-            return Inertia::render('Settings/AddEditUser', ['mode' => 'edit', 'userId' => $id]);
+            return redirect()->route('cms.settings.user');
         })->name('settings.users.edit');
 
 
         // Change Password Route
         Route::post('/change-password', [\App\Http\Controllers\UserController::class, 'changePasswordWeb'])->name('change-password');
+
+        // Generic coming soon page for not-yet-developed CMS menus
+        Route::get('/coming-soon/{slug}', function ($slug) {
+            return Inertia::render('ComingSoon', ['slug' => $slug]);
+        })->name('coming-soon');
 
     });
 

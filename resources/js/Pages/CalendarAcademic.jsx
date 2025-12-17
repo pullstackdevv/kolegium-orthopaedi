@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
-import { ChevronLeft, ChevronRight, Calendar, X, Plus, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar, X, Trash2, MapPin } from "lucide-react";
 import HomepageLayout from "../Layouts/HomepageLayout";
+import api from "@/api/axios";
 
 export default function CalendarAcademic() {
   const [currentMonth, setCurrentMonth] = useState(1); // February (0-indexed)
@@ -19,36 +20,31 @@ export default function CalendarAcademic() {
   const [events, setEvents] = useState([]);
 
   // Stats data
-  const stats = [
-    {
-      title: "Tahun Akademik",
-      value: "2024/2025",
-      icon: "mdi:calendar",
-      iconBg: "bg-blue-100",
-      iconColor: "text-blue-600"
-    },
-    {
-      title: "Semester Aktif",
-      value: "Ganjil",
-      icon: "mdi:play",
-      iconBg: "bg-green-100",
-      iconColor: "text-green-600"
-    },
-    {
-      title: "Hari Akademik",
-      value: "82",
-      icon: "mdi:calendar-today",
-      iconBg: "bg-orange-100",
-      iconColor: "text-orange-600"
-    },
-    {
-      title: "Ujian Besar",
-      value: "6",
-      icon: "mdi:clipboard-check",
-      iconBg: "bg-red-100",
-      iconColor: "text-red-600"
-    }
-  ];
+  const stats = useMemo(() => {
+    return [
+      {
+        title: "Academic Year",
+        value: academicYear.label,
+        icon: "mdi:calendar",
+        iconBg: "bg-blue-100",
+        iconColor: "text-blue-600",
+      },
+      {
+        title: "Examination Day",
+        value: String(academicYearCounts.exams),
+        icon: "mdi:briefcase",
+        iconBg: "bg-orange-100",
+        iconColor: "text-orange-600",
+      },
+      {
+        title: "Event Day",
+        value: String(academicYearCounts.agendaEvents),
+        icon: "mdi:calendar-check",
+        iconBg: "bg-red-100",
+        iconColor: "text-red-600",
+      },
+    ];
+  }, [academicYear.label, academicYearCounts.agendaEvents, academicYearCounts.exams]);
 
   // Event types with colors
   const eventTypes = [
@@ -314,20 +310,20 @@ export default function CalendarAcademic() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Title */}
           <h1 className="text-3xl font-bold text-blue-700 mb-8">
-            Calender Academic 2024/2025
+            Calender Academic {academicYear.label}
           </h1>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             {stats.map((stat, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-                <div className="flex items-center justify-between">
+              <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
-                    <p className="text-2xl font-bold text-blue-700">{stat.value}</p>
+                    <p className="text-sm text-gray-600 mb-2">{stat.title}</p>
+                    <p className="text-3xl font-bold text-blue-700">{stat.value}</p>
                   </div>
-                  <div className={`w-14 h-14 ${stat.iconBg} rounded-full flex items-center justify-center flex-shrink-0`}>
-                    <Icon icon={stat.icon} className={`w-7 h-7 ${stat.iconColor}`} />
+                  <div className={`w-16 h-16 ${stat.iconBg} rounded-full flex items-center justify-center flex-shrink-0`}>
+                    <Icon icon={stat.icon} className={`w-8 h-8 ${stat.iconColor}`} />
                   </div>
                 </div>
               </div>
@@ -499,7 +495,7 @@ export default function CalendarAcademic() {
                             className={`text-xs p-1 rounded ${eventColor.color} bg-opacity-20 ${eventColor.textColor} cursor-pointer hover:bg-opacity-30 transition-colors`}
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleEventClick(event);
+                              handleEventClick(event, true);
                             }}
                           >
                             {event.title}
@@ -632,7 +628,9 @@ export default function CalendarAcademic() {
                 <div className="flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-white" />
                   <span className="text-white font-medium text-sm">
-                    {new Date(selectedEvent.date).getDate()} {monthNames[new Date(selectedEvent.date).getMonth()]} {new Date(selectedEvent.date).getFullYear()}
+                    {selectedEventStartDate
+                      ? `${selectedEventStartDate.getDate()} ${monthNames[selectedEventStartDate.getMonth()]} ${selectedEventStartDate.getFullYear()}`
+                      : String(selectedEvent.date || "")}
                   </span>
                 </div>
                 <button
@@ -645,6 +643,18 @@ export default function CalendarAcademic() {
               <h3 className="text-xl font-bold text-white">{selectedEvent.title}</h3>
             </div>
             <div className="p-6">
+              {selectedEvent.image ? (
+                <div className="mb-4 overflow-hidden rounded-lg border border-gray-200">
+                  <img
+                    src={selectedEvent.image}
+                    alt={selectedEvent.title}
+                    className="w-full h-48 object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                </div>
+              ) : null}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-500 mb-1">Event Type</label>
                 <div className="flex items-center gap-2">
@@ -656,6 +666,28 @@ export default function CalendarAcademic() {
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-500 mb-1">Description</label>
                   <p className="text-gray-700">{selectedEvent.description}</p>
+                </div>
+              )}
+              {selectedEvent.location && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-500 mb-1">Location</label>
+                  <p className="text-gray-700 flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-gray-500" />
+                    {selectedEvent.location}
+                  </p>
+                </div>
+              )}
+              {selectedEvent.registration && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-500 mb-1">Registration</label>
+                  <a 
+                    href={selectedEvent.registration}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-700 hover:underline break-all"
+                  >
+                    {selectedEvent.registration}
+                  </a>
                 </div>
               )}
               <div className="flex gap-3">

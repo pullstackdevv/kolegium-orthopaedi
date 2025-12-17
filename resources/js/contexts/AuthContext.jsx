@@ -16,17 +16,32 @@ export const AuthProvider = ({ children }) => {
     
     const user = auth?.user || null;
     const role = user?.role || null;
-    const permissions = role?.permissions || [];
+    // Get permissions from user.permissions (all permissions including from roles)
+    const permissions = user?.permissions || [];
     
     // Check if user has permission
     const hasPermission = (permission) => {
+        if (!permission) return true;
         if (!permissions || permissions.length === 0) return false;
         
-        // Owner has all permissions
+        // Owner/wildcard has all permissions
         if (permissions.includes('*')) return true;
         
-        // Check specific permission
-        return permissions.includes(permission);
+        // Check exact permission
+        if (permissions.includes(permission)) return true;
+
+        // Check wildcard permissions (e.g., 'users.*' matches 'users.view',
+        // 'agenda.kolegium.*' matches 'agenda.kolegium.view')
+        for (const perm of permissions) {
+            if (typeof perm === 'string' && perm.endsWith('.*')) {
+                const prefix = perm.slice(0, -2);
+                if (permission.startsWith(prefix + '.')) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     };
     
     // Check if user has any of the permissions
@@ -62,10 +77,13 @@ export const AuthProvider = ({ children }) => {
         hasRole,
         hasAnyRole,
         isAuthenticated: !!user,
+        isSuperAdmin: hasRole('super_admin') || hasRole('owner'),
+        isAdminKolegium: hasRole('admin_kolegium'),
+        isAdminStudyProgram: hasRole('admin_study_program'),
+        isAdminPeerGroup: hasRole('admin_peer_group'),
         isOwner: hasRole('owner'),
         isAdmin: hasRole('admin'),
         isStaff: hasRole('staff'),
-        isCashier: hasRole('cashier')
     }), [user, role, permissions]);
     
     return (

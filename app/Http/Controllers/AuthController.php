@@ -25,13 +25,10 @@ class AuthController extends Controller
      */
     public function webLogin(Request $request)
     {
-        $validator = Validator::make(
-            $request->all(),
-            [
-                'email' => ['required', 'email'],
-                'password' => ['required'],
-            ],
-        );
+        $validator = Validator::make($request->all(), [
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
 
         if ($validator->fails()) {
             return response()->json([
@@ -43,8 +40,7 @@ class AuthController extends Controller
 
         try {
             $credentials = $request->only('email', 'password');
-    
-            // Attempt login with session
+
             if (!Auth::attempt($credentials, $request->filled('remember'))) {
                 return response()->json([
                     'status' => 'error',
@@ -63,14 +59,14 @@ class AuthController extends Controller
                 ], 403);
             }
 
-            // Regenerate session to prevent fixation
+            // Regenerate session
             $request->session()->regenerate();
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Login berhasil!',
                 'data' => [
-                    'user' => $user->load('role')
+                    'user' => $user->load('roles')
                 ]
             ]);
 
@@ -122,7 +118,7 @@ class AuthController extends Controller
         return ResponseFormatter::success(
             message: "Successfully logged in",
             data: [
-                'user' => $user,
+                'user' => $user->load('roles'),
                 'token' => $token,
             ],
         );
@@ -230,7 +226,7 @@ class AuthController extends Controller
         try {
             return ResponseFormatter::success(
                 message: "User data retrieved successfully",
-                data: $request->user()
+                data: $request->user()->load('roles')
             );
         } catch (\Throwable $th) {
             return ResponseFormatter::error(

@@ -7,32 +7,24 @@ export default function Subspesialis() {
       code: "FK",
       name: "FK-UI",
       fullName: "Universitas Indonesia",
-      description: "Program lanjutan untuk Traumatologi — manajemen trauma & rekonstruksi.",
+      description: "The subspecialist specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 50
+      students: 77
     },
     {
       code: "FK",
-      name: "FK-UI",
+      name: "FK-UNAIR",
       fullName: "Universitas Indonesia",
-      description: "Program lanjutan untuk Traumatologi — manajemen trauma & rekonstruksi.",
+      description: "The subspecialist specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 50
-    },
-    {
-      code: "FK",
-      name: "FK-UI",
-      fullName: "Universitas Indonesia",
-      description: "Program lanjutan untuk Traumatologi — manajemen trauma & rekonstruksi.",
-      kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 50
+      students: 88
     }
   ];
 
   const tabs = [
     { name: "PPDS1", href: "/profile-study-program/ppds1", active: false },
     { name: "Clinical Fellowship", href: "/profile-study-program/clinical-fellowship", active: false },
-    { name: "Subspesialis", href: "/profile-study-program/subspesialis", active: true }
+    { name: "Subspesialist", href: "/profile-study-program/subspesialis", active: true }
   ];
 
   return (
@@ -73,7 +65,7 @@ export default function Subspesialis() {
       <section className="bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold" style={{ color: '#254D95' }}>Profil Program Studi</h1>
+            <h1 className="text-3xl font-bold" style={{ color: '#254D95' }}>Study Program Profile</h1>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {universities.map((university, index) => (
@@ -99,8 +91,7 @@ export default function Subspesialis() {
 
                 <div className="pt-4 border-t border-gray-200">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Mahasiswa Aktif</span>
-                    <span className="text-lg font-bold text-blue-600">: {university.students}</span>
+                    <span className="text-sm text-gray-600">Active Trainee : {university.students}</span>
                   </div>
                 </div>
               </Link>

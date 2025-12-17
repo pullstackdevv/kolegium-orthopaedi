@@ -25,3 +25,4 @@ Thumbs.db
 
 # Documentation (local only - tidak ikut di push)
 DOCUMENTATION.md
+*.md

@@ -31,11 +31,12 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             UserSeeder::class,
+            HomepageAgendaEventsSeeder::class,
         ]);
 
         $this->command->info('Kolegium database seeded successfully!');
         $this->command->info('Default users:');
-        $this->command->info('- Super Admin: admin@kolegium.id / password');
-        $this->command->info('- Staff: staff@kolegium.id / password');
+        $this->command->info('- Super Admin: admin@gmail.com / password');
+        $this->command->info('- Staff: staff@gmail.com / password');
     }
 }
