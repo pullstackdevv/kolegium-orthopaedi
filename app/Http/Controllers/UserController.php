@@ -44,7 +44,22 @@ class UserController extends Controller
             }, function ($query) {
                 $query->latest();
             })
-            ->paginate($request->per_page ?? 10);
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'is_active' => $user->is_active,
+                    'role' => $user->roles->first() ? [
+                        'id' => $user->roles->first()->id,
+                        'name' => $user->roles->first()->name,
+                        'description' => $user->roles->first()->description,
+                    ] : null,
+                    'created_at' => $user->created_at,
+                    'updated_at' => $user->updated_at,
+                ];
+            });
 
         return response()->json([
             'status' => 'success',
