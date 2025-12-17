@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Role;
+use App\Models\Permission;
 
 class RoleSeeder extends Seeder
 {
@@ -12,22 +13,99 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
+        $permissionNames = [
+            'dashboard.view',
+
+            'users.view',
+            'users.create',
+            'users.edit',
+            'users.delete',
+
+            'roles.view',
+            'roles.create',
+            'roles.edit',
+            'roles.delete',
+
+            'permissions.view',
+            'permissions.create',
+            'permissions.edit',
+            'permissions.delete',
+
+            'agenda.kolegium.view',
+            'agenda.kolegium.create',
+            'agenda.kolegium.edit',
+            'agenda.kolegium.delete',
+            'agenda.kolegium.publish',
+
+            'agenda.study_program.view',
+            'agenda.study_program.create',
+            'agenda.study_program.edit',
+            'agenda.study_program.delete',
+            'agenda.study_program.publish',
+
+            'agenda.peer_group.view',
+            'agenda.peer_group.create',
+            'agenda.peer_group.edit',
+            'agenda.peer_group.delete',
+            'agenda.peer_group.publish',
+        ];
+
+        foreach ($permissionNames as $permissionName) {
+            Permission::firstOrCreate(
+                ['name' => $permissionName],
+                [
+                    'display_name' => ucwords(str_replace(['.', '_', '-'], ' ', $permissionName)),
+                    'module' => explode('.', $permissionName)[0] ?? null,
+                ]
+            );
+        }
+
         $roles = [
             [
-                'name' => 'owner',
+                'name' => 'super_admin',
                 'description' => 'Akses penuh ke semua fitur sistem',
-                'permissions' => ['*'], // All permissions
+                'permissions' => ['*'],
                 'is_active' => true,
                 'is_system' => true
             ],
             [
-                'name' => 'admin',
-                'description' => 'Akses ke semua fitur kecuali management user',
+                'name' => 'admin_kolegium',
+                'description' => 'Mengelola konten untuk Kolegium',
                 'permissions' => [
                     'dashboard.view',
-                    'users.view', 'users.create', 'users.edit',
-                    'roles.view',
-                    'settings.view', 'settings.edit',
+                    'agenda.kolegium.view',
+                    'agenda.kolegium.create',
+                    'agenda.kolegium.edit',
+                    'agenda.kolegium.delete',
+                    'agenda.kolegium.publish',
+                ],
+                'is_active' => true,
+                'is_system' => true
+            ],
+            [
+                'name' => 'admin_study_program',
+                'description' => 'Mengelola konten untuk Study Program',
+                'permissions' => [
+                    'dashboard.view',
+                    'agenda.study_program.view',
+                    'agenda.study_program.create',
+                    'agenda.study_program.edit',
+                    'agenda.study_program.delete',
+                    'agenda.study_program.publish',
+                ],
+                'is_active' => true,
+                'is_system' => true
+            ],
+            [
+                'name' => 'admin_peer_group',
+                'description' => 'Mengelola konten untuk Peer Group',
+                'permissions' => [
+                    'dashboard.view',
+                    'agenda.peer_group.view',
+                    'agenda.peer_group.create',
+                    'agenda.peer_group.edit',
+                    'agenda.peer_group.delete',
+                    'agenda.peer_group.publish',
                 ],
                 'is_active' => true,
                 'is_system' => true

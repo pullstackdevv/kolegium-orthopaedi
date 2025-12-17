@@ -76,7 +76,13 @@ export function AppSidebar({ user }) {
             <SidebarGroupContent>
               <SidebarMenu>
                 {group.items.map((item, itemIndex) => (
-                  <PermissionGuard key={itemIndex} permission={item.permission}>
+                  <PermissionGuard
+                    key={itemIndex}
+                    permission={item.permission}
+                    permissions={item.permissions}
+                    role={item.role}
+                    roles={item.roles}
+                  >
                     <SidebarMenuItem>
                       <SidebarMenuButton
                         asChild

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
-import { ChevronLeft, ChevronRight, Calendar, X, Plus, Trash2, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar, X, Trash2, MapPin } from "lucide-react";
 import HomepageLayout from "../Layouts/HomepageLayout";
+import api from "@/api/axios";
 
 export default function CalendarAcademic() {
   const [currentMonth, setCurrentMonth] = useState(10); // November (0-indexed)
@@ -25,85 +26,53 @@ export default function CalendarAcademic() {
   tomorrow.setDate(todayDate.getDate() + 1);
   
   const nextWeekDate = new Date(todayDate);
-  nextWeekDate.setDate(todayDate.getDate() + 5);
+  nextWeekDate.setDate(todayDate.getDate() + 7);
   
-  const [events, setEvents] = useState([
-    {
-      id: 1,
-      date: new Date(2025, 11, 6), // December 6, 2025
-      title: "National Board Examination (Session 2)",
-      type: "ujian_nasional",
-      description: "National board examination for PPDS 1"
-    },
-    {
-      id: 2,
-      date: new Date(todayDate),
-      title: "23 National Congress",
-      type: "event_nasional",
-      description: "Indonesian Orthopaedic Association National Congress"
-    },
-    {
-      id: 3,
-      date: new Date(nextWeekDate),
-      title: "Presentasi Final Paper Kandidat",
-      type: "event_peer_group",
-      description: "Presentasi akhir paper untuk kandidat"
-    },
-    {
-      id: 4,
-      date: new Date(2026, 1, 6), // February 6, 2026
-      title: "SRS Asia Pacific Meeting 2026",
-      type: "event_nasional",
-      description: "Scoliosis Research Society – Asia Pacific Meeting 2026. Location: Fukuoka, Japan",
-      location: "Fukuoka, Japan",
-      registration: "https://www.srs.org/Meetings-Conferences/Regional-Scientific-Meeting/RSM-2026"
-    },
-    {
-      id: 5,
-      date: new Date(2026, 2, 11), // March 11, 2026
-      title: "CSRS-AP 2026",
-      type: "event_nasional",
-      description: "16th Annual Meeting of Cervical Spine Research Society – Asia Pacific. Location: Shanghai International Convention Center, China",
-      location: "Shanghai International Convention Center, China",
-      registration: "https://www.csrs-ap2026.org/"
-    },
-    {
-      id: 6,
-      date: new Date(2026, 4, 20), // May 20, 2026
-      title: "KSSS 2026",
-      type: "event_nasional",
-      description: "The 43rd International Congress of Korean Society of Spine Surgery. Location: Lotte Hotel Seoul, South Korea",
-      location: "Lotte Hotel Seoul, South Korea",
-      registration: "https://ksss2026.org/ksss/contents/01_06.php"
-    },
-    {
-      id: 7,
-      date: new Date(2026, 5, 3), // June 3, 2026
-      title: "APSS Congress 2026",
-      type: "event_nasional",
-      description: "Asia Pacific Spine Society 32nd Annual Scientific Meeting and Philippine Spine Society Annual Meeting. Location: Shangri-La Mactan, Cebu, Philippines",
-      location: "Shangri-La Mactan, Cebu, Philippines",
-      registration: "www.apss2026ph.org"
-    },
-    {
-      id: 8,
-      date: new Date(2026, 5, 18), // June 18, 2026
-      title: "Asia Spine 2026",
-      type: "event_nasional",
-      description: "The 17th Annual Meeting of Asia Spine. Location: Osaka International Convention Center, Osaka, Japan",
-      location: "Osaka International Convention Center, Osaka, Japan",
-      registration: "https://cs-oto3.com/nsj2026-17amoas/en-greeting.html"
-    },
-    {
-      id: 9,
-      date: new Date(2026, 6, 16), // July 16, 2026
-      title: "SMISS-ASEAN MISST-SSS Combine Meeting 2026",
-      type: "event_nasional",
-      description: "Combine Meeting of Society for Minimally Invasive Spine Surgery – Asia Pacific (SMISS-AP), 6th Meeting - Singapore Spine Society (SSS), 9th Meeting. Location: Shangri-La Hotel, Singapore",
-      location: "Shangri-La Hotel, Singapore",
-      registration: "https://www.smiss-aseanmisst-sss2026.org/"
-    }
-  ]);
+  const [events, setEvents] = useState([]);
+
+  useEffect(() => {
+    const fetchAgendaEvents = async () => {
+      try {
+        const response = await api.get("/public/agenda-events", {
+          params: {
+            scope: "kolegium",
+          },
+        });
+
+        if (response.data?.status !== "success") {
+          setEvents([]);
+          return;
+        }
+
+        const mapped = (response.data?.data || []).map((ev) => {
+          const start = new Date(ev.start_date);
+          start.setHours(12, 0, 0, 0);
+
+          const end = ev.end_date ? new Date(ev.end_date) : new Date(ev.start_date);
+          end.setHours(12, 0, 0, 0);
+
+          return {
+            id: ev.id,
+            date: start,
+            startDate: start,
+            endDate: end,
+            title: ev.title,
+            type: ev.type,
+            description: ev.description,
+            location: ev.location,
+            registration: ev.registration_url,
+            image: ev.image_url,
+          };
+        });
+
+        setEvents(mapped);
+      } catch (e) {
+        setEvents([]);
+      }
+    };
+
+    fetchAgendaEvents();
+  }, []);
 
   // Stats data
   const stats = [
@@ -139,74 +108,22 @@ export default function CalendarAcademic() {
     { id: "event_peer_group", name: "Event Peer Group", color: "bg-purple-500", textColor: "text-purple-700" }
   ];
 
-  const new_events = [
-    { 
-      date: "6-7 February 2026", 
-      title: "SRS Asia Pacific Meeting 2026",
-      description: "Scoliosis Research Society – Asia Pacific Meeting 2026",
-      location: "Fukuoka, Japan",
-      image: "/assets/images/event/srs.jpeg",
-      registration: "https://www.srs.org/Meetings-Conferences/Regional-Scientific-Meeting/RSM-2026",
-      badge: "Event"
-    },
-    { 
-      date: "11-13 March 2026", 
-      title: "CSRS-AP 2026",
-      description: "16th Annual Meeting of Cervical Spine Research Society – Asia Pacific",
-      location: "Shanghai International Convention Center, China",
-      image: "/assets/images/event/csrs-ap.jpeg",
-      registration: "https://www.csrs-ap2026.org/",
-      badge: "Event"
-    },
-    { 
-      date: "20-22 May 2026", 
-      title: "KSSS 2026",
-      description: "The 43rd International Congress of Korean Society of Spine Surgery",
-      location: "Lotte Hotel Seoul, South Korea",
-      image: "/assets/images/event/ksss.jpeg",
-      registration: "https://ksss2026.org/ksss/contents/01_06.php",
-      badge: "Event"
-    },
-    { 
-      date: "3-6 June 2026", 
-      title: "APSS Congress 2026",
-      description: "Asia Pacific Spine Society 32nd Annual Scientific Meeting and Philippine Spine Society Annual Meeting",
-      location: "Shangri-La Mactan, Cebu, Philippines",
-      image: "/assets/images/event/apss.jpeg",
-      registration: "https://www.apss2026ph.org",
-      badge: "Event"
-    },
-    { 
-      date: "18-20 June 2026", 
-      title: "Asia Spine 2026",
-      description: "The 17th Annual Meeting of Asia Spine",
-      location: "Osaka International Convention Center, Osaka, Japan",
-      image: "/assets/images/event/asia-spine.jpeg",
-      registration: "https://cs-oto3.com/nsj2026-17amoas/en-greeting.html",
-      badge: "Event"
-    },
-    { 
-      date: "16-18 July 2026", 
-      title: "SMISS-ASEAN MISST-SSS Combine Meeting 2026",
-      description: "Combine Meeting of Society for Minimally Invasive Spine Surgery – Asia Pacific (SMISS-AP), 6th Meeting - Singapore Spine Society (SSS), 9th Meeting",
-      location: "Shangri-La Hotel, Singapore",
-      image: "/assets/images/event/smiss.jpeg",
-      registration: "https://www.smiss-aseanmisst-sss2026.org/",
-      badge: "Event"
-    }
-  ];
-
   const getEventColor = (type) => {
     const eventType = eventTypes.find(t => t.id === type);
     return eventType || eventTypes[0];
   };
 
   const getEventsForDate = (day, month, year) => {
+    const target = new Date(year, month, day);
+    target.setHours(12, 0, 0, 0);
+
     return events.filter(event => {
-      const eventDate = new Date(event.date);
-      return eventDate.getDate() === day && 
-             eventDate.getMonth() === month && 
-             eventDate.getFullYear() === year;
+      const start = event.startDate ? new Date(event.startDate) : new Date(event.date);
+      const end = event.endDate ? new Date(event.endDate) : new Date(event.date);
+      start.setHours(12, 0, 0, 0);
+      end.setHours(12, 0, 0, 0);
+
+      return target >= start && target <= end;
     });
   };
 
@@ -236,8 +153,10 @@ export default function CalendarAcademic() {
 
   const handleDateClick = (day, isCurrentMonth) => {
     if (!isCurrentMonth) return;
-    setSelectedDate({ day, month: currentMonth, year: currentYear });
-    setShowEventModal(true);
+    const dayEvents = getEventsForDate(day, currentMonth, currentYear);
+    if (dayEvents.length > 0) {
+      handleEventClick(dayEvents[0], true);
+    }
   };
 
   const handleEventClick = (event, viewOnly = false) => {
@@ -272,10 +191,15 @@ export default function CalendarAcademic() {
   // Get ongoing events (events happening today)
   const getOngoingEvents = () => {
     return events.filter(event => {
-      const eventDate = new Date(event.date);
-      return eventDate.getDate() === today.getDate() &&
-             eventDate.getMonth() === today.getMonth() &&
-             eventDate.getFullYear() === today.getFullYear();
+      const start = event.startDate ? new Date(event.startDate) : new Date(event.date);
+      const end = event.endDate ? new Date(event.endDate) : new Date(event.date);
+      start.setHours(12, 0, 0, 0);
+      end.setHours(12, 0, 0, 0);
+
+      const t = new Date(today);
+      t.setHours(12, 0, 0, 0);
+
+      return t >= start && t <= end;
     });
   };
   
@@ -289,55 +213,72 @@ export default function CalendarAcademic() {
 
   // Get upcoming tests (next 7 days)
   const getUpcomingTests = () => {
-    const today = new Date(2025, 11, 6);
-    today.setHours(0, 0, 0, 0); // Reset to start of day
-    const nextWeek = new Date(today);
-    nextWeek.setDate(today.getDate() + 7);
-    nextWeek.setHours(23, 59, 59, 999); // End of day
+    const start = new Date();
+    start.setHours(12, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 7);
+    end.setHours(12, 0, 0, 0);
     
     return events.filter(event => {
-      const eventDate = new Date(event.date);
-      eventDate.setHours(0, 0, 0, 0); // Reset to start of day for comparison
+      const eventDate = event.startDate ? new Date(event.startDate) : new Date(event.date);
+      eventDate.setHours(12, 0, 0, 0);
       const isTest = event.type === 'ujian_lokal' || event.type === 'ujian_nasional';
-      return isTest && eventDate >= today && eventDate <= nextWeek;
+      return isTest && eventDate >= start && eventDate <= end;
     });
   };
   
   // Format date range for upcoming tests
   const getUpcomingTestDateRange = () => {
-    const today = new Date(2025, 11, 6);
-    const nextWeek = new Date(today);
-    nextWeek.setDate(today.getDate() + 1);
+    const start = new Date();
+    start.setHours(12, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 7);
+    end.setHours(12, 0, 0, 0);
     
-    return `${today.getDate()} ${monthNames[today.getMonth()].slice(0, 3)} ${today.getFullYear()} - ${nextWeek.getDate()} ${monthNames[nextWeek.getMonth()].slice(0, 3)} ${nextWeek.getFullYear()}`;
+    return `${start.getDate()} ${monthNames[start.getMonth()].slice(0, 3)} ${start.getFullYear()} - ${end.getDate()} ${monthNames[end.getMonth()].slice(0, 3)} ${end.getFullYear()}`;
   };
 
   // Get upcoming events (next 7 days, excluding tests)
   const getUpcomingEvents = () => {
-    // const today = new Date();
-    // today.setHours(0, 0, 0, 0);
-    // const nextWeek = new Date(today);
-    // nextWeek.setDate(today.getDate() + 7);
-    // nextWeek.setHours(23, 59, 59, 999);
-    
-    // return events.filter(event => {
-    //   const eventDate = new Date(event.date);
-    //   eventDate.setHours(0, 0, 0, 0);
-    //   const isEvent = event.type !== 'ujian_lokal' && event.type !== 'ujian_nasional';
-    //   return isEvent && eventDate >= today && eventDate <= nextWeek;
-    // });
+    const start = new Date();
+    start.setHours(12, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 180);
+    end.setHours(12, 0, 0, 0);
 
-    return  new_events;
+    const isEventType = (type) => type !== 'ujian_lokal' && type !== 'ujian_nasional';
+
+    return events
+      .filter((event) => {
+        const eventDate = event.startDate ? new Date(event.startDate) : new Date(event.date);
+        eventDate.setHours(12, 0, 0, 0);
+        return isEventType(event.type) && eventDate >= start && eventDate <= end;
+      })
+      .map((event) => {
+        const startDate = event.startDate ? new Date(event.startDate) : new Date(event.date);
+        const endDate = event.endDate ? new Date(event.endDate) : startDate;
+
+        const startLabel = `${startDate.getDate()} ${monthNames[startDate.getMonth()].slice(0, 3)} ${startDate.getFullYear()}`;
+        const endLabel = `${endDate.getDate()} ${monthNames[endDate.getMonth()].slice(0, 3)} ${endDate.getFullYear()}`;
+
+        return {
+          ...event,
+          date: startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`,
+          badge: "Event",
+        };
+      });
   };
 
   
   // Format date range for upcoming events
   const getUpcomingEventDateRange = () => {
-    const today = new Date(2026, 1, 6);
-    const nextWeek = new Date(today);
-    nextWeek.setDate(today.getDate() + 162);
+    const start = new Date();
+    start.setHours(12, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 180);
+    end.setHours(12, 0, 0, 0);
     
-    return `${today.getDate()} ${monthNames[today.getMonth()].slice(0, 3)} ${today.getFullYear()} - ${nextWeek.getDate()} ${monthNames[nextWeek.getMonth()].slice(0, 3)} ${nextWeek.getFullYear()}`;
+    return `${start.getDate()} ${monthNames[start.getMonth()].slice(0, 3)} ${start.getFullYear()} - ${end.getDate()} ${monthNames[end.getMonth()].slice(0, 3)} ${end.getFullYear()}`;
   };
 
   // Calendar data
@@ -523,7 +464,7 @@ export default function CalendarAcademic() {
                         <div 
                           key={`event-${index}`} 
                           className="flex-shrink-0 w-80 bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
-                          onClick={() => handleEventClick(event)}
+                          onClick={() => handleEventClick(event, true)}
                         >
                           <div className="relative bg-gradient-to-br from-red-700 to-red-900 h-40">
                             <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-r from-red-800 via-green-600 to-blue-600 opacity-80"></div>
@@ -585,7 +526,7 @@ export default function CalendarAcademic() {
                       <div 
                         key={index} 
                         className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
-                        onClick={() => handleEventClick(test)}
+                        onClick={() => handleEventClick(test, true)}
                       >
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-sm text-gray-600">
@@ -751,7 +692,7 @@ export default function CalendarAcademic() {
                             className={`text-xs p-1 rounded ${eventColor.color} bg-opacity-20 ${eventColor.textColor} cursor-pointer hover:bg-opacity-30 transition-colors`}
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleEventClick(event);
+                              handleEventClick(event, true);
                             }}
                           >
                             {event.title}

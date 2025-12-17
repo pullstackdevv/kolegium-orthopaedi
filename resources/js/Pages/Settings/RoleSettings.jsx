@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ShieldCheck, Pencil, AlertCircle, Loader2, Plus } from "lucide-react";
 import api from "@/api/axios";
 import Swal from "sweetalert2";
+import PermissionGuard from "@/components/PermissionGuard";
 
 // Shadcn UI Components
 import { Button } from "@/components/ui/button";
@@ -43,7 +44,10 @@ export default function RoleSettings() {
     'Dashboard': ['dashboard.view'],
     'Users': ['users.view', 'users.create', 'users.edit', 'users.delete'],
     'Roles': ['roles.view', 'roles.create', 'roles.edit', 'roles.delete'],
-    'Settings': ['settings.view', 'settings.edit'],
+    'Permissions': ['permissions.view', 'permissions.create', 'permissions.edit', 'permissions.delete'],
+    'Agenda - Kolegium': ['agenda.kolegium.view', 'agenda.kolegium.create', 'agenda.kolegium.edit', 'agenda.kolegium.delete', 'agenda.kolegium.publish'],
+    'Agenda - Study Program': ['agenda.study_program.view', 'agenda.study_program.create', 'agenda.study_program.edit', 'agenda.study_program.delete', 'agenda.study_program.publish'],
+    'Agenda - Peer Group': ['agenda.peer_group.view', 'agenda.peer_group.create', 'agenda.peer_group.edit', 'agenda.peer_group.delete', 'agenda.peer_group.publish'],
   };
 
   useEffect(() => {
@@ -245,10 +249,11 @@ export default function RoleSettings() {
 
   const getRoleLabel = (role) => {
     const roleLabels = {
-      'owner': 'Owner',
-      'admin': 'Administrator', 
+      'super_admin': 'Super Admin',
+      'admin_kolegium': 'Admin Kolegium',
+      'admin_study_program': 'Admin Study Program',
+      'admin_peer_group': 'Admin Peer Group',
       'staff': 'Staff',
-      'warehouse': 'Staff Gudang'
     };
     return roleLabels[role] || role;
   };
@@ -267,10 +272,12 @@ export default function RoleSettings() {
             Kelola role dan hak akses pengguna dalam sistem.
           </p>
         </div>
-        <Button onClick={openCreateModal} size="sm">
-          <Plus className="h-4 w-4 mr-2" />
-          Tambah Role
-        </Button>
+        <PermissionGuard permission="roles.create">
+          <Button onClick={openCreateModal} size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            Tambah Role
+          </Button>
+        </PermissionGuard>
       </div>
 
       {loading ? (
@@ -315,10 +322,12 @@ export default function RoleSettings() {
                       {role.description || 'Tidak ada deskripsi'}
                     </CardDescription>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => openEditModal(role)}>
-                    <Pencil className="h-3.5 w-3.5 mr-1.5" />
-                    Edit
-                  </Button>
+                  <PermissionGuard permission="roles.edit">
+                    <Button variant="outline" size="sm" onClick={() => openEditModal(role)}>
+                      <Pencil className="h-3.5 w-3.5 mr-1.5" />
+                      Edit
+                    </Button>
+                  </PermissionGuard>
                 </CardHeader>
                 <CardContent className="pt-0">
                   <div className="space-y-2">

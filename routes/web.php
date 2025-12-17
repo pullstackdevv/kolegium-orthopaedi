@@ -105,7 +105,7 @@ Route::middleware([Authenticate::class, HandleInertiaRequests::class])
         })->name('logout');
 
         Route::get('/dashboard', function () {
-            return redirect()->route('cms.settings.user');
+            return redirect()->route('cms.coming-soon', ['slug' => 'dashboard']);
         })->name('dashboard');
 
 
@@ -126,13 +126,18 @@ Route::middleware([Authenticate::class, HandleInertiaRequests::class])
             return Inertia::render('Settings/index', ['activeMenu' => 'permission']);
         })->name('settings.permission');
 
+        // Agenda
+        Route::get('/agenda', function () {
+            return Inertia::render('Agenda/index');
+        })->name('agenda.index');
+
         // User management routes
         Route::get('/settings/users/create', function () {
-            return Inertia::render('Settings/AddEditUser', ['mode' => 'create']);
+            return redirect()->route('cms.settings.user');
         })->name('settings.users.create');
 
         Route::get('/settings/users/{id}/edit', function ($id) {
-            return Inertia::render('Settings/AddEditUser', ['mode' => 'edit', 'userId' => $id]);
+            return redirect()->route('cms.settings.user');
         })->name('settings.users.edit');
 
 

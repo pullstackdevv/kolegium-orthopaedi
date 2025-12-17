@@ -1,0 +1,231 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\AgendaEvent;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
+class AgendaEventController extends Controller
+{
+    private function scopePermission(string $scope, string $action): string
+    {
+        return "agenda.{$scope}.{$action}";
+    }
+
+    private function ensurePermission(string $scope, string $action): ?JsonResponse
+    {
+        $authUser = Auth::user();
+
+        if (!$authUser instanceof User) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized.'
+            ], 403);
+        }
+
+        if (!$authUser->hasPermission($this->scopePermission($scope, $action))) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized.'
+            ], 403);
+        }
+
+        return null;
+    }
+
+    public function publicIndex(Request $request): JsonResponse
+    {
+        $query = AgendaEvent::query()->where('is_published', true);
+
+        if ($request->filled('scope')) {
+            $query->where('scope', $request->string('scope')->toString());
+        }
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->string('type')->toString());
+        }
+
+        if ($request->filled('from')) {
+            $query->whereDate('start_date', '>=', $request->string('from')->toString());
+        }
+
+        if ($request->filled('to')) {
+            $query->whereDate('start_date', '<=', $request->string('to')->toString());
+        }
+
+        $events = $query->orderBy('start_date')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $events,
+        ]);
+    }
+
+    public function index(Request $request): JsonResponse
+    {
+        $scope = $request->string('scope', 'kolegium')->toString();
+
+        if ($resp = $this->ensurePermission($scope, 'view')) {
+            return $resp;
+        }
+
+        $query = AgendaEvent::query()->where('scope', $scope);
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->string('type')->toString());
+        }
+
+        if ($request->filled('from')) {
+            $query->whereDate('start_date', '>=', $request->string('from')->toString());
+        }
+
+        if ($request->filled('to')) {
+            $query->whereDate('start_date', '<=', $request->string('to')->toString());
+        }
+
+        $events = $query->orderByDesc('start_date')->paginate($request->integer('per_page', 10));
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $events,
+        ]);
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'scope' => 'required|string|in:kolegium,study_program,peer_group',
+            'type' => 'required|string|in:ujian_lokal,ujian_nasional,event_lokal,event_nasional,event_peer_group',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'location' => 'nullable|string|max:255',
+            'registration_url' => 'nullable|string|max:500',
+            'image_url' => 'nullable|string|max:500',
+            'start_date' => 'required|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'is_published' => 'sometimes|boolean',
+        ]);
+
+        $scope = $validated['scope'];
+
+        if ($resp = $this->ensurePermission($scope, 'create')) {
+            return $resp;
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $authUser = Auth::user();
+
+            $event = AgendaEvent::create([
+                ...$validated,
+                'created_by' => $authUser instanceof User ? $authUser->id : null,
+            ]);
+
+            if (($validated['is_published'] ?? false) === true) {
+                $event->update([
+                    'published_at' => now(),
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Agenda event created successfully',
+                'data' => $event,
+            ], 201);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function update(Request $request, AgendaEvent $agendaEvent): JsonResponse
+    {
+        $validated = $request->validate([
+            'type' => 'sometimes|required|string|in:ujian_lokal,ujian_nasional,event_lokal,event_nasional,event_peer_group',
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'nullable|string',
+            'location' => 'nullable|string|max:255',
+            'registration_url' => 'nullable|string|max:500',
+            'image_url' => 'nullable|string|max:500',
+            'start_date' => 'sometimes|required|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+        ]);
+
+        $scope = $agendaEvent->scope;
+
+        if ($resp = $this->ensurePermission($scope, 'edit')) {
+            return $resp;
+        }
+
+        $agendaEvent->update($validated);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Agenda event updated successfully',
+            'data' => $agendaEvent->fresh(),
+        ]);
+    }
+
+    public function destroy(AgendaEvent $agendaEvent): JsonResponse
+    {
+        $scope = $agendaEvent->scope;
+
+        if ($resp = $this->ensurePermission($scope, 'delete')) {
+            return $resp;
+        }
+
+        $agendaEvent->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Agenda event deleted successfully',
+        ]);
+    }
+
+    public function publish(AgendaEvent $agendaEvent): JsonResponse
+    {
+        $scope = $agendaEvent->scope;
+
+        if ($resp = $this->ensurePermission($scope, 'publish')) {
+            return $resp;
+        }
+
+        $agendaEvent->update([
+            'is_published' => true,
+            'published_at' => now(),
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Agenda event published successfully',
+            'data' => $agendaEvent->fresh(),
+        ]);
+    }
+
+    public function unpublish(AgendaEvent $agendaEvent): JsonResponse
+    {
+        $scope = $agendaEvent->scope;
+
+        if ($resp = $this->ensurePermission($scope, 'publish')) {
+            return $resp;
+        }
+
+        $agendaEvent->update([
+            'is_published' => false,
+            'published_at' => null,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Agenda event unpublished successfully',
+            'data' => $agendaEvent->fresh(),
+        ]);
+    }
+}
