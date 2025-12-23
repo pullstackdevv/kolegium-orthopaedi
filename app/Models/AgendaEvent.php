@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasAffiliationScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AgendaEvent extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasAffiliationScope;
 
     protected $fillable = [
         'scope',
@@ -24,6 +25,7 @@ class AgendaEvent extends Model
         'is_published',
         'published_at',
         'created_by',
+        'affiliation_id',
     ];
 
     protected $casts = [
@@ -36,5 +38,10 @@ class AgendaEvent extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function affiliation(): BelongsTo
+    {
+        return $this->belongsTo(Affiliation::class);
     }
 }

@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Affiliation;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -22,6 +23,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('Kolegium@2025'),
                 'is_active' => true,
                 'role' => 'admin_kolegium',
+                'affiliations' => ['KOT'],
             ],
 
             // Residen
@@ -31,6 +33,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('ResidenUI@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_resident',
+                'affiliations' => ['FK-UI'],
             ],
             [
                 'name' => 'admin_residen_unair',
@@ -38,6 +41,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('ResidenUnair@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_resident',
+                'affiliations' => ['FK-UNAIR'],
             ],
             [
                 'name' => 'admin_residen_unpad',
@@ -45,6 +49,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('ResidenUnpad@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_resident',
+                'affiliations' => ['FK-UNPAD'],
             ],
             [
                 'name' => 'admin_residen_unhas',
@@ -52,6 +57,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('ResidenUnhas@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_resident',
+                'affiliations' => ['FK-UNHAS'],
             ],
             [
                 'name' => 'admin_residen_uns',
@@ -59,6 +65,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('ResidenUNS@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_resident',
+                'affiliations' => ['FK-UNS'],
             ],
             [
                 'name' => 'admin_residen_ugm',
@@ -66,6 +73,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('ResidenUGM@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_resident',
+                'affiliations' => ['FK-UGM'],
             ],
             [
                 'name' => 'admin_residen_unud',
@@ -73,6 +81,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('ResidenUnud@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_resident',
+                'affiliations' => ['FK-UNDIP'],
             ],
             [
                 'name' => 'admin_residen_usu',
@@ -80,6 +89,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('ResidenUSU@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_resident',
+                'affiliations' => ['FK-USU'],
             ],
             [
                 'name' => 'admin_residen_ub',
@@ -87,6 +97,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('ResidenUB@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_resident',
+                'affiliations' => ['FK-UB'],
             ],
             [
                 'name' => 'admin_residen_unsri',
@@ -94,6 +105,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('ResidenUnsri@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_resident',
+                'affiliations' => ['FK-UNSRI'],
             ],
             [
                 'name' => 'admin_residen_unand',
@@ -101,6 +113,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('ResidenUnand@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_resident',
+                'affiliations' => ['FK-UNAND'],
             ],
             [
                 'name' => 'admin_residen_usk',
@@ -108,6 +121,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('ResidenUSK@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_resident',
+                'affiliations' => ['FK-USU'],
             ],
             [
                 'name' => 'admin_residen_ulm',
@@ -115,6 +129,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('ResidenULM@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_resident',
+                'affiliations' => ['FK-UNAIR'],
             ],
 
             // Clinical Fellowship
@@ -124,6 +139,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('ResidenRSO@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_fellow',
+                'affiliations' => ['RSCM'],
             ],
             [
                 'name' => 'admin_cf_saifulanwar',
@@ -131,6 +147,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('CFMalang@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_fellow',
+                'affiliations' => ['RSUP-SOETOMO'],
             ],
             [
                 'name' => 'admin_cf_rshs',
@@ -138,6 +155,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('CFBandung@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_fellow',
+                'affiliations' => ['RSUP-HASAN-SADIKIN'],
             ],
             [
                 'name' => 'admin_cf_sardjito',
@@ -145,6 +163,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('CFJogja@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_fellow',
+                'affiliations' => ['RSUP-SARDJITO'],
             ],
             [
                 'name' => 'admin_cf_moewardi',
@@ -152,6 +171,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('CFSolo@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_fellow',
+                'affiliations' => ['RSUP-KARIADI'],
             ],
 
             // Subspesialis
@@ -161,6 +181,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('SubspUI@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_trainee',
+                'affiliations' => ['SUBSP-TUMOR', 'SUBSP-SPINE'],
             ],
             [
                 'name' => 'admin_subsp_unair',
@@ -168,6 +189,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('SubspUnair@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_trainee',
+                'affiliations' => ['SUBSP-HIP-KNEE'],
             ],
 
             // Peer Group
@@ -177,6 +199,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('IOSSA@2025'),
                 'is_active' => true,
                 'role' => 'admin_peer_group',
+                'affiliations' => ['IOSSA'],
             ],
             [
                 'name' => 'admin_pg_inamsos',
@@ -184,6 +207,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('INAMSOS@2025'),
                 'is_active' => true,
                 'role' => 'admin_peer_group',
+                'affiliations' => ['INAMSOS'],
             ],
             [
                 'name' => 'admin_pg_ihks',
@@ -191,6 +215,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('IHKS@2025'),
                 'is_active' => true,
                 'role' => 'admin_peer_group',
+                'affiliations' => ['IHKS'],
             ],
             [
                 'name' => 'admin_pg_inases',
@@ -198,6 +223,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('INASES@2025'),
                 'is_active' => true,
                 'role' => 'admin_peer_group',
+                'affiliations' => ['IPOS'],
             ],
             [
                 'name' => 'admin_pg_ipos',
@@ -205,6 +231,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('IPOS@2025'),
                 'is_active' => true,
                 'role' => 'admin_peer_group',
+                'affiliations' => ['IPOS'],
             ],
             [
                 'name' => 'admin_pg_iossma',
@@ -212,6 +239,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('IOSSMA@2025'),
                 'is_active' => true,
                 'role' => 'admin_peer_group',
+                'affiliations' => ['IOSSA'],
             ],
             [
                 'name' => 'admin_pg_inashum',
@@ -219,6 +247,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('INASHUM@2025'),
                 'is_active' => true,
                 'role' => 'admin_peer_group',
+                'affiliations' => ['IHKS'],
             ],
             [
                 'name' => 'admin_pg_inafas',
@@ -226,6 +255,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('INAFAS@2025'),
                 'is_active' => true,
                 'role' => 'admin_peer_group',
+                'affiliations' => ['INAMSOS'],
             ],
             [
                 'name' => 'admin_pg_iots',
@@ -233,12 +263,15 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('IOTS@2025'),
                 'is_active' => true,
                 'role' => 'admin_peer_group',
+                'affiliations' => ['ITOS'],
             ],
         ];
 
         foreach ($users as $userData) {
             $roleName = $userData['role'];
+            $affiliationCodes = $userData['affiliations'] ?? [];
             unset($userData['role']);
+            unset($userData['affiliations']);
 
             $user = User::updateOrCreate(
                 ['email' => $userData['email']],
@@ -249,6 +282,20 @@ class AdminUserSeeder extends Seeder
             $role = Role::where('name', $roleName)->first();
             if ($role) {
                 $user->syncRoles([$role]);
+            }
+
+            // Assign affiliations
+            if (!empty($affiliationCodes)) {
+                $affiliationIds = Affiliation::whereIn('code', $affiliationCodes)
+                    ->pluck('id')
+                    ->toArray();
+                
+                if (!empty($affiliationIds)) {
+                    $user->affiliations()->sync($affiliationIds);
+                    echo "✓ Assigned " . count($affiliationIds) . " affiliation(s) to {$user->email}\n";
+                } else {
+                    echo "✗ No affiliations found for codes: " . implode(', ', $affiliationCodes) . " (User: {$user->email})\n";
+                }
             }
         }
     }

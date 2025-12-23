@@ -203,6 +203,9 @@ class AgendaEventController extends Controller
 
         if ($scope !== '') {
             $query = $query->where('scope', $scope);
+            
+            // Filter by user's affiliations
+            $query->forUserAffiliations($authUser);
         }
 
         if ($scope === 'study_program' && $request->filled('section')) {
@@ -264,6 +267,7 @@ class AgendaEventController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'is_published' => 'sometimes|boolean',
+            'affiliation_id' => 'nullable|exists:affiliations,id',
         ]);
 
         $scope = $validated['scope'];
@@ -277,6 +281,25 @@ class AgendaEventController extends Controller
             DB::beginTransaction();
 
             $authUser = Auth::user();
+
+            // Validate affiliation access for non-super admin
+            if ($authUser instanceof User && !$authUser->hasRole('super_admin')) {
+                if (isset($validated['affiliation_id'])) {
+                    $userAffiliationIds = $authUser->affiliations()->pluck('affiliations.id')->toArray();
+                    if (!in_array($validated['affiliation_id'], $userAffiliationIds)) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'You do not have access to this affiliation.'
+                        ], 403);
+                    }
+                } else {
+                    // Auto-assign first affiliation if not provided
+                    $firstAffiliation = $authUser->affiliations()->first();
+                    if ($firstAffiliation) {
+                        $validated['affiliation_id'] = $firstAffiliation->id;
+                    }
+                }
+            }
 
             $event = AgendaEvent::create([
                 ...$validated,
@@ -306,6 +329,19 @@ class AgendaEventController extends Controller
     {
         $authUser = Auth::user();
 
+        // Check affiliation access for non-super admin
+        if ($authUser instanceof User && !$authUser->hasRole('super_admin')) {
+            if ($agendaEvent->affiliation_id) {
+                $userAffiliationIds = $authUser->affiliations()->pluck('affiliations.id')->toArray();
+                if (!in_array($agendaEvent->affiliation_id, $userAffiliationIds)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'You do not have access to this event.'
+                    ], 403);
+                }
+            }
+        }
+
         $allTypeIds = [
             'ujian_lokal',
             'ujian_nasional',
@@ -334,6 +370,7 @@ class AgendaEventController extends Controller
             'image_url' => 'nullable|string|max:500',
             'start_date' => 'sometimes|required|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
+            'affiliation_id' => 'sometimes|nullable|exists:affiliations,id',
         ]);
 
         $scope = $agendaEvent->scope;
@@ -341,6 +378,17 @@ class AgendaEventController extends Controller
 
         if ($resp = $this->ensurePermission($scope, 'edit', $section)) {
             return $resp;
+        }
+
+        // Validate new affiliation access if being changed
+        if (isset($validated['affiliation_id']) && $authUser instanceof User && !$authUser->hasRole('super_admin')) {
+            $userAffiliationIds = $authUser->affiliations()->pluck('affiliations.id')->toArray();
+            if (!in_array($validated['affiliation_id'], $userAffiliationIds)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'You do not have access to the selected affiliation.'
+                ], 403);
+            }
         }
 
         $agendaEvent->update($validated);
@@ -354,6 +402,21 @@ class AgendaEventController extends Controller
 
     public function destroy(AgendaEvent $agendaEvent): JsonResponse
     {
+        $authUser = Auth::user();
+
+        // Check affiliation access for non-super admin
+        if ($authUser instanceof User && !$authUser->hasRole('super_admin')) {
+            if ($agendaEvent->affiliation_id) {
+                $userAffiliationIds = $authUser->affiliations()->pluck('affiliations.id')->toArray();
+                if (!in_array($agendaEvent->affiliation_id, $userAffiliationIds)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'You do not have access to this event.'
+                    ], 403);
+                }
+            }
+        }
+
         $scope = $agendaEvent->scope;
         $section = $agendaEvent->section;
 
@@ -371,6 +434,21 @@ class AgendaEventController extends Controller
 
     public function publish(AgendaEvent $agendaEvent): JsonResponse
     {
+        $authUser = Auth::user();
+
+        // Check affiliation access for non-super admin
+        if ($authUser instanceof User && !$authUser->hasRole('super_admin')) {
+            if ($agendaEvent->affiliation_id) {
+                $userAffiliationIds = $authUser->affiliations()->pluck('affiliations.id')->toArray();
+                if (!in_array($agendaEvent->affiliation_id, $userAffiliationIds)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'You do not have access to this event.'
+                    ], 403);
+                }
+            }
+        }
+
         $scope = $agendaEvent->scope;
         $section = $agendaEvent->section;
 
@@ -392,6 +470,21 @@ class AgendaEventController extends Controller
 
     public function unpublish(AgendaEvent $agendaEvent): JsonResponse
     {
+        $authUser = Auth::user();
+
+        // Check affiliation access for non-super admin
+        if ($authUser instanceof User && !$authUser->hasRole('super_admin')) {
+            if ($agendaEvent->affiliation_id) {
+                $userAffiliationIds = $authUser->affiliations()->pluck('affiliations.id')->toArray();
+                if (!in_array($agendaEvent->affiliation_id, $userAffiliationIds)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'You do not have access to this event.'
+                    ], 403);
+                }
+            }
+        }
+
         $scope = $agendaEvent->scope;
         $section = $agendaEvent->section;
 

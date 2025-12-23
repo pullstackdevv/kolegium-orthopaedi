@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Users, UserPlus, Pencil, Trash2, CheckCircle, XCircle, AlertCircle, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Users, UserPlus, Pencil, Trash2, CheckCircle, XCircle, AlertCircle, Loader2, ChevronLeft, ChevronRight, Building2 } from "lucide-react";
 import api from "@/api/axios";
 import Swal from "sweetalert2";
 import PermissionGuard from "@/components/PermissionGuard";
@@ -56,6 +56,14 @@ export default function UserSettings() {
   const [roleDescriptions, setRoleDescriptions] = useState({});
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState(null);
+
+  // Affiliation management state
+  const [showAffiliationModal, setShowAffiliationModal] = useState(false);
+  const [selectedUserForAffiliation, setSelectedUserForAffiliation] = useState(null);
+  const [affiliations, setAffiliations] = useState([]);
+  const [userAffiliations, setUserAffiliations] = useState([]);
+  const [selectedAffiliationIds, setSelectedAffiliationIds] = useState([]);
+  const [affiliationLoading, setAffiliationLoading] = useState(false);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -358,6 +366,107 @@ export default function UserSettings() {
     return variants[roleName?.toLowerCase()] || 'outline';
   };
 
+  const fetchAffiliations = async () => {
+    try {
+      const response = await api.get('/affiliations');
+      if (response.data.status === 'success') {
+        setAffiliations(response.data.data);
+      }
+    } catch (err) {
+      console.error('Error fetching affiliations:', err);
+    }
+  };
+
+  const openAffiliationModal = async (user) => {
+    setSelectedUserForAffiliation(user);
+    setAffiliationLoading(true);
+    setShowAffiliationModal(true);
+    
+    try {
+      await fetchAffiliations();
+      const response = await api.get(`/users/${user.id}/affiliations`);
+      if (response.data.status === 'success') {
+        const userAffIds = response.data.data.map(a => a.id);
+        setUserAffiliations(response.data.data);
+        setSelectedAffiliationIds(userAffIds);
+      }
+    } catch (err) {
+      console.error('Error fetching user affiliations:', err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to load user affiliations'
+      });
+    } finally {
+      setAffiliationLoading(false);
+    }
+  };
+
+  const closeAffiliationModal = () => {
+    setShowAffiliationModal(false);
+    setSelectedUserForAffiliation(null);
+    setUserAffiliations([]);
+    setSelectedAffiliationIds([]);
+  };
+
+  const handleAffiliationToggle = (affiliationId) => {
+    setSelectedAffiliationIds(prev => {
+      if (prev.includes(affiliationId)) {
+        return prev.filter(id => id !== affiliationId);
+      } else {
+        return [...prev, affiliationId];
+      }
+    });
+  };
+
+  const saveUserAffiliations = async () => {
+    if (selectedAffiliationIds.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Warning',
+        text: 'User must have at least one affiliation'
+      });
+      return;
+    }
+
+    try {
+      setAffiliationLoading(true);
+      const response = await api.post(`/users/${selectedUserForAffiliation.id}/affiliations`, {
+        affiliation_ids: selectedAffiliationIds
+      });
+
+      if (response.data.status === 'success') {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'User affiliations updated successfully',
+          timer: 2000
+        });
+        closeAffiliationModal();
+      }
+    } catch (err) {
+      console.error('Error saving affiliations:', err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.response?.data?.message || 'Failed to update affiliations'
+      });
+    } finally {
+      setAffiliationLoading(false);
+    }
+  };
+
+  const getTypeLabel = (type) => {
+    const labels = {
+      kolegium: 'Kolegium',
+      residen: 'Residen',
+      clinical_fellowship: 'Clinical Fellowship',
+      subspesialis: 'Subspesialis',
+      peer_group: 'Peer Group',
+    };
+    return labels[type] || type;
+  };
+
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
@@ -487,6 +596,12 @@ export default function UserSettings() {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
+                            <PermissionGuard permission="users.edit">
+                              <Button variant="outline" size="sm" onClick={() => openAffiliationModal(user)}>
+                                <Building2 className="h-4 w-4 mr-1" />
+                                Affiliations
+                              </Button>
+                            </PermissionGuard>
                             <PermissionGuard permission="users.edit">
                               <Button variant="outline" size="sm" onClick={() => openEditModal(user)}>
                                 <Pencil className="h-4 w-4 mr-1" />
@@ -693,6 +808,94 @@ export default function UserSettings() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog for Manage User Affiliations */}
+      <Dialog open={showAffiliationModal} onOpenChange={setShowAffiliationModal}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5" />
+              Manage Affiliations - {selectedUserForAffiliation?.name}
+            </DialogTitle>
+            <DialogDescription>
+              Assign organizational affiliations to this user. User must have at least one affiliation.
+            </DialogDescription>
+          </DialogHeader>
+
+          {affiliationLoading ? (
+            <div className="flex justify-center items-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            <div className="space-y-4 py-4">
+              <div className="text-sm text-muted-foreground mb-4">
+                Selected: <strong>{selectedAffiliationIds.length}</strong> affiliation(s)
+              </div>
+
+              {['kolegium', 'residen', 'clinical_fellowship', 'subspesialis', 'peer_group'].map(type => {
+                const typeAffiliations = affiliations.filter(a => a.type === type);
+                if (typeAffiliations.length === 0) return null;
+
+                return (
+                  <div key={type} className="space-y-2">
+                    <h4 className="font-semibold text-sm uppercase text-muted-foreground">
+                      {getTypeLabel(type)}
+                    </h4>
+                    <div className="space-y-2 pl-4">
+                      {typeAffiliations.map(affiliation => (
+                        <div key={affiliation.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`aff-${affiliation.id}`}
+                            checked={selectedAffiliationIds.includes(affiliation.id)}
+                            onCheckedChange={() => handleAffiliationToggle(affiliation.id)}
+                          />
+                          <Label
+                            htmlFor={`aff-${affiliation.id}`}
+                            className="cursor-pointer flex-1 flex items-center justify-between"
+                          >
+                            <span>{affiliation.name}</span>
+                            <code className="text-xs bg-muted px-2 py-1 rounded">
+                              {affiliation.code}
+                            </code>
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {affiliations.length === 0 && (
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>No Affiliations</AlertTitle>
+                  <AlertDescription>
+                    No affiliations available. Please create affiliations first in the Affiliations tab.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={closeAffiliationModal}
+              disabled={affiliationLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={saveUserAffiliations}
+              disabled={affiliationLoading || selectedAffiliationIds.length === 0}
+            >
+              {affiliationLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save Affiliations
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

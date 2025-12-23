@@ -131,6 +131,10 @@ Route::middleware([Authenticate::class])
             return Inertia::render('Settings/index', ['activeMenu' => 'permission']);
         })->name('settings.permission');
 
+        Route::get('/settings/affiliation', function () {
+            return Inertia::render('Settings/index', ['activeMenu' => 'affiliation']);
+        })->name('settings.affiliation');
+
         // Agenda
         Route::get('/agenda', [\App\Http\Controllers\AgendaEventController::class, 'cmsPage'])->name('agenda.index');
 
