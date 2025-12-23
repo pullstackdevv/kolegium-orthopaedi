@@ -30,6 +30,12 @@ export const sidebarMenu = [
         href: "/cms/coming-soon/dashboard",
         permission: "dashboard.view",
       },
+      {
+        title: "Calendar",
+        icon: CalendarDays,
+        href: "/cms/calendar",
+        permission: "dashboard.view",
+      },
     ],
   },
   {

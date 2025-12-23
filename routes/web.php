@@ -108,6 +108,9 @@ Route::middleware([Authenticate::class, HandleInertiaRequests::class])
             return redirect()->route('cms.coming-soon', ['slug' => 'dashboard']);
         })->name('dashboard');
 
+        Route::get('/calendar', function () {
+            return Inertia::render('Dashboard/Calendar');
+        })->name('calendar');
 
         // Settings
         Route::get('/settings', function () {
