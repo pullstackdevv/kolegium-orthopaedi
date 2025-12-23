@@ -201,7 +201,7 @@ function AgendaContent() {
 
   const allowedValues = useMemo(() => {
     if (hasAnyRole(["admin_kolegium"])) {
-      return ["kolegium", "study_program", "peer_group"];
+      return ["","kolegium", "study_program", "peer_group"];
     }
 
     const canViewStudyProgram = hasAnyPermission([
@@ -222,7 +222,7 @@ function AgendaContent() {
       .map(([key]) => key);
   }, [hasAnyPermission, hasAnyRole, hasPermission]);
 
-  const defaultScope = allowedValues[0] || "kolegium";
+  const defaultScope = allowedValues[0] || "";
 
   const routeScopeLocked = !!scopeFromUrl;
   const routeScopeAllowed = !routeScopeLocked || allowedValues.includes(scopeFromUrl);
