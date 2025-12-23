@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Icon } from "@iconify/react";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, X, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, X, MapPin, GraduationCap, ClipboardCheck, Sparkles } from "lucide-react";
 import DashboardLayout from "../../Layouts/dashboard/DashboardLayout";
 import api from "@/api/axios";
 
@@ -92,34 +91,34 @@ export default function Calendar() {
       {
         title: "Academic Year",
         value: academicYear.label,
-        icon: "mdi:calendar",
-        iconBg: "bg-blue-100",
-        iconColor: "text-blue-600",
+        icon: GraduationCap,
+        bgColor: "bg-gray-100",
+        iconColor: "text-gray-700",
       },
       {
-        title: "Examination Day",
+        title: "Examination Days",
         value: String(academicYearCounts.exams),
-        icon: "mdi:briefcase",
-        iconBg: "bg-orange-100",
-        iconColor: "text-orange-600",
+        icon: ClipboardCheck,
+        bgColor: "bg-gray-100",
+        iconColor: "text-gray-700",
       },
       {
-        title: "Event Day",
+        title: "Event Days",
         value: String(academicYearCounts.agendaEvents),
-        icon: "mdi:calendar-check",
-        iconBg: "bg-red-100",
-        iconColor: "text-red-600",
+        icon: Sparkles,
+        bgColor: "bg-gray-100",
+        iconColor: "text-gray-700",
       },
     ];
   }, [academicYear.label, academicYearCounts.agendaEvents, academicYearCounts.exams]);
 
   const eventTypes = [
-    { id: "ujian_lokal", name: "Local Exam", color: "bg-red-500", textColor: "text-red-700" },
-    { id: "ujian_nasional", name: "National Exam", color: "bg-blue-500", textColor: "text-blue-700" },
-    { id: "event_lokal", name: "Local Event", color: "bg-green-500", textColor: "text-green-700" },
-    { id: "event_nasional", name: "National Event", color: "bg-orange-500", textColor: "text-orange-700" },
-    { id: "event_peer_group", name: "Peer Group Event International", color: "bg-purple-500", textColor: "text-purple-700" },
-    { id: "event_peer_group_nasional", name: "Peer Group Event National", color: "bg-indigo-500", textColor: "text-indigo-700" }
+    { id: "ujian_lokal", name: "Local Exam", color: "bg-red-400", textColor: "text-red-700" },
+    { id: "ujian_nasional", name: "National Exam", color: "bg-blue-400", textColor: "text-blue-700" },
+    { id: "event_lokal", name: "Local Event", color: "bg-green-400", textColor: "text-green-700" },
+    { id: "event_nasional", name: "National Event", color: "bg-orange-400", textColor: "text-orange-700" },
+    { id: "event_peer_group", name: "Peer Group Event International", color: "bg-purple-400", textColor: "text-purple-700" },
+    { id: "event_peer_group_nasional", name: "Peer Group Event National", color: "bg-indigo-400", textColor: "text-indigo-700" }
   ];
 
   const getEventColor = (type) => {
@@ -277,111 +276,159 @@ export default function Calendar() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {stats.map((stat, index) => (
-            <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-2">{stat.title}</p>
-                  <p className="text-3xl font-bold text-blue-700">{stat.value}</p>
-                </div>
-                <div className={`w-16 h-16 ${stat.iconBg} rounded-full flex items-center justify-center flex-shrink-0`}>
-                  <Icon icon={stat.icon} className={`w-8 h-8 ${stat.iconColor}`} />
+          {stats.map((stat, index) => {
+            const IconComponent = stat.icon;
+            return (
+              <div 
+                key={index} 
+                className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-500 mb-2">{stat.title}</p>
+                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  </div>
+                  <div className={`${stat.bgColor} p-3 rounded-lg`}>
+                    <IconComponent className={`w-6 h-6 ${stat.iconColor}`} />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-2xl font-bold text-blue-600 mb-6">Academic Calendar {academicYear.label}</h2>
-          
-          <div className="flex items-center justify-between mb-6">
-            <button
-              onClick={handlePrevMonth}
-              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5" />
-              <span>
-                {monthNames[currentMonth === 0 ? 11 : currentMonth - 1]}, {currentMonth === 0 ? currentYear - 1 : currentYear}
-              </span>
-            </button>
-
-            <h3 
-              className="text-2xl font-bold text-red-700 cursor-pointer hover:text-red-800 transition-colors"
-              onClick={handleOpenDatePicker}
-              title="Click to change month/year"
-            >
-              {monthNames[currentMonth]}, {currentYear}
-            </h3>
-
-            <button
-              onClick={handleNextMonth}
-              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"
-            >
-              <span>
-                {monthNames[currentMonth === 11 ? 0 : currentMonth + 1]}, {currentMonth === 11 ? currentYear + 1 : currentYear}
-              </span>
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
-
-          <div className="border border-gray-300 rounded-lg overflow-hidden">
-            <div className="grid grid-cols-7 border-b border-gray-300">
-              {["SUN", "MON", "TUE", "WED", "THUR", "FRI", "SAT"].map((day) => (
-                <div key={day} className="text-center text-sm font-semibold text-gray-600 py-3 border-r border-gray-300 last:border-r-0 bg-gray-50">
-                  {day}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="px-6 py-5 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="bg-gray-100 p-2 rounded-lg">
+                  <CalendarIcon className="w-6 h-6 text-gray-700" />
                 </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-7">
-              {generateCalendar().map((item, index) => (
-                <div
-                  key={index}
-                  className={`min-h-[120px] border-r border-b border-gray-300 p-2 cursor-pointer hover:bg-gray-50 transition-colors last:border-r-0 ${
-                    !item.isCurrentMonth ? "bg-gray-50" : "bg-white"
-                  } ${item.isToday ? "bg-blue-50" : ""}`}
-                  onClick={() => handleDateClick(item.day, item.isCurrentMonth)}
-                >
-                  <div className={`text-sm font-medium mb-1 ${
-                    !item.isCurrentMonth ? "text-gray-400" : "text-gray-900"
-                  } ${item.isToday ? "text-blue-600 font-bold" : ""}`}>
-                    {item.day}
-                  </div>
-                  {item.isToday && (
-                    <div className="text-xs bg-blue-200 text-blue-800 px-2 py-0.5 rounded mb-1 inline-block">
-                      Today
-                    </div>
-                  )}
-                  <div className="space-y-1">
-                    {item.events.map((event, eventIndex) => {
-                      const eventColor = getEventColor(event.type);
-                      return (
-                        <div
-                          key={eventIndex}
-                          className={`text-xs p-1 rounded ${eventColor.color} bg-opacity-20 ${eventColor.textColor} cursor-pointer hover:bg-opacity-30 transition-colors`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEventClick(event);
-                          }}
-                        >
-                          {event.title}
-                        </div>
-                      );
-                    })}
-                  </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Academic Calendar</h2>
+                  <p className="text-gray-500 text-sm">{academicYear.label}</p>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-6 mt-6 pt-6 border-t border-gray-200">
-            {eventTypes.map((type) => (
-              <div key={type.id} className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full ${type.color}`}></div>
-                <span className="text-sm text-gray-700">{type.name}</span>
               </div>
-            ))}
+            </div>
+          </div>
+          
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <button
+                onClick={handlePrevMonth}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium transition-all hover:scale-105"
+              >
+                <ChevronLeft className="w-5 h-5" />
+                <span className="hidden sm:inline">
+                  {monthNames[currentMonth === 0 ? 11 : currentMonth - 1]}
+                </span>
+              </button>
+
+              <button
+                onClick={handleOpenDatePicker}
+                className="group flex items-center gap-2 px-6 py-2 rounded-lg bg-gray-900 hover:bg-gray-800 text-white font-bold transition-all hover:scale-105 shadow-sm"
+                title="Click to change month/year"
+              >
+                <CalendarIcon className="w-5 h-5" />
+                <span className="text-lg">{monthNames[currentMonth]}, {currentYear}</span>
+              </button>
+
+              <button
+                onClick={handleNextMonth}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium transition-all hover:scale-105"
+              >
+                <span className="hidden sm:inline">
+                  {monthNames[currentMonth === 11 ? 0 : currentMonth + 1]}
+                </span>
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+              <div className="grid grid-cols-7 bg-gray-50">
+                {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((day, idx) => (
+                  <div 
+                    key={day} 
+                    className={`text-center text-xs font-bold py-4 border-r border-gray-200 last:border-r-0 ${
+                      idx === 0 || idx === 6 ? 'text-gray-500' : 'text-gray-600'
+                    }`}
+                  >
+                    {day}
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-7 bg-white">
+                {generateCalendar().map((item, index) => {
+                  const isWeekend = index % 7 === 0 || index % 7 === 6;
+                  return (
+                    <div
+                      key={index}
+                      className={`min-h-[130px] border-r border-b border-gray-200 p-3 cursor-pointer transition-all duration-200 last:border-r-0 group ${
+                        !item.isCurrentMonth ? "bg-gray-50/50" : "bg-white hover:bg-slate-50/50"
+                      } ${item.isToday ? "bg-gray-50 ring-2 ring-gray-300 ring-inset" : ""} ${
+                        isWeekend && item.isCurrentMonth ? "bg-gray-50/50" : ""
+                      }`}
+                      onClick={() => handleDateClick(item.day, item.isCurrentMonth)}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className={`text-sm font-semibold ${
+                          !item.isCurrentMonth ? "text-gray-400" : isWeekend ? "text-gray-500" : "text-gray-700"
+                        } ${item.isToday ? "text-gray-900 font-bold" : ""}`}>
+                          {item.day}
+                        </div>
+                        {item.isToday && (
+                          <div className="flex items-center gap-1 text-xs bg-gray-900 text-white px-2 py-0.5 rounded-full font-medium shadow-sm">
+                            <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+                            Today
+                          </div>
+                        )}
+                      </div>
+                      <div className="space-y-1.5">
+                        {item.events.slice(0, 3).map((event, eventIndex) => {
+                          const eventColor = getEventColor(event.type);
+                          return (
+                            <div
+                              key={eventIndex}
+                              className={`text-xs p-1.5 rounded-md ${eventColor.color} bg-opacity-20 ${eventColor.textColor} cursor-pointer hover:bg-opacity-30 transition-all font-medium border border-transparent hover:border-current hover:shadow-sm`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEventClick(event);
+                              }}
+                            >
+                              <div className="line-clamp-2">{event.title}</div>
+                            </div>
+                          );
+                        })}
+                        {item.events.length > 3 && (
+                          <div className="text-xs text-gray-500 font-medium pl-1.5">
+                            +{item.events.length - 3} more
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-1 h-5 bg-gray-900 rounded-full"></div>
+                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Event Types</h3>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                {eventTypes.map((type) => (
+                  <div 
+                    key={type.id} 
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors border border-gray-200"
+                  >
+                    <div className={`w-3 h-3 rounded-full ${type.color} shadow-sm`}></div>
+                    <span className="text-xs font-medium text-gray-700">{type.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -405,7 +452,7 @@ export default function Calendar() {
                 <select
                   value={tempMonth}
                   onChange={(e) => setTempMonth(parseInt(e.target.value))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-300 focus:border-transparent"
                 >
                   {monthNames.map((month, index) => (
                     <option key={index} value={index}>{month}</option>
@@ -418,7 +465,7 @@ export default function Calendar() {
                 <select
                   value={tempYear}
                   onChange={(e) => setTempYear(parseInt(e.target.value))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-300 focus:border-transparent"
                 >
                   {generateYearRange().map((year) => (
                     <option key={year} value={year}>{year}</option>
@@ -436,7 +483,7 @@ export default function Calendar() {
               </button>
               <button
                 onClick={handleApplyDatePicker}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex-1 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
               >
                 Apply
               </button>
@@ -480,7 +527,7 @@ export default function Calendar() {
               </div>
 
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-gray-600">
+                <div className="flex items-center gap-2 text-gray-500">
                   <CalendarIcon className="w-5 h-5" />
                   <span>
                     {selectedEventStartDate && (
@@ -498,7 +545,7 @@ export default function Calendar() {
                 </div>
 
                 {selectedEvent.location && (
-                  <div className="flex items-center gap-2 text-gray-600">
+                  <div className="flex items-center gap-2 text-gray-500">
                     <MapPin className="w-5 h-5" />
                     <span>{selectedEvent.location}</span>
                   </div>
@@ -517,7 +564,7 @@ export default function Calendar() {
                       href={selectedEvent.registration}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
                     >
                       <span>Registration Link</span>
                       <ChevronRight className="w-4 h-4" />
