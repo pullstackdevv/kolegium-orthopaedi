@@ -17,6 +17,8 @@ class AgendaEventController extends Controller
     public function cmsPage(Request $request): InertiaResponse
     {
         $authUser = Auth::user();
+        $scope = $request->string('scope')->toString();
+        $requestedType = $request->string('type')->toString();
 
         $allTypes = [
             ['id' => 'ujian_lokal', 'name' => 'Ujian Lokal'],
@@ -27,20 +29,35 @@ class AgendaEventController extends Controller
             ['id' => 'event_peer_group_nasional', 'name' => 'Event Peer Group National'],
         ];
 
+        $allTypeIds = array_map(fn ($t) => $t['id'], $allTypes);
         $peerTypeIds = ['event_peer_group', 'event_peer_group_nasional'];
 
-        $typeOptions = $allTypes;
+        $roleAllowedTypeIds = array_values(array_filter($allTypeIds, fn ($t) => !in_array($t, $peerTypeIds, true)));
         if ($authUser instanceof User) {
             if ($authUser->hasRole('super_admin')) {
-                $typeOptions = $allTypes;
+                $roleAllowedTypeIds = $allTypeIds;
             } elseif ($authUser->hasRole('admin_peer_group')) {
-                $typeOptions = array_values(array_filter($allTypes, fn ($t) => in_array($t['id'], $peerTypeIds, true)));
-            } else {
-                $typeOptions = array_values(array_filter($allTypes, fn ($t) => !in_array($t['id'], $peerTypeIds, true)));
+                $roleAllowedTypeIds = $peerTypeIds;
             }
-        } else {
-            $typeOptions = array_values(array_filter($allTypes, fn ($t) => !in_array($t['id'], $peerTypeIds, true)));
         }
+
+        $scopeAllowedTypeIds = $allTypeIds;
+        if ($scope === 'peer_group') {
+            $scopeAllowedTypeIds = ['event_peer_group'];
+
+            if ($requestedType !== '' && in_array($requestedType, $peerTypeIds, true)) {
+                $scopeAllowedTypeIds = [$requestedType];
+            }
+        } elseif ($scope !== '') {
+            $scopeAllowedTypeIds = array_values(array_filter($allTypeIds, fn ($t) => !in_array($t, $peerTypeIds, true)));
+
+            if ($requestedType !== '' && in_array($requestedType, $scopeAllowedTypeIds, true)) {
+                $scopeAllowedTypeIds = [$requestedType];
+            }
+        }
+
+        $allowedTypeIds = array_values(array_intersect($roleAllowedTypeIds, $scopeAllowedTypeIds));
+        $typeOptions = array_values(array_filter($allTypes, fn ($t) => in_array($t['id'], $allowedTypeIds, true)));
 
         return Inertia::render('Agenda/index', [
             'agendaTypeOptions' => $typeOptions,
@@ -145,10 +162,19 @@ class AgendaEventController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $scope = $request->string('scope', 'kolegium')->toString();
+        $scope = $request->string('scope', '')->toString();
         $section = $request->string('section')->toString();
 
         $authUser = Auth::user();
+
+        if ($scope === '') {
+            if (!($authUser instanceof User) || !($authUser->hasRole('super_admin') || $authUser->hasRole('admin_kolegium'))) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized.'
+                ], 403);
+            }
+        }
 
         if ($scope === 'study_program') {
             if (
@@ -167,7 +193,7 @@ class AgendaEventController extends Controller
             if ($resp = $this->ensurePermission($scope, 'view', $request->filled('section') ? $section : null)) {
                 return $resp;
             }
-        } else {
+        } elseif ($scope !== '') {
             if ($resp = $this->ensurePermission($scope, 'view')) {
                 return $resp;
             }
@@ -175,7 +201,7 @@ class AgendaEventController extends Controller
 
         $query = AgendaEvent::query();
 
-        if ($authUser instanceof User && !$authUser->hasRole('super_admin')) {
+        if ($scope !== '') {
             $query = $query->where('scope', $scope);
             
             // Filter by user's affiliations
