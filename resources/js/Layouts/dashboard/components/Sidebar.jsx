@@ -63,10 +63,27 @@ export function AppSidebar({ user }) {
     return sidebarMenu
       .filter((group) => hasAccess(group))
       .map((group) => {
+        if (group.subGroups && Array.isArray(group.subGroups)) {
+          const subGroups = group.subGroups
+            .map((subGroup) => {
+              const items = (subGroup.items || []).filter((item) => hasAccess(item));
+              return { ...subGroup, items };
+            })
+            .filter((subGroup) => (subGroup.items || []).length > 0);
+
+          return { ...group, subGroups };
+        }
+
         const items = (group.items || []).filter((item) => hasAccess(item));
         return { ...group, items };
       })
-      .filter((group) => (group.items || []).length > 0);
+      .filter((group) => {
+        if (group.subGroups && Array.isArray(group.subGroups)) {
+          return (group.subGroups || []).length > 0;
+        }
+
+        return (group.items || []).length > 0;
+      });
   }, [hasAllPermissions, hasAnyPermission, hasAnyRole, hasPermission, hasRole]);
 
   const getInitials = (name) => {
@@ -131,28 +148,61 @@ export function AppSidebar({ user }) {
             <SidebarGroupLabel>{group.group}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {group.items.map((item, itemIndex) => (
-                  <PermissionGuard
-                    key={itemIndex}
-                    permission={item.permission}
-                    permissions={item.permissions}
-                    role={item.role}
-                    roles={item.roles}
-                  >
-                    <SidebarMenuItem>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={currentPath === item.href}
-                        tooltip={item.title}
+                {group.subGroups && Array.isArray(group.subGroups)
+                  ? group.subGroups.map((subGroup, subGroupIndex) => (
+                      <div key={subGroupIndex}>
+                        <SidebarMenuItem>
+                          <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">
+                            {subGroup.title}
+                          </div>
+                        </SidebarMenuItem>
+
+                        {subGroup.items.map((item, itemIndex) => (
+                          <PermissionGuard
+                            key={itemIndex}
+                            permission={item.permission}
+                            permissions={item.permissions}
+                            role={item.role}
+                            roles={item.roles}
+                          >
+                            <SidebarMenuItem>
+                              <SidebarMenuButton
+                                asChild
+                                isActive={currentPath === item.href}
+                                tooltip={item.title}
+                              >
+                                <Link href={item.href}>
+                                  {item.icon && <item.icon />}
+                                  <span>{item.title}</span>
+                                </Link>
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          </PermissionGuard>
+                        ))}
+                      </div>
+                    ))
+                  : group.items.map((item, itemIndex) => (
+                      <PermissionGuard
+                        key={itemIndex}
+                        permission={item.permission}
+                        permissions={item.permissions}
+                        role={item.role}
+                        roles={item.roles}
                       >
-                        <Link href={item.href}>
-                          {item.icon && <item.icon />}
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  </PermissionGuard>
-                ))}
+                        <SidebarMenuItem>
+                          <SidebarMenuButton
+                            asChild
+                            isActive={currentPath === item.href}
+                            tooltip={item.title}
+                          >
+                            <Link href={item.href}>
+                              {item.icon && <item.icon />}
+                              <span>{item.title}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      </PermissionGuard>
+                    ))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

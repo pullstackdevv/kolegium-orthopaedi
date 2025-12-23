@@ -39,7 +39,7 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 
-const EVENT_TYPES = [
+const FALLBACK_EVENT_TYPES = [
   { id: "ujian_lokal", name: "Ujian Lokal" },
   { id: "ujian_nasional", name: "Ujian Nasional" },
   { id: "event_lokal", name: "Event Lokal" },
@@ -72,7 +72,7 @@ const SECTION_LABELS = {
 const buildAgendaTitle = ({ scope, section, type }) => {
   const scopeLabel = scope ? SCOPE_LABELS[scope] : null;
   const sectionLabel = section ? SECTION_LABELS[section] : null;
-  const typeLabel = type ? EVENT_TYPES.find((t) => t.id === type)?.name || type : null;
+  const typeLabel = type ? FALLBACK_EVENT_TYPES.find((t) => t.id === type)?.name || type : null;
 
   if (!scopeLabel) return "Agenda";
 
@@ -88,7 +88,9 @@ const buildAgendaTitle = ({ scope, section, type }) => {
 };
 
 export default function AgendaPage() {
-  const { url: inertiaUrl } = usePage();
+  const page = usePage();
+  const inertiaUrl = page.url;
+  const agendaTypeOptions = Array.isArray(page.props?.agendaTypeOptions) ? page.props.agendaTypeOptions : [];
 
   const queryParams = useMemo(() => {
     const query = (inertiaUrl || "").split("?")[1] || "";
@@ -96,12 +98,16 @@ export default function AgendaPage() {
   }, [inertiaUrl]);
 
   const pageTitle = useMemo(() => {
+    const typeFromUrl = queryParams.get("type");
+    const base = agendaTypeOptions.length > 0 ? agendaTypeOptions : FALLBACK_EVENT_TYPES;
+    const typeLabel = typeFromUrl ? base.find((t) => t.id === typeFromUrl)?.name || null : null;
+
     return buildAgendaTitle({
       scope: queryParams.get("scope"),
       section: queryParams.get("section"),
-      type: queryParams.get("type"),
+      type: typeLabel ? typeFromUrl : null,
     });
-  }, [queryParams]);
+  }, [agendaTypeOptions, queryParams]);
 
   return (
     <DashboardLayout title={pageTitle}>
@@ -111,8 +117,10 @@ export default function AgendaPage() {
 }
 
 function AgendaContent() {
-  const { url: inertiaUrl } = usePage();
-  const { hasPermission, hasAnyPermission } = useAuth();
+  const page = usePage();
+  const inertiaUrl = page.url;
+  const agendaTypeOptions = Array.isArray(page.props?.agendaTypeOptions) ? page.props.agendaTypeOptions : [];
+  const { hasPermission, hasAnyPermission, hasAnyRole } = useAuth();
 
   const queryParams = useMemo(() => {
     const query = (inertiaUrl || "").split("?")[1] || "";
@@ -124,8 +132,9 @@ function AgendaContent() {
   const typeFromUrl = queryParams.get("type");
   const fixedType = useMemo(() => {
     if (!typeFromUrl) return null;
-    return EVENT_TYPES.some((t) => t.id === typeFromUrl) ? typeFromUrl : null;
-  }, [typeFromUrl]);
+    const base = agendaTypeOptions.length > 0 ? agendaTypeOptions : FALLBACK_EVENT_TYPES;
+    return base.some((t) => t.id === typeFromUrl) ? typeFromUrl : null;
+  }, [agendaTypeOptions, typeFromUrl]);
 
   const toDateInputValue = (value) => {
     if (!value) return "";
@@ -191,6 +200,10 @@ function AgendaContent() {
   };
 
   const allowedValues = useMemo(() => {
+    if (hasAnyRole(["admin_kolegium"])) {
+      return ["kolegium", "study_program", "peer_group"];
+    }
+
     const canViewStudyProgram = hasAnyPermission([
       "agenda.study_program.view",
       "agenda.study_program.resident.view",
@@ -207,7 +220,7 @@ function AgendaContent() {
     return Object.entries(map)
       .filter(([, ok]) => !!ok)
       .map(([key]) => key);
-  }, [hasAnyPermission, hasPermission]);
+  }, [hasAnyPermission, hasAnyRole, hasPermission]);
 
   const defaultScope = allowedValues[0] || "kolegium";
 
@@ -215,10 +228,14 @@ function AgendaContent() {
   const routeScopeAllowed = !routeScopeLocked || allowedValues.includes(scopeFromUrl);
 
   const allowedSections = useMemo(() => {
+    if (hasAnyRole(["admin_kolegium"])) {
+      return ["resident", "fellow", "trainee"];
+    }
+
     const canViewAll = hasPermission("agenda.study_program.view");
     const all = ["resident", "fellow", "trainee"];
     return all.filter((s) => canViewAll || hasPermission(`agenda.study_program.${s}.view`));
-  }, [hasPermission]);
+  }, [hasAnyRole, hasPermission]);
 
   const activeScope = useMemo(() => scopeFromUrl || defaultScope, [scopeFromUrl, defaultScope]);
 
@@ -288,7 +305,8 @@ function AgendaContent() {
   };
 
   const getTypeLabel = (type) => {
-    return EVENT_TYPES.find((t) => t.id === type)?.name || type || "-";
+    const base = agendaTypeOptions.length > 0 ? agendaTypeOptions : FALLBACK_EVENT_TYPES;
+    return base.find((t) => t.id === type)?.name || type || "-";
   };
 
   const getTypeColor = (type) => {
@@ -299,7 +317,7 @@ function AgendaContent() {
     setSelectedEvent(null);
     setFormError(null);
     setFormData({
-      type: fixedType || "event_nasional",
+      type: fixedType || agendaTypeOptions?.[0]?.id || "event_nasional",
       title: "",
       description: "",
       location: "",
@@ -712,7 +730,7 @@ function AgendaContent() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="all">Semua</SelectItem>
-                            {EVENT_TYPES.map((t) => (
+                            {(agendaTypeOptions.length > 0 ? agendaTypeOptions : FALLBACK_EVENT_TYPES).map((t) => (
                               <SelectItem key={t.id} value={t.id}>
                                 {t.name}
                               </SelectItem>
@@ -968,7 +986,7 @@ function AgendaContent() {
                       <SelectValue placeholder="Pilih type" />
                     </SelectTrigger>
                     <SelectContent>
-                      {EVENT_TYPES.map((t) => (
+                      {(agendaTypeOptions.length > 0 ? agendaTypeOptions : FALLBACK_EVENT_TYPES).map((t) => (
                         <SelectItem key={t.id} value={t.id}>
                           {t.name}
                         </SelectItem>

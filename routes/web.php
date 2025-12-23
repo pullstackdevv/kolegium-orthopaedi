@@ -132,9 +132,7 @@ Route::middleware([Authenticate::class])
         })->name('settings.permission');
 
         // Agenda
-        Route::get('/agenda', function () {
-            return Inertia::render('Agenda/index');
-        })->name('agenda.index');
+        Route::get('/agenda', [\App\Http\Controllers\AgendaEventController::class, 'cmsPage'])->name('agenda.index');
 
         // User management routes
         Route::get('/settings/users/create', function () {
