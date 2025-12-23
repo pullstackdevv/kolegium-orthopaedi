@@ -26,6 +26,7 @@ import {
 import { sidebarMenu } from "../config/sidebar-menu";
 import PermissionGuard from "@/components/PermissionGuard";
 import { useAuth } from "@/contexts/AuthContext";
+import api from "@/api/axios";
 
 export function AppSidebar({ user }) {
   const { url } = usePage();
@@ -79,6 +80,22 @@ export function AppSidebar({ user }) {
 
   const handleLogout = async () => {
     try {
+      try {
+        await api.post(
+          "/auth/logout",
+          {},
+          {
+            headers: {
+              "X-Skip-Auth-Redirect": "1",
+            },
+          }
+        );
+      } catch (e) {
+      }
+
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("user_data");
+
       await fetch("/cms/logout", { method: "GET" });
       window.location.href = "/cms/login";
     } catch (err) {

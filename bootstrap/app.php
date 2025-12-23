@@ -6,7 +6,6 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Routing\Middleware\SubstituteBindings;
-use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -19,15 +18,16 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware
             ->web([
                 \Illuminate\Http\Middleware\HandleCors::class,
+                \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
             ])
             ->api([
                 \Illuminate\Http\Middleware\HandleCors::class,
-                EnsureFrontendRequestsAreStateful::class,
+                \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
                 'throttle:api',
                 SubstituteBindings::class,
             ])
             ->group('api', [
-                EnsureFrontendRequestsAreStateful::class,
+                \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
                 'throttle:api',
                 SubstituteBindings::class,
             ])
@@ -40,19 +40,23 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->renderable(function (Throwable $e, $request) {
             if ($request->expectsJson()) {
                 $statusCode = 500;
+                $message = 'Server Error';
                 
                 if ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpException) {
                     $statusCode = $e->getStatusCode();
                 } elseif ($e instanceof \Illuminate\Validation\ValidationException) {
                     $statusCode = 422;
+                    $message = 'Validation failed';
                 } elseif ($e instanceof \Illuminate\Auth\AuthenticationException) {
                     $statusCode = 401;
+                    $message = 'Unauthenticated.';
                 } elseif ($e instanceof \Illuminate\Auth\Access\AuthorizationException) {
                     $statusCode = 403;
+                    $message = 'Unauthorized.';
                 }
                 
                 return ResponseFormatter::error(
-                    'Server Error',
+                    $message,
                     [[
                         'field' => null,
                         'tag' => 'exception',

@@ -50,6 +50,17 @@ class AuthController extends Controller
 
             $user = Auth::user();
 
+            if (!$user instanceof User) {
+                Auth::logout();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized.'
+                ], 401);
+            }
+
+            /** @var User $user */
+            $user->tokens()->where('name', 'cms_auth_token')->delete();
+
             // Check if user is active
             if (!$user->is_active) {
                 Auth::logout();
@@ -59,14 +70,18 @@ class AuthController extends Controller
                 ], 403);
             }
 
+            $token = $user->createToken('cms_auth_token')->plainTextToken;
+
             // Regenerate session
             $request->session()->regenerate();
+            $request->session()->regenerateToken();
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Login berhasil!',
                 'data' => [
-                    'user' => $user->load('roles')
+                    'user' => $user->load('roles'),
+                    'token' => $token,
                 ]
             ]);
 

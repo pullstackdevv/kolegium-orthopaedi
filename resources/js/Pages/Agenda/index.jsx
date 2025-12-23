@@ -111,8 +111,8 @@ export default function AgendaPage() {
 }
 
 function AgendaContent() {
-  const { hasPermission, hasAnyPermission } = useAuth();
   const { url: inertiaUrl } = usePage();
+  const { hasPermission, hasAnyPermission } = useAuth();
 
   const queryParams = useMemo(() => {
     const query = (inertiaUrl || "").split("?")[1] || "";
@@ -180,6 +180,14 @@ function AgendaContent() {
     if (s.startsWith("agenda-images/")) return `/storage/${s}`;
 
     return `/${s}`;
+  };
+
+  const getApiErrorMessage = (err, fallback) => {
+    const data = err?.response?.data;
+    if (typeof data?.message === "string" && data.message.trim()) return data.message;
+    const firstErrMsg = data?.errors?.[0]?.message;
+    if (typeof firstErrMsg === "string" && firstErrMsg.trim()) return firstErrMsg;
+    return fallback;
   };
 
   const allowedValues = useMemo(() => {
@@ -351,7 +359,11 @@ function AgendaContent() {
         }
       }
 
-      const response = await api.post(endpoint, form);
+      const response = await api.post(endpoint, form, {
+        headers: {
+          "X-Skip-Auth-Redirect": "1",
+        },
+      });
 
       if (response.data?.status === "success" && response.data?.data?.url) {
         const url = response.data.data.url;
@@ -376,10 +388,14 @@ function AgendaContent() {
       if (err.response?.status === 422 && err.response.data?.errors) {
         const errors = Object.values(err.response.data.errors).flat();
         setFormError(errors.join(", "));
+      } else if (err.response?.status === 401) {
+        setFormError("Sesi Anda telah berakhir. Silakan login kembali.");
+      } else if (err.response?.status === 419) {
+        setFormError(getApiErrorMessage(err, "Sesi/CSRF tidak valid. Silakan refresh halaman dan coba lagi."));
       } else if (err.response?.status === 403) {
         setFormError("Anda tidak memiliki akses untuk upload gambar.");
       } else {
-        setFormError("Terjadi kesalahan saat upload gambar.");
+        setFormError(getApiErrorMessage(err, "Terjadi kesalahan saat upload gambar."));
       }
     } finally {
       setImageUploading(false);
@@ -389,7 +405,15 @@ function AgendaContent() {
   const handleTogglePublish = async (event) => {
     try {
       const target = event.is_published ? "unpublish" : "publish";
-      const response = await api.post(`/agenda-events/${event.id}/${target}`);
+      const response = await api.post(
+        `/agenda-events/${event.id}/${target}`,
+        {},
+        {
+          headers: {
+            "X-Skip-Auth-Redirect": "1",
+          },
+        }
+      );
 
       if (response.data?.status === "success") {
         Swal.fire({
@@ -410,6 +434,14 @@ function AgendaContent() {
         text: "Gagal memperbarui status publish.",
       });
     } catch (err) {
+      if (err.response?.status === 401) {
+        Swal.fire({
+          icon: "error",
+          title: "Sesi berakhir",
+          text: "Sesi Anda telah berakhir. Silakan login kembali.",
+        });
+        return;
+      }
       Swal.fire({
         icon: "error",
         title: "Gagal!",
@@ -465,7 +497,12 @@ function AgendaContent() {
       if (filters.from) params.from = filters.from;
       if (filters.to) params.to = filters.to;
 
-      const response = await api.get("/agenda-events", { params });
+      const response = await api.get("/agenda-events", {
+        params,
+        headers: {
+          "X-Skip-Auth-Redirect": "1",
+        },
+      });
 
       if (response.data?.status !== "success") {
         setError("Gagal mengambil data agenda.");
@@ -484,7 +521,11 @@ function AgendaContent() {
         per_page: paginator?.per_page || Number(filters.per_page || 10),
       });
     } catch (err) {
-      if (err.response?.status === 403) {
+      console.log(err);
+      
+      if (err.response?.status === 401) {
+        setError("Sesi Anda telah berakhir. Silakan login kembali.");
+      } else if (err.response?.status === 403) {
         setError("Anda tidak memiliki akses untuk melihat agenda pada scope ini.");
       } else {
         setError("Terjadi kesalahan saat mengambil data agenda.");
@@ -526,16 +567,24 @@ function AgendaContent() {
         if (activeSection) payload.section = activeSection;
       }
 
-      if (!payload.end_date) delete payload.end_date;
-      if (!payload.description) delete payload.description;
-      if (!payload.location) delete payload.location;
-      if (!payload.registration_url) delete payload.registration_url;
-      if (!payload.image_url) delete payload.image_url;
+      if (payload.end_date === "") payload.end_date = null;
+      if (payload.description === "") payload.description = null;
+      if (payload.location === "") payload.location = null;
+      if (payload.registration_url === "") payload.registration_url = null;
+      if (payload.image_url === "") payload.image_url = null;
 
       const response =
         modalType === "create"
-          ? await api.post("/agenda-events", payload)
-          : await api.put(`/agenda-events/${selectedEvent.id}`, payload);
+          ? await api.post("/agenda-events", payload, {
+              headers: {
+                "X-Skip-Auth-Redirect": "1",
+              },
+            })
+          : await api.put(`/agenda-events/${selectedEvent.id}`, payload, {
+              headers: {
+                "X-Skip-Auth-Redirect": "1",
+              },
+            });
 
       if (response.data?.status === "success") {
         Swal.fire({
@@ -555,10 +604,14 @@ function AgendaContent() {
       if (err.response?.status === 422 && err.response.data?.errors) {
         const errors = Object.values(err.response.data.errors).flat();
         setFormError(errors.join(", "));
+      } else if (err.response?.status === 401) {
+        setFormError("Sesi Anda telah berakhir. Silakan login kembali.");
+      } else if (err.response?.status === 419) {
+        setFormError(getApiErrorMessage(err, "Sesi/CSRF tidak valid. Silakan refresh halaman dan coba lagi."));
       } else if (err.response?.status === 403) {
         setFormError("Anda tidak memiliki akses untuk melakukan aksi ini.");
       } else {
-        setFormError("Terjadi kesalahan saat menyimpan agenda.");
+        setFormError(getApiErrorMessage(err, "Terjadi kesalahan saat menyimpan agenda."));
       }
     } finally {
       setFormLoading(false);
@@ -579,7 +632,11 @@ function AgendaContent() {
     if (!result.isConfirmed) return;
 
     try {
-      const response = await api.delete(`/agenda-events/${event.id}`);
+      const response = await api.delete(`/agenda-events/${event.id}`, {
+        headers: {
+          "X-Skip-Auth-Redirect": "1",
+        },
+      });
       if (response.data?.status === "success") {
         Swal.fire({
           icon: "success",
@@ -593,6 +650,14 @@ function AgendaContent() {
       }
       Swal.fire({ icon: "error", title: "Gagal!", text: "Gagal menghapus agenda" });
     } catch (err) {
+      if (err.response?.status === 401) {
+        Swal.fire({
+          icon: "error",
+          title: "Sesi berakhir",
+          text: "Sesi Anda telah berakhir. Silakan login kembali.",
+        });
+        return;
+      }
       Swal.fire({ icon: "error", title: "Gagal!", text: "Gagal menghapus agenda" });
     }
   };

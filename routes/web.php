@@ -99,8 +99,10 @@ Route::middleware([Authenticate::class, HandleInertiaRequests::class])
         });
 
 
-        Route::get('/logout', function () {
+        Route::get('/logout', function (Request $request) {
             Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
             return redirect()->route('login');
         })->name('logout');
 

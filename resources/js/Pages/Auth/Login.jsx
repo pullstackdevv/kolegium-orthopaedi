@@ -33,6 +33,14 @@ export default function LoginForm() {
       
       setMessage(res.data.message || 'Login berhasil!');
       setMessageStatus('success');
+
+      if (res.data?.status === 'success' && res.data?.data?.token) {
+        localStorage.setItem('auth_token', res.data.data.token);
+        localStorage.setItem('user_data', JSON.stringify(res.data.data.user || null));
+      } else {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user_data');
+      }
       
       // Redirect using Inertia router (better for SPA)
       setTimeout(() => {
