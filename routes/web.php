@@ -90,7 +90,7 @@ Route::middleware('guest')->group(function () {
 
 // CMS (admin) protected routes
 // TEMPORARILY DISABLED EnsureModulePermission for debugging
-Route::middleware([Authenticate::class, HandleInertiaRequests::class])
+Route::middleware([Authenticate::class])
     ->prefix('cms')
     ->name('cms.')
     ->group(function () {
@@ -110,6 +110,9 @@ Route::middleware([Authenticate::class, HandleInertiaRequests::class])
             return redirect()->route('cms.coming-soon', ['slug' => 'dashboard']);
         })->name('dashboard');
 
+        Route::get('/calendar', function () {
+            return Inertia::render('Dashboard/Calendar');
+        })->name('calendar');
 
         // Settings
         Route::get('/settings', function () {
