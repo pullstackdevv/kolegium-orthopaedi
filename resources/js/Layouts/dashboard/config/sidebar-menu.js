@@ -13,6 +13,7 @@ import {
   HelpCircle,
   ShieldCheck,
   Key,
+  Building2,
 } from "lucide-react";
 
 // NOTE: href untuk konten Kolegium yang belum dikembangkan
@@ -59,6 +60,12 @@ export const sidebarMenu = [
         icon: Key,
         href: "/cms/settings/permission",
         permission: "permissions.view",
+      },
+      {
+        title: "Affiliations",
+        icon: Building2,
+        href: "/cms/settings/affiliation",
+        permission: "users.view",
       },
     ],
   },

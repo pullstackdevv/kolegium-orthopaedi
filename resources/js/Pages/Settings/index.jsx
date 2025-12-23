@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Users, ShieldCheck, Key } from "lucide-react";
+import { Users, ShieldCheck, Key, Building2 } from "lucide-react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import UserSettings from "./UserSettings";
 import RoleSettings from "./RoleSettings";
 import PermissionSettings from "./PermissionSettings";
+import AffiliationSettings from "./AffiliationSettings";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -41,6 +42,12 @@ function SettingsContent({ initialActiveMenu = "user" }) {
         label: 'Permissions',
         icon: Key,
         enabled: canPermissions,
+      },
+      {
+        value: 'affiliation',
+        label: 'Affiliations',
+        icon: Building2,
+        enabled: canUsers,
       },
     ].filter((t) => t.enabled);
   }, [hasPermission]);
@@ -99,6 +106,12 @@ function SettingsContent({ initialActiveMenu = "user" }) {
           {allowedValues.includes('permission') && (
             <TabsContent value="permission" className="space-y-4">
               <PermissionSettings />
+            </TabsContent>
+          )}
+
+          {allowedValues.includes('affiliation') && (
+            <TabsContent value="affiliation" className="space-y-4">
+              <AffiliationSettings />
             </TabsContent>
           )}
         </Tabs>

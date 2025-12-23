@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AgendaEventController;
+use App\Http\Controllers\AffiliationController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -52,6 +53,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('permissions', [RoleController::class, 'storePermission']);
     Route::put('permissions/{permission}', [RoleController::class, 'updatePermission']);
     Route::delete('permissions/{permission}', [RoleController::class, 'destroyPermission']);
+
+    // Affiliation routes
+    Route::apiResource('affiliations', AffiliationController::class);
+    Route::get('users/{user}/affiliations', [AffiliationController::class, 'getUserAffiliations']);
+    Route::post('users/{user}/affiliations', [AffiliationController::class, 'assignUserAffiliations']);
 
     // Agenda (CMS) routes
     Route::get('agenda-events', [AgendaEventController::class, 'index']);
