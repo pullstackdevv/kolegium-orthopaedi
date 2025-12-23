@@ -6,7 +6,8 @@ import {
     ChevronDown,
     Phone,
     Mail,
-    MapPin
+    MapPin,
+    LayoutDashboard
 } from "lucide-react";
 import { Icon } from "@iconify/react";
 import { AuthProvider } from "../contexts/AuthContext";
@@ -55,7 +56,8 @@ const DropdownLink = ({ href, children }) => (
 export default function MarketplaceLayout({ children }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [openDropdown, setOpenDropdown] = useState(null);
-    const { url } = usePage();
+    const { url, props } = usePage();
+    const { auth } = props;
 
     const isActive = (path) => {
         return url === path || url.startsWith(path + '/');
@@ -114,6 +116,16 @@ export default function MarketplaceLayout({ children }) {
                             <NavLink href="/about-us" active={isActive('/about-us')}>
                                 About Us
                             </NavLink>
+
+                            {auth?.user && (
+                                <Link 
+                                    href="/cms"
+                                    className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium bg-gray-900 text-white hover:bg-gray-800 transition-colors ml-2"
+                                >
+                                    <LayoutDashboard className="w-4 h-4" />
+                                    <span>CMS</span>
+                                </Link>
+                            )}
                         </nav>
 
                         {/* Mobile menu button */}
@@ -166,6 +178,17 @@ export default function MarketplaceLayout({ children }) {
                             <Link href="/peer-group" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Peer Group</Link>
                             
                             <Link href="/about-us" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>About Us</Link>
+                            
+                            {auth?.user && (
+                                <Link 
+                                    href="/cms" 
+                                    className="flex items-center gap-2 px-3 py-3 rounded-lg font-medium bg-gray-900 text-white hover:bg-gray-800 transition mt-2"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    <LayoutDashboard className="w-4 h-4" />
+                                    <span>CMS Dashboard</span>
+                                </Link>
+                            )}
                         </div>
                     </div>
                 )}
@@ -191,7 +214,7 @@ export default function MarketplaceLayout({ children }) {
                                 />
                             </div>
                             <div className="text-sm text-gray-700 space-y-1">                             
-                                <p>Gedung Menara Era, Lantai 8, Unit 8-04 Jl. Senen Raya 135 – 137, Jakarta 10410, INDONESIA</p>
+                                <p>Gedung Menara Era, Lantai 8, Unit 8-04Jl. Senen Raya 135 – 137, Jakarta 10410, INDONESIA</p>
                             </div>
                             <div className="text-sm text-gray-700 space-y-1">
                                 <p>Jl. Hang Jebat Blok F3, RT.5/RW.8, Gunung, Kec. Kby. Baru, Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12120, Indonesia</p>

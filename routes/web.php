@@ -90,7 +90,7 @@ Route::middleware('guest')->group(function () {
 
 // CMS (admin) protected routes
 // TEMPORARILY DISABLED EnsureModulePermission for debugging
-Route::middleware([Authenticate::class, HandleInertiaRequests::class])
+Route::middleware([Authenticate::class])
     ->prefix('cms')
     ->name('cms.')
     ->group(function () {
@@ -99,8 +99,10 @@ Route::middleware([Authenticate::class, HandleInertiaRequests::class])
         });
 
 
-        Route::get('/logout', function () {
+        Route::get('/logout', function (Request $request) {
             Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
             return redirect()->route('login');
         })->name('logout');
 
@@ -108,6 +110,9 @@ Route::middleware([Authenticate::class, HandleInertiaRequests::class])
             return redirect()->route('cms.coming-soon', ['slug' => 'dashboard']);
         })->name('dashboard');
 
+        Route::get('/calendar', function () {
+            return Inertia::render('Dashboard/Calendar');
+        })->name('calendar');
 
         // Settings
         Route::get('/settings', function () {
@@ -127,9 +132,7 @@ Route::middleware([Authenticate::class, HandleInertiaRequests::class])
         })->name('settings.permission');
 
         // Agenda
-        Route::get('/agenda', function () {
-            return Inertia::render('Agenda/index');
-        })->name('agenda.index');
+        Route::get('/agenda', [\App\Http\Controllers\AgendaEventController::class, 'cmsPage'])->name('agenda.index');
 
         // User management routes
         Route::get('/settings/users/create', function () {
