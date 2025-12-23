@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
             ->web([
                 \Illuminate\Http\Middleware\HandleCors::class,
                 \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+                \App\Http\Middleware\HandleInertiaRequests::class,
             ])
             ->api([
                 \Illuminate\Http\Middleware\HandleCors::class,
