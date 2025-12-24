@@ -24,6 +24,13 @@ class HandleInertiaRequests extends Middleware
      */
     public function version(Request $request): ?string
     {
+        // Use Vite manifest for cache busting
+        $manifestPath = public_path('build/.vite/manifest.json');
+        
+        if (file_exists($manifestPath)) {
+            return md5_file($manifestPath);
+        }
+        
         return parent::version($request);
     }
 
