@@ -117,8 +117,7 @@ export default function Calendar() {
     { id: "ujian_nasional", name: "National Exam", color: "bg-blue-400", textColor: "text-blue-700" },
     { id: "event_lokal", name: "Local Event", color: "bg-green-400", textColor: "text-green-700" },
     { id: "event_nasional", name: "National Event", color: "bg-orange-400", textColor: "text-orange-700" },
-    { id: "event_peer_group", name: "Peer Group Event International", color: "bg-purple-400", textColor: "text-purple-700" },
-    { id: "event_peer_group_nasional", name: "Peer Group Event National", color: "bg-indigo-400", textColor: "text-indigo-700" }
+    { id: "event_internasional", name: "International Event", color: "bg-purple-400", textColor: "text-purple-700" },
   ];
 
   const getEventColor = (type) => {
