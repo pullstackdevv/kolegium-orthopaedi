@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AffiliationType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,6 +13,10 @@ class Affiliation extends Model
         'name',
         'type',
         'code',
+    ];
+
+    protected $casts = [
+        'type' => AffiliationType::class,
     ];
 
     public function users(): BelongsToMany
