@@ -138,6 +138,11 @@ Route::middleware([Authenticate::class])
         // Agenda
         Route::get('/agenda', [\App\Http\Controllers\AgendaEventController::class, 'cmsPage'])->name('agenda.index');
 
+        // Database Members
+        Route::get('/database', function () {
+            return Inertia::render('Database/index');
+        })->name('database.index');
+
         // User management routes
         Route::get('/settings/users/create', function () {
             return redirect()->route('cms.settings.user');

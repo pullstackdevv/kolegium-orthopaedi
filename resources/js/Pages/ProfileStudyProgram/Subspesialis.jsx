@@ -1,25 +1,64 @@
 import { Link } from "@inertiajs/react";
+import { useEffect, useState } from "react";
 import HomepageLayout from "../../Layouts/HomepageLayout";
+import api from "@/api/axios";
 
 export default function Subspesialis() {
-  const universities = [
+  const universityTemplates = [
     {
       code: "FK",
       name: "FK-UI",
       fullName: "Universitas Indonesia",
-      description: "The subspecialist specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      description:
+        "The subspecialist specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 77
+      students: 77,
     },
     {
       code: "FK",
       name: "FK-UNAIR",
       fullName: "Universitas Indonesia",
-      description: "The subspecialist specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      description:
+        "The subspecialist specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 88
-    }
+      students: 88,
+    },
   ];
+
+  const [universities, setUniversities] = useState(universityTemplates);
+
+  useEffect(() => {
+    const fetchAffiliations = async () => {
+      try {
+        const response = await api.get("/public/affiliations", {
+          params: { type: "subspesialis" },
+        });
+
+        if (response.data?.status !== "success") {
+          setUniversities([]);
+          return;
+        }
+
+        const list = Array.isArray(response.data?.data) ? response.data.data : [];
+        const merged = list.map((a, idx) => {
+          const base = universityTemplates[idx] ?? universityTemplates[0] ?? {};
+          return {
+            ...base,
+            id: a.id,
+            code: a.code ? a.code.charAt(0) + a.code.split('-')[1].charAt(0) : base.code,
+            name: a.code ?? base.name,
+            fullName: a.name ?? base.fullName
+          };
+        });
+
+        setUniversities(merged);
+      } catch (e) {
+        setUniversities(universityTemplates);
+      }
+    };
+
+    fetchAffiliations();
+  }, []);
 
   const tabs = [
     { name: "PPDS1", href: "/profile-study-program/ppds1", active: false },

@@ -1,41 +1,82 @@
 import { Link } from "@inertiajs/react";
+import { useEffect, useState } from "react";
 import HomepageLayout from "../../Layouts/HomepageLayout";
+import api from "@/api/axios";
 
 export default function ClinicalFellowship() {
-  const universities = [
+  const universityTemplates = [
     {
       code: "RS",
       name: "RSUD Dr. Saiful Anwar Malang",
       fullName: "RSUP Dr.Sardjito",
-      description: "A continuing education program for specialist doctors to deepen clinical expertise in a particular subspecialty area.",
+      description:
+        "A continuing education program for specialist doctors to deepen clinical expertise in a particular subspecialty area.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 6
+      students: 6,
     },
     {
       code: "RS",
       name: "RSUP Dr. Hasan Sadikin Bandung",
       fullName: "RSUP Dr.Sardjito",
-      description: "A continuing education program for specialist doctors to deepen clinical expertise in a particular subspecialty area.",
+      description:
+        "A continuing education program for specialist doctors to deepen clinical expertise in a particular subspecialty area.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 29
+      students: 29,
     },
     {
       code: "RS",
       name: "RSUP Dr. Sardjito Yogyakarta",
       fullName: "RSUP Dr.Sardjito",
-      description: "A continuing education program for specialist doctors to deepen clinical expertise in a particular subspecialty area.",
+      description:
+        "A continuing education program for specialist doctors to deepen clinical expertise in a particular subspecialty area.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 6
+      students: 6,
     },
     {
       code: "RS",
       name: "RSUD Dr. Moewardi Solo",
       fullName: "RSUP Dr.Sardjito",
-      description: "A continuing education program for specialist doctors to deepen clinical expertise in a particular subspecialty area.",
+      description:
+        "A continuing education program for specialist doctors to deepen clinical expertise in a particular subspecialty area.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 8
-    }
+      students: 8,
+    },
   ];
+
+  const [universities, setUniversities] = useState(universityTemplates);
+
+  useEffect(() => {
+    const fetchAffiliations = async () => {
+      try {
+        const response = await api.get("/public/affiliations", {
+          params: { type: "clinical_fellowship" },
+        });
+
+        if (response.data?.status !== "success") {
+          setUniversities([]);
+          return;
+        }
+
+        const list = Array.isArray(response.data?.data) ? response.data.data : [];
+        const merged = list.map((a, idx) => {
+          const base = universityTemplates[idx] ?? universityTemplates[0] ?? {};
+          return {
+            ...base,
+            id: a.id,
+            code: a.code ? a.code.charAt(0) + a.code.split('-')[1].charAt(0) : base.code,
+            name: a.code ?? base.name,
+            fullName: a.name ?? base.fullName
+          };
+        });
+
+        setUniversities(merged);
+      } catch (e) {
+        setUniversities(universityTemplates);
+      }
+    };
+
+    fetchAffiliations();
+  }, []);
 
   const tabs = [
     { name: "PPDS1", href: "/profile-study-program/ppds1", active: false },

@@ -1,115 +1,165 @@
 import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
+import { useEffect, useState } from "react";
 import HomepageLayout from "../../Layouts/HomepageLayout";
+import api from "@/api/axios";
 
 export default function PPDS1() {
   // Data universitas PPDS1
-  const universities = [
+  const universityTemplates = [
     {
       code: "FK",
       name: "FK-UI",
       fullName: "Universitas Indonesia",
-      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      description:
+        "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 120
+      students: 120,
     },
     {
       code: "FK",
       name: "FK-UNAIR",
       fullName: "Universitas Indonesia",
-      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      description:
+        "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 110
+      students: 110,
     },
     {
       code: "FK",
       name: "FK-UNPAD",
       fullName: "Universitas Indonesia",
-      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      description:
+        "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 145
+      students: 145,
     },
     {
       code: "FK",
       name: "FK-UNHAS",
       fullName: "Universitas Indonesia",
-      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      description:
+        "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 66
+      students: 66,
     },
     {
       code: "FK",
       name: "FK-UGM",
       fullName: "Universitas Indonesia",
-      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      description:
+        "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 179
+      students: 179,
     },
     {
       code: "FK",
       name: "FK-UDAYANA",
       fullName: "Universitas Indonesia",
-      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      description:
+        "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 170
+      students: 170,
     },
     {
       code: "FK",
       name: "FK-USU",
       fullName: "Universitas Indonesia",
-      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      description:
+        "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 145
+      students: 145,
     },
     {
       code: "FK",
       name: "FK-UBRA",
       fullName: "Universitas Indonesia",
-      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      description:
+        "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 120
+      students: 120,
     },
     {
       code: "FK",
       name: "FK-USRI",
       fullName: "Universitas Indonesia",
-      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      description:
+        "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 77
+      students: 77,
     },
     {
       code: "FK",
       name: "FK-UNAN",
       fullName: "Universitas Indonesia",
-      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      description:
+        "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 80
+      students: 80,
     },
     {
       code: "FK",
       name: "FK-USK",
       fullName: "Universitas Indonesia",
-      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      description:
+        "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 124
+      students: 124,
     },
     {
       code: "FK",
       name: "FK-ULM",
       fullName: "Universitas Indonesia",
-      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      description:
+        "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 80
+      students: 80,
     },
     {
       code: "FK",
       name: "RS SOEHARSO",
       fullName: "Universitas Indonesia",
-      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
+      description:
+        "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
-      students: 95
-    }
+      students: 95,
+    },
   ];
+
+  const [universities, setUniversities] = useState(universityTemplates);
+
+  useEffect(() => {
+    const fetchAffiliations = async () => {
+      try {
+        const response = await api.get("/public/affiliations", {
+          params: { type: "residen" },
+        });
+
+        if (response.data?.status !== "success") {
+          setUniversities([]);
+          return;
+        }
+
+        const list = Array.isArray(response.data?.data) ? response.data.data : [];
+        const merged = list.map((a, idx) => {
+          const base = universityTemplates[idx] ?? universityTemplates[0] ?? {};
+          return {
+            ...base,
+            id: a.id,
+            code: base.code,
+            name: a.code ?? base.name,
+            fullName: a.name ?? base.fullName,
+          };
+        });
+
+        setUniversities(merged);
+      } catch (e) {
+        setUniversities(universityTemplates);
+      }
+    };
+
+    fetchAffiliations();
+  }, []);
 
   const tabs = [
     { name: "PPDS1", href: "/profile-study-program/ppds1", active: true },

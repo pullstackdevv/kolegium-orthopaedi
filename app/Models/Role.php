@@ -211,6 +211,42 @@ class Role extends Model
             'agenda.peer_group.edit',
             'agenda.peer_group.delete',
             'agenda.peer_group.publish',
+
+            'database.kolegium.koti.view',
+            'database.kolegium.koti.create',
+            'database.kolegium.koti.edit',
+            'database.kolegium.koti.delete',
+            'database.kolegium.koti.import',
+
+            'database.kolegium.kolkes.view',
+            'database.kolegium.kolkes.create',
+            'database.kolegium.kolkes.edit',
+            'database.kolegium.kolkes.delete',
+            'database.kolegium.kolkes.import',
+
+            'database.study_program.resident.view',
+            'database.study_program.resident.create',
+            'database.study_program.resident.edit',
+            'database.study_program.resident.delete',
+            'database.study_program.resident.import',
+
+            'database.study_program.fellow.view',
+            'database.study_program.fellow.create',
+            'database.study_program.fellow.edit',
+            'database.study_program.fellow.delete',
+            'database.study_program.fellow.import',
+
+            'database.study_program.trainee.view',
+            'database.study_program.trainee.create',
+            'database.study_program.trainee.edit',
+            'database.study_program.trainee.delete',
+            'database.study_program.trainee.import',
+
+            'database.peer_group.view',
+            'database.peer_group.create',
+            'database.peer_group.edit',
+            'database.peer_group.delete',
+            'database.peer_group.import',
         ];
     }
 }

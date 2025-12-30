@@ -12,6 +12,22 @@ use Illuminate\Validation\ValidationException;
 
 class AffiliationController extends Controller
 {
+    public function publicIndex(Request $request): JsonResponse
+    {
+        $type = $request->string('type')->toString();
+
+        $affiliations = Affiliation::query()
+            ->select(['id', 'name', 'code', 'type'])
+            ->when($type !== '', fn ($q) => $q->where('type', $type))
+            ->orderBy('name')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $affiliations,
+        ]);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $authUser = Auth::user();

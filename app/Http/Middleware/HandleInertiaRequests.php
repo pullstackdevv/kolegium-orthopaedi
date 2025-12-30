@@ -47,7 +47,7 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             // Authenticated user data
             'auth' => [
-                'user' => $request->user() ? $request->user()->load('roles') : null,
+                'user' => $request->user() ? $request->user()->load('roles', 'affiliations') : null,
             ],
 
             // Flash message support
