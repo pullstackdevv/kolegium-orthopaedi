@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AgendaEventController;
 use App\Http\Controllers\AffiliationController;
+use App\Http\Controllers\DatabaseMemberController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -68,7 +69,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('agenda-events/{agendaEvent}/upload-image', [AgendaEventController::class, 'uploadImageForEvent']);
     Route::post('agenda-events/{agendaEvent}/publish', [AgendaEventController::class, 'publish']);
     Route::post('agenda-events/{agendaEvent}/unpublish', [AgendaEventController::class, 'unpublish']);
+
+    // Database Members (CMS) routes
+    Route::get('database-members', [DatabaseMemberController::class, 'index']);
+    Route::get('database-members/affiliations', [DatabaseMemberController::class, 'affiliations']);
+    Route::get('database-members/export-excel', [DatabaseMemberController::class, 'exportExcel']);
+    Route::post('database-members/upload-photo', [DatabaseMemberController::class, 'uploadPhoto']);
+    Route::post('database-members/import-excel', [DatabaseMemberController::class, 'importExcel']);
+    Route::post('database-members', [DatabaseMemberController::class, 'store']);
+    Route::put('database-members/{databaseMember}', [DatabaseMemberController::class, 'update']);
+    Route::delete('database-members/{databaseMember}', [DatabaseMemberController::class, 'destroy']);
+    Route::post('database-members/{databaseMember}/upload-photo', [DatabaseMemberController::class, 'uploadPhotoForMember']);
 });
 
 // Public agenda routes (landing pages)
 Route::get('public/agenda-events', [AgendaEventController::class, 'publicIndex']);
+Route::get('public/affiliations', [AffiliationController::class, 'publicIndex']);

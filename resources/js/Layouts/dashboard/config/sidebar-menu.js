@@ -103,14 +103,14 @@ export const sidebarMenu = [
       {
         title: "Org. Structure (KOTI)",
         icon: Users,
-        href: "/cms/coming-soon/kolegium-structure-koti",
-        permission: "agenda.kolegium.view",
+        href: "/cms/database?org=koti",
+        permission: "database.kolegium.koti.view",
       },
       {
         title: "Org. Structure (Kolkes)",
         icon: Users,
-        href: "/cms/coming-soon/kolegium-structure-kolkes",
-        permission: "agenda.kolegium.view",
+        href: "/cms/database?org=kolkes",
+        permission: "database.kolegium.kolkes.view",
       },
       {
         title: "Event Gallery",
@@ -192,8 +192,8 @@ export const sidebarMenu = [
           {
             title: "Resident - Database",
             icon: BookOpen,
-            href: "/cms/coming-soon/resident-database",
-            permission: "agenda.study_program.resident.view",
+            href: "/cms/database?org=resident",
+            permission: "database.study_program.resident.view",
           },
           {
             title: "Resident - Agenda",
@@ -233,8 +233,8 @@ export const sidebarMenu = [
           {
             title: "Fellow (CF) - Database",
             icon: BookOpen,
-            href: "/cms/coming-soon/fellow-database",
-            permission: "agenda.study_program.fellow.view",
+            href: "/cms/database?org=fellow",
+            permission: "database.study_program.fellow.view",
           },
           {
             title: "Fellow (CF) - Agenda",
@@ -274,8 +274,8 @@ export const sidebarMenu = [
           {
             title: "Trainee - Database",
             icon: BookOpen,
-            href: "/cms/coming-soon/trainee-database",
-            permission: "agenda.study_program.trainee.view",
+            href: "/cms/database?org=trainee",
+            permission: "database.study_program.trainee.view",
           },
           {
             title: "Trainee - Agenda",
@@ -339,8 +339,8 @@ export const sidebarMenu = [
       {
         title: "Member Database",
         icon: BookOpen,
-        href: "/cms/coming-soon/peergroup-members",
-        permission: "agenda.peer_group.view",
+        href: "/cms/database?org=peer_group",
+        permission: "database.peer_group.view",
       },
       {
         title: "Peer Group - National Event",
