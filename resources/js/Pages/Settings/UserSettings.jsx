@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Users, UserPlus, Pencil, Trash2, CheckCircle, XCircle, AlertCircle, Loader2, ChevronLeft, ChevronRight, Building2 } from "lucide-react";
+import { Users, UserPlus, Pencil, Trash2, CheckCircle, XCircle, AlertCircle, Loader2, ChevronLeft, ChevronRight, Building2, Eye, EyeOff } from "lucide-react";
 import api from "@/api/axios";
 import Swal from "sweetalert2";
 import PermissionGuard from "@/components/PermissionGuard";
@@ -56,6 +56,9 @@ export default function UserSettings() {
   const [roleDescriptions, setRoleDescriptions] = useState({});
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false);
 
   // Affiliation management state
   const [showAffiliationModal, setShowAffiliationModal] = useState(false);
@@ -92,6 +95,7 @@ export default function UserSettings() {
       is_active: true
     });
     setFormError(null);
+    setFieldErrors({});
     setSelectedUser(null);
   };
 
@@ -173,19 +177,44 @@ export default function UserSettings() {
       
       if (err.response?.status === 422) {
         // Validation errors
-        const errors = Object.values(err.response.data.errors).flat();
-        setFormError(errors.join(', '));
+        const responseData = err.response.data;
+        
+        // Check if errors is an array (custom format) or object (Laravel format)
+        if (Array.isArray(responseData.errors)) {
+          // Custom format: [{field, tag, message}]
+          const fieldErrorsObj = {};
+          const errorMessages = responseData.errors.map(error => {
+            if (error.field) {
+              fieldErrorsObj[error.field] = [error.message];
+            }
+            return error.message;
+          }).join('; ');
+          setFieldErrors(fieldErrorsObj);
+          setFormError(errorMessages || responseData.message || 'Terdapat kesalahan validasi pada form');
+        } else {
+          // Laravel format: {field: [messages]}
+          const errors = responseData.errors;
+          setFieldErrors(errors);
+          const errorMessages = Object.entries(errors)
+            .map(([field, messages]) => {
+              const msgArray = Array.isArray(messages) ? messages : [messages];
+              return msgArray.join(', ');
+            })
+            .join('; ');
+          setFormError(errorMessages || 'Terdapat kesalahan validasi pada form');
+        }
       } else if (err.response?.status === 401) {
         setFormError('Sesi Anda telah berakhir. Silakan login kembali.');
         setTimeout(() => window.location.href = '/cms/login', 2000);
       } else if (err.response?.status === 403) {
         setFormError('Anda tidak memiliki akses untuk membuat user.');
       } else {
-        setFormError('Gagal membuat user. Silakan coba lagi.');
+        const errorMessage = err.response?.data?.message || err.message || 'Gagal membuat user. Silakan coba lagi.';
+        setFormError(errorMessage);
         Swal.fire({
           icon: 'error',
           title: 'Gagal!',
-          text: 'Gagal membuat user'
+          text: errorMessage
         });
       }
     } finally {
@@ -223,19 +252,44 @@ export default function UserSettings() {
       
       if (err.response?.status === 422) {
         // Validation errors
-        const errors = Object.values(err.response.data.errors).flat();
-        setFormError(errors.join(', '));
+        const responseData = err.response.data;
+        
+        // Check if errors is an array (custom format) or object (Laravel format)
+        if (Array.isArray(responseData.errors)) {
+          // Custom format: [{field, tag, message}]
+          const fieldErrorsObj = {};
+          const errorMessages = responseData.errors.map(error => {
+            if (error.field) {
+              fieldErrorsObj[error.field] = [error.message];
+            }
+            return error.message;
+          }).join('; ');
+          setFieldErrors(fieldErrorsObj);
+          setFormError(errorMessages || responseData.message || 'Terdapat kesalahan validasi pada form');
+        } else {
+          // Laravel format: {field: [messages]}
+          const errors = responseData.errors;
+          setFieldErrors(errors);
+          const errorMessages = Object.entries(errors)
+            .map(([field, messages]) => {
+              const msgArray = Array.isArray(messages) ? messages : [messages];
+              return msgArray.join(', ');
+            })
+            .join('; ');
+          setFormError(errorMessages || 'Terdapat kesalahan validasi pada form');
+        }
       } else if (err.response?.status === 401) {
         setFormError('Sesi Anda telah berakhir. Silakan login kembali.');
         setTimeout(() => window.location.href = '/cms/login', 2000);
       } else if (err.response?.status === 403) {
         setFormError('Anda tidak memiliki akses untuk memperbarui user.');
       } else {
-        setFormError('Gagal memperbarui user. Silakan coba lagi.');
+        const errorMessage = err.response?.data?.message || err.message || 'Gagal memperbarui user. Silakan coba lagi.';
+        setFormError(errorMessage);
         Swal.fire({
           icon: 'error',
           title: 'Gagal!',
-          text: 'Gagal memperbarui user'
+          text: errorMessage
         });
       }
     } finally {
@@ -271,10 +325,11 @@ export default function UserSettings() {
       }
     } catch (err) {
       console.error('Error deleting user:', err);
+      const errorMessage = err.response?.data?.message || err.message || 'Gagal menghapus user';
       Swal.fire({
         icon: 'error',
         title: 'Gagal!',
-        text: 'Gagal menghapus user'
+        text: errorMessage
       });
     }
   };
@@ -284,6 +339,7 @@ export default function UserSettings() {
     
     // Clear previous errors
     setFormError(null);
+    setFieldErrors({});
     
     // Basic validation
     if (!formData.name || !formData.email || (modalType === 'create' && !formData.password)) {
@@ -325,7 +381,8 @@ export default function UserSettings() {
       } else if (err.response?.status === 403) {
         setError('Anda tidak memiliki akses untuk melihat data pengguna.');
       } else {
-        setError('Terjadi kesalahan saat mengambil data pengguna.');
+        const errorMessage = err.response?.data?.message || err.message || 'Terjadi kesalahan saat mengambil data pengguna.';
+        setError(errorMessage);
       }
     } finally {
       setLoading(false);
@@ -392,10 +449,11 @@ export default function UserSettings() {
       }
     } catch (err) {
       console.error('Error fetching user affiliations:', err);
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to load user affiliations';
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Failed to load user affiliations'
+        text: errorMessage
       });
     } finally {
       setAffiliationLoading(false);
@@ -697,7 +755,11 @@ export default function UserSettings() {
                 onChange={handleInputChange}
                 required
                 placeholder="Masukkan nama lengkap"
+                className={fieldErrors.name ? 'border-red-500' : ''}
               />
+              {fieldErrors.name && (
+                <p className="text-sm text-red-500 mt-1">{fieldErrors.name[0]}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -710,7 +772,11 @@ export default function UserSettings() {
                 onChange={handleInputChange}
                 required
                 placeholder="Masukkan alamat email"
+                className={fieldErrors.email ? 'border-red-500' : ''}
               />
+              {fieldErrors.email && (
+                <p className="text-sm text-red-500 mt-1">{fieldErrors.email[0]}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -720,34 +786,60 @@ export default function UserSettings() {
               <p className="text-xs text-muted-foreground">
                 {modalType === 'create' ? 'Minimal 8 karakter' : 'Kosongkan jika tidak ingin mengubah'}
               </p>
-              <Input
-                id="password"
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                required={modalType === 'create'}
-                placeholder="Masukkan password"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required={modalType === 'create'}
+                  placeholder="Masukkan password"
+                  className={fieldErrors.password ? 'border-red-500 pr-10' : 'pr-10'}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {fieldErrors.password && (
+                <p className="text-sm text-red-500 mt-1">{fieldErrors.password[0]}</p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="password_confirmation">Konfirmasi Password *</Label>
-              <Input
-                id="password_confirmation"
-                type="password"
-                name="password_confirmation"
-                value={formData.password_confirmation}
-                onChange={handleInputChange}
-                required={modalType === 'create' || formData.password}
-                placeholder="Konfirmasi password"
-              />
+              <div className="relative">
+                <Input
+                  id="password_confirmation"
+                  type={showPasswordConfirmation ? "text" : "password"}
+                  name="password_confirmation"
+                  value={formData.password_confirmation}
+                  onChange={handleInputChange}
+                  required={modalType === 'create' || formData.password}
+                  placeholder="Konfirmasi password"
+                  className={fieldErrors.password_confirmation ? 'border-red-500 pr-10' : 'pr-10'}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPasswordConfirmation(!showPasswordConfirmation)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showPasswordConfirmation ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {fieldErrors.password_confirmation && (
+                <p className="text-sm text-red-500 mt-1">{fieldErrors.password_confirmation[0]}</p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label>Role *</Label>
               <Select value={formData.role_id} onValueChange={(value) => setFormData(prev => ({ ...prev, role_id: value }))}>
-                <SelectTrigger>
+                <SelectTrigger className={fieldErrors.role_id ? 'border-red-500' : ''}>
                   <SelectValue placeholder="Pilih Role" />
                 </SelectTrigger>
                 <SelectContent>
