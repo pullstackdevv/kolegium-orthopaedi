@@ -29,7 +29,7 @@ return new class extends Migration
         }
 
         if (!Schema::hasColumn('database_members', 'deleted_scope')) {
-            DB::statement("ALTER TABLE `database_members` ADD COLUMN `deleted_scope` varchar(32) GENERATED ALWAYS AS (IF(`deleted_at` IS NULL, '0', DATE_FORMAT(`deleted_at`, '%Y%m%d%H%i%s'))) STORED");
+            DB::statement("ALTER TABLE `database_members` ADD COLUMN `deleted_scope` varchar(32) GENERATED ALWAYS AS (IF(`deleted_at` IS NULL, '0', CAST(`deleted_at` AS CHAR))) STORED");
         }
 
         Schema::table('database_members', function (Blueprint $table) {
