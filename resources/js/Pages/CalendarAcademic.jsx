@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
-import { ChevronLeft, ChevronRight, Calendar, X, Trash2, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar, X, Trash2, MapPin, ChevronDown, ChevronUp } from "lucide-react";
 import HomepageLayout from "../Layouts/HomepageLayout";
 import api from "@/api/axios";
 
@@ -18,6 +18,7 @@ export default function CalendarAcademic() {
   const [eventToDelete, setEventToDelete] = useState(null);
   const [tempMonth, setTempMonth] = useState(now.getMonth());
   const [tempYear, setTempYear] = useState(now.getFullYear());
+  const [showFullDescription, setShowFullDescription] = useState(false);
   // Set default date to today for demo purposes
   const todayDate = new Date();
   todayDate.setHours(12, 0, 0, 0); // Set to noon to avoid timezone issues
@@ -445,7 +446,7 @@ export default function CalendarAcademic() {
           <div className="flex items-center gap-2 text-white text-sm">
             <Link href="/" className="hover:underline">Beranda</Link>
             <span>/</span>
-            <span>Calendar Academic</span>
+              <span>Academic Calendar</span>
           </div>
         </div>
       </section>
@@ -455,7 +456,7 @@ export default function CalendarAcademic() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Title */}
           <h1 className="text-3xl font-bold text-blue-700 mb-8">
-            Calender Academic {academicYear.label}
+            Academic Calendar {academicYear.label}
           </h1>
 
           {/* Stats Cards */}
@@ -698,7 +699,7 @@ export default function CalendarAcademic() {
 
           {/* Calendar */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-2xl font-bold text-blue-600 mb-6">Calender Academic</h2>
+            <h2 className="text-2xl font-bold text-blue-600 mb-6">Academic Calendar</h2>
             
             {/* Calendar Header */}
             <div className="flex items-center justify-between mb-6">
@@ -799,8 +800,8 @@ export default function CalendarAcademic() {
 
       {/* Add Event Modal */}
       {showEventModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowEventModal(false)}>
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <h3 className="text-xl font-bold text-gray-900">Add Event</h3>
               <button
@@ -897,8 +898,8 @@ export default function CalendarAcademic() {
 
       {/* Event Detail Modal */}
       {showDetailModal && selectedEvent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowDetailModal(false)}>
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
             <div className={`p-6 rounded-t-xl ${getEventColor(selectedEvent.type).color}`}>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -941,7 +942,27 @@ export default function CalendarAcademic() {
               {selectedEvent.description && (
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-500 mb-1">Description</label>
-                  <p className="text-gray-700">{selectedEvent.description}</p>
+                  <div className="text-gray-700">
+                    <p className={`${!showFullDescription && selectedEvent.description.length > 200 ? 'line-clamp-3' : ''}`}>
+                      {selectedEvent.description}
+                    </p>
+                    {selectedEvent.description.length > 200 && (
+                      <button
+                        onClick={() => setShowFullDescription(!showFullDescription)}
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium mt-2 flex items-center gap-1"
+                      >
+                        {showFullDescription ? (
+                          <>
+                            Show Less <ChevronUp className="w-4 h-4" />
+                          </>
+                        ) : (
+                          <>
+                            Show More <ChevronDown className="w-4 h-4" />
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
               {selectedEvent.location && (
@@ -990,8 +1011,8 @@ export default function CalendarAcademic() {
 
       {/* Month/Year Picker Modal */}
       {showDatePickerModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowDatePickerModal(false)}>
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <h3 className="text-xl font-bold text-gray-900">Select Month & Year</h3>
               <button
@@ -1057,8 +1078,8 @@ export default function CalendarAcademic() {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && eventToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={handleCancelDelete}>
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
             <div className="p-6">
               <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full">
                 <Trash2 className="w-8 h-8 text-red-600" />
