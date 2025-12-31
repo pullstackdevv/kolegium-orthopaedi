@@ -110,7 +110,7 @@ export default function Subspesialis() {
             {universities.map((university, index) => (
               <Link
                 key={index}
-                href={`/profile-study-program/subspesialis/fk-ui-${index + 1}`}
+                href={university?.id ? `/profile-study-program/subspesialis/${university.id}` : `/profile-study-program/subspesialis/fk-ui-${index + 1}`}
                 className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-300 block"
               >
                 <div className="flex items-center gap-3 mb-4">

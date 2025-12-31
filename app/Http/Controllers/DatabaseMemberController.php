@@ -196,6 +196,51 @@ class DatabaseMemberController extends Controller
         ]);
     }
 
+    public function publicIndex(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'organization_type' => ['required', 'string', Rule::in(self::ORG_TYPES)],
+            'affiliation_id' => 'required|integer|exists:affiliations,id',
+            'per_page' => 'nullable|integer|min:1|max:100',
+            'page' => 'nullable|integer|min:1',
+            'status' => ['nullable', 'string', Rule::in(['active', 'graduated', 'leave'])],
+            'search' => 'nullable|string|max:255',
+        ]);
+
+        $orgType = $validated['organization_type'];
+        $affiliationId = (int) $validated['affiliation_id'];
+
+        $baseQuery = DatabaseMember::query()
+            ->where('organization_type', $orgType)
+            ->where('affiliation_id', $affiliationId);
+
+        $query = (clone $baseQuery)
+            ->when(!empty($validated['status']), fn ($q) => $q->where('status', $validated['status']))
+            ->when(!empty($validated['search']), function ($q) use ($validated) {
+                $search = $validated['search'];
+                $q->where(function ($qq) use ($search) {
+                    $qq->where('name', 'like', "%{$search}%")
+                        ->orWhere('member_code', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('name');
+
+        $members = $query->paginate($request->integer('per_page', 10));
+
+        $stats = [
+            'total' => (clone $baseQuery)->count(),
+            'active' => (clone $baseQuery)->where('status', 'active')->count(),
+            'graduated' => (clone $baseQuery)->where('status', 'graduated')->count(),
+            'leave' => (clone $baseQuery)->where('status', 'leave')->count(),
+        ];
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $members,
+            'stats' => $stats,
+        ]);
+    }
+
     public function exportExcel(Request $request)
     {
         $validated = $request->validate([

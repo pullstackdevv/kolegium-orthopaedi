@@ -248,6 +248,7 @@ function DatabaseContent({ activeOrg }) {
   const [exportLoading, setExportLoading] = useState(false);
 
   const canView = activeOrg ? hasPermission(permissionKey(activeOrg, "view")) : false;
+  const isPeerGroupOrg = activeOrg === "peer_group";
 
   const loadAffiliations = async () => {
     if (hasUserAffiliations) return;
@@ -517,11 +518,15 @@ function DatabaseContent({ activeOrg }) {
         organization_type: activeOrg,
         member_code: formData.member_code,
         name: formData.name,
-        entry_date: formData.entry_date || null,
+        photo: formData.photo || null,
         gender: formData.gender || null,
-        specialization: formData.specialization || null,
         status: formData.status || "active",
       };
+
+      if (!isPeerGroupOrg) {
+        payload.entry_date = formData.entry_date || null;
+        payload.specialization = formData.specialization || null;
+      }
 
       if (!hasUserAffiliations) {
         payload.affiliation_id = formData.affiliation_id ? Number(formData.affiliation_id) : null;
@@ -807,7 +812,7 @@ function DatabaseContent({ activeOrg }) {
                           <TableHead>Nomor Identitas</TableHead>
                           <TableHead>Nama</TableHead>
                           <TableHead>Jenis Kelamin</TableHead>
-                          <TableHead>Spesialisasi</TableHead>
+                          {!isPeerGroupOrg ? <TableHead>Spesialisasi</TableHead> : null}
                           <TableHead>Status</TableHead>
                           <TableHead className="text-right">Aksi</TableHead>
                         </TableRow>
@@ -832,7 +837,7 @@ function DatabaseContent({ activeOrg }) {
                             <TableCell className="font-medium">{m.member_code}</TableCell>
                             <TableCell>{buildDisplayName(m)}</TableCell>
                             <TableCell>{m.gender === "male" ? "Laki-laki" : m.gender === "female" ? "Perempuan" : "-"}</TableCell>
-                            <TableCell>{m.specialization || "-"}</TableCell>
+                            {!isPeerGroupOrg ? <TableCell>{m.specialization || "-"}</TableCell> : null}
                             <TableCell>{statusBadge(m.status)}</TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-2">
@@ -1019,6 +1024,58 @@ function DatabaseContent({ activeOrg }) {
               </div>
 
               <div className="space-y-2">
+                <Label>Foto</Label>
+                <Select value={photoMode} onValueChange={setPhotoMode}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih mode" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="url">URL</SelectItem>
+                    <SelectItem value="upload">Upload</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {photoMode === "upload" ? (
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    disabled={photoUploading}
+                    onChange={(e) => uploadPhotoFile(e.target.files?.[0] || null)}
+                  />
+                ) : (
+                  <Input
+                    value={formData.photo}
+                    onChange={(e) => setFormData((p) => ({ ...p, photo: e.target.value }))}
+                    placeholder="Masukkan URL foto"
+                  />
+                )}
+
+                <div className="flex items-center gap-3">
+                  {formData.photo ? (
+                    <img
+                      src={resolveImageUrl(formData.photo)}
+                      alt={formData.name || "Foto"}
+                      className="h-14 w-14 rounded object-cover border"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                    />
+                  ) : null}
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setFormData((p) => ({ ...p, photo: "" }))}
+                    disabled={photoUploading || !formData.photo}
+                  >
+                    Hapus Foto
+                  </Button>
+                </div>
+
+                {photoUploading ? <div className="text-xs text-muted-foreground">Mengunggah foto...</div> : null}
+              </div>
+
+              <div className="space-y-2">
                 <Label>Status *</Label>
                 <Select value={formData.status} onValueChange={(v) => setFormData((p) => ({ ...p, status: v }))}>
                   <SelectTrigger>
@@ -1045,48 +1102,52 @@ function DatabaseContent({ activeOrg }) {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label>Tanggal Masuk</Label>
-                <Datepicker
-                  value={ymdToDate(formData.entry_date)}
-                  onChange={(d) => setFormData((p) => ({ ...p, entry_date: dateToYmd(d) }))}
-                  weekStart={1}
-                  autoHide
-                  placeholder="Pilih tanggal"
-                  theme={{
-                    root: {
-                      input: {
-                        field: {
-                          input: {
-                            base:
-                              "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+              {!isPeerGroupOrg ? (
+                <div className="space-y-2">
+                  <Label>Tanggal Masuk</Label>
+                  <Datepicker
+                    value={ymdToDate(formData.entry_date)}
+                    onChange={(d) => setFormData((p) => ({ ...p, entry_date: dateToYmd(d) }))}
+                    weekStart={1}
+                    autoHide
+                    placeholder="Pilih tanggal"
+                    theme={{
+                      root: {
+                        input: {
+                          field: {
+                            input: {
+                              base:
+                                "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                            },
                           },
                         },
                       },
-                    },
-                  }}
-                />
-              </div>
+                    }}
+                  />
+                </div>
+              ) : null}
 
-              <div className="space-y-2">
-                <Label>Spesialisasi</Label>
-                <Select
-                  value={formData.specialization ? formData.specialization : "__none__"}
-                  onValueChange={(v) => setFormData((p) => ({ ...p, specialization: v === "__none__" ? "" : v }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih spesialisasi" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__none__">-</SelectItem>
-                    {SPECIALIZATION_OPTIONS.map((opt) => (
-                      <SelectItem key={opt} value={opt}>
-                        {opt}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {!isPeerGroupOrg ? (
+                <div className="space-y-2">
+                  <Label>Spesialisasi</Label>
+                  <Select
+                    value={formData.specialization ? formData.specialization : "__none__"}
+                    onValueChange={(v) => setFormData((p) => ({ ...p, specialization: v === "__none__" ? "" : v }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih spesialisasi" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">-</SelectItem>
+                      {SPECIALIZATION_OPTIONS.map((opt) => (
+                        <SelectItem key={opt} value={opt}>
+                          {opt}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : null}
             </div>
 
             <DialogFooter className="pt-4">

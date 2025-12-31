@@ -325,7 +325,7 @@ export default function UniversityDetail({ university, type }) {
                   <span className="text-sm text-gray-700">Total Residen Aktif</span>
                   <span className="text-2xl font-bold text-blue-600">{universityData.stats.activeResidents}</span>
                 </div>
-                <Link href="#" className="text-sm text-blue-600 hover:underline">Lihat Detail Data Base</Link>
+                <Link href={`/profile-study-program/${type}/${universityData.id}/database`} className="text-sm text-blue-600 hover:underline">Lihat Detail Data Base</Link>
               </div>
 
               {/* Kontak Sekretariat */}
