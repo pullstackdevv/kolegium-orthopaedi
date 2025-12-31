@@ -27,6 +27,18 @@ class DatabaseMemberController extends Controller
         'peer_group',
     ];
 
+    private const SPECIALIZATION_OPTIONS = [
+        'Hip and Knee (Adult Reconstruction, Trauma, and Sports)',
+        'Orthopaedic Sports Injury',
+        'Advanced Orthopaedic Trauma',
+        'Shoulder and Elbow',
+        'Foot and Ankle',
+        'Pediatric Orthopaedic',
+        'Orthopaedic Oncology',
+        'Hand, Upper Limb and Microsurgery',
+        'Orthopaedic Spine',
+    ];
+
     private function permissionKey(string $organizationType, string $action): string
     {
         return match ($organizationType) {
@@ -237,7 +249,7 @@ class DatabaseMemberController extends Controller
         ];
 
         $headerLabels = [
-            'member_code' => 'Kode Anggota',
+            'member_code' => 'Nomor Identitas',
             'name' => 'Nama',
             'position' => 'Jabatan',
             'photo' => 'Foto',
@@ -332,12 +344,12 @@ class DatabaseMemberController extends Controller
             'affiliation_id' => 'nullable|integer|exists:affiliations,id',
             'member_code' => 'required|string|max:255',
             'name' => 'required|string|max:255',
-            'position' => 'required|string|max:255',
+            'position' => 'nullable|string|max:255',
             'photo' => 'nullable|string|max:1000',
             'contact' => 'nullable|string|max:255',
             'entry_date' => 'nullable|date',
             'gender' => ['nullable', 'string', Rule::in(['male', 'female'])],
-            'specialization' => 'nullable|string|max:255',
+            'specialization' => ['nullable', 'string', Rule::in(self::SPECIALIZATION_OPTIONS)],
             'status' => ['sometimes', 'string', Rule::in(['active', 'graduated', 'leave'])],
             'specialty' => 'nullable|string|max:255',
             'group' => 'nullable|string|max:255',
@@ -361,6 +373,7 @@ class DatabaseMemberController extends Controller
             ], $resolved['__error']['code']);
         }
 
+        $resolved['position'] = $resolved['position'] ?? '';
         $resolved['status'] = $resolved['status'] ?? 'active';
 
         $dupExists = DatabaseMember::query()
@@ -403,12 +416,12 @@ class DatabaseMemberController extends Controller
             'affiliation_id' => 'sometimes|nullable|integer|exists:affiliations,id',
             'member_code' => 'sometimes|required|string|max:255',
             'name' => 'sometimes|required|string|max:255',
-            'position' => 'sometimes|required|string|max:255',
+            'position' => 'sometimes|nullable|string|max:255',
             'photo' => 'nullable|string|max:1000',
             'contact' => 'nullable|string|max:255',
             'entry_date' => 'nullable|date',
             'gender' => ['nullable', 'string', Rule::in(['male', 'female'])],
-            'specialization' => 'nullable|string|max:255',
+            'specialization' => ['nullable', 'string', Rule::in(self::SPECIALIZATION_OPTIONS)],
             'status' => ['sometimes', 'string', Rule::in(['active', 'graduated', 'leave'])],
             'specialty' => 'nullable|string|max:255',
             'group' => 'nullable|string|max:255',
@@ -427,6 +440,10 @@ class DatabaseMemberController extends Controller
         }
 
         unset($resolved['organization_type']);
+
+        if (array_key_exists('position', $resolved) && $resolved['position'] === null) {
+            $resolved['position'] = '';
+        }
 
         if (array_key_exists('member_code', $resolved) || array_key_exists('affiliation_id', $resolved)) {
             $targetMemberCode = $resolved['member_code'] ?? $databaseMember->member_code;
@@ -563,6 +580,9 @@ class DatabaseMemberController extends Controller
             'kode_member_code' => 'member_code',
             'membercode' => 'member_code',
             'member_code' => 'member_code',
+            'nomor_identitas' => 'member_code',
+            'no_identitas' => 'member_code',
+            'nomorid' => 'member_code',
 
             // core fields
             'nama' => 'name',
@@ -678,7 +698,7 @@ class DatabaseMemberController extends Controller
 
         $affiliationId = $resolvedAff['affiliation_id'] ?? null;
 
-        if ($affiliationId === null) {
+        if ($affiliationId === null && $authUser instanceof User && !$authUser->hasRole('super_admin')) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Affiliation is required.',
@@ -704,7 +724,6 @@ class DatabaseMemberController extends Controller
         $requiredColumns = [
             'member_code',
             'name',
-            'position',
         ];
 
         $errors = [];
@@ -761,6 +780,12 @@ class DatabaseMemberController extends Controller
         $rowsToPersist = [];
         $seenMemberCodes = [];
 
+        $normalizedSpecializations = [];
+        foreach (self::SPECIALIZATION_OPTIONS as $opt) {
+            $normalized = preg_replace('/\s+/', ' ', trim((string) $opt)) ?? trim((string) $opt);
+            $normalizedSpecializations[$normalized] = $opt;
+        }
+
         foreach ($rows as $idx => $row) {
             if ($idx === 1) {
                 continue;
@@ -790,6 +815,11 @@ class DatabaseMemberController extends Controller
                 if ($payload[$dbCol] === '') {
                     $payload[$dbCol] = null;
                 }
+            }
+
+            if (isset($payload['specialization']) && $payload['specialization'] !== null) {
+                $normalized = preg_replace('/\s+/', ' ', trim((string) $payload['specialization'])) ?? trim((string) $payload['specialization']);
+                $payload['specialization'] = $normalizedSpecializations[$normalized] ?? $payload['specialization'];
             }
 
             if (isset($payload['gender']) && $payload['gender'] !== null) {
@@ -858,13 +888,16 @@ class DatabaseMemberController extends Controller
                 continue;
             }
 
-            if ($payload['position'] === null) {
-                $errors[] = [
-                    'row' => $excelRowNumber,
-                    'column' => 'position',
-                    'message' => 'position is required.',
-                ];
-                continue;
+            if (isset($payload['specialization']) && $payload['specialization'] !== null) {
+                $normalized = preg_replace('/\s+/', ' ', trim((string) $payload['specialization'])) ?? trim((string) $payload['specialization']);
+                if (!array_key_exists($normalized, $normalizedSpecializations)) {
+                    $errors[] = [
+                        'row' => $excelRowNumber,
+                        'column' => 'specialization',
+                        'message' => 'specialization is invalid.',
+                    ];
+                    continue;
+                }
             }
 
             if (isset($payload['gender']) && $payload['gender'] !== null) {
@@ -892,6 +925,11 @@ class DatabaseMemberController extends Controller
             $payload['created_at'] = $now;
             $payload['updated_at'] = $now;
             $payload['deleted_at'] = null;
+
+            $payload['position'] = $payload['position'] ?? '';
+            if ($payload['position'] === null) {
+                $payload['position'] = '';
+            }
 
             $rowsToPersist[] = $payload;
         }
