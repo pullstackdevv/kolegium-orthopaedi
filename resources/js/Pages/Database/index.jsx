@@ -57,6 +57,18 @@ const AFFILIATION_TYPE_BY_ORG = {
   peer_group: "peer_group",
 };
 
+const SPECIALIZATION_OPTIONS = [
+  "Hip and Knee (Adult Reconstruction, Trauma, and Sports)",
+  "Orthopaedic Sports Injury",
+  "Advanced Orthopaedic Trauma",
+  "Shoulder and Elbow",
+  "Foot and Ankle",
+  "Pediatric Orthopaedic",
+  "Orthopaedic Oncology",
+  "Hand, Upper Limb and Microsurgery",
+  "Orthopaedic Spine",
+];
+
 const permissionKey = (org, action) => {
   if (org === "koti") return `database.kolegium.koti.${action}`;
   if (org === "kolkes") return `database.kolegium.kolkes.${action}`;
@@ -179,7 +191,7 @@ export default function DatabasePage() {
 }
 
 function DatabaseContent({ activeOrg }) {
-  const { user, hasPermission } = useAuth();
+  const { user, hasPermission, isSuperAdmin } = useAuth();
 
   const userAffiliations = Array.isArray(user?.affiliations) ? user.affiliations : [];
   const hasUserAffiliations = userAffiliations.length > 0;
@@ -262,7 +274,7 @@ function DatabaseContent({ activeOrg }) {
     if (!activeOrg) return;
     if (!canView) return;
 
-    if (!hasUserAffiliations && !selectedAffiliationId) {
+    if (!isSuperAdmin && !hasUserAffiliations && !selectedAffiliationId) {
       Swal.fire({ icon: "error", title: "Unduh gagal", text: "Affiliation wajib dipilih." });
       return;
     }
@@ -274,7 +286,7 @@ function DatabaseContent({ activeOrg }) {
         organization_type: activeOrg,
       };
 
-      if (!hasUserAffiliations) {
+      if (!isSuperAdmin && !hasUserAffiliations) {
         params.affiliation_id = Number(selectedAffiliationId);
       }
 
@@ -323,7 +335,7 @@ function DatabaseContent({ activeOrg }) {
         return;
       }
 
-      if (!hasUserAffiliations && !selectedAffiliationId) {
+      if (!isSuperAdmin && !hasUserAffiliations && !selectedAffiliationId) {
         setMembers([]);
         setError("Affiliation wajib dipilih.");
         return;
@@ -335,7 +347,7 @@ function DatabaseContent({ activeOrg }) {
         per_page: Number(filters.per_page || 10),
       };
 
-      if (!hasUserAffiliations) {
+      if (!isSuperAdmin && !hasUserAffiliations) {
         params.affiliation_id = Number(selectedAffiliationId);
       }
 
@@ -429,7 +441,7 @@ function DatabaseContent({ activeOrg }) {
       contact: member?.contact || "",
       entry_date: toDateInputValue(member?.entry_date),
       gender: member?.gender || "",
-      specialization: member?.specialization || "",
+      specialization: SPECIALIZATION_OPTIONS.includes(member?.specialization || "") ? (member?.specialization || "") : "",
       status: member?.status || "active",
       specialty: member?.specialty || "",
       group: member?.group || "",
@@ -501,26 +513,14 @@ function DatabaseContent({ activeOrg }) {
       setFormLoading(true);
       setFormError(null);
 
-      if (!activeOrg) {
-        setFormError("Org tidak valid.");
-        return;
-      }
-
       const payload = {
         organization_type: activeOrg,
         member_code: formData.member_code,
         name: formData.name,
-        position: formData.position,
-        photo: formData.photo || null,
-        contact: formData.contact || null,
         entry_date: formData.entry_date || null,
         gender: formData.gender || null,
         specialization: formData.specialization || null,
         status: formData.status || "active",
-        specialty: formData.specialty || null,
-        group: formData.group || null,
-        title: formData.title || null,
-        location: formData.location || null,
       };
 
       if (!hasUserAffiliations) {
@@ -545,12 +545,13 @@ function DatabaseContent({ activeOrg }) {
           showConfirmButton: false,
         });
 
+        closeModal();
+
         if (modalType === "create") {
-          resetForm();
+          fetchMembers({ page: 1 });
         } else {
-          closeModal();
+          fetchMembers({ page: pagination.current_page });
         }
-        fetchMembers({ page: pagination.current_page });
         return;
       }
 
@@ -624,7 +625,7 @@ function DatabaseContent({ activeOrg }) {
       return;
     }
 
-    if (!hasUserAffiliations && !importAffiliationId) {
+    if (!isSuperAdmin && !hasUserAffiliations && !importAffiliationId) {
       setImportError("Affiliation wajib dipilih.");
       return;
     }
@@ -636,7 +637,7 @@ function DatabaseContent({ activeOrg }) {
       const form = new FormData();
       form.append("organization_type", activeOrg);
       form.append("file", importFile);
-      if (!hasUserAffiliations) {
+      if (!isSuperAdmin && !hasUserAffiliations) {
         form.append("affiliation_id", importAffiliationId);
       }
 
@@ -698,7 +699,7 @@ function DatabaseContent({ activeOrg }) {
             <Button
               variant="outline"
               className="gap-2"
-              disabled={!canView || !activeOrg || exportLoading || (!hasUserAffiliations && !selectedAffiliationId)}
+              disabled={!canView || !activeOrg || exportLoading || (!isSuperAdmin && !hasUserAffiliations && !selectedAffiliationId)}
               onClick={handleExportExcel}
             >
               {exportLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
@@ -803,10 +804,10 @@ function DatabaseContent({ activeOrg }) {
                       <TableHeader>
                         <TableRow>
                           <TableHead>Foto</TableHead>
-                          <TableHead>Kode</TableHead>
+                          <TableHead>Nomor Identitas</TableHead>
                           <TableHead>Nama</TableHead>
-                          <TableHead>Jabatan</TableHead>
-                          <TableHead>Komisi/Divisi</TableHead>
+                          <TableHead>Jenis Kelamin</TableHead>
+                          <TableHead>Spesialisasi</TableHead>
                           <TableHead>Status</TableHead>
                           <TableHead className="text-right">Aksi</TableHead>
                         </TableRow>
@@ -830,8 +831,8 @@ function DatabaseContent({ activeOrg }) {
                             </TableCell>
                             <TableCell className="font-medium">{m.member_code}</TableCell>
                             <TableCell>{buildDisplayName(m)}</TableCell>
-                            <TableCell>{m.position}</TableCell>
-                            <TableCell>{m.group || "-"}</TableCell>
+                            <TableCell>{m.gender === "male" ? "Laki-laki" : m.gender === "female" ? "Perempuan" : "-"}</TableCell>
+                            <TableCell>{m.specialization || "-"}</TableCell>
                             <TableCell>{statusBadge(m.status)}</TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-2">
@@ -1000,7 +1001,7 @@ function DatabaseContent({ activeOrg }) {
               ) : null}
 
               <div className="space-y-2">
-                <Label>Kode Anggota *</Label>
+                <Label>Nomor Identitas *</Label>
                 <Input
                   value={formData.member_code}
                   onChange={(e) => setFormData((p) => ({ ...p, member_code: e.target.value }))}
@@ -1015,25 +1016,6 @@ function DatabaseContent({ activeOrg }) {
                   onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
                   required
                 />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Gelar</Label>
-                <Input value={formData.title} onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))} />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Jabatan *</Label>
-                <Input
-                  value={formData.position}
-                  onChange={(e) => setFormData((p) => ({ ...p, position: e.target.value }))}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Komisi/Divisi</Label>
-                <Input value={formData.group} onChange={(e) => setFormData((p) => ({ ...p, group: e.target.value }))} />
               </div>
 
               <div className="space-y-2">
@@ -1087,75 +1069,24 @@ function DatabaseContent({ activeOrg }) {
               </div>
 
               <div className="space-y-2">
-                <Label>Kontak</Label>
-                <Input value={formData.contact} onChange={(e) => setFormData((p) => ({ ...p, contact: e.target.value }))} />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Lokasi</Label>
-                <Input value={formData.location} onChange={(e) => setFormData((p) => ({ ...p, location: e.target.value }))} />
-              </div>
-
-              <div className="space-y-2">
                 <Label>Spesialisasi</Label>
-                <Input
-                  value={formData.specialization}
-                  onChange={(e) => setFormData((p) => ({ ...p, specialization: e.target.value }))}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Subspesialis</Label>
-                <Input value={formData.specialty} onChange={(e) => setFormData((p) => ({ ...p, specialty: e.target.value }))} />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Sumber Foto</Label>
                 <Select
-                  value={photoMode}
-                  onValueChange={(v) => {
-                    setPhotoMode(v);
-                  }}
+                  value={formData.specialization ? formData.specialization : "__none__"}
+                  onValueChange={(v) => setFormData((p) => ({ ...p, specialization: v === "__none__" ? "" : v }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Pilih sumber" />
+                    <SelectValue placeholder="Pilih spesialisasi" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="upload">Upload foto</SelectItem>
-                    <SelectItem value="url">URL</SelectItem>
+                    <SelectItem value="__none__">-</SelectItem>
+                    {SPECIALIZATION_OPTIONS.map((opt) => (
+                      <SelectItem key={opt} value={opt}>
+                        {opt}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
-
-              {photoMode === "upload" ? (
-                <div className="space-y-2">
-                  <Label>Upload Foto</Label>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0] || null;
-                      if (file) uploadPhotoFile(file);
-                    }}
-                  />
-                  {photoUploading ? (
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      Uploading...
-                    </div>
-                  ) : null}
-                  {formData.photo ? <Input value={formData.photo} readOnly /> : null}
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <Label>URL Foto</Label>
-                  <Input
-                    value={formData.photo}
-                    onChange={(e) => setFormData((p) => ({ ...p, photo: e.target.value }))}
-                    placeholder="https://..."
-                  />
-                </div>
-              )}
             </div>
 
             <DialogFooter className="pt-4">
