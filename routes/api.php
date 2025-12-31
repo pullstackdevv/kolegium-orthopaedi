@@ -85,3 +85,4 @@ Route::middleware('auth:sanctum')->group(function () {
 // Public agenda routes (landing pages)
 Route::get('public/agenda-events', [AgendaEventController::class, 'publicIndex']);
 Route::get('public/affiliations', [AffiliationController::class, 'publicIndex']);
+Route::get('public/database-members', [DatabaseMemberController::class, 'publicIndex']);

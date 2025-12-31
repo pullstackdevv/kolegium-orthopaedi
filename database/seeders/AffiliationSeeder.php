@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\AffiliationType;
 use Illuminate\Database\Seeder;
 use App\Models\Affiliation;
 
@@ -15,152 +16,152 @@ class AffiliationSeeder extends Seeder
         $affiliations = [
             [
                 'name' => 'Kolegium Orthopaedi dan Traumatologi',
-                'type' => 'kolegium',
+                'type' => AffiliationType::KOLEGIUM->value,
                 'code' => 'KOT',
             ],
             [
                 'name' => 'FK Universitas Indonesia',
-                'type' => 'residen',
+                'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UI',
             ],
             [
                 'name' => 'FK Universitas Gadjah Mada',
-                'type' => 'residen',
+                'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UGM',
             ],
             [
                 'name' => 'FK Universitas Airlangga',
-                'type' => 'residen',
+                'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UNAIR',
             ],
             [
                 'name' => 'FK Universitas Diponegoro',
-                'type' => 'residen',
+                'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UNDIP',
             ],
             [
                 'name' => 'FK Universitas Padjadjaran',
-                'type' => 'residen',
+                'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UNPAD',
             ],
             [
                 'name' => 'FK Universitas Hasanuddin',
-                'type' => 'residen',
+                'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UNHAS',
             ],
             [
                 'name' => 'FK Universitas Brawijaya',
-                'type' => 'residen',
+                'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UB',
             ],
             [
                 'name' => 'FK Universitas Sebelas Maret',
-                'type' => 'residen',
+                'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UNS',
             ],
             [
                 'name' => 'FK Universitas Andalas',
-                'type' => 'residen',
+                'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UNAND',
             ],
             [
                 'name' => 'FK Universitas Sumatera Utara',
-                'type' => 'residen',
+                'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-USU',
             ],
             [
                 'name' => 'FK Universitas Sriwijaya',
-                'type' => 'residen',
+                'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UNSRI',
             ],
             [
                 'name' => 'RSUP Dr. Sardjito',
-                'type' => 'clinical_fellowship',
+                'type' => AffiliationType::CLINICAL_FELLOWSHIP->value,
                 'code' => 'RSUP-SARDJITO',
             ],
             [
                 'name' => 'RSUP Dr. Cipto Mangunkusumo',
-                'type' => 'clinical_fellowship',
+                'type' => AffiliationType::CLINICAL_FELLOWSHIP->value,
                 'code' => 'RSCM',
             ],
             [
                 'name' => 'RSUP Dr. Soetomo',
-                'type' => 'clinical_fellowship',
+                'type' => AffiliationType::CLINICAL_FELLOWSHIP->value,
                 'code' => 'RSUP-SOETOMO',
             ],
             [
                 'name' => 'RSUP Dr. Kariadi',
-                'type' => 'clinical_fellowship',
+                'type' => AffiliationType::CLINICAL_FELLOWSHIP->value,
                 'code' => 'RSUP-KARIADI',
             ],
             [
                 'name' => 'RSUP Dr. Hasan Sadikin',
-                'type' => 'clinical_fellowship',
+                'type' => AffiliationType::CLINICAL_FELLOWSHIP->value,
                 'code' => 'RSUP-HASAN-SADIKIN',
             ],
             [
                 'name' => 'Subspesialis Spine',
-                'type' => 'subspesialis',
+                'type' => AffiliationType::SUBSPESIALIS->value,
                 'code' => 'SUBSP-SPINE',
             ],
             [
                 'name' => 'Subspesialis Hip & Knee',
-                'type' => 'subspesialis',
+                'type' => AffiliationType::SUBSPESIALIS->value,
                 'code' => 'SUBSP-HIP-KNEE',
             ],
             [
                 'name' => 'Subspesialis Hand & Microsurgery',
-                'type' => 'subspesialis',
+                'type' => AffiliationType::SUBSPESIALIS->value,
                 'code' => 'SUBSP-HAND',
             ],
             [
                 'name' => 'Subspesialis Tumor',
-                'type' => 'subspesialis',
+                'type' => AffiliationType::SUBSPESIALIS->value,
                 'code' => 'SUBSP-TUMOR',
             ],
             [
                 'name' => 'Subspesialis Trauma',
-                'type' => 'subspesialis',
+                'type' => AffiliationType::SUBSPESIALIS->value,
                 'code' => 'SUBSP-TRAUMA',
             ],
             [
                 'name' => 'Subspesialis Pediatric Orthopaedi',
-                'type' => 'subspesialis',
+                'type' => AffiliationType::SUBSPESIALIS->value,
                 'code' => 'SUBSP-PEDIATRIC',
             ],
             [
                 'name' => 'Subspesialis Foot & Ankle',
-                'type' => 'subspesialis',
+                'type' => AffiliationType::SUBSPESIALIS->value,
                 'code' => 'SUBSP-FOOT-ANKLE',
             ],
             [
                 'name' => 'Subspesialis Shoulder & Elbow',
-                'type' => 'subspesialis',
+                'type' => AffiliationType::SUBSPESIALIS->value,
                 'code' => 'SUBSP-SHOULDER-ELBOW',
             ],
             [
                 'name' => 'IOSSA (Indonesian Orthopaedic Spine Society Association)',
-                'type' => 'peer_group',
+                'type' => AffiliationType::PEER_GROUP->value,
                 'code' => 'IOSSA',
             ],
             [
                 'name' => 'INAMSOS (Indonesian Musculoskeletal Oncology Society)',
-                'type' => 'peer_group',
+                'type' => AffiliationType::PEER_GROUP->value,
                 'code' => 'INAMSOS',
             ],
             [
                 'name' => 'IHKS (Ikatan Hip & Knee Society)',
-                'type' => 'peer_group',
+                'type' => AffiliationType::PEER_GROUP->value,
                 'code' => 'IHKS',
             ],
             [
                 'name' => 'IPOS (Indonesian Pediatric Orthopaedic Society)',
-                'type' => 'peer_group',
+                'type' => AffiliationType::PEER_GROUP->value,
                 'code' => 'IPOS',
             ],
             [
                 'name' => 'ITOS (Indonesian Trauma Orthopaedic Society)',
-                'type' => 'peer_group',
+                'type' => AffiliationType::PEER_GROUP->value,
                 'code' => 'ITOS',
             ],
         ];

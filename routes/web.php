@@ -7,6 +7,8 @@ use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Affiliation;
+use App\Models\DatabaseMember;
 
 // Public Homepage - no login required
 Route::get('/', function () {
@@ -47,11 +49,69 @@ Route::get('/profile-study-program/clinical-fellowship/{id}', function ($id) {
     ]);
 })->name('profile.clinical-fellowship.detail');
 
+// Database Members landing page (public)
+Route::get('/profile-study-program/{type}/{id}/database', function ($type, $id) {
+    $affiliation = Affiliation::query()->select(['id', 'name', 'code', 'type'])->findOrFail($id);
+
+    return Inertia::render('ProfileStudyProgram/DatabaseMembersLanding', [
+        'type' => $type,
+        'affiliation' => $affiliation,
+    ]);
+})->where('type', 'ppds1|subspesialis')
+->name('profile.university.database');
+
 // PPDS1 and Subspesialis Detail (same layout)
 Route::get('/profile-study-program/{type}/{id}', function ($type, $id) {
+    $affiliation = Affiliation::query()->select(['id', 'name', 'code', 'type'])->findOrFail($id);
+    $orgType = $type === 'ppds1' ? 'resident' : ($type === 'subspesialis' ? 'trainee' : null);
+
+    $activeResidents = 0;
+    if ($orgType !== null) {
+        $activeResidents = DatabaseMember::query()
+            ->where('organization_type', $orgType)
+            ->where('affiliation_id', $affiliation->id)
+            ->where('status', 'active')
+            ->count();
+    }
+
     return Inertia::render('ProfileStudyProgram/UniversityDetail', [
         'type' => $type,
-        'universityId' => $id
+        'university' => [
+            'id' => $affiliation->id,
+            'name' => $affiliation->code,
+            'fullName' => $affiliation->name,
+            'description' => $type === 'ppds1' ? 'PPDS I Orthopaedi & Traumatologi' : 'Subspesialis Orthopaedi & Traumatologi',
+            'image' => '/assets/images/university-building.jpg',
+            'stats' => [
+                'activeResidents' => $activeResidents,
+                'faculty' => 0,
+                'teachingHospitals' => 0,
+            ],
+            'profileResident' => [
+                'name' => '-',
+                'position' => '-',
+                'image' => '/assets/images/profile-placeholder.jpg',
+                'description' => '-',
+            ],
+            'contact' => [
+                'address' => '-',
+                'email' => '-',
+                'phone' => '-',
+                'website' => '-',
+            ],
+            'information' => [
+                'accreditation' => '-',
+                'established' => '-',
+                'duration' => '-',
+                'capacity' => '-',
+            ],
+            'staffList' => [],
+            'residents' => [
+                'year1' => [],
+                'year2' => [],
+            ],
+            'gallery' => [],
+        ],
     ]);
 })->where('type', 'ppds1|subspesialis')
 ->name('profile.university.detail');

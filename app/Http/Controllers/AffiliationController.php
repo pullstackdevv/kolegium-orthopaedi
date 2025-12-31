@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AffiliationType;
 use App\Models\Affiliation;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\ValidationException;
 
 class AffiliationController extends Controller
@@ -74,7 +76,7 @@ class AffiliationController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'type' => 'required|string|in:kolegium,residen,clinical_fellowship,subspesialis,peer_group',
+            'type' => ['required', new Enum(AffiliationType::class)],
             'code' => 'required|string|max:50|unique:affiliations,code',
         ]);
 
@@ -124,7 +126,7 @@ class AffiliationController extends Controller
 
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
-            'type' => 'sometimes|required|string|in:kolegium,residen,clinical_fellowship,subspesialis,peer_group',
+            'type' => ['sometimes', 'required', new Enum(AffiliationType::class)],
             'code' => 'sometimes|required|string|max:50|unique:affiliations,code,' . $affiliation->id,
         ]);
 
