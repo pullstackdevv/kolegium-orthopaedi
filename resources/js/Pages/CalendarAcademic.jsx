@@ -5,6 +5,9 @@ import { ChevronLeft, ChevronRight, Calendar, X, Trash2, MapPin, ChevronDown, Ch
 import HomepageLayout from "../Layouts/HomepageLayout";
 import api from "@/api/axios";
 
+const DEFAULT_EVENT_IMAGE =
+  "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1200'%20height='600'%20viewBox='0%200%201200%20600'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='%23DBEAFE'/%3E%3Cstop%20offset='1'%20stop-color='%23BFDBFE'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='1200'%20height='600'%20fill='url(%23g)'/%3E%3Ccircle%20cx='600'%20cy='300'%20r='120'%20fill='%2393C5FD'/%3E%3Cpath%20d='M520%20320l60-60a25%2025%200%200%201%2035%200l45%2045%2065-65a25%2025%200%200%201%2035%200l80%2080v90H520z'%20fill='%2360A5FA'/%3E%3Ctext%20x='600'%20y='470'%20text-anchor='middle'%20font-family='Arial'%20font-size='28'%20fill='%231E3A8A'%20opacity='0.85'%3ENo%20Image%3C/text%3E%3C/svg%3E";
+
 export default function CalendarAcademic() {
   const now = new Date();
   const [currentMonth, setCurrentMonth] = useState(now.getMonth());
@@ -147,7 +150,9 @@ export default function CalendarAcademic() {
     { id: "ujian_nasional", name: "National Exam", color: "bg-blue-500", textColor: "text-blue-700" },
     { id: "event_lokal", name: "Local Event", color: "bg-green-500", textColor: "text-green-700" },
     { id: "event_nasional", name: "National Event", color: "bg-orange-500", textColor: "text-orange-700" },
+    { id: "event_peer_group_nasional", name: "National Event", color: "bg-orange-500", textColor: "text-orange-700" },
     { id: "event_internasional", name: "International Event", color: "bg-purple-500", textColor: "text-purple-700" },
+    { id: "event_peer_group", name: "International Event", color: "bg-purple-500", textColor: "text-purple-700" },
   ];
 
   const getEventColor = (type) => {
@@ -255,7 +260,10 @@ export default function CalendarAcademic() {
 
   // Get upcoming tests (next 7 days)
   const getUpcomingTests = () => {
-    const start = new Date();
+    const todayStart = new Date();
+    todayStart.setHours(12, 0, 0, 0);
+    const start = new Date(todayStart);
+    start.setDate(todayStart.getDate() + 1);
     start.setHours(12, 0, 0, 0);
     const end = new Date(start);
     end.setDate(start.getDate() + 14);
@@ -267,6 +275,12 @@ export default function CalendarAcademic() {
         const evEnd = event.endDate ? new Date(event.endDate) : evStart;
         evStart.setHours(12, 0, 0, 0);
         evEnd.setHours(12, 0, 0, 0);
+
+        const isOngoingToday = todayStart >= evStart && todayStart <= evEnd;
+        if (isOngoingToday) return false;
+
+        const isFuture = evStart >= start;
+        if (!isFuture) return false;
 
         const isTest = String(event.type || "").startsWith("ujian_");
         const overlaps = evStart <= end && evEnd >= start;
@@ -281,7 +295,10 @@ export default function CalendarAcademic() {
   
   // Format date range for upcoming tests
   const getUpcomingTestDateRange = () => {
-    const start = new Date();
+    const todayStart = new Date();
+    todayStart.setHours(12, 0, 0, 0);
+    const start = new Date(todayStart);
+    start.setDate(todayStart.getDate() + 1);
     start.setHours(12, 0, 0, 0);
     const end = new Date(start);
     end.setDate(start.getDate() + 14);
@@ -292,7 +309,10 @@ export default function CalendarAcademic() {
 
   // Get upcoming events (next 7 days, excluding tests)
   const getUpcomingEvents = () => {
-    const start = new Date();
+    const todayStart = new Date();
+    todayStart.setHours(12, 0, 0, 0);
+    const start = new Date(todayStart);
+    start.setDate(todayStart.getDate() + 1);
     start.setHours(12, 0, 0, 0);
     const end = new Date(start);
     end.setDate(start.getDate() + 14);
@@ -306,6 +326,12 @@ export default function CalendarAcademic() {
         const evEnd = event.endDate ? new Date(event.endDate) : evStart;
         evStart.setHours(12, 0, 0, 0);
         evEnd.setHours(12, 0, 0, 0);
+
+        const isOngoingToday = todayStart >= evStart && todayStart <= evEnd;
+        if (isOngoingToday) return false;
+
+        const isFuture = evStart >= start;
+        if (!isFuture) return false;
 
         const overlaps = evStart <= end && evEnd >= start;
         return isEventType(event.type) && overlaps;
@@ -332,7 +358,10 @@ export default function CalendarAcademic() {
   
   // Format date range for upcoming events
   const getUpcomingEventDateRange = () => {
-    const start = new Date();
+    const todayStart = new Date();
+    todayStart.setHours(12, 0, 0, 0);
+    const start = new Date(todayStart);
+    start.setDate(todayStart.getDate() + 1);
     start.setHours(12, 0, 0, 0);
     const end = new Date(start);
     end.setDate(start.getDate() + 14);
@@ -500,34 +529,41 @@ export default function CalendarAcademic() {
               
               return (
                 <div className="overflow-x-auto -mx-6 px-6">
-                  <div className="flex gap-4 pb-2" style={{ minWidth: 'min-content' }}>
+                  <div className="flex items-start gap-4 pb-2" style={{ minWidth: 'min-content' }}>
                     {/* Tests */}
-                    {/* {tests.map((test, index) => {
+                    {tests.map((test, index) => {
                       const eventColor = getEventColor(test.type);
-                      const testDate = new Date(test.date);
+                      const startDate = test.startDate ? new Date(test.startDate) : new Date(test.date);
+                      const endDate = test.endDate ? new Date(test.endDate) : startDate;
+                      const startLabel = `${startDate.getDate()} ${monthNames[startDate.getMonth()].slice(0, 3)} ${startDate.getFullYear()}`;
+                      const endLabel = `${endDate.getDate()} ${monthNames[endDate.getMonth()].slice(0, 3)} ${endDate.getFullYear()}`;
+
                       return (
-                        <div 
-                          key={`test-${index}`} 
+                        <div
+                          key={`test-${index}`}
                           className="flex-shrink-0 w-64 bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
-                          onClick={() => handleEventClick(test)}
+                          onClick={() => handleEventClick(test, true)}
                         >
                           <div className="flex items-center gap-2 mb-2">
                             <span className="text-sm text-gray-600">
-                              {testDate.getDate()} {monthNames[testDate.getMonth()].slice(0, 3)} {testDate.getFullYear()}
+                              {startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`}
                             </span>
-                            <span className="text-xs px-2 py-1 rounded font-medium bg-red-100 text-red-700">
-                              Test
+                            <span className={`text-xs px-2 py-1 rounded font-medium ${eventColor.color} bg-opacity-20 ${eventColor.textColor}`}>
+                              {eventColor.name}
                             </span>
                           </div>
-                          <h3 className="font-bold text-gray-900 line-clamp-2">{test.title}</h3>
+                          <h3 className="font-bold text-gray-900">{test.title}</h3>
                         </div>
                       );
-                    })} */}
+                    })}
                     
                     {/* Events with Image */}
                     {eventsList.map((event, index) => {
                       const eventColor = getEventColor(event.type);
-                      const eventDate = new Date(event.startDate ?? event.date);
+                      const startDate = event.startDate ? new Date(event.startDate) : new Date(event.date);
+                      const endDate = event.endDate ? new Date(event.endDate) : startDate;
+                      const startLabel = `${startDate.getDate()} ${monthNames[startDate.getMonth()].slice(0, 3)} ${startDate.getFullYear()}`;
+                      const endLabel = `${endDate.getDate()} ${monthNames[endDate.getMonth()].slice(0, 3)} ${endDate.getFullYear()}`;
                       return (
                         <div 
                           key={`event-${index}`} 
@@ -537,11 +573,13 @@ export default function CalendarAcademic() {
                           <div className="relative h-40 bg-gray-100">
                             {event.image ? (
                               <img
-                                src={event.image}
+                                src={event.image || DEFAULT_EVENT_IMAGE}
                                 alt={event.title}
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
-                                  e.currentTarget.style.display = "none";
+                                  if (e.currentTarget.dataset.fallbackApplied === "1") return;
+                                  e.currentTarget.dataset.fallbackApplied = "1";
+                                  e.currentTarget.src = DEFAULT_EVENT_IMAGE;
                                 }}
                               />
                             ) : (
@@ -551,7 +589,7 @@ export default function CalendarAcademic() {
                           <div className="p-4">
                             <div className="flex items-center gap-2 mb-2">
                               <span className="text-sm text-gray-600">
-                                {eventDate.getDate()} {monthNames[eventDate.getMonth()].slice(0, 3)} {eventDate.getFullYear()}
+                                {startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`}
                               </span>
                               <span className={`text-xs px-2 py-1 rounded font-medium ${eventColor.color} bg-opacity-20 ${eventColor.textColor}`}>
                                 {eventColor.name}
@@ -651,16 +689,21 @@ export default function CalendarAcademic() {
                           return startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`;
                         })();
                     return (
-                      <div key={index} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300">
+                      <div
+                        key={index}
+                        className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
+                        onClick={() => handleEventClick(event, true)}
+                      >
                       {/* Event Image */}
                       <div className="relative h-48 overflow-hidden">
                         <img 
-                          src={event.image}
+                          src={event.image || DEFAULT_EVENT_IMAGE}
                           alt={event.title}
                           className="w-full h-full object-cover"
                           onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.parentElement.innerHTML = '<div class="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center"><svg class="w-16 h-16 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>';
+                            if (e.currentTarget.dataset.fallbackApplied === "1") return;
+                            e.currentTarget.dataset.fallbackApplied = "1";
+                            e.currentTarget.src = DEFAULT_EVENT_IMAGE;
                           }}
                         />
                       </div>
@@ -684,6 +727,7 @@ export default function CalendarAcademic() {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:text-blue-700 text-sm font-medium inline-flex items-center gap-1"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             Registration <ChevronRight className="w-4 h-4" />
                           </a>
@@ -787,7 +831,7 @@ export default function CalendarAcademic() {
 
             {/* Legend */}
             <div className="flex flex-wrap items-center gap-6 mt-6 pt-6 border-t border-gray-200">
-              {eventTypes.map((type) => (
+              {eventTypes.filter(type => !type.id.includes('peer_group')).map((type) => (
                 <div key={type.id} className="flex items-center gap-2">
                   <div className={`w-3 h-3 rounded-full ${type.color}`}></div>
                   <span className="text-sm text-gray-700">{type.name}</span>
@@ -899,7 +943,7 @@ export default function CalendarAcademic() {
       {/* Event Detail Modal */}
       {showDetailModal && selectedEvent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowDetailModal(false)}>
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className={`p-6 rounded-t-xl ${getEventColor(selectedEvent.type).color}`}>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -919,15 +963,17 @@ export default function CalendarAcademic() {
               </div>
               <h3 className="text-xl font-bold text-white">{selectedEvent.title}</h3>
             </div>
-            <div className="p-6">
+            <div className="p-6 overflow-y-auto flex-1">
               {selectedEvent.image ? (
                 <div className="mb-4 overflow-hidden rounded-lg border border-gray-200">
                   <img
-                    src={selectedEvent.image}
+                    src={selectedEvent.image || DEFAULT_EVENT_IMAGE}
                     alt={selectedEvent.title}
                     className="w-full h-48 object-cover"
                     onError={(e) => {
-                      e.currentTarget.style.display = "none";
+                      if (e.currentTarget.dataset.fallbackApplied === "1") return;
+                      e.currentTarget.dataset.fallbackApplied = "1";
+                      e.currentTarget.src = DEFAULT_EVENT_IMAGE;
                     }}
                   />
                 </div>

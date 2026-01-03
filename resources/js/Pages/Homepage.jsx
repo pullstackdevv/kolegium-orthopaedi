@@ -17,6 +17,9 @@ import HomepageLayout from "../Layouts/HomepageLayout";
 import DonutChart from "../components/DonutChart";
 import api from "@/api/axios";
 
+const DEFAULT_EVENT_IMAGE =
+  "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1200'%20height='600'%20viewBox='0%200%201200%20600'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='%23DBEAFE'/%3E%3Cstop%20offset='1'%20stop-color='%23BFDBFE'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='1200'%20height='600'%20fill='url(%23g)'/%3E%3Ccircle%20cx='600'%20cy='300'%20r='120'%20fill='%2393C5FD'/%3E%3Cpath%20d='M520%20320l60-60a25%2025%200%200%201%2035%200l45%2045%2065-65a25%2025%200%200%201%2035%200l80%2080v90H520z'%20fill='%2360A5FA'/%3E%3Ctext%20x='600'%20y='470'%20text-anchor='middle'%20font-family='Arial'%20font-size='28'%20fill='%231E3A8A'%20opacity='0.85'%3ENo%20Image%3C/text%3E%3C/svg%3E";
+
 // Program Card Component
 const ProgramCard = ({ program }) => {
   return (
@@ -859,12 +862,13 @@ export default function Homepage() {
                 {/* Event Image */}
                 <div className="relative h-48 overflow-hidden">
                   <img 
-                    src={event.image}
+                    src={event.image || DEFAULT_EVENT_IMAGE}
                     alt={event.title}
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.parentElement.innerHTML = '<div class="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center"><svg class="w-16 h-16 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>';
+                      if (e.currentTarget.dataset.fallbackApplied === "1") return;
+                      e.currentTarget.dataset.fallbackApplied = "1";
+                      e.currentTarget.src = DEFAULT_EVENT_IMAGE;
                     }}
                   />
                 </div>
@@ -934,18 +938,18 @@ export default function Homepage() {
               <h3 className="text-xl font-bold text-white">{selectedEvent.title}</h3>
             </div>
             <div className="p-6">
-              {selectedEvent.image ? (
-                <div className="mb-4 overflow-hidden rounded-lg border border-gray-200">
-                  <img
-                    src={selectedEvent.image}
-                    alt={selectedEvent.title}
-                    className="w-full h-48 object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
-                  />
-                </div>
-              ) : null}
+              <div className="mb-4 overflow-hidden rounded-lg border border-gray-200">
+                <img
+                  src={selectedEvent.image || DEFAULT_EVENT_IMAGE}
+                  alt={selectedEvent.title}
+                  className="w-full h-48 object-cover"
+                  onError={(e) => {
+                    if (e.currentTarget.dataset.fallbackApplied === "1") return;
+                    e.currentTarget.dataset.fallbackApplied = "1";
+                    e.currentTarget.src = DEFAULT_EVENT_IMAGE;
+                  }}
+                />
+              </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-500 mb-1">Event Type</label>
                 <div className="flex items-center gap-2">
