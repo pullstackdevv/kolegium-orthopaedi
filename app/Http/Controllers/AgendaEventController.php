@@ -132,6 +132,10 @@ class AgendaEventController extends Controller
     {
         $query = AgendaEvent::query()->where('is_published', 1);
 
+        if ($request->filled('affiliation_id')) {
+            $query->where('affiliation_id', $request->integer('affiliation_id'));
+        }
+
         if ($request->filled('scope')) {
             $query->where('scope', $request->string('scope')->toString());
         }

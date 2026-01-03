@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
-import { MapPin, Phone, Mail, Globe } from "lucide-react";
+import { MapPin, Phone, Mail, Globe, Calendar, X, ChevronDown, ChevronUp } from "lucide-react";
 import HomepageLayout from "../../Layouts/HomepageLayout";
 import DonutChart from "../../components/DonutChart";
 import api from "@/api/axios";
+
+const DEFAULT_EVENT_IMAGE =
+  "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1200'%20height='600'%20viewBox='0%200%201200%20600'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='%23DBEAFE'/%3E%3Cstop%20offset='1'%20stop-color='%23BFDBFE'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='1200'%20height='600'%20fill='url(%23g)'/%3E%3Ccircle%20cx='600'%20cy='300'%20r='120'%20fill='%2393C5FD'/%3E%3Cpath%20d='M520%20320l60-60a25%2025%200%200%201%2035%200l45%2045%2065-65a25%2025%200%200%201%2035%200l80%2080v90H520z'%20fill='%2360A5FA'/%3E%3Ctext%20x='600'%20y='470'%20text-anchor='middle'%20font-family='Arial'%20font-size='28'%20fill='%231E3A8A'%20opacity='0.85'%3ENo%20Image%3C/text%3E%3C/svg%3E";
 
 export default function UniversityDetail({ university, type }) {
   // Sample data - akan diganti dengan data dari props/API
@@ -101,6 +104,9 @@ export default function UniversityDetail({ university, type }) {
 
   const [academicActivities, setAcademicActivities] = useState([]);
   const [academicActivitiesLoading, setAcademicActivitiesLoading] = useState(true);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   const toYmd = (date) => {
     const d = new Date(date);
@@ -109,15 +115,56 @@ export default function UniversityDetail({ university, type }) {
     return d.toISOString().slice(0, 10);
   };
 
-  const formatDayMonth = (dateStr) => {
+  const formatFullDate = (dateStr) => {
     const d = new Date(dateStr);
-    if (Number.isNaN(d.getTime())) {
-      return { day: "-", month: "-" };
+    if (Number.isNaN(d.getTime())) return "-";
+    d.setHours(12, 0, 0, 0);
+    return d.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const formatDateLabel = (startStr, endStr) => {
+    const startLabel = formatFullDate(startStr);
+    const endLabel = endStr ? formatFullDate(endStr) : startLabel;
+    return startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`;
+  };
+
+  const getEventBadgeMeta = (typeStr) => {
+    const type = String(typeStr || "");
+    const KNOWN = {
+      ujian_lokal: { label: "Ujian Lokal", className: "bg-red-500 text-white" },
+      ujian_nasional: { label: "Ujian Nasional", className: "bg-blue-500 text-white" },
+      event_lokal: { label: "Event Lokal", className: "bg-green-500 text-white" },
+      event_nasional: { label: "Event Nasional", className: "bg-orange-500 text-white" },
+      event_peer_group: { label: "Peer Group International", className: "bg-purple-500 text-white" },
+      event_peer_group_nasional: { label: "Peer Group National", className: "bg-indigo-500 text-white" },
+    };
+
+    if (KNOWN[type]) {
+      return { ...KNOWN[type], dotClass: KNOWN[type].className.split(" ")[0] };
     }
 
-    const day = String(d.getDate());
-    const month = d.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
-    return { day, month };
+    const raw = type.replace(/^(event_|ujian_)/, "");
+    const key = raw || "event";
+    const label = key
+      .split("_")
+      .filter(Boolean)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
+
+    if (key.includes("nasional")) return { label, className: "bg-emerald-500 text-white", dotClass: "bg-emerald-500" };
+    if (key.includes("seminar")) return { label, className: "bg-indigo-500 text-white", dotClass: "bg-indigo-500" };
+    if (type.startsWith("ujian_")) return { label, className: "bg-red-500 text-white", dotClass: "bg-red-500" };
+    return { label, className: "bg-blue-600 text-white", dotClass: "bg-blue-600" };
+  };
+
+  const openDetailModal = (ev) => {
+    setSelectedEvent(ev);
+    setShowFullDescription(false);
+    setShowDetailModal(true);
   };
 
   useEffect(() => {
@@ -125,21 +172,9 @@ export default function UniversityDetail({ university, type }) {
       try {
         setAcademicActivitiesLoading(true);
 
-        const start = new Date();
-        start.setHours(12, 0, 0, 0);
-        const end = new Date(start);
-        end.setDate(start.getDate() + 14);
-        end.setHours(12, 0, 0, 0);
-
         const params = {
-          scope: "study_program",
-          from: toYmd(start),
-          to: toYmd(end),
+          affiliation_id: universityData.id,
         };
-
-        if (agendaSection) {
-          params.section = agendaSection;
-        }
 
         const response = await api.get("/public/agenda-events", { params });
 
@@ -150,17 +185,28 @@ export default function UniversityDetail({ university, type }) {
 
         const items = Array.isArray(response.data?.data) ? response.data.data : [];
         const mapped = items
-          .filter((ev) => String(ev?.type || "").startsWith("event_"))
+          .filter((ev) => {
+            const t = String(ev?.type || "");
+            return t.startsWith("event_") || t.startsWith("ujian_");
+          })
           .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
           .slice(0, 2)
           .map((ev) => {
-            const meta = formatDayMonth(ev.start_date);
+            const badgeMeta = getEventBadgeMeta(ev.type);
             return {
               id: ev.id,
-              day: meta.day,
-              month: meta.month,
+              dateLabel: formatDateLabel(ev.start_date, ev.end_date),
+              startDate: ev.start_date,
+              endDate: ev.end_date,
               title: ev.title,
               location: ev.location,
+              badge: badgeMeta.label,
+              badgeClass: badgeMeta.className,
+              dotClass: badgeMeta.dotClass,
+              type: ev.type,
+              description: ev.description,
+              registration: ev.registration_url,
+              image: ev.image_url,
             };
           });
 
@@ -173,7 +219,7 @@ export default function UniversityDetail({ university, type }) {
     };
 
     fetchAcademicActivities();
-  }, [agendaSection]);
+  }, [agendaSection, universityData.id]);
 
   return (
     <HomepageLayout>
@@ -433,22 +479,145 @@ export default function UniversityDetail({ university, type }) {
                     academicActivities.map((item, index) => (
                       <div
                         key={item.id || index}
-                        className={`flex items-start gap-3 pb-3 ${index !== academicActivities.length - 1 ? "border-b border-gray-100" : ""}`}
+                        className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-all duration-300"
                       >
-                        <div className="bg-blue-100 rounded px-2 py-1 text-center flex-shrink-0">
-                          <div className="text-xs font-bold text-blue-600">{item.day}</div>
-                          <div className="text-[10px] text-gray-600">{item.month}</div>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="text-sm text-gray-700">{item.dateLabel}</span>
+                            <span className="text-gray-400">•</span>
+                            <span className={`${item.badgeClass} text-xs font-semibold px-3 py-1 rounded`}>{item.badge}</span>
+                          </div>
+                          <button
+                            type="button"
+                            className="text-sm text-blue-600 hover:underline"
+                            onClick={() => openDetailModal(item)}
+                          >
+                            Detail
+                          </button>
                         </div>
-                        <div>
-                          <h4 className="text-sm font-semibold text-gray-900">{item.title}</h4>
-                          <p className="text-xs text-gray-600">{item.location || "-"}</p>
-                        </div>
+                        <h4 className="text-base font-bold text-gray-900 leading-snug">{item.title}</h4>
+                        <p className="text-sm text-gray-600 mt-1">{item.location || "-"}</p>
                       </div>
                     ))
                   )}
                 </div>
                 <Link href="/calendar-academic" className="text-sm text-blue-600 hover:underline mt-3 inline-block">Lihat Semua Kegiatan</Link>
               </div>
+
+              {showDetailModal && selectedEvent && (
+                <div
+                  className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+                  onClick={() => setShowDetailModal(false)}
+                >
+                  <div
+                    className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className={`p-6 rounded-t-xl ${selectedEvent.dotClass || "bg-blue-600"}`}>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-5 h-5 text-white" />
+                          <span className="text-white font-medium text-sm">
+                            {selectedEvent.dateLabel || "-"}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => setShowDetailModal(false)}
+                          className="text-white hover:text-gray-200 transition-colors"
+                          type="button"
+                        >
+                          <X className="w-6 h-6" />
+                        </button>
+                      </div>
+                      <h3 className="text-xl font-bold text-white">{selectedEvent.title}</h3>
+                    </div>
+                    <div className="p-6 overflow-y-auto flex-1">
+                      <div className="mb-4 overflow-hidden rounded-lg border border-gray-200">
+                        <img
+                          src={selectedEvent.image || DEFAULT_EVENT_IMAGE}
+                          alt={selectedEvent.title}
+                          className="w-full h-48 object-cover"
+                          onError={(e) => {
+                            if (e.currentTarget.dataset.fallbackApplied === "1") return;
+                            e.currentTarget.dataset.fallbackApplied = "1";
+                            e.currentTarget.src = DEFAULT_EVENT_IMAGE;
+                          }}
+                        />
+                      </div>
+
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-500 mb-1">Event Type</label>
+                        <div className="flex items-center gap-2">
+                          <div className={`w-3 h-3 rounded-full ${selectedEvent.dotClass || "bg-blue-600"}`}></div>
+                          <span className="text-gray-900 font-medium">{selectedEvent.badge || "-"}</span>
+                        </div>
+                      </div>
+
+                      {selectedEvent.description && (
+                        <div className="mb-4">
+                          <label className="block text-sm font-medium text-gray-500 mb-1">Description</label>
+                          <div className="text-gray-700">
+                            <p className={`${!showFullDescription && selectedEvent.description.length > 200 ? "line-clamp-3" : ""}`}>
+                              {selectedEvent.description}
+                            </p>
+                            {selectedEvent.description.length > 200 && (
+                              <button
+                                type="button"
+                                onClick={() => setShowFullDescription(!showFullDescription)}
+                                className="text-blue-600 hover:text-blue-700 text-sm font-medium mt-2 flex items-center gap-1"
+                              >
+                                {showFullDescription ? (
+                                  <>
+                                    Show Less <ChevronUp className="w-4 h-4" />
+                                  </>
+                                ) : (
+                                  <>
+                                    Show More <ChevronDown className="w-4 h-4" />
+                                  </>
+                                )}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedEvent.location && (
+                        <div className="mb-4">
+                          <label className="block text-sm font-medium text-gray-500 mb-1">Location</label>
+                          <p className="text-gray-700 flex items-center gap-2">
+                            <MapPin className="w-4 h-4 text-gray-500" />
+                            {selectedEvent.location}
+                          </p>
+                        </div>
+                      )}
+
+                      {selectedEvent.registration && (
+                        <div className="mb-4">
+                          <label className="block text-sm font-medium text-gray-500 mb-1">Registration</label>
+                          <a
+                            href={selectedEvent.registration}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-700 hover:underline break-all"
+                          >
+                            {selectedEvent.registration}
+                          </a>
+                        </div>
+                      )}
+
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => setShowDetailModal(false)}
+                          className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                          type="button"
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Galeri */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
