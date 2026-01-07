@@ -147,8 +147,9 @@ export default function PPDS1() {
             ...base,
             id: a.id,
             code: base.code,
-            name: a.code ?? base.name,
+            name: a.name ?? base.name,
             fullName: a.name ?? base.fullName,
+            affiliationCode: a.code ?? base.code
           };
         });
 

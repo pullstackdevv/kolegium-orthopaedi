@@ -64,8 +64,9 @@ export default function ClinicalFellowship() {
             ...base,
             id: a.id,
             code: a.code ? a.code.charAt(0) + a.code.split('-')[1].charAt(0) : base.code,
-            name: a.code ?? base.name,
-            fullName: a.name ?? base.fullName
+            name: a.name ?? base.name,
+            fullName: a.name ?? base.fullName,
+            affiliationCode: a.code ?? base.code
           };
         });
 

@@ -335,9 +335,29 @@ const SidebarSeparator = React.forwardRef(({ className, ...props }, ref) => {
 SidebarSeparator.displayName = "SidebarSeparator"
 
 const SidebarContent = React.forwardRef(({ className, ...props }, ref) => {
+  const contentRef = React.useRef(null);
+  const combinedRef = ref || contentRef;
+
+  React.useEffect(() => {
+    const element = combinedRef.current;
+    if (!element) return;
+
+    const savedScrollPos = sessionStorage.getItem('sidebar-scroll-position');
+    if (savedScrollPos) {
+      element.scrollTop = parseInt(savedScrollPos, 10);
+    }
+
+    const handleScroll = () => {
+      sessionStorage.setItem('sidebar-scroll-position', element.scrollTop.toString());
+    };
+
+    element.addEventListener('scroll', handleScroll);
+    return () => element.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div
-      ref={ref}
+      ref={combinedRef}
       data-sidebar="content"
       className={cn(
         "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",

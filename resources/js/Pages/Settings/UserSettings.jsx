@@ -3,6 +3,7 @@ import { Users, UserPlus, Pencil, Trash2, CheckCircle, XCircle, AlertCircle, Loa
 import api from "@/api/axios";
 import Swal from "sweetalert2";
 import PermissionGuard from "@/components/PermissionGuard";
+import { handleSessionExpired } from "@/utils/auth";
 
 // Shadcn UI Components
 import { Button } from "@/components/ui/button";
@@ -59,6 +60,10 @@ export default function UserSettings() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false);
+  const dialogContentRef = React.useRef(null);
+  const [errorTrigger, setErrorTrigger] = useState(0);
+  const [touched, setTouched] = useState({});
+  const [clientErrors, setClientErrors] = useState({});
 
   // Affiliation management state
   const [showAffiliationModal, setShowAffiliationModal] = useState(false);
@@ -85,6 +90,15 @@ export default function UserSettings() {
     fetchRoleDescriptions();
   }, []);
 
+  useEffect(() => {
+    if (errorTrigger > 0 && dialogContentRef.current) {
+      dialogContentRef.current.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  }, [errorTrigger]);
+
   const resetForm = () => {
     setFormData({
       name: '',
@@ -96,6 +110,8 @@ export default function UserSettings() {
     });
     setFormError(null);
     setFieldErrors({});
+    setClientErrors({});
+    setTouched({});
     setSelectedUser(null);
   };
 
@@ -136,11 +152,87 @@ export default function UserSettings() {
     resetForm();
   };
 
+  const validateField = (name, value) => {
+    const errors = {};
+    
+    switch(name) {
+      case 'name':
+        if (!value || value.trim() === '') {
+          errors.name = 'Nama lengkap wajib diisi';
+        } else if (value.trim().length < 3) {
+          errors.name = 'Nama minimal 3 karakter';
+        }
+        break;
+        
+      case 'email':
+        if (!value || value.trim() === '') {
+          errors.email = 'Email wajib diisi';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          errors.email = 'Format email tidak valid';
+        }
+        break;
+        
+      case 'password':
+        if (modalType === 'create' && (!value || value === '')) {
+          errors.password = 'Password wajib diisi';
+        } else if (value && value.length < 8) {
+          errors.password = 'Password minimal 8 karakter';
+        } else if (value && !/(?=.*[a-z])/.test(value)) {
+          errors.password = 'Password harus mengandung huruf kecil';
+        } else if (value && !/(?=.*[A-Z])/.test(value)) {
+          errors.password = 'Password harus mengandung huruf besar';
+        } else if (value && !/(?=.*\d)/.test(value)) {
+          errors.password = 'Password harus mengandung angka';
+        }
+        break;
+        
+      case 'password_confirmation':
+        if ((modalType === 'create' || formData.password) && (!value || value === '')) {
+          errors.password_confirmation = 'Konfirmasi password wajib diisi';
+        } else if (value && value !== formData.password) {
+          errors.password_confirmation = 'Password tidak cocok';
+        }
+        break;
+        
+      case 'role_id':
+        if (!value || value === '') {
+          errors.role_id = 'Role wajib dipilih';
+        }
+        break;
+    }
+    
+    return errors;
+  };
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+    const newValue = type === 'checkbox' ? checked : value;
+    
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: newValue
+    }));
+    
+    // Real-time validation for touched fields
+    if (touched[name]) {
+      const errors = validateField(name, newValue);
+      setClientErrors(prev => ({
+        ...prev,
+        ...errors,
+        [name]: errors[name] || null
+      }));
+    }
+  };
+  
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    
+    const errors = validateField(name, value);
+    setClientErrors(prev => ({
+      ...prev,
+      ...errors,
+      [name]: errors[name] || null
     }));
   };
 
@@ -191,6 +283,7 @@ export default function UserSettings() {
           }).join('; ');
           setFieldErrors(fieldErrorsObj);
           setFormError(errorMessages || responseData.message || 'Terdapat kesalahan validasi pada form');
+          setErrorTrigger(prev => prev + 1);
         } else {
           // Laravel format: {field: [messages]}
           const errors = responseData.errors;
@@ -202,15 +295,19 @@ export default function UserSettings() {
             })
             .join('; ');
           setFormError(errorMessages || 'Terdapat kesalahan validasi pada form');
+          setErrorTrigger(prev => prev + 1);
         }
       } else if (err.response?.status === 401) {
         setFormError('Sesi Anda telah berakhir. Silakan login kembali.');
-        setTimeout(() => window.location.href = '/cms/login', 2000);
+        setErrorTrigger(prev => prev + 1);
+        setTimeout(() => handleSessionExpired(), 2000);
       } else if (err.response?.status === 403) {
         setFormError('Anda tidak memiliki akses untuk membuat user.');
+        setErrorTrigger(prev => prev + 1);
       } else {
         const errorMessage = err.response?.data?.message || err.message || 'Gagal membuat user. Silakan coba lagi.';
         setFormError(errorMessage);
+        setErrorTrigger(prev => prev + 1);
         Swal.fire({
           icon: 'error',
           title: 'Gagal!',
@@ -266,6 +363,7 @@ export default function UserSettings() {
           }).join('; ');
           setFieldErrors(fieldErrorsObj);
           setFormError(errorMessages || responseData.message || 'Terdapat kesalahan validasi pada form');
+          setErrorTrigger(prev => prev + 1);
         } else {
           // Laravel format: {field: [messages]}
           const errors = responseData.errors;
@@ -277,15 +375,19 @@ export default function UserSettings() {
             })
             .join('; ');
           setFormError(errorMessages || 'Terdapat kesalahan validasi pada form');
+          setErrorTrigger(prev => prev + 1);
         }
       } else if (err.response?.status === 401) {
         setFormError('Sesi Anda telah berakhir. Silakan login kembali.');
-        setTimeout(() => window.location.href = '/cms/login', 2000);
+        setErrorTrigger(prev => prev + 1);
+        setTimeout(() => handleSessionExpired(), 2000);
       } else if (err.response?.status === 403) {
         setFormError('Anda tidak memiliki akses untuk memperbarui user.');
+        setErrorTrigger(prev => prev + 1);
       } else {
         const errorMessage = err.response?.data?.message || err.message || 'Gagal memperbarui user. Silakan coba lagi.';
         setFormError(errorMessage);
+        setErrorTrigger(prev => prev + 1);
         Swal.fire({
           icon: 'error',
           title: 'Gagal!',
@@ -341,15 +443,29 @@ export default function UserSettings() {
     setFormError(null);
     setFieldErrors({});
     
-    // Basic validation
-    if (!formData.name || !formData.email || (modalType === 'create' && !formData.password)) {
-      setFormError('Mohon lengkapi semua field yang wajib diisi');
-      return;
-    }
-
-    // Password confirmation validation
-    if (formData.password && formData.password !== formData.password_confirmation) {
-      setFormError('Password dan konfirmasi password tidak cocok');
+    // Validate all fields
+    const allErrors = {};
+    Object.keys(formData).forEach(key => {
+      if (key !== 'is_active') {
+        const errors = validateField(key, formData[key]);
+        Object.assign(allErrors, errors);
+      }
+    });
+    
+    // Mark all fields as touched
+    setTouched({
+      name: true,
+      email: true,
+      password: true,
+      password_confirmation: true,
+      role_id: true
+    });
+    
+    if (Object.keys(allErrors).length > 0) {
+      setClientErrors(allErrors);
+      const errorMessages = Object.values(allErrors).filter(Boolean).join(', ');
+      setFormError(errorMessages);
+      setErrorTrigger(prev => prev + 1);
       return;
     }
 
@@ -378,6 +494,7 @@ export default function UserSettings() {
       console.error('Error fetching users:', err);
       if (err.response?.status === 401) {
         setError('Sesi Anda telah berakhir. Silakan login kembali.');
+        setTimeout(() => handleSessionExpired(), 2000);
       } else if (err.response?.status === 403) {
         setError('Anda tidak memiliki akses untuk melihat data pengguna.');
       } else {
@@ -727,7 +844,7 @@ export default function UserSettings() {
 
       {/* Dialog for Add/Edit User */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent ref={dialogContentRef} className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {modalType === 'create' ? 'Tambah User Baru' : 'Edit User'}
@@ -753,12 +870,33 @@ export default function UserSettings() {
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                required
+                onBlur={handleBlur}
                 placeholder="Masukkan nama lengkap"
-                className={fieldErrors.name ? 'border-red-500' : ''}
+                className={(
+                  (touched.name && clientErrors.name) || fieldErrors.name
+                    ? 'border-red-500 focus-visible:ring-red-500'
+                    : touched.name && !clientErrors.name
+                    ? 'border-green-500 focus-visible:ring-green-500'
+                    : ''
+                )}
               />
-              {fieldErrors.name && (
-                <p className="text-sm text-red-500 mt-1">{fieldErrors.name[0]}</p>
+              {touched.name && clientErrors.name && (
+                <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {clientErrors.name}
+                </p>
+              )}
+              {fieldErrors.name && !clientErrors.name && (
+                <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {fieldErrors.name[0]}
+                </p>
+              )}
+              {touched.name && !clientErrors.name && !fieldErrors.name && formData.name && (
+                <p className="text-sm text-green-600 mt-1 flex items-center gap-1">
+                  <CheckCircle className="h-3 w-3" />
+                  Nama valid
+                </p>
               )}
             </div>
 
@@ -770,12 +908,33 @@ export default function UserSettings() {
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                required
-                placeholder="Masukkan alamat email"
-                className={fieldErrors.email ? 'border-red-500' : ''}
+                onBlur={handleBlur}
+                placeholder="contoh@email.com"
+                className={(
+                  (touched.email && clientErrors.email) || fieldErrors.email
+                    ? 'border-red-500 focus-visible:ring-red-500'
+                    : touched.email && !clientErrors.email
+                    ? 'border-green-500 focus-visible:ring-green-500'
+                    : ''
+                )}
               />
-              {fieldErrors.email && (
-                <p className="text-sm text-red-500 mt-1">{fieldErrors.email[0]}</p>
+              {touched.email && clientErrors.email && (
+                <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {clientErrors.email}
+                </p>
+              )}
+              {fieldErrors.email && !clientErrors.email && (
+                <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {fieldErrors.email[0]}
+                </p>
+              )}
+              {touched.email && !clientErrors.email && !fieldErrors.email && formData.email && (
+                <p className="text-sm text-green-600 mt-1 flex items-center gap-1">
+                  <CheckCircle className="h-3 w-3" />
+                  Email valid
+                </p>
               )}
             </div>
 
@@ -784,7 +943,7 @@ export default function UserSettings() {
                 {modalType === 'create' ? 'Password *' : 'Password'}
               </Label>
               <p className="text-xs text-muted-foreground">
-                {modalType === 'create' ? 'Minimal 8 karakter' : 'Kosongkan jika tidak ingin mengubah'}
+                {modalType === 'create' ? 'Minimal 8 karakter, harus mengandung huruf besar, kecil, dan angka' : 'Kosongkan jika tidak ingin mengubah'}
               </p>
               <div className="relative">
                 <Input
@@ -793,9 +952,15 @@ export default function UserSettings() {
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  required={modalType === 'create'}
+                  onBlur={handleBlur}
                   placeholder="Masukkan password"
-                  className={fieldErrors.password ? 'border-red-500 pr-10' : 'pr-10'}
+                  className={(
+                    (touched.password && clientErrors.password) || fieldErrors.password
+                      ? 'border-red-500 focus-visible:ring-red-500 pr-10'
+                      : touched.password && !clientErrors.password && formData.password
+                      ? 'border-green-500 focus-visible:ring-green-500 pr-10'
+                      : 'pr-10'
+                  )}
                 />
                 <button
                   type="button"
@@ -805,13 +970,37 @@ export default function UserSettings() {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              {fieldErrors.password && (
-                <p className="text-sm text-red-500 mt-1">{fieldErrors.password[0]}</p>
+              {touched.password && clientErrors.password && (
+                <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {clientErrors.password}
+                </p>
+              )}
+              {fieldErrors.password && !clientErrors.password && (
+                <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {fieldErrors.password[0]}
+                </p>
+              )}
+              {formData.password && touched.password && !clientErrors.password && (
+                <div className="space-y-1">
+                  <p className="text-sm text-green-600 flex items-center gap-1">
+                    <CheckCircle className="h-3 w-3" />
+                    Password kuat
+                  </p>
+                  <div className="flex gap-1">
+                    <div className={`h-1 flex-1 rounded ${formData.password.length >= 8 ? 'bg-green-500' : 'bg-gray-200'}`} />
+                    <div className={`h-1 flex-1 rounded ${/(?=.*[a-z])/.test(formData.password) && /(?=.*[A-Z])/.test(formData.password) ? 'bg-green-500' : 'bg-gray-200'}`} />
+                    <div className={`h-1 flex-1 rounded ${/(?=.*\d)/.test(formData.password) ? 'bg-green-500' : 'bg-gray-200'}`} />
+                  </div>
+                </div>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password_confirmation">Konfirmasi Password *</Label>
+              <Label htmlFor="password_confirmation">
+                Konfirmasi Password {(modalType === 'create' || formData.password) && '*'}
+              </Label>
               <div className="relative">
                 <Input
                   id="password_confirmation"
@@ -819,9 +1008,15 @@ export default function UserSettings() {
                   name="password_confirmation"
                   value={formData.password_confirmation}
                   onChange={handleInputChange}
-                  required={modalType === 'create' || formData.password}
-                  placeholder="Konfirmasi password"
-                  className={fieldErrors.password_confirmation ? 'border-red-500 pr-10' : 'pr-10'}
+                  onBlur={handleBlur}
+                  placeholder="Ulangi password"
+                  className={(
+                    (touched.password_confirmation && clientErrors.password_confirmation) || fieldErrors.password_confirmation
+                      ? 'border-red-500 focus-visible:ring-red-500 pr-10'
+                      : touched.password_confirmation && !clientErrors.password_confirmation && formData.password_confirmation
+                      ? 'border-green-500 focus-visible:ring-green-500 pr-10'
+                      : 'pr-10'
+                  )}
                 />
                 <button
                   type="button"
@@ -831,15 +1026,44 @@ export default function UserSettings() {
                   {showPasswordConfirmation ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              {fieldErrors.password_confirmation && (
-                <p className="text-sm text-red-500 mt-1">{fieldErrors.password_confirmation[0]}</p>
+              {touched.password_confirmation && clientErrors.password_confirmation && (
+                <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {clientErrors.password_confirmation}
+                </p>
+              )}
+              {fieldErrors.password_confirmation && !clientErrors.password_confirmation && (
+                <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {fieldErrors.password_confirmation[0]}
+                </p>
+              )}
+              {touched.password_confirmation && !clientErrors.password_confirmation && formData.password_confirmation && formData.password === formData.password_confirmation && (
+                <p className="text-sm text-green-600 mt-1 flex items-center gap-1">
+                  <CheckCircle className="h-3 w-3" />
+                  Password cocok
+                </p>
               )}
             </div>
 
             <div className="space-y-2">
               <Label>Role *</Label>
-              <Select value={formData.role_id} onValueChange={(value) => setFormData(prev => ({ ...prev, role_id: value }))}>
-                <SelectTrigger className={fieldErrors.role_id ? 'border-red-500' : ''}>
+              <Select 
+                value={formData.role_id} 
+                onValueChange={(value) => {
+                  setFormData(prev => ({ ...prev, role_id: value }));
+                  setTouched(prev => ({ ...prev, role_id: true }));
+                  const errors = validateField('role_id', value);
+                  setClientErrors(prev => ({ ...prev, role_id: errors.role_id || null }));
+                }}
+              >
+                <SelectTrigger className={(
+                  (touched.role_id && clientErrors.role_id) || fieldErrors.role_id
+                    ? 'border-red-500 focus:ring-red-500'
+                    : touched.role_id && !clientErrors.role_id && formData.role_id
+                    ? 'border-green-500 focus:ring-green-500'
+                    : ''
+                )}>
                   <SelectValue placeholder="Pilih Role" />
                 </SelectTrigger>
                 <SelectContent>
@@ -850,6 +1074,25 @@ export default function UserSettings() {
                   ))}
                 </SelectContent>
               </Select>
+              
+              {touched.role_id && clientErrors.role_id && (
+                <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {clientErrors.role_id}
+                </p>
+              )}
+              {fieldErrors.role_id && !clientErrors.role_id && (
+                <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {fieldErrors.role_id[0]}
+                </p>
+              )}
+              {touched.role_id && !clientErrors.role_id && !fieldErrors.role_id && formData.role_id && (
+                <p className="text-sm text-green-600 mt-1 flex items-center gap-1">
+                  <CheckCircle className="h-3 w-3" />
+                  Role dipilih
+                </p>
+              )}
               
               {/* Role Description */}
               {formData.role_id && (() => {

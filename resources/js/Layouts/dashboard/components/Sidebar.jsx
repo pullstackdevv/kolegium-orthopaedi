@@ -26,7 +26,7 @@ import {
 import { sidebarMenu } from "../config/sidebar-menu";
 import PermissionGuard from "@/components/PermissionGuard";
 import { useAuth } from "@/contexts/AuthContext";
-import api from "@/api/axios";
+import { handleLogout } from "@/utils/auth";
 
 export function AppSidebar({ user }) {
   const { url } = usePage();
@@ -95,29 +95,8 @@ export function AppSidebar({ user }) {
       .slice(0, 2);
   };
 
-  const handleLogout = async () => {
-    try {
-      try {
-        await api.post(
-          "/auth/logout",
-          {},
-          {
-            headers: {
-              "X-Skip-Auth-Redirect": "1",
-            },
-          }
-        );
-      } catch (e) {
-      }
-
-      localStorage.removeItem("auth_token");
-      localStorage.removeItem("user_data");
-
-      await fetch("/cms/logout", { method: "GET" });
-      window.location.href = "/cms/login";
-    } catch (err) {
-      console.error("Logout failed:", err);
-    }
+  const handleLogoutClick = async () => {
+    await handleLogout('manual');
   };
 
   return (
@@ -259,7 +238,7 @@ export function AppSidebar({ user }) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
+                <DropdownMenuItem onClick={handleLogoutClick}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Log out
                 </DropdownMenuItem>
