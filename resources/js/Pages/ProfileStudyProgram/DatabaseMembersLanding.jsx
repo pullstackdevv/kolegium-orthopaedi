@@ -129,7 +129,7 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
             </Link>
             <span>/</span>
             <Link href={`/profile-study-program/${type}/${affiliation?.id}`} className="hover:underline">
-              {affiliation?.code || "Detail"}
+              {affiliation?.name || "Detail"}
             </Link>
             <span>/</span>
             <span>Data Base</span>
@@ -188,7 +188,7 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
               <div>
                 <div className="text-xs font-semibold text-gray-700 mb-1">Program Studi</div>
                 <div className="h-10 px-3 rounded-md border border-gray-200 flex items-center text-sm text-gray-700 bg-gray-50">
-                  {affiliation?.code || "-"}
+                  {affiliation?.name || "-"}
                 </div>
               </div>
 
@@ -280,7 +280,7 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
                           <div className="font-medium">{m.name}</div>
                           <div className="text-xs text-gray-500">{m.member_code || "-"}</div>
                         </td>
-                        <td className="px-5 py-3 text-sm text-gray-700">{affiliation?.code || "-"}</td>
+                        <td className="px-5 py-3 text-sm text-gray-700">{affiliation?.name || "-"}</td>
                         <td className="px-5 py-3 text-sm text-gray-700">{genderLabel(m.gender)}</td>
                         <td className="px-5 py-3">
                           <span className={`text-xs font-semibold px-3 py-1 rounded ${statusPillClass(m.status)}`}>{statusLabel(m.status)}</span>
