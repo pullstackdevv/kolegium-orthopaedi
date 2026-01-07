@@ -31,7 +31,7 @@ export default function LoginForm() {
         }
       });
       
-      setMessage(res.data.message || 'Login berhasil!');
+      setMessage(res.data.message || 'Login successful!');
       setMessageStatus('success');
 
       if (res.data?.status === 'success' && res.data?.data?.token) {
@@ -48,7 +48,7 @@ export default function LoginForm() {
       }, 1000);
     } catch (err) {
       if (err.response) {
-        setMessage(err.response.data.message || 'Login gagal');
+        setMessage(err.response.data.message || 'Login failed');
         
         // Handle validation errors
         const errors = err.response.data.errors || {};
@@ -59,7 +59,7 @@ export default function LoginForm() {
         setServerErrors(errorArray);
         setMessageStatus('error');
       } else {
-        setMessage('Terjadi kesalahan koneksi');
+        setMessage('Connection error occurred');
         setMessageStatus('error');
       }
     }
@@ -87,11 +87,11 @@ export default function LoginForm() {
               </div>
               <div>
                 <h1 className="text-4xl font-bold tracking-tight">Kolegium Orthopaedi</h1>
-                <p className="text-blue-100 text-lg">Management System</p>
+                <p className="text-blue-100 text-lg">E-Dashboard System</p>
               </div>
             </div>
             <p className="text-xl text-blue-50 leading-relaxed">
-              Sistem manajemen terintegrasi untuk Kolegium Orthopaedi Indonesia
+              Integrated management system for Indonesian Orthopaedic Collegium
             </p>
           </div>
           
@@ -101,8 +101,8 @@ export default function LoginForm() {
                 <Icon icon="solar:user-check-rounded-bold" className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="font-semibold text-lg mb-1">User Management</h3>
-                <p className="text-blue-100 text-sm">Kelola pengguna dan hak akses dengan mudah</p>
+                <h3 className="font-semibold text-lg mb-1">Member Management</h3>
+                <p className="text-blue-100 text-sm">Manage members, residents, and access rights</p>
               </div>
             </div>
             <div className="flex items-start gap-4 p-4 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
@@ -110,8 +110,8 @@ export default function LoginForm() {
                 <Icon icon="solar:shield-user-bold" className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="font-semibold text-lg mb-1">Role & Permissions</h3>
-                <p className="text-blue-100 text-sm">Sistem role-based access control yang fleksibel</p>
+                <h3 className="font-semibold text-lg mb-1">Training Programs</h3>
+                <p className="text-blue-100 text-sm">Track specialist and subspecialist training programs</p>
               </div>
             </div>
             <div className="flex items-start gap-4 p-4 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
@@ -119,8 +119,8 @@ export default function LoginForm() {
                 <Icon icon="solar:lock-password-bold" className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="font-semibold text-lg mb-1">Secure Authentication</h3>
-                <p className="text-blue-100 text-sm">Keamanan data dengan enkripsi tingkat enterprise</p>
+                <h3 className="font-semibold text-lg mb-1">Academic Resources</h3>
+                <p className="text-blue-100 text-sm">Access curriculum, schedules, and educational materials</p>
               </div>
             </div>
           </div>
@@ -135,13 +135,13 @@ export default function LoginForm() {
                 <Icon icon="solar:shield-check-bold" className="w-10 h-10 text-white" />
               </div>
               <h1 className="text-2xl font-bold text-gray-800">Kolegium Orthopaedi</h1>
-              <p className="text-gray-500 mt-1">Management System</p>
+              <p className="text-gray-500 mt-1">E-Dashboard System</p>
             </div>
 
             {/* Welcome Text */}
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-800 mb-2">Selamat Datang</h2>
-              <p className="text-gray-500">Silakan login untuk melanjutkan</p>
+              <h2 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h2>
+              <p className="text-gray-500">Please login to continue to your dashboard</p>
             </div>
             {/* Alert Messages */}
             {message && (
@@ -171,9 +171,9 @@ export default function LoginForm() {
                   </div>
                   <input
                     type="email"
-                    {...register('email', { required: 'Email wajib diisi' })}
+                    {...register('email', { required: 'Email is required' })}
                     className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-gray-50 focus:bg-white text-gray-700 placeholder-gray-400"
-                    placeholder="nama@email.com"
+                    placeholder="your@email.com"
                   />
                 </div>
                 {(validationErrors.email || getServerError('email')) && (
@@ -195,7 +195,7 @@ export default function LoginForm() {
                   </div>
                   <input
                     type={showPwd ? 'text' : 'password'}
-                    {...register('password', { required: 'Password wajib diisi' })}
+                    {...register('password', { required: 'Password is required' })}
                     className="w-full pl-12 pr-14 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-gray-50 focus:bg-white text-gray-700 placeholder-gray-400"
                     placeholder="••••••••"
                   />
@@ -224,14 +224,14 @@ export default function LoginForm() {
                 type="submit"
                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 mt-8"
               >
-                <span>Masuk ke Dashboard</span>
+                <span>Login to Dashboard</span>
                 <Icon icon="solar:arrow-right-bold" className="w-5 h-5" />
               </button>
             </form>
 
             {/* Footer */}
             <div className="mt-8 text-center text-sm text-gray-500">
-              <p>&copy; 2025 Kolegium Orthopaedi Indonesia</p>
+              <p>&copy; 2025 Indonesian Orthopaedic Collegium</p>
             </div>
           </div>
         </div>
