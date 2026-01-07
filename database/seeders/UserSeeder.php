@@ -23,11 +23,11 @@ class UserSeeder extends Seeder
                 'role' => 'super_admin',
             ],
             [
-                'name' => 'Staff User',
-                'email' => 'staff@gmail.com',
-                'password' => Hash::make('password'),
+                'name' => 'Orthopaedi Team',
+                'email' => 'orthopaedi@gmail.com',
+                'password' => Hash::make('orthopaedi@2025'),
                 'is_active' => true,
-                'role' => 'staff',
+                'role' => 'super_admin',
             ],
         ];
 

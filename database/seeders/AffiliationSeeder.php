@@ -100,44 +100,14 @@ class AffiliationSeeder extends Seeder
                 'code' => 'RSUP-HASAN-SADIKIN',
             ],
             [
-                'name' => 'Subspesialis Spine',
+                'name' => 'FK Universitas Airlangga',
                 'type' => AffiliationType::SUBSPESIALIS->value,
-                'code' => 'SUBSP-SPINE',
+                'code' => 'FK-UNAIR-TRAINEE',
             ],
             [
-                'name' => 'Subspesialis Hip & Knee',
+                'name' => 'FK Universitas Indonesia',
                 'type' => AffiliationType::SUBSPESIALIS->value,
-                'code' => 'SUBSP-HIP-KNEE',
-            ],
-            [
-                'name' => 'Subspesialis Hand & Microsurgery',
-                'type' => AffiliationType::SUBSPESIALIS->value,
-                'code' => 'SUBSP-HAND',
-            ],
-            [
-                'name' => 'Subspesialis Tumor',
-                'type' => AffiliationType::SUBSPESIALIS->value,
-                'code' => 'SUBSP-TUMOR',
-            ],
-            [
-                'name' => 'Subspesialis Trauma',
-                'type' => AffiliationType::SUBSPESIALIS->value,
-                'code' => 'SUBSP-TRAUMA',
-            ],
-            [
-                'name' => 'Subspesialis Pediatric Orthopaedi',
-                'type' => AffiliationType::SUBSPESIALIS->value,
-                'code' => 'SUBSP-PEDIATRIC',
-            ],
-            [
-                'name' => 'Subspesialis Foot & Ankle',
-                'type' => AffiliationType::SUBSPESIALIS->value,
-                'code' => 'SUBSP-FOOT-ANKLE',
-            ],
-            [
-                'name' => 'Subspesialis Shoulder & Elbow',
-                'type' => AffiliationType::SUBSPESIALIS->value,
-                'code' => 'SUBSP-SHOULDER-ELBOW',
+                'code' => 'FK-UI-TRAINEE',
             ],
             [
                 'name' => 'IOSSA (Indonesian Orthopaedic Spine Society Association)',
