@@ -3,6 +3,7 @@ import { Users, UserPlus, Pencil, Trash2, CheckCircle, XCircle, AlertCircle, Loa
 import api from "@/api/axios";
 import Swal from "sweetalert2";
 import PermissionGuard from "@/components/PermissionGuard";
+import { handleSessionExpired } from "@/utils/auth";
 
 // Shadcn UI Components
 import { Button } from "@/components/ui/button";
@@ -299,7 +300,7 @@ export default function UserSettings() {
       } else if (err.response?.status === 401) {
         setFormError('Sesi Anda telah berakhir. Silakan login kembali.');
         setErrorTrigger(prev => prev + 1);
-        setTimeout(() => window.location.href = '/cms/login', 2000);
+        setTimeout(() => handleSessionExpired(), 2000);
       } else if (err.response?.status === 403) {
         setFormError('Anda tidak memiliki akses untuk membuat user.');
         setErrorTrigger(prev => prev + 1);
@@ -379,7 +380,7 @@ export default function UserSettings() {
       } else if (err.response?.status === 401) {
         setFormError('Sesi Anda telah berakhir. Silakan login kembali.');
         setErrorTrigger(prev => prev + 1);
-        setTimeout(() => window.location.href = '/cms/login', 2000);
+        setTimeout(() => handleSessionExpired(), 2000);
       } else if (err.response?.status === 403) {
         setFormError('Anda tidak memiliki akses untuk memperbarui user.');
         setErrorTrigger(prev => prev + 1);
@@ -493,6 +494,7 @@ export default function UserSettings() {
       console.error('Error fetching users:', err);
       if (err.response?.status === 401) {
         setError('Sesi Anda telah berakhir. Silakan login kembali.');
+        setTimeout(() => handleSessionExpired(), 2000);
       } else if (err.response?.status === 403) {
         setError('Anda tidak memiliki akses untuk melihat data pengguna.');
       } else {

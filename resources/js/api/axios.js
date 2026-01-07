@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { handleSessionExpired } from '@/utils/auth';
 
 const api = axios.create({
     baseURL: '/api',
@@ -56,8 +57,8 @@ api.interceptors.response.use(
     const skipAuthRedirect = skipVal === '1' || skipVal === 1 || skipVal === true;
 
     if (error.response?.status === 401 && !skipAuthRedirect) {
-      // Session expired or unauthorized - redirect to CMS login
-      window.location.href = '/cms/login';
+      // Session expired or unauthorized - clear session and redirect
+      handleSessionExpired();
     }
     return Promise.reject(error);
   }
