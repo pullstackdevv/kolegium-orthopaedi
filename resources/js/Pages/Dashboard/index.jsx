@@ -1,11 +1,20 @@
 import { usePage } from "@inertiajs/react";
+import { useState, useEffect } from "react";
 import {
   Users,
-  ShieldCheck,
-  Activity,
+  GraduationCap,
+  Building2,
+  Calendar,
   TrendingUp,
   ArrowUpRight,
   ArrowDownRight,
+  UserPlus,
+  CalendarPlus,
+  FileText,
+  Settings,
+  Clock,
+  CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +22,8 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Link } from "@inertiajs/react";
+import api from "@/api/axios";
 
 // Stats Card Component
 const StatsCard = ({ title, value, description, icon: Icon, trend, trendValue }) => {
@@ -68,78 +79,128 @@ const ActivityItem = ({ initials, name, email, action, time }) => (
 );
 
 export default function Dashboard() {
-  const { auth } = usePage().props;
+  const { auth, stats: dashboardStats } = usePage().props;
   const user = auth?.user || { name: "Admin" };
 
-  // Sample data - replace with real data from backend
-  const stats = [
+  // Use stats from props (sent by controller)
+  const stats = dashboardStats || {
+    totalMembers: 0,
+    totalAffiliations: 0,
+    activePrograms: 0,
+    upcomingEvents: 0,
+    membersByProgram: {},
+    membersByStatus: {},
+    recentMembers: [],
+    upcomingAgenda: [],
+  };
+
+  const loading = false; // No loading state needed since data comes from props
+
+  const statsCards = [
     {
-      title: "Total Users",
-      value: "128",
-      description: "from last month",
+      title: "Total Members",
+      value: loading ? "..." : stats.totalMembers.toString(),
+      description: "Registered members",
       icon: Users,
-      trend: "up",
-      trendValue: "+12%",
+      href: "/cms/database",
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
     },
     {
-      title: "Active Roles",
-      value: "5",
-      description: "roles configured",
-      icon: ShieldCheck,
+      title: "Active Programs",
+      value: loading ? "..." : stats.activePrograms.toString(),
+      description: "Study programs",
+      icon: GraduationCap,
+      href: "/cms/database",
+      color: "text-green-600",
+      bgColor: "bg-green-50",
     },
     {
-      title: "Active Sessions",
-      value: "24",
-      description: "users online now",
-      icon: Activity,
-      trend: "up",
-      trendValue: "+8%",
+      title: "Affiliations",
+      value: loading ? "..." : stats.totalAffiliations.toString(),
+      description: "Partner universities",
+      icon: Building2,
+      href: "/cms/settings/affiliations",
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
     },
     {
-      title: "System Health",
-      value: "99.9%",
-      description: "uptime this month",
-      icon: TrendingUp,
+      title: "Upcoming Events",
+      value: loading ? "..." : stats.upcomingEvents.toString(),
+      description: "Scheduled agenda",
+      icon: Calendar,
+      href: "/cms/agenda",
+      color: "text-orange-600",
+      bgColor: "bg-orange-50",
     },
   ];
 
-  const recentActivities = [
+  const quickActions = [
     {
-      initials: "JD",
-      name: "John Doe",
-      email: "john@example.com",
-      action: "Login",
-      time: "2 min ago",
+      label: "Add Member",
+      icon: UserPlus,
+      href: "/cms/database",
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
     },
     {
-      initials: "AS",
-      name: "Alice Smith",
-      email: "alice@example.com",
-      action: "Updated profile",
-      time: "15 min ago",
+      label: "Create Event",
+      icon: CalendarPlus,
+      href: "/cms/agenda",
+      color: "text-green-600",
+      bgColor: "bg-green-50",
     },
     {
-      initials: "BW",
-      name: "Bob Wilson",
-      email: "bob@example.com",
-      action: "Created user",
-      time: "1 hour ago",
+      label: "Generate Report",
+      icon: FileText,
+      href: "/cms/database",
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
     },
     {
-      initials: "CJ",
-      name: "Carol Johnson",
-      email: "carol@example.com",
-      action: "Changed role",
-      time: "2 hours ago",
-    },
-    {
-      initials: "DM",
-      name: "David Miller",
-      email: "david@example.com",
-      action: "Login",
-      time: "3 hours ago",
+      label: "Settings",
+      icon: Settings,
+      href: "/cms/settings",
+      color: "text-gray-600",
+      bgColor: "bg-gray-50",
     },
   ];
+
+  const getInitials = (name) => {
+    if (!name) return "?";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+
+  const getStatusBadge = (status) => {
+    const statusConfig = {
+      active: { label: "Active", class: "bg-green-100 text-green-800" },
+      inactive: { label: "Inactive", class: "bg-gray-100 text-gray-800" },
+      graduated: { label: "Graduated", class: "bg-blue-100 text-blue-800" },
+      suspended: { label: "Suspended", class: "bg-red-100 text-red-800" },
+    };
+    const config = statusConfig[status] || { label: status, class: "bg-gray-100 text-gray-800" };
+    return <Badge className={config.class}>{config.label}</Badge>;
+  };
+
+  const getProgramLabel = (type) => {
+    const labels = {
+      resident: "PPDS 1",
+      trainee: "Subspesialis",
+      fellow: "Clinical Fellowship",
+    };
+    return labels[type] || type;
+  };
 
   return (
     <DashboardLayout title="Dashboard">
@@ -151,98 +212,218 @@ export default function Dashboard() {
               Selamat datang kembali, {user.name}!
             </h1>
             <p className="text-muted-foreground">
-              Berikut ringkasan aktivitas sistem Anda
+              Berikut ringkasan sistem E-Dashboard Kolegium Orthopaedi
             </p>
           </div>
-          <Button>
-            Download Report
-          </Button>
         </div>
 
-        {/* Tabs */}
-        <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="reports">Reports</TabsTrigger>
-          </TabsList>
+        {/* Stats Grid */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {statsCards.map((stat, index) => (
+            <Link key={index} href={stat.href}>
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    {stat.title}
+                  </CardTitle>
+                  <div className={`h-10 w-10 rounded-lg ${stat.bgColor} flex items-center justify-center`}>
+                    <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stat.value}</div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {stat.description}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
 
-          <TabsContent value="overview" className="space-y-4">
-            {/* Stats Grid */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              {stats.map((stat, index) => (
-                <StatsCard key={index} {...stat} />
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>Akses cepat ke fitur utama</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {quickActions.map((action, index) => (
+                <Link key={index} href={action.href}>
+                  <Button
+                    variant="outline"
+                    className="w-full h-24 flex flex-col items-center justify-center gap-2 hover:shadow-md transition-shadow"
+                  >
+                    <div className={`h-10 w-10 rounded-lg ${action.bgColor} flex items-center justify-center`}>
+                      <action.icon className={`h-5 w-5 ${action.color}`} />
+                    </div>
+                    <span className="text-sm font-medium">{action.label}</span>
+                  </Button>
+                </Link>
               ))}
             </div>
+          </CardContent>
+        </Card>
 
-            {/* Main Content Grid */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-              {/* Overview Chart Placeholder */}
-              <Card className="lg:col-span-4">
-                <CardHeader>
-                  <CardTitle>Overview</CardTitle>
-                  <CardDescription>
-                    User activity for the current month
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-[300px] flex items-center justify-center bg-muted/50 rounded-lg">
-                    <p className="text-muted-foreground">Chart placeholder</p>
+        {/* Main Content Grid */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+          {/* Members Distribution */}
+          <Card className="lg:col-span-4">
+            <CardHeader>
+              <CardTitle>Members Distribution</CardTitle>
+              <CardDescription>
+                Distribusi anggota berdasarkan program studi
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {Object.entries(stats.membersByProgram).map(([type, count]) => (
+                  <div key={type} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <GraduationCap className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">{getProgramLabel(type)}</p>
+                        <p className="text-xs text-muted-foreground">{count} members</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold">{count}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {stats.totalMembers > 0 ? Math.round((count / stats.totalMembers) * 100) : 0}%
+                      </p>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Recent Activity */}
-              <Card className="lg:col-span-3">
-                <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
-                  <CardDescription>
-                    Latest user activities in the system
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    {recentActivities.map((activity, index) => (
-                      <ActivityItem key={index} {...activity} />
-                    ))}
+                ))}
+                {Object.keys(stats.membersByProgram).length === 0 && !loading && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No data available
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
+                )}
+                {loading && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Loading...
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
 
-          <TabsContent value="analytics" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Analytics</CardTitle>
-                <CardDescription>
-                  Detailed analytics and metrics
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[400px] flex items-center justify-center bg-muted/50 rounded-lg">
-                  <p className="text-muted-foreground">Analytics content coming soon</p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+          {/* Status Distribution */}
+          <Card className="lg:col-span-3">
+            <CardHeader>
+              <CardTitle>Status Overview</CardTitle>
+              <CardDescription>
+                Status anggota saat ini
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {Object.entries(stats.membersByStatus).map(([status, count]) => (
+                  <div key={status} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {status === 'active' && <CheckCircle className="h-4 w-4 text-green-600" />}
+                      {status === 'inactive' && <AlertCircle className="h-4 w-4 text-gray-600" />}
+                      {status === 'graduated' && <CheckCircle className="h-4 w-4 text-blue-600" />}
+                      <span className="text-sm font-medium capitalize">{status}</span>
+                    </div>
+                    <span className="text-lg font-bold">{count}</span>
+                  </div>
+                ))}
+                {Object.keys(stats.membersByStatus).length === 0 && !loading && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No data available
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-          <TabsContent value="reports" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Reports</CardTitle>
-                <CardDescription>
-                  Generate and download reports
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[400px] flex items-center justify-center bg-muted/50 rounded-lg">
-                  <p className="text-muted-foreground">Reports content coming soon</p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        {/* Recent Members & Upcoming Events */}
+        <div className="grid gap-4 md:grid-cols-2">
+          {/* Recent Members */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Members</CardTitle>
+              <CardDescription>
+                Anggota yang baru terdaftar
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {stats.recentMembers.map((member) => (
+                  <div key={member.id} className="flex items-center gap-4">
+                    <Avatar className="h-10 w-10">
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                        {getInitials(member.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 space-y-1">
+                      <p className="text-sm font-medium leading-none">{member.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {getProgramLabel(member.organization_type)} • {formatDate(member.created_at)}
+                      </p>
+                    </div>
+                    <div>
+                      {getStatusBadge(member.status)}
+                    </div>
+                  </div>
+                ))}
+                {stats.recentMembers.length === 0 && !loading && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No recent members
+                  </div>
+                )}
+                {loading && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Loading...
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Upcoming Events */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Upcoming Events</CardTitle>
+              <CardDescription>
+                Agenda dan event mendatang
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {stats.upcomingAgenda.map((event) => (
+                  <div key={event.id} className="flex items-start gap-4">
+                    <div className="h-10 w-10 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
+                      <Calendar className="h-5 w-5 text-orange-600" />
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <p className="text-sm font-medium leading-none">{event.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatDate(event.start_date)}
+                        {event.location && ` • ${event.location}`}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+                {stats.upcomingAgenda.length === 0 && !loading && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No upcoming events
+                  </div>
+                )}
+                {loading && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Loading...
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </DashboardLayout>
   );

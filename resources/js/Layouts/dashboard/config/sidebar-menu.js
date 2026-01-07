@@ -28,7 +28,7 @@ export const sidebarMenu = [
       {
         title: "Dashboard",
         icon: LayoutDashboard,
-        href: "/cms/coming-soon/dashboard",
+        href: "/cms/dashboard",
         permission: "dashboard.view",
       },
       {

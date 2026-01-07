@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -166,9 +167,7 @@ Route::middleware([Authenticate::class])
             return redirect()->route('login');
         })->name('logout');
 
-        Route::get('/dashboard', function () {
-            return redirect()->route('cms.coming-soon', ['slug' => 'dashboard']);
-        })->name('dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::get('/calendar', function () {
             return Inertia::render('Dashboard/Calendar');
