@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\AffiliationType;
 use Illuminate\Database\Seeder;
 use App\Models\Affiliation;
+use Carbon\Carbon;
 
 class AffiliationSeeder extends Seeder
 {
@@ -13,21 +14,20 @@ class AffiliationSeeder extends Seeder
      */
     public function run(): void
     {
+        $baseTime = Carbon::now();
         $affiliations = [
+            // Kolegium
             [
                 'name' => 'Kolegium Orthopaedi dan Traumatologi',
                 'type' => AffiliationType::KOLEGIUM->value,
                 'code' => 'KOT',
             ],
+            
+            // Residen - ordered by admin user list
             [
                 'name' => 'FK Universitas Indonesia',
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UI',
-            ],
-            [
-                'name' => 'FK Universitas Gadjah Mada',
-                'type' => AffiliationType::RESIDEN->value,
-                'code' => 'FK-UGM',
             ],
             [
                 'name' => 'FK Universitas Airlangga',
@@ -45,19 +45,19 @@ class AffiliationSeeder extends Seeder
                 'code' => 'FK-UNHAS',
             ],
             [
-                'name' => 'FK Universitas Brawijaya',
-                'type' => AffiliationType::RESIDEN->value,
-                'code' => 'FK-UB',
-            ],
-            [
                 'name' => 'FK Universitas Sebelas Maret',
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UNS',
             ],
             [
-                'name' => 'FK Universitas Andalas',
+                'name' => 'FK Universitas Gadjah Mada',
                 'type' => AffiliationType::RESIDEN->value,
-                'code' => 'FK-UNAND',
+                'code' => 'FK-UGM',
+            ],
+            [
+                'name' => 'FK Universitas Udayana',
+                'type' => AffiliationType::RESIDEN->value,
+                'code' => 'FK-UNUD',
             ],
             [
                 'name' => 'FK Universitas Sumatera Utara',
@@ -65,14 +65,19 @@ class AffiliationSeeder extends Seeder
                 'code' => 'FK-USU',
             ],
             [
+                'name' => 'FK Universitas Brawijaya',
+                'type' => AffiliationType::RESIDEN->value,
+                'code' => 'FK-UB',
+            ],
+            [
                 'name' => 'FK Universitas Sriwijaya',
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UNSRI',
             ],
             [
-                'name' => 'FK Universitas Udayana',
+                'name' => 'FK Universitas Andalas',
                 'type' => AffiliationType::RESIDEN->value,
-                'code' => 'FK-UNUD',
+                'code' => 'FK-UNAND',
             ],
             [
                 'name' => 'FK Universitas Syiah Kuala',
@@ -89,10 +94,12 @@ class AffiliationSeeder extends Seeder
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'RSO-SOEHARSO',
             ],
+            
+            // Clinical Fellowship - ordered by admin user list
             [
-                'name' => 'RSUP Dr. Sardjito',
+                'name' => 'RSUD Dr. Saiful Anwar Malang',
                 'type' => AffiliationType::CLINICAL_FELLOWSHIP->value,
-                'code' => 'RSUP-SARDJITO',
+                'code' => 'RSUD-SAIFUL-ANWAR',
             ],
             [
                 'name' => 'RSUP Dr. Hasan Sadikin',
@@ -100,25 +107,29 @@ class AffiliationSeeder extends Seeder
                 'code' => 'RSUP-HASAN-SADIKIN',
             ],
             [
-                'name' => 'RSUD Dr. Saiful Anwar Malang',
+                'name' => 'RSUP Dr. Sardjito',
                 'type' => AffiliationType::CLINICAL_FELLOWSHIP->value,
-                'code' => 'RSUD-SAIFUL-ANWAR',
+                'code' => 'RSUP-SARDJITO',
             ],
             [
                 'name' => 'RSUD Dr. Moewardi Solo',
                 'type' => AffiliationType::CLINICAL_FELLOWSHIP->value,
                 'code' => 'RSUD-MOEWARDI',
             ],
-            [
-                'name' => 'FK Universitas Airlangga',
-                'type' => AffiliationType::SUBSPESIALIS->value,
-                'code' => 'FK-UNAIR-TRAINEE',
-            ],
+            
+            // Subspesialis - ordered by admin user list
             [
                 'name' => 'FK Universitas Indonesia',
                 'type' => AffiliationType::SUBSPESIALIS->value,
                 'code' => 'FK-UI-TRAINEE',
             ],
+            [
+                'name' => 'FK Universitas Airlangga',
+                'type' => AffiliationType::SUBSPESIALIS->value,
+                'code' => 'FK-UNAIR-TRAINEE',
+            ],
+            
+            // Peer Group - ordered by admin user list
             [
                 'name' => 'IOSSA (Indonesian Orthopaedic Spine Society Association)',
                 'type' => AffiliationType::PEER_GROUP->value,
@@ -145,11 +156,6 @@ class AffiliationSeeder extends Seeder
                 'code' => 'IPOS',
             ],
             [
-                'name' => 'ITOS (Indonesian Trauma Orthopaedic Society)',
-                'type' => AffiliationType::PEER_GROUP->value,
-                'code' => 'ITOS',
-            ],
-            [
                 'name' => 'IOSSMA (Indonesian Orthopaedic Society for Sport Medicine and Arthroscopy)',
                 'type' => AffiliationType::PEER_GROUP->value,
                 'code' => 'IOSSMA',
@@ -164,13 +170,30 @@ class AffiliationSeeder extends Seeder
                 'type' => AffiliationType::PEER_GROUP->value,
                 'code' => 'INAFAS',
             ],
+            [
+                'name' => 'ITOS (Indonesian Trauma Orthopaedic Society)',
+                'type' => AffiliationType::PEER_GROUP->value,
+                'code' => 'ITOS',
+            ],
         ];
 
-        foreach ($affiliations as $affiliation) {
-            Affiliation::updateOrCreate(
-                ['code' => $affiliation['code']],
-                $affiliation
-            );
+        foreach ($affiliations as $index => $affiliationData) {
+            $timestamp = $baseTime->copy()->addSeconds($index);
+
+            $affiliation = Affiliation::where('code', $affiliationData['code'])->first();
+            
+            if ($affiliation) {
+                $affiliation->fill($affiliationData);
+            } else {
+                $affiliation = new Affiliation($affiliationData);
+            }
+
+            $affiliation->created_at = $timestamp;
+            $affiliation->updated_at = $timestamp;
+            
+            $affiliation->timestamps = false;
+            $affiliation->save();
+            $affiliation->timestamps = true;
         }
     }
 }
