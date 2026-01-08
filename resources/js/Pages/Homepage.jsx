@@ -799,7 +799,17 @@ export default function Homepage() {
       {/* Upcoming Examination Section */}
       <section className="bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8">Upcoming Examination</h2>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-8">
+            <h2 className="text-3xl font-bold text-gray-900">Upcoming Examination</h2>
+            <Link
+              href="/calendar-academic"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+              aria-label="Show more upcoming examinations in Academic Calendar"
+            >
+              Show More
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {examinations.map((exam, index) => (
               <div
@@ -851,7 +861,17 @@ export default function Homepage() {
       {/* Upcoming Event Section */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8">Upcoming Event</h2>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-8">
+            <h2 className="text-3xl font-bold text-gray-900">Upcoming Event</h2>
+            <Link
+              href="/calendar-academic"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+              aria-label="Show more upcoming events in Academic Calendar"
+            >
+              Show More
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {events.map((event, index) => (
               <div
