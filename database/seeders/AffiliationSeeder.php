@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\AffiliationType;
 use Illuminate\Database\Seeder;
 use App\Models\Affiliation;
+use Carbon\Carbon;
 
 class AffiliationSeeder extends Seeder
 {
@@ -13,31 +14,25 @@ class AffiliationSeeder extends Seeder
      */
     public function run(): void
     {
+        $baseTime = Carbon::now();
         $affiliations = [
+            // Kolegium
             [
                 'name' => 'Kolegium Orthopaedi dan Traumatologi',
                 'type' => AffiliationType::KOLEGIUM->value,
                 'code' => 'KOT',
             ],
+            
+            // Residen - ordered by admin user list
             [
                 'name' => 'FK Universitas Indonesia',
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UI',
             ],
             [
-                'name' => 'FK Universitas Gadjah Mada',
-                'type' => AffiliationType::RESIDEN->value,
-                'code' => 'FK-UGM',
-            ],
-            [
                 'name' => 'FK Universitas Airlangga',
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UNAIR',
-            ],
-            [
-                'name' => 'FK Universitas Diponegoro',
-                'type' => AffiliationType::RESIDEN->value,
-                'code' => 'FK-UNDIP',
             ],
             [
                 'name' => 'FK Universitas Padjadjaran',
@@ -50,19 +45,19 @@ class AffiliationSeeder extends Seeder
                 'code' => 'FK-UNHAS',
             ],
             [
-                'name' => 'FK Universitas Brawijaya',
-                'type' => AffiliationType::RESIDEN->value,
-                'code' => 'FK-UB',
-            ],
-            [
                 'name' => 'FK Universitas Sebelas Maret',
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UNS',
             ],
             [
-                'name' => 'FK Universitas Andalas',
+                'name' => 'FK Universitas Gadjah Mada',
                 'type' => AffiliationType::RESIDEN->value,
-                'code' => 'FK-UNAND',
+                'code' => 'FK-UGM',
+            ],
+            [
+                'name' => 'FK Universitas Udayana',
+                'type' => AffiliationType::RESIDEN->value,
+                'code' => 'FK-UNUD',
             ],
             [
                 'name' => 'FK Universitas Sumatera Utara',
@@ -70,29 +65,41 @@ class AffiliationSeeder extends Seeder
                 'code' => 'FK-USU',
             ],
             [
+                'name' => 'FK Universitas Brawijaya',
+                'type' => AffiliationType::RESIDEN->value,
+                'code' => 'FK-UB',
+            ],
+            [
                 'name' => 'FK Universitas Sriwijaya',
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UNSRI',
             ],
             [
-                'name' => 'RSUP Dr. Sardjito',
-                'type' => AffiliationType::CLINICAL_FELLOWSHIP->value,
-                'code' => 'RSUP-SARDJITO',
+                'name' => 'FK Universitas Andalas',
+                'type' => AffiliationType::RESIDEN->value,
+                'code' => 'FK-UNAND',
             ],
             [
-                'name' => 'RSUP Dr. Cipto Mangunkusumo',
-                'type' => AffiliationType::CLINICAL_FELLOWSHIP->value,
-                'code' => 'RSCM',
+                'name' => 'FK Universitas Syiah Kuala',
+                'type' => AffiliationType::RESIDEN->value,
+                'code' => 'FK-USK',
             ],
             [
-                'name' => 'RSUP Dr. Soetomo',
-                'type' => AffiliationType::CLINICAL_FELLOWSHIP->value,
-                'code' => 'RSUP-SOETOMO',
+                'name' => 'FK Universitas Lambung Mangkurat',
+                'type' => AffiliationType::RESIDEN->value,
+                'code' => 'FK-ULM',
             ],
             [
-                'name' => 'RSUP Dr. Kariadi',
+                'name' => 'RSO Soeharso',
+                'type' => AffiliationType::RESIDEN->value,
+                'code' => 'RSO-SOEHARSO',
+            ],
+            
+            // Clinical Fellowship - ordered by admin user list
+            [
+                'name' => 'RSUD Dr. Saiful Anwar Malang',
                 'type' => AffiliationType::CLINICAL_FELLOWSHIP->value,
-                'code' => 'RSUP-KARIADI',
+                'code' => 'RSUD-SAIFUL-ANWAR',
             ],
             [
                 'name' => 'RSUP Dr. Hasan Sadikin',
@@ -100,15 +107,29 @@ class AffiliationSeeder extends Seeder
                 'code' => 'RSUP-HASAN-SADIKIN',
             ],
             [
-                'name' => 'FK Universitas Airlangga',
-                'type' => AffiliationType::SUBSPESIALIS->value,
-                'code' => 'FK-UNAIR-TRAINEE',
+                'name' => 'RSUP Dr. Sardjito',
+                'type' => AffiliationType::CLINICAL_FELLOWSHIP->value,
+                'code' => 'RSUP-SARDJITO',
             ],
+            [
+                'name' => 'RSUD Dr. Moewardi Solo',
+                'type' => AffiliationType::CLINICAL_FELLOWSHIP->value,
+                'code' => 'RSUD-MOEWARDI',
+            ],
+            
+            // Subspesialis - ordered by admin user list
             [
                 'name' => 'FK Universitas Indonesia',
                 'type' => AffiliationType::SUBSPESIALIS->value,
                 'code' => 'FK-UI-TRAINEE',
             ],
+            [
+                'name' => 'FK Universitas Airlangga',
+                'type' => AffiliationType::SUBSPESIALIS->value,
+                'code' => 'FK-UNAIR-TRAINEE',
+            ],
+            
+            // Peer Group - ordered by admin user list
             [
                 'name' => 'IOSSA (Indonesian Orthopaedic Spine Society Association)',
                 'type' => AffiliationType::PEER_GROUP->value,
@@ -125,9 +146,29 @@ class AffiliationSeeder extends Seeder
                 'code' => 'IHKS',
             ],
             [
+                'name' => 'INASES (Indonesian Shoulder and Elbow Society)',
+                'type' => AffiliationType::PEER_GROUP->value,
+                'code' => 'INASES',
+            ],
+            [
                 'name' => 'IPOS (Indonesian Pediatric Orthopaedic Society)',
                 'type' => AffiliationType::PEER_GROUP->value,
                 'code' => 'IPOS',
+            ],
+            [
+                'name' => 'IOSSMA (Indonesian Orthopaedic Society for Sport Medicine and Arthroscopy)',
+                'type' => AffiliationType::PEER_GROUP->value,
+                'code' => 'IOSSMA',
+            ],
+            [
+                'name' => 'INASHUM (Indonesian Society for Upper Limb and Microsurgery)',
+                'type' => AffiliationType::PEER_GROUP->value,
+                'code' => 'INASHUM',
+            ],
+            [
+                'name' => 'INAFAS (Indonesian Foot and Ankle Society)',
+                'type' => AffiliationType::PEER_GROUP->value,
+                'code' => 'INAFAS',
             ],
             [
                 'name' => 'ITOS (Indonesian Trauma Orthopaedic Society)',
@@ -136,11 +177,23 @@ class AffiliationSeeder extends Seeder
             ],
         ];
 
-        foreach ($affiliations as $affiliation) {
-            Affiliation::updateOrCreate(
-                ['code' => $affiliation['code']],
-                $affiliation
-            );
+        foreach ($affiliations as $index => $affiliationData) {
+            $timestamp = $baseTime->copy()->addSeconds($index);
+
+            $affiliation = Affiliation::where('code', $affiliationData['code'])->first();
+            
+            if ($affiliation) {
+                $affiliation->fill($affiliationData);
+            } else {
+                $affiliation = new Affiliation($affiliationData);
+            }
+
+            $affiliation->created_at = $timestamp;
+            $affiliation->updated_at = $timestamp;
+            
+            $affiliation->timestamps = false;
+            $affiliation->save();
+            $affiliation->timestamps = true;
         }
     }
 }

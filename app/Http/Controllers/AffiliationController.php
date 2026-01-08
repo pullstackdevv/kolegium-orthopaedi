@@ -53,9 +53,8 @@ class AffiliationController extends Controller
             })
             ->when($request->sort_by, function ($query, $sortBy) use ($request) {
                 $query->orderBy($sortBy, $request->sort_direction ?? 'asc');
-            }, function ($query) {
-                $query->orderBy('type')->orderBy('name');
             })
+            ->orderBy('created_at', 'asc')
             ->get();
 
         return response()->json([

@@ -81,7 +81,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('ResidenUnud@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_resident',
-                'affiliations' => ['FK-UNDIP'],
+                'affiliations' => ['FK-UNUD'],
             ],
             [
                 'name' => 'admin_residen_usu',
@@ -114,14 +114,14 @@ class AdminUserSeeder extends Seeder
                 'is_active' => true,
                 'role' => 'admin_study_program_resident',
                 'affiliations' => ['FK-UNAND'],
-            ],
+            ], 
             [
                 'name' => 'admin_residen_usk',
                 'email' => 'residen.usk@kolegium-orthopaedi.com',
                 'password' => Hash::make('ResidenUSK@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_resident',
-                'affiliations' => ['FK-USU'],
+                'affiliations' => ['FK-USK'],
             ],
             [
                 'name' => 'admin_residen_ulm',
@@ -129,25 +129,26 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('ResidenULM@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_resident',
-                'affiliations' => ['FK-UNAIR'],
+                'affiliations' => ['FK-ULM'],
             ],
-
-            // Clinical Fellowship
-            [
+             [
                 'name' => 'admin_residen_rso',
                 'email' => 'residen.rso@kolegium-orthopaedi.com',
                 'password' => Hash::make('ResidenRSO@2025'),
                 'is_active' => true,
-                'role' => 'admin_study_program_fellow',
-                'affiliations' => ['RSCM'],
+                'role' => 'admin_study_program_residen',
+                'affiliations' => ['RSO-SOEHARSO'],
             ],
+
+            // Clinical Fellowship           
+            
             [
                 'name' => 'admin_cf_saifulanwar',
                 'email' => 'cf.saifulanwar@kolegium-orthopaedi.com',
                 'password' => Hash::make('CFMalang@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_fellow',
-                'affiliations' => ['RSUP-SOETOMO'],
+                'affiliations' => ['RSUD-SAIFUL-ANWAR'],
             ],
             [
                 'name' => 'admin_cf_rshs',
@@ -171,7 +172,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('CFSolo@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_fellow',
-                'affiliations' => ['RSUP-KARIADI'],
+                'affiliations' => ['RSUD-MOEWARDI'],
             ],
 
             // Subspesialis
@@ -181,7 +182,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('SubspUI@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_trainee',
-                'affiliations' => ['SUBSP-TUMOR', 'SUBSP-SPINE'],
+                'affiliations' => ['FK-UI-TRAINEE'],
             ],
             [
                 'name' => 'admin_subsp_unair',
@@ -189,7 +190,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('SubspUnair@2025'),
                 'is_active' => true,
                 'role' => 'admin_study_program_trainee',
-                'affiliations' => ['SUBSP-HIP-KNEE'],
+                'affiliations' => ['FK-UNAIR-TRAINEE'],
             ],
 
             // Peer Group
@@ -223,7 +224,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('INASES@2025'),
                 'is_active' => true,
                 'role' => 'admin_peer_group',
-                'affiliations' => ['IPOS'],
+                'affiliations' => ['INASES'],
             ],
             [
                 'name' => 'admin_pg_ipos',
@@ -239,7 +240,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('IOSSMA@2025'),
                 'is_active' => true,
                 'role' => 'admin_peer_group',
-                'affiliations' => ['IOSSA'],
+                'affiliations' => ['IOSSMA'],
             ],
             [
                 'name' => 'admin_pg_inashum',
@@ -247,7 +248,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('INASHUM@2025'),
                 'is_active' => true,
                 'role' => 'admin_peer_group',
-                'affiliations' => ['IHKS'],
+                'affiliations' => ['INASHUM'],
             ],
             [
                 'name' => 'admin_pg_inafas',
@@ -255,7 +256,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('INAFAS@2025'),
                 'is_active' => true,
                 'role' => 'admin_peer_group',
-                'affiliations' => ['INAMSOS'],
+                'affiliations' => ['INAFAS'],
             ],
             [
                 'name' => 'admin_pg_iots',
