@@ -35,11 +35,6 @@ class AffiliationSeeder extends Seeder
                 'code' => 'FK-UNAIR',
             ],
             [
-                'name' => 'FK Universitas Diponegoro',
-                'type' => AffiliationType::RESIDEN->value,
-                'code' => 'FK-UNDIP',
-            ],
-            [
                 'name' => 'FK Universitas Padjadjaran',
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UNPAD',
@@ -75,29 +70,44 @@ class AffiliationSeeder extends Seeder
                 'code' => 'FK-UNSRI',
             ],
             [
+                'name' => 'FK Universitas Udayana',
+                'type' => AffiliationType::RESIDEN->value,
+                'code' => 'FK-UNUD',
+            ],
+            [
+                'name' => 'FK Universitas Syiah Kuala',
+                'type' => AffiliationType::RESIDEN->value,
+                'code' => 'FK-USK',
+            ],
+            [
+                'name' => 'FK Universitas Lambung Mangkurat',
+                'type' => AffiliationType::RESIDEN->value,
+                'code' => 'FK-ULM',
+            ],
+            [
+                'name' => 'RSO Soeharso',
+                'type' => AffiliationType::RESIDEN->value,
+                'code' => 'RSO-SOEHARSO',
+            ],
+            [
                 'name' => 'RSUP Dr. Sardjito',
                 'type' => AffiliationType::CLINICAL_FELLOWSHIP->value,
                 'code' => 'RSUP-SARDJITO',
             ],
             [
-                'name' => 'RSUP Dr. Cipto Mangunkusumo',
-                'type' => AffiliationType::CLINICAL_FELLOWSHIP->value,
-                'code' => 'RSCM',
-            ],
-            [
-                'name' => 'RSUP Dr. Soetomo',
-                'type' => AffiliationType::CLINICAL_FELLOWSHIP->value,
-                'code' => 'RSUP-SOETOMO',
-            ],
-            [
-                'name' => 'RSUP Dr. Kariadi',
-                'type' => AffiliationType::CLINICAL_FELLOWSHIP->value,
-                'code' => 'RSUP-KARIADI',
-            ],
-            [
                 'name' => 'RSUP Dr. Hasan Sadikin',
                 'type' => AffiliationType::CLINICAL_FELLOWSHIP->value,
                 'code' => 'RSUP-HASAN-SADIKIN',
+            ],
+            [
+                'name' => 'RSUD Dr. Saiful Anwar Malang',
+                'type' => AffiliationType::CLINICAL_FELLOWSHIP->value,
+                'code' => 'RSUD-SAIFUL-ANWAR',
+            ],
+            [
+                'name' => 'RSUD Dr. Moewardi Solo',
+                'type' => AffiliationType::CLINICAL_FELLOWSHIP->value,
+                'code' => 'RSUD-MOEWARDI',
             ],
             [
                 'name' => 'FK Universitas Airlangga',
@@ -125,6 +135,11 @@ class AffiliationSeeder extends Seeder
                 'code' => 'IHKS',
             ],
             [
+                'name' => 'INASES (Indonesian Shoulder and Elbow Society)',
+                'type' => AffiliationType::PEER_GROUP->value,
+                'code' => 'INASES',
+            ],
+            [
                 'name' => 'IPOS (Indonesian Pediatric Orthopaedic Society)',
                 'type' => AffiliationType::PEER_GROUP->value,
                 'code' => 'IPOS',
@@ -133,6 +148,21 @@ class AffiliationSeeder extends Seeder
                 'name' => 'ITOS (Indonesian Trauma Orthopaedic Society)',
                 'type' => AffiliationType::PEER_GROUP->value,
                 'code' => 'ITOS',
+            ],
+            [
+                'name' => 'IOSSMA (Indonesian Orthopaedic Society for Sport Medicine and Arthroscopy)',
+                'type' => AffiliationType::PEER_GROUP->value,
+                'code' => 'IOSSMA',
+            ],
+            [
+                'name' => 'INASHUM (Indonesian Society for Upper Limb and Microsurgery)',
+                'type' => AffiliationType::PEER_GROUP->value,
+                'code' => 'INASHUM',
+            ],
+            [
+                'name' => 'INAFAS (Indonesian Foot and Ankle Society)',
+                'type' => AffiliationType::PEER_GROUP->value,
+                'code' => 'INAFAS',
             ],
         ];
 
