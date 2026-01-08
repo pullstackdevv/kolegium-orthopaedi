@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Users, UserPlus, Pencil, Trash2, CheckCircle, XCircle, AlertCircle, Loader2, ChevronLeft, ChevronRight, Building2, Eye, EyeOff } from "lucide-react";
+import { Users, UserPlus, Pencil, Trash2, CheckCircle, XCircle, AlertCircle, Loader2, ChevronLeft, ChevronRight, Building2, Eye, EyeOff, Search } from "lucide-react";
 import api from "@/api/axios";
 import Swal from "sweetalert2";
 import PermissionGuard from "@/components/PermissionGuard";
@@ -73,16 +73,34 @@ export default function UserSettings() {
   const [selectedAffiliationIds, setSelectedAffiliationIds] = useState([]);
   const [affiliationLoading, setAffiliationLoading] = useState(false);
 
+  // Search and filter state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterRole, setFilterRole] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 
+  // Filter and search logic
+  const filteredUsers = useMemo(() => {
+    return users.filter(user => {
+      const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesRole = filterRole === 'all' || user.role?.name === filterRole;
+      const matchesStatus = filterStatus === 'all' || 
+                           (filterStatus === 'active' && user.is_active) ||
+                           (filterStatus === 'inactive' && !user.is_active);
+      return matchesSearch && matchesRole && matchesStatus;
+    });
+  }, [users, searchTerm, filterRole, filterStatus]);
+
   // Pagination logic
-  const totalPages = Math.ceil(users.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
   const paginatedUsers = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return users.slice(startIndex, startIndex + itemsPerPage);
-  }, [users, currentPage, itemsPerPage]);
+    return filteredUsers.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredUsers, currentPage, itemsPerPage]);
 
   useEffect(() => {
     fetchUsers();
@@ -722,13 +740,65 @@ export default function UserSettings() {
               <CardDescription>Daftar semua pengguna yang terdaftar dalam sistem</CardDescription>
             </CardHeader>
             <CardContent>
-              {users.length === 0 ? (
+              {/* Search and Filter */}
+              <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Cari nama atau email..."
+                    value={searchTerm}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="pl-10"
+                  />
+                </div>
+                <Select value={filterRole} onValueChange={(value) => {
+                  setFilterRole(value);
+                  setCurrentPage(1);
+                }}>
+                  <SelectTrigger className="w-full sm:w-[200px]">
+                    <SelectValue placeholder="Filter Role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Semua Role</SelectItem>
+                    <SelectItem value="super_admin">Super Admin</SelectItem>
+                    <SelectItem value="admin_kolegium">Admin Kolegium</SelectItem>
+                    <SelectItem value="admin_study_program_resident">Admin Residen</SelectItem>
+                    <SelectItem value="admin_study_program_fellow">Admin Fellow</SelectItem>
+                    <SelectItem value="admin_study_program_trainee">Admin Trainee</SelectItem>
+                    <SelectItem value="admin_peer_group">Admin Peer Group</SelectItem>
+                    <SelectItem value="staff">Staff</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={filterStatus} onValueChange={(value) => {
+                  setFilterStatus(value);
+                  setCurrentPage(1);
+                }}>
+                  <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue placeholder="Filter Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Semua Status</SelectItem>
+                    <SelectItem value="active">Aktif</SelectItem>
+                    <SelectItem value="inactive">Nonaktif</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+
+              {filteredUsers.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12">
                   <div className="p-4 bg-muted rounded-full mb-4">
                     <Users className="h-8 w-8 text-muted-foreground" />
                   </div>
-                  <p className="text-muted-foreground text-center font-medium">Belum ada data pengguna</p>
-                  <p className="text-muted-foreground text-sm mt-1">Klik tombol "Tambah User" untuk membuat user baru</p>
+                  <p className="text-muted-foreground text-center font-medium">
+                    {users.length === 0 ? 'Belum ada data pengguna' : 'Tidak ada data yang sesuai dengan pencarian'}
+                  </p>
+                  <p className="text-muted-foreground text-sm mt-1">
+                    {users.length === 0 ? 'Klik tombol "Tambah User" untuk membuat user baru' : 'Coba ubah kata kunci atau filter pencarian'}
+                  </p>
                 </div>
               ) : (
                 <>
@@ -800,7 +870,8 @@ export default function UserSettings() {
                 {totalPages > 1 && (
                   <div className="flex items-center justify-between mt-4 pt-4 border-t">
                     <p className="text-sm text-muted-foreground">
-                      Menampilkan {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, users.length)} dari {users.length} data
+                      Menampilkan {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, filteredUsers.length)} dari {filteredUsers.length} data
+                      {searchTerm || filterRole !== 'all' || filterStatus !== 'all' ? ` (difilter dari ${users.length} total)` : ''}
                     </p>
                     <div className="flex items-center gap-2">
                       <Button
