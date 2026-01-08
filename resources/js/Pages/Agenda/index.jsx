@@ -121,6 +121,7 @@ function AgendaContent() {
   const inertiaUrl = page.url;
   const agendaTypeOptions = Array.isArray(page.props?.agendaTypeOptions) ? page.props.agendaTypeOptions : [];
   const { hasPermission, hasAnyPermission, hasAnyRole } = useAuth();
+  const isSuperAdmin = hasAnyRole(["super_admin"]);
 
   const queryParams = useMemo(() => {
     const query = (inertiaUrl || "").split("?")[1] || "";
@@ -253,6 +254,19 @@ function AgendaContent() {
     });
   }, [activeScope, activeSection, fixedType]);
 
+  const resolveAffiliationType = useMemo(() => {
+    if (activeScope === "kolegium") return "kolegium";
+    if (activeScope === "peer_group") return "peer_group";
+
+    if (activeScope === "study_program") {
+      if (activeSection === "resident") return "residen";
+      if (activeSection === "fellow") return "clinical_fellowship";
+      if (activeSection === "trainee") return "subspesialis";
+    }
+
+    return "";
+  }, [activeScope, activeSection]);
+
   const [events, setEvents] = useState([]);
   const [pagination, setPagination] = useState({
     current_page: 1,
@@ -278,6 +292,8 @@ function AgendaContent() {
   const [formError, setFormError] = useState(null);
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [imagePreview, setImagePreview] = useState({ url: "", title: "" });
+  const [affiliations, setAffiliations] = useState([]);
+  const [affiliationsLoading, setAffiliationsLoading] = useState(false);
   const [formData, setFormData] = useState({
     type: "event_nasional",
     title: "",
@@ -288,6 +304,7 @@ function AgendaContent() {
     start_date: "",
     end_date: "",
     is_published: false,
+    affiliation_id: "",
   });
 
   const [imageMode, setImageMode] = useState("url");
@@ -326,6 +343,7 @@ function AgendaContent() {
       start_date: "",
       end_date: "",
       is_published: false,
+      affiliation_id: "",
     });
     setImageMode("url");
     setImageFile(null);
@@ -350,12 +368,57 @@ function AgendaContent() {
       start_date: toDateInputValue(event.start_date),
       end_date: toDateInputValue(event.end_date),
       is_published: !!event.is_published,
+      affiliation_id: event.affiliation_id ? String(event.affiliation_id) : "",
     });
     setImageMode("url");
     setImageFile(null);
     setModalType("edit");
     setShowModal(true);
   };
+
+  useEffect(() => {
+    const fetchAffiliations = async () => {
+      if (!isSuperAdmin) return;
+      if (!resolveAffiliationType) {
+        setAffiliations([]);
+        return;
+      }
+
+      try {
+        setAffiliationsLoading(true);
+
+        const response = await api.get("/public/affiliations", {
+          params: {
+            type: resolveAffiliationType,
+          },
+        });
+
+        if (response.data?.status !== "success") {
+          setAffiliations([]);
+          return;
+        }
+
+        const list = Array.isArray(response.data?.data) ? response.data.data : [];
+        setAffiliations(list);
+      } catch (e) {
+        setAffiliations([]);
+      } finally {
+        setAffiliationsLoading(false);
+      }
+    };
+
+    fetchAffiliations();
+  }, [isSuperAdmin, resolveAffiliationType]);
+
+  useEffect(() => {
+    if (!isSuperAdmin) return;
+    if (!showModal || modalType !== "create") return;
+    if (!resolveAffiliationType) return;
+    if (formData.affiliation_id) return;
+    if (!Array.isArray(affiliations) || affiliations.length === 0) return;
+
+    setFormData((p) => ({ ...p, affiliation_id: String(affiliations[0].id) }));
+  }, [affiliations, formData.affiliation_id, isSuperAdmin, modalType, resolveAffiliationType, showModal]);
 
   const uploadImageFile = async (file) => {
     if (!file) return;
@@ -572,6 +635,11 @@ function AgendaContent() {
       setFormLoading(true);
       setFormError(null);
 
+      if (isSuperAdmin && resolveAffiliationType && !formData.affiliation_id) {
+        setFormError("Affiliation wajib dipilih.");
+        return;
+      }
+
       const payload = {
         ...formData,
         scope: activeScope,
@@ -583,6 +651,12 @@ function AgendaContent() {
 
       if (activeScope === "study_program") {
         if (activeSection) payload.section = activeSection;
+      }
+
+      if (isSuperAdmin) {
+        payload.affiliation_id = formData.affiliation_id ? Number(formData.affiliation_id) : null;
+      } else {
+        delete payload.affiliation_id;
       }
 
       if (payload.end_date === "") payload.end_date = null;
@@ -972,7 +1046,7 @@ function AgendaContent() {
               </Alert>
             ) : null}
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-4">
               {fixedType ? (
                 <div className="space-y-2">
                   <Label>Type *</Label>
@@ -996,6 +1070,30 @@ function AgendaContent() {
                 </div>
               )}
 
+              {isSuperAdmin && resolveAffiliationType ? (
+                <div className="space-y-2">
+                  <Label>Affiliation *</Label>
+                  <Select
+                    value={formData.affiliation_id}
+                    onValueChange={(v) => setFormData((p) => ({ ...p, affiliation_id: v }))}
+                    disabled={affiliationsLoading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={affiliationsLoading ? "Memuat affiliation..." : "Pilih affiliation"}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {affiliations.map((a) => (
+                        <SelectItem key={a.id} value={String(a.id)}>
+                          {a.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : null}
+
               <div className="space-y-2">
                 <Label>Judul *</Label>
                 <Input
@@ -1006,23 +1104,25 @@ function AgendaContent() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label>Tanggal Mulai *</Label>
-                <Input
-                  type="date"
-                  value={formData.start_date}
-                  onChange={(e) => setFormData((p) => ({ ...p, start_date: e.target.value }))}
-                  required
-                />
-              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Tanggal Mulai *</Label>
+                  <Input
+                    type="date"
+                    value={formData.start_date}
+                    onChange={(e) => setFormData((p) => ({ ...p, start_date: e.target.value }))}
+                    required
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label>Tanggal Selesai</Label>
-                <Input
-                  type="date"
-                  value={formData.end_date}
-                  onChange={(e) => setFormData((p) => ({ ...p, end_date: e.target.value }))}
-                />
+                <div className="space-y-2">
+                  <Label>Tanggal Selesai</Label>
+                  <Input
+                    type="date"
+                    value={formData.end_date}
+                    onChange={(e) => setFormData((p) => ({ ...p, end_date: e.target.value }))}
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -1043,7 +1143,7 @@ function AgendaContent() {
                 />
               </div>
 
-              <div className="space-y-2 md:col-span-2">
+              <div className="space-y-2">
                 <Label>Sumber Gambar</Label>
                 <Select
                   value={imageMode}
@@ -1065,7 +1165,7 @@ function AgendaContent() {
               </div>
 
               {imageMode === "upload" ? (
-                <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2">
                   <Label>Upload Gambar</Label>
                   <Input
                     type="file"
@@ -1089,7 +1189,7 @@ function AgendaContent() {
                   ) : null}
                 </div>
               ) : (
-                <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2">
                   <Label>Image URL</Label>
                   <Input
                     value={formData.image_url}
@@ -1099,7 +1199,7 @@ function AgendaContent() {
                 </div>
               )}
 
-              <div className="space-y-2 md:col-span-2">
+              <div className="space-y-2">
                 <Label>Deskripsi</Label>
                 <Textarea
                   value={formData.description}
