@@ -777,55 +777,57 @@ export default function CalendarAcademic() {
             </div>
 
             {/* Calendar Grid */}
-            <div className="border border-gray-300">
-              {/* Day Headers */}
-              <div className="grid grid-cols-7 border-b border-gray-300">
-                {["SUN", "MON", "TUE", "WED", "THUR", "FRI", "SAT"].map((day) => (
-                  <div key={day} className="text-center text-sm font-semibold text-gray-600 py-3 border-r border-gray-300 last:border-r-0 bg-gray-50">
-                    {day}
-                  </div>
-                ))}
-              </div>
+            <div className="overflow-auto max-h-[70vh] sm:max-h-none border border-gray-300">
+              <div className="min-w-[720px] bg-white">
+                {/* Day Headers */}
+                <div className="sticky top-0 z-20 grid grid-cols-7 border-b border-gray-300 bg-gray-50">
+                  {["SUN", "MON", "TUE", "WED", "THUR", "FRI", "SAT"].map((day) => (
+                    <div key={day} className="text-center text-[10px] sm:text-sm font-semibold text-gray-600 py-2 sm:py-3 border-r border-gray-300 last:border-r-0">
+                      {day}
+                    </div>
+                  ))}
+                </div>
 
-              {/* Calendar Days */}
-              <div className="grid grid-cols-7">
-                {generateCalendar().map((item, index) => (
-                  <div
-                    key={index}
-                    className={`min-h-[120px] border-r border-b border-gray-300 p-2 cursor-pointer hover:bg-gray-50 transition-colors last:border-r-0 ${
-                      !item.isCurrentMonth ? "bg-gray-50" : "bg-white"
-                    } ${item.isToday ? "bg-blue-50" : ""}`}
-                    onClick={() => handleDateClick(item.day, item.isCurrentMonth)}
-                  >
-                    <div className={`text-sm font-medium mb-1 ${
-                      !item.isCurrentMonth ? "text-gray-400" : "text-gray-900"
-                    } ${item.isToday ? "text-blue-600 font-bold" : ""}`}>
-                      {item.day}
-                    </div>
-                    {item.isToday && (
-                      <div className="text-xs bg-blue-200 text-blue-800 px-2 py-0.5 rounded mb-1 inline-block">
-                        Today
+                {/* Calendar Days */}
+                <div className="grid grid-cols-7">
+                  {generateCalendar().map((item, index) => (
+                    <div
+                      key={index}
+                      className={`min-h-[96px] sm:min-h-[120px] border-r border-b border-gray-300 p-2 cursor-pointer hover:bg-gray-50 transition-colors last:border-r-0 ${
+                        !item.isCurrentMonth ? "bg-gray-50" : "bg-white"
+                      } ${item.isToday ? "bg-blue-50" : ""}`}
+                      onClick={() => handleDateClick(item.day, item.isCurrentMonth)}
+                    >
+                      <div className={`text-xs sm:text-sm font-medium mb-1 ${
+                        !item.isCurrentMonth ? "text-gray-400" : "text-gray-900"
+                      } ${item.isToday ? "text-blue-600 font-bold" : ""}`}>
+                        {item.day}
                       </div>
-                    )}
-                    <div className="space-y-1">
-                      {item.events.map((event, eventIndex) => {
-                        const eventColor = getEventColor(event.type);
-                        return (
-                          <div
-                            key={eventIndex}
-                            className={`text-xs p-1 rounded ${eventColor.color} bg-opacity-20 ${eventColor.textColor} cursor-pointer hover:bg-opacity-30 transition-colors`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEventClick(event, true);
-                            }}
-                          >
-                            {event.title}
-                          </div>
-                        );
-                      })}
+                      {item.isToday && (
+                        <div className="hidden sm:inline-block text-xs bg-blue-200 text-blue-800 px-2 py-0.5 rounded mb-1">
+                          Today
+                        </div>
+                      )}
+                      <div className="space-y-1">
+                        {item.events.map((event, eventIndex) => {
+                          const eventColor = getEventColor(event.type);
+                          return (
+                            <div
+                              key={eventIndex}
+                              className={`text-[10px] sm:text-xs p-1 rounded ${eventColor.color} bg-opacity-20 ${eventColor.textColor} cursor-pointer hover:bg-opacity-30 transition-colors`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEventClick(event, true);
+                              }}
+                            >
+                              {event.title}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
 

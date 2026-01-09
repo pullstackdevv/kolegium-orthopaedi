@@ -74,6 +74,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('database-members', [DatabaseMemberController::class, 'index']);
     Route::get('database-members/affiliations', [DatabaseMemberController::class, 'affiliations']);
     Route::get('database-members/export-excel', [DatabaseMemberController::class, 'exportExcel']);
+    Route::get('database-members/template-excel', [DatabaseMemberController::class, 'templateExcel']);
     Route::post('database-members/upload-photo', [DatabaseMemberController::class, 'uploadPhoto']);
     Route::post('database-members/import-excel', [DatabaseMemberController::class, 'importExcel']);
     Route::post('database-members', [DatabaseMemberController::class, 'store']);

@@ -624,9 +624,9 @@ export default function Calendar() {
                 <button
                   type="button"
                   onClick={() => openCreateModal()}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-900 hover:bg-gray-800 text-white font-bold transition-colors"
+                  className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-gray-900 hover:bg-gray-800 text-white font-semibold sm:font-bold text-sm sm:text-base transition-colors"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-4 h-4 sm:w-4 sm:h-4" />
                   Tambah Agenda
                 </button>
               ) : null}
@@ -665,71 +665,73 @@ export default function Calendar() {
               </button>
             </div>
 
-            <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-              <div className="grid grid-cols-7 bg-gray-50">
-                {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((day, idx) => (
-                  <div 
-                    key={day} 
-                    className={`text-center text-xs font-bold py-4 border-r border-gray-200 last:border-r-0 ${
-                      idx === 0 || idx === 6 ? 'text-gray-500' : 'text-gray-600'
-                    }`}
-                  >
-                    {day}
-                  </div>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-7 bg-white">
-                {generateCalendar().map((item, index) => {
-                  const isWeekend = index % 7 === 0 || index % 7 === 6;
-                  return (
-                    <div
-                      key={index}
-                      className={`min-h-[130px] border-r border-b border-gray-200 p-3 cursor-pointer transition-all duration-200 last:border-r-0 group ${
-                        !item.isCurrentMonth ? "bg-gray-50/50" : "bg-white hover:bg-slate-50/50"
-                      } ${item.isToday ? "bg-gray-50 ring-2 ring-gray-300 ring-inset" : ""} ${
-                        isWeekend && item.isCurrentMonth ? "bg-gray-50/50" : ""
+            <div className="overflow-auto max-h-[70vh] sm:max-h-none border border-gray-200 rounded-xl shadow-sm">
+              <div className="min-w-[720px] bg-white">
+                <div className="sticky top-0 z-20 grid grid-cols-7 bg-gray-50 border-b border-gray-200">
+                  {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((day, idx) => (
+                    <div 
+                      key={day} 
+                      className={`text-center text-[10px] sm:text-xs font-bold py-2 sm:py-4 border-r border-gray-200 last:border-r-0 ${
+                        idx === 0 || idx === 6 ? 'text-gray-500' : 'text-gray-600'
                       }`}
-                      onClick={() => handleDateClick(item.day, item.isCurrentMonth)}
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className={`text-sm font-semibold ${
-                          !item.isCurrentMonth ? "text-gray-400" : isWeekend ? "text-gray-500" : "text-gray-700"
-                        } ${item.isToday ? "text-gray-900 font-bold" : ""}`}>
-                          {item.day}
-                        </div>
-                        {item.isToday && (
-                          <div className="flex items-center gap-1 text-xs bg-gray-900 text-white px-2 py-0.5 rounded-full font-medium shadow-sm">
-                            <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
-                            Today
-                          </div>
-                        )}
-                      </div>
-                      <div className="space-y-1.5">
-                        {item.events.slice(0, 3).map((event, eventIndex) => {
-                          const eventColor = getEventColor(event.type);
-                          return (
-                            <div
-                              key={eventIndex}
-                              className={`text-xs p-1.5 rounded-md ${eventColor.color} bg-opacity-20 ${eventColor.textColor} cursor-pointer hover:bg-opacity-30 transition-all font-medium border border-transparent hover:border-current hover:shadow-sm`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEventClick(event);
-                              }}
-                            >
-                              <div className="line-clamp-2">{event.title}</div>
-                            </div>
-                          );
-                        })}
-                        {item.events.length > 3 && (
-                          <div className="text-xs text-gray-500 font-medium pl-1.5">
-                            +{item.events.length - 3} more
-                          </div>
-                        )}
-                      </div>
+                      {day}
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-7 bg-white">
+                  {generateCalendar().map((item, index) => {
+                    const isWeekend = index % 7 === 0 || index % 7 === 6;
+                    return (
+                      <div
+                        key={index}
+                        className={`min-h-[96px] sm:min-h-[130px] border-r border-b border-gray-200 p-2 sm:p-3 cursor-pointer transition-all duration-200 last:border-r-0 group ${
+                          !item.isCurrentMonth ? "bg-gray-50/50" : "bg-white hover:bg-slate-50/50"
+                        } ${item.isToday ? "bg-gray-50 ring-2 ring-gray-300 ring-inset" : ""} ${
+                          isWeekend && item.isCurrentMonth ? "bg-gray-50/50" : ""
+                        }`}
+                        onClick={() => handleDateClick(item.day, item.isCurrentMonth)}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className={`text-xs sm:text-sm font-semibold ${
+                            !item.isCurrentMonth ? "text-gray-400" : isWeekend ? "text-gray-500" : "text-gray-700"
+                          } ${item.isToday ? "text-gray-900 font-bold" : ""}`}>
+                            {item.day}
+                          </div>
+                          {item.isToday && (
+                            <div className="hidden sm:flex items-center gap-1 text-xs bg-gray-900 text-white px-2 py-0.5 rounded-full font-medium shadow-sm">
+                              <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+                              Today
+                            </div>
+                          )}
+                        </div>
+                        <div className="space-y-1.5">
+                          {item.events.slice(0, 3).map((event, eventIndex) => {
+                            const eventColor = getEventColor(event.type);
+                            return (
+                              <div
+                                key={eventIndex}
+                                className={`text-[10px] sm:text-xs p-1 sm:p-1.5 rounded-md ${eventColor.color} bg-opacity-20 ${eventColor.textColor} cursor-pointer hover:bg-opacity-30 transition-all font-medium border border-transparent hover:border-current hover:shadow-sm`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEventClick(event);
+                                }}
+                              >
+                                <div className="line-clamp-2">{event.title}</div>
+                              </div>
+                            );
+                          })}
+                          {item.events.length > 3 && (
+                            <div className="text-[10px] sm:text-xs text-gray-500 font-medium pl-1.5">
+                              +{item.events.length - 3} more
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
