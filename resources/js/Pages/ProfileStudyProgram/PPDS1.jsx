@@ -141,15 +141,17 @@ export default function PPDS1() {
         }
 
         const list = Array.isArray(response.data?.data) ? response.data.data : [];
-        const merged = list.map((a, idx) => {
-          const base = universityTemplates[idx] ?? universityTemplates[0] ?? {};
+        // Preserve API ordering (by created_at) - map directly without template index
+        const merged = list.map((a) => {
+          const defaultTemplate = universityTemplates[0] ?? {};
           return {
-            ...base,
+            ...defaultTemplate,
             id: a.id,
-            code: base.code,
-            name: a.name ?? base.name,
-            fullName: a.name ?? base.fullName,
-            affiliationCode: a.code ?? base.code
+            code: a.code ? a.code.split('-')[1]?.substring(0, 2).toUpperCase() || 'FK' : defaultTemplate.code,
+            name: a.name ?? defaultTemplate.name,
+            fullName: a.name ?? defaultTemplate.fullName,
+            affiliationCode: a.code ?? defaultTemplate.code,
+            students: defaultTemplate.students // Keep template student count for now
           };
         });
 

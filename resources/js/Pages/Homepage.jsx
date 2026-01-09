@@ -124,15 +124,15 @@ const LegendColumn = ({ legends, colors, startIndex }) => {
   return (
     <div className="space-y-2">
       {legends.map((legend, legIdx) => (
-        <div key={legIdx} className="flex items-center justify-between text-xs">
-          <div className="flex items-center gap-1.5">
+        <div key={legIdx} className="flex items-start text-xs">
+          <div className="flex items-center gap-1.5 flex-1">
             <div 
-              className="w-1.5 h-1.5 rounded-full" 
+              className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1" 
               style={{ backgroundColor: colors[(startIndex + legIdx) % colors.length] }}
             />
-            <span className="text-gray-700">{legend.label}</span>
+            <span className="text-gray-700 leading-tight">{legend.label}</span>
           </div>
-          <span className="font-medium text-gray-900">: {legend.value}</span>
+          <span className="font-medium text-gray-900 ml-2 flex-shrink-0">: {legend.value}</span>
         </div>
       ))}
     </div>
@@ -429,6 +429,7 @@ export default function Homepage() {
             { name: 'FK UNAIR', value: 66 },
             { name: 'FK UNPAD', value: 59 },
             { name: 'FK UNHAS', value: 76 },
+            { name: 'FK UNS', value: 79 },
             { name: 'FK UGM', value: 76 },
             { name: 'FK UDAYANA', value: 78 },
             { name: 'FK USU', value: 57 },
@@ -445,6 +446,7 @@ export default function Homepage() {
             { label: 'FK UNAIR', value: 66 },
             { label: 'FK UNPAD', value: 59 },
             { label: 'FK UNHAS', value: 76 },
+            { label: 'FK UNS', value: 79 },
             { label: 'FK UGM', value: 76 },
             { label: 'FK UDAYANA', value: 78 },
             { label: 'FK USU', value: 57 }
