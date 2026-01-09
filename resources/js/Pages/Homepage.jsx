@@ -812,51 +812,69 @@ export default function Homepage() {
               <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {examinations.map((exam, index) => (
-              <div
-                key={exam.id ?? index}
-                className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-300 cursor-pointer"
-                onClick={() => openDetailModal(exam)}
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-700">{exam.date}</span>
-                    <span className="text-gray-400">•</span>
-                    <span className={`${exam.statusColor} text-white text-xs font-semibold px-3 py-1 rounded`}>
-                      {exam.status}
-                    </span>
-                  </div>
-                  {exam.registration ? (
-                    <a
-                      href={exam.registration}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-700 text-sm font-medium transition"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      Detail
-                    </a>
-                  ) : (
-                    <button
-                      type="button"
-                      className="text-blue-600 hover:text-blue-700 text-sm font-medium transition"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openDetailModal(exam);
-                      }}
-                    >
-                      Detail
-                    </button>
-                  )}
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">
-                  {exam.title}
-                </h3>
-                <p className="text-sm text-gray-600">{exam.location}</p>
+          {examinations.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-50">
+                <Calendar className="h-6 w-6 text-blue-600" />
               </div>
-            ))}
-          </div>
+              <h3 className="text-lg font-semibold text-gray-900">No upcoming examinations</h3>
+              <p className="mt-1 text-sm text-gray-600">Check the academic calendar to see the full schedule and the latest updates.</p>
+              <div className="mt-5">
+                <Link
+                  href="/calendar-academic"
+                  className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                >
+                  View Calendar
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {examinations.map((exam, index) => (
+                <div
+                  key={exam.id ?? index}
+                  className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-300 cursor-pointer"
+                  onClick={() => openDetailModal(exam)}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-700">{exam.date}</span>
+                      <span className="text-gray-400">•</span>
+                      <span className={`${exam.statusColor} text-white text-xs font-semibold px-3 py-1 rounded`}>
+                        {exam.status}
+                      </span>
+                    </div>
+                    {exam.registration ? (
+                      <a
+                        href={exam.registration}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium transition"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Detail
+                      </a>
+                    ) : (
+                      <button
+                        type="button"
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium transition"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openDetailModal(exam);
+                        }}
+                      >
+                        Detail
+                      </button>
+                    )}
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">
+                    {exam.title}
+                  </h3>
+                  <p className="text-sm text-gray-600">{exam.location}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -874,55 +892,73 @@ export default function Homepage() {
               <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {events.map((event, index) => (
-              <div
-                key={event.id ?? index}
-                className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
-                onClick={() => openDetailModal(event)}
-              >
-                {/* Event Image */}
-                <div className="relative h-48 overflow-hidden">
-                  <img 
-                    src={event.image || DEFAULT_EVENT_IMAGE}
-                    alt={event.title}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      if (e.currentTarget.dataset.fallbackApplied === "1") return;
-                      e.currentTarget.dataset.fallbackApplied = "1";
-                      e.currentTarget.src = DEFAULT_EVENT_IMAGE;
-                    }}
-                  />
-                </div>
-                
-                {/* Event Details */}
-                <div className="p-5">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-sm font-medium text-gray-700">{event.date}</span>
-                    <span className="text-gray-400">•</span>
-                    <span className={`${event.badgeClass || "bg-purple-100 text-purple-700"} text-xs font-semibold px-3 py-1 rounded`}>
-                      {event.badge}
-                    </span>
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
-                    {event.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-3">{event.location}</p>
-                  {event.registration && (
-                    <a 
-                      href={event.registration}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-700 text-sm font-medium inline-flex items-center gap-1"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      Registration <ChevronRight className="w-4 h-4" />
-                    </a>
-                  )}
-                </div>
+          {events.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-purple-50">
+                <Calendar className="h-6 w-6 text-purple-600" />
               </div>
-            ))}
-          </div>
+              <h3 className="text-lg font-semibold text-gray-900">No upcoming events</h3>
+              <p className="mt-1 text-sm text-gray-600">Check the academic calendar for upcoming events and registration details.</p>
+              <div className="mt-5">
+                <Link
+                  href="/calendar-academic"
+                  className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                >
+                  View Calendar
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {events.map((event, index) => (
+                <div
+                  key={event.id ?? index}
+                  className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
+                  onClick={() => openDetailModal(event)}
+                >
+                  {/* Event Image */}
+                  <div className="relative h-48 overflow-hidden">
+                    <img 
+                      src={event.image || DEFAULT_EVENT_IMAGE}
+                      alt={event.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        if (e.currentTarget.dataset.fallbackApplied === "1") return;
+                        e.currentTarget.dataset.fallbackApplied = "1";
+                        e.currentTarget.src = DEFAULT_EVENT_IMAGE;
+                      }}
+                    />
+                  </div>
+                  
+                  {/* Event Details */}
+                  <div className="p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-sm font-medium text-gray-700">{event.date}</span>
+                      <span className="text-gray-400">•</span>
+                      <span className={`${event.badgeClass || "bg-purple-100 text-purple-700"} text-xs font-semibold px-3 py-1 rounded`}>
+                        {event.badge}
+                      </span>
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
+                      {event.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-3">{event.location}</p>
+                    {event.registration && (
+                      <a 
+                        href={event.registration}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium inline-flex items-center gap-1"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Registration <ChevronRight className="w-4 h-4" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
