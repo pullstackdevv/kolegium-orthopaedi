@@ -13,6 +13,7 @@ export default function Subspesialis() {
         "The subspecialist specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
       students: 77,
+      staff: 20,
     },
     {
       code: "FK",
@@ -22,10 +23,19 @@ export default function Subspesialis() {
         "The subspecialist specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
       students: 88,
+      staff: 18,
     },
   ];
 
   const [universities, setUniversities] = useState(universityTemplates);
+
+  const getLogoUrl = (logoPath) => {
+    if (!logoPath) return null;
+    if (logoPath.startsWith('http://') || logoPath.startsWith('https://')) {
+      return logoPath;
+    }
+    return `${window.location.origin}${logoPath}`;
+  };
 
   useEffect(() => {
     const fetchAffiliations = async () => {
@@ -50,7 +60,10 @@ export default function Subspesialis() {
             name: a.name ?? defaultTemplate.name,
             fullName: a.name ?? defaultTemplate.fullName,
             affiliationCode: a.code ?? defaultTemplate.code,
-            students: defaultTemplate.students // Keep template student count for now
+            logo: a.logo ?? null,
+            since: a.since ?? null,
+            students: defaultTemplate.students,
+            staff: defaultTemplate.staff
           };
         });
 
@@ -64,9 +77,9 @@ export default function Subspesialis() {
   }, []);
 
   const tabs = [
-    { name: "PPDS1", href: "/profile-study-program/ppds1", active: false },
-    { name: "Clinical Fellowship", href: "/profile-study-program/clinical-fellowship", active: false },
-    { name: "Subspesialist", href: "/profile-study-program/subspesialis", active: true }
+    { name: "Residen", href: "/profile-study-program/ppds1", active: false },
+    { name: "Fellow", href: "/profile-study-program/clinical-fellowship", active: false },
+    { name: "Trainee", href: "/profile-study-program/subspesialis", active: true }
   ];
 
   return (
@@ -75,11 +88,11 @@ export default function Subspesialis() {
       <section className="bg-gradient-to-r from-blue-600 to-blue-800 py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 text-white text-sm">
-            <Link href="/" className="hover:underline">Beranda</Link>
+            <Link href="/" className="hover:underline">Home</Link>
             <span>/</span>
-            <Link href="/profile-study-program/ppds1" className="hover:underline">Profil Program Studi</Link>
+            <Link href="/profile-study-program/ppds1" className="hover:underline">Study Program Profile</Link>
             <span>/</span>
-            <span>Subspesialis</span>
+            <span>Trainee</span>
           </div>
         </div>
       </section>
@@ -117,10 +130,26 @@ export default function Subspesialis() {
                 className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-300 block"
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  {university.logo ? (
+                    <img 
+                      src={getLogoUrl(university.logo)} 
+                      alt={university.name}
+                      className="w-12 h-12 object-contain rounded-lg flex-shrink-0"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div className={`w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 ${university.logo ? 'hidden' : ''}`}>
                     <span className="text-blue-600 font-bold text-lg">{university.code}</span>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900">{university.name}</h3>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">{university.name}</h3>
+                    {university.since && (
+                      <p className="text-xs text-gray-500">Since {university.since}</p>
+                    )}
+                  </div>
                 </div>
 
                 <p className="text-sm text-gray-700 leading-relaxed mb-4">
@@ -133,7 +162,8 @@ export default function Subspesialis() {
 
                 <div className="pt-4 border-t border-gray-200">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Active Trainee : {university.students}</span>
+                    <span className="text-sm text-gray-600">Active Trainee: {university.students}</span>
+                    <span className="text-sm text-gray-600">Active Staff: {university.staff || 0}</span>
                   </div>
                 </div>
               </Link>

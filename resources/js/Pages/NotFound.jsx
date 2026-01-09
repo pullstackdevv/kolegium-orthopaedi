@@ -17,7 +17,7 @@ export default function NotFound() {
                         href="/"
                         className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-md transition-colors"
                     >
-                        Kembali ke Beranda
+                        Kembali ke Home
                     </Link>
                     <Link
                         href="/"

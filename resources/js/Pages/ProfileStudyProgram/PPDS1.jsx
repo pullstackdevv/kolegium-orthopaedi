@@ -15,6 +15,7 @@ export default function PPDS1() {
         "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
       students: 120,
+      staff: 25,
     },
     {
       code: "FK",
@@ -24,6 +25,7 @@ export default function PPDS1() {
         "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
       kps: "KPS: dr. Ihsan Oesman, SpOT",
       students: 110,
+      staff: 22,
     },
     {
       code: "FK",
@@ -128,6 +130,14 @@ export default function PPDS1() {
 
   const [universities, setUniversities] = useState(universityTemplates);
 
+  const getLogoUrl = (logoPath) => {
+    if (!logoPath) return null;
+    if (logoPath.startsWith('http://') || logoPath.startsWith('https://')) {
+      return logoPath;
+    }
+    return `${window.location.origin}${logoPath}`;
+  };
+
   useEffect(() => {
     const fetchAffiliations = async () => {
       try {
@@ -151,7 +161,10 @@ export default function PPDS1() {
             name: a.name ?? defaultTemplate.name,
             fullName: a.name ?? defaultTemplate.fullName,
             affiliationCode: a.code ?? defaultTemplate.code,
-            students: defaultTemplate.students // Keep template student count for now
+            logo: a.logo ?? null,
+            since: a.since ?? null,
+            students: defaultTemplate.students,
+            staff: defaultTemplate.staff
           };
         });
 
@@ -165,9 +178,9 @@ export default function PPDS1() {
   }, []);
 
   const tabs = [
-    { name: "PPDS1", href: "/profile-study-program/ppds1", active: true },
-    { name: "Clinical Fellowship", href: "/profile-study-program/clinical-fellowship", active: false },
-    { name: "Subspesialist", href: "/profile-study-program/subspesialis", active: false }
+    { name: "Residen", href: "/profile-study-program/ppds1", active: true },
+    { name: "Fellow", href: "/profile-study-program/clinical-fellowship", active: false },
+    { name: "Trainee", href: "/profile-study-program/subspesialis", active: false }
   ];
 
   return (
@@ -176,11 +189,11 @@ export default function PPDS1() {
       <section className="bg-gradient-to-r from-blue-600 to-blue-800 py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 text-white text-sm">
-            <Link href="/" className="hover:underline">Beranda</Link>
+            <Link href="/" className="hover:underline">Home</Link>
             <span>/</span>
-            <Link href="/profile-study-program/ppds1" className="hover:underline">Profil Program Studi</Link>
+            <Link href="/profile-study-program/ppds1" className="hover:underline">Study Program Profile</Link>
             <span>/</span>
-            <span>PPDS1</span>
+            <span>Residen</span>
           </div>
         </div>
       </section>
@@ -210,7 +223,7 @@ export default function PPDS1() {
       <section className="bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold" style={{ color: '#254D95' }}>Profil Program Studi</h1>
+            <h1 className="text-3xl font-bold" style={{ color: '#254D95' }}>Study Program Profile</h1>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {universities.map((university, index) => (
@@ -219,12 +232,28 @@ export default function PPDS1() {
                 href={university?.id ? `/profile-study-program/ppds1/${university.id}` : `/profile-study-program/ppds1/fk-ui-${index + 1}`}
                 className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-300 block"
               >
-                {/* University Badge & Name */}
+                {/* University Logo & Name */}
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  {university.logo ? (
+                    <img 
+                      src={getLogoUrl(university.logo)} 
+                      alt={university.name}
+                      className="w-12 h-12 object-contain rounded-lg flex-shrink-0"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div className={`w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 ${university.logo ? 'hidden' : ''}`}>
                     <span className="text-blue-600 font-bold text-base">{university.code}</span>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900">{university.name}</h3>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">{university.name}</h3>
+                    {university.since && (
+                      <p className="text-xs text-gray-500">Since {university.since}</p>
+                    )}
+                  </div>
                 </div>
 
                 {/* Description */}
@@ -240,7 +269,8 @@ export default function PPDS1() {
                 {/* Student Count */}
                 <div className="pt-4 border-t border-gray-200">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Active Resident : {university.students}</span>
+                    <span className="text-sm text-gray-600">Active Resident: {university.students}</span>
+                    <span className="text-sm text-gray-600">Active Staff: {university.staff || 0}</span>
                   </div>
                 </div>
               </Link>

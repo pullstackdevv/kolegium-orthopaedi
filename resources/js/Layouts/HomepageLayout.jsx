@@ -100,9 +100,9 @@ export default function MarketplaceLayout({ children }) {
                                 label="Study Program Profile" 
                                 active={isActive('/profile-study-program')}
                             >
-                                <DropdownLink href="/profile-study-program/ppds1">PPDS 1</DropdownLink>
-                                <DropdownLink href="/profile-study-program/clinical-fellowship">Clinical Fellowship</DropdownLink>
-                                <DropdownLink href="/profile-study-program/subspesialis">Subspesialis</DropdownLink>
+                                <DropdownLink href="/profile-study-program/ppds1">Residen</DropdownLink>
+                                <DropdownLink href="/profile-study-program/clinical-fellowship">Fellow</DropdownLink>
+                                <DropdownLink href="/profile-study-program/subspesialis">Trainee</DropdownLink>
                             </NavDropdown>
 
                             <NavLink href="/peer-group" active={isActive('/peer-group')}>
@@ -166,9 +166,9 @@ export default function MarketplaceLayout({ children }) {
                                 </button>
                                 {openDropdown === 'profile' && (
                                     <div className="pl-6 space-y-1 mt-1">
-                                        <Link href="/profile-study-program/ppds1" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>PPDS 1</Link>
-                                        <Link href="/profile-study-program/clinical-fellowship" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Clinical Fellowship</Link>
-                                        <Link href="/profile-study-program/subspesialis" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Subspesialis</Link>
+                                        <Link href="/profile-study-program/ppds1" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Residen</Link>
+                                        <Link href="/profile-study-program/clinical-fellowship" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Fellow</Link>
+                                        <Link href="/profile-study-program/subspesialis" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Trainee</Link>
                                     </div>
                                 )}
                             </div>

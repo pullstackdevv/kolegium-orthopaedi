@@ -121,7 +121,7 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 text-white text-sm">
             <Link href="/" className="hover:underline">
-              Beranda
+              Home
             </Link>
             <span>/</span>
             <Link href={type === "ppds1" ? "/profile-study-program/ppds1" : "/profile-study-program/subspesialis"} className="hover:underline">

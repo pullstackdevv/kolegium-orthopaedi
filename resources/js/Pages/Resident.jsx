@@ -85,7 +85,7 @@ export default function Resident() {
       <section className="bg-gradient-to-r from-blue-600 to-blue-800 py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 text-white text-sm">
-            <Link href="/" className="hover:underline">Beranda</Link>
+            <Link href="/" className="hover:underline">Home</Link>
             <span>/</span>
             <span>Residen</span>
           </div>

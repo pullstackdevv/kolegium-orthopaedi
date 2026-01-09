@@ -28,66 +28,79 @@ class AffiliationSeeder extends Seeder
                 'name' => 'FK Universitas Indonesia',
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UI',
+                'since' => '1950',
             ],
             [
                 'name' => 'FK Universitas Airlangga',
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UNAIR',
+                'since' => '1954',
             ],
             [
                 'name' => 'FK Universitas Padjadjaran',
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UNPAD',
+                'since' => '1957',
             ],
             [
                 'name' => 'FK Universitas Hasanuddin',
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UNHAS',
+                'since' => '1956',
             ],
             [
                 'name' => 'FK Universitas Sebelas Maret',
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UNS',
+                'since' => '1976',
             ],
             [
                 'name' => 'FK Universitas Gadjah Mada',
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UGM',
+                'since' => '1949',
             ],
             [
                 'name' => 'FK Universitas Udayana',
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UNUD',
+                'since' => '1962',
             ],
             [
                 'name' => 'FK Universitas Sumatera Utara',
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-USU',
+                'since' => '1952',
             ],
             [
                 'name' => 'FK Universitas Brawijaya',
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UB',
+                'since' => '1963',
             ],
             [
                 'name' => 'FK Universitas Sriwijaya',
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UNSRI',
+                'since' => '1960',
             ],
             [
                 'name' => 'FK Universitas Andalas',
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-UNAND',
+                'since' => '1955',
             ],
             [
                 'name' => 'FK Universitas Syiah Kuala',
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-USK',
+                'since' => '1961',
             ],
             [
                 'name' => 'FK Universitas Lambung Mangkurat',
                 'type' => AffiliationType::RESIDEN->value,
                 'code' => 'FK-ULM',
+                'since' => '1958',
             ],
             [
                 'name' => 'RSO Soeharso',
@@ -122,11 +135,13 @@ class AffiliationSeeder extends Seeder
                 'name' => 'FK Universitas Indonesia',
                 'type' => AffiliationType::SUBSPESIALIS->value,
                 'code' => 'FK-UI-TRAINEE',
+                'since' => '1950',
             ],
             [
                 'name' => 'FK Universitas Airlangga',
                 'type' => AffiliationType::SUBSPESIALIS->value,
                 'code' => 'FK-UNAIR-TRAINEE',
+                'since' => '1954',
             ],
             
             // Peer Group - ordered by admin user list
