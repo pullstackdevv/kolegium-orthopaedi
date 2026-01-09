@@ -350,10 +350,9 @@ export default function Homepage() {
   };
   // Stats data
   const stats = [
-    { icon: "mdi:school", value: "720", label: "Active Resident" },
-    { icon: "mdi:school", value: "42", label: "Active Fellow" },
-    { icon: "mdi:school", value: "64", label: "Active Trainee" },
-    { icon: "mdi:bank", value: "20", label: "Study Program" }
+    { icon: "mdi:school", value: "720", label: "Active Resident", subtitle: "14 study program" },
+    { icon: "mdi:school", value: "42", label: "Active Fellow", subtitle: "14 study program" },
+    { icon: "mdi:school", value: "64", label: "Active Trainee", subtitle: "14 study program" },
   ];
 
   const examinations = useMemo(() => {
@@ -773,22 +772,25 @@ export default function Homepage() {
       {/* Stats Section */}
       <section className="bg-gray-50 py-16 -mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {stats.map((stat, index) => (
               <div 
                 key={index} 
                 className="bg-white rounded-xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
               >
-                <div className="flex items-center justify-center gap-4">
-                  <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Icon icon={stat.icon} className="w-7 h-7 text-blue-600" />
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Icon icon={stat.icon} className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1">
-                    <div className="text-4xl font-bold text-gray-900 mb-0.5">
+                    <div className="text-3xl font-bold text-gray-900 mb-1">
                       {stat.value}
                     </div>
-                    <p className="text-sm font-semibold text-gray-700">
+                    <p className="text-2xl font-semibold text-gray-900 mb-0.5">
                       {stat.label}
+                    </p>
+                    <p className="text-lg text-gray-500">
+                      {stat.subtitle}
                     </p>
                   </div>
                 </div>
