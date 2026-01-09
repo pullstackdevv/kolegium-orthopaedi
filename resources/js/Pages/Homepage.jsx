@@ -124,15 +124,15 @@ const LegendColumn = ({ legends, colors, startIndex }) => {
   return (
     <div className="space-y-2">
       {legends.map((legend, legIdx) => (
-        <div key={legIdx} className="flex items-center justify-between text-xs">
-          <div className="flex items-center gap-1.5">
+        <div key={legIdx} className="flex items-start text-xs">
+          <div className="flex items-center gap-1.5 flex-1">
             <div 
-              className="w-1.5 h-1.5 rounded-full" 
+              className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1" 
               style={{ backgroundColor: colors[(startIndex + legIdx) % colors.length] }}
             />
-            <span className="text-gray-700">{legend.label}</span>
+            <span className="text-gray-700 leading-tight">{legend.label}</span>
           </div>
-          <span className="font-medium text-gray-900">: {legend.value}</span>
+          <span className="font-medium text-gray-900 ml-2 flex-shrink-0">: {legend.value}</span>
         </div>
       ))}
     </div>
