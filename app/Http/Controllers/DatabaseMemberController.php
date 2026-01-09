@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -187,6 +188,7 @@ class DatabaseMemberController extends Controller
         }
 
         $members = $query
+            ->with(['affiliation:id,name,code'])
             ->orderBy('name')
             ->paginate($request->integer('per_page', 10));
 
@@ -277,39 +279,32 @@ class DatabaseMemberController extends Controller
             $query->where('affiliation_id', $validated['affiliation_id']);
         }
 
-        $allowedColumns = [
-            'member_code',
-            'name',
-            'position',
-            'photo',
-            'contact',
-            'entry_date',
-            'gender',
-            'specialization',
-            'status',
-            'specialty',
-            'group',
-            'title',
-            'location',
-        ];
+        $isPeerGroup = $orgType === 'peer_group';
 
-        $headerLabels = [
-            'member_code' => 'Nomor Identitas',
-            'name' => 'Nama',
-            'position' => 'Jabatan',
-            'photo' => 'Foto',
-            'contact' => 'Kontak',
-            'entry_date' => 'Tanggal Masuk',
-            'gender' => 'Jenis Kelamin',
-            'specialization' => 'Spesialisasi',
-            'status' => 'Status',
-            'specialty' => 'Subspesialis',
-            'group' => 'Komisi/Divisi',
-            'title' => 'Gelar',
-            'location' => 'Lokasi',
-        ];
+        $allowedColumns = $isPeerGroup
+            ? ['photo', 'member_code', 'name', 'gender', 'status']
+            : ['photo', 'member_code', 'name', 'gender', 'entry_date', 'specialization', 'status'];
 
-        $members = $query->orderBy('name')->get($allowedColumns);
+        $headerLabels = $isPeerGroup
+            ? [
+                'photo' => 'Foto',
+                'member_code' => 'Nomor Identitas',
+                'name' => 'Nama',
+                'gender' => 'Jenis Kelamin',
+                'status' => 'Status',
+            ]
+            : [
+                'photo' => 'Foto',
+                'member_code' => 'Nomor Identitas',
+                'name' => 'Nama',
+                'gender' => 'Jenis Kelamin',
+                'entry_date' => 'Tanggal Masuk',
+                'specialization' => 'Spesialisasi',
+                'status' => 'Status',
+            ];
+
+        $selectColumns = array_values(array_unique(array_merge($allowedColumns, ['title'])));
+        $members = $query->orderBy('name')->get($selectColumns);
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -319,13 +314,65 @@ class DatabaseMemberController extends Controller
             $sheet->setCellValue($cell, $headerLabels[$col] ?? $col);
         }
 
+        $specializationIndex = array_search('specialization', $allowedColumns, true);
+        if ($specializationIndex !== false) {
+            $optionsSheet = $spreadsheet->createSheet();
+            $optionsSheet->setTitle('Options');
+            $optionsSheet->setSheetState(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet::SHEETSTATE_HIDDEN);
+
+            foreach (self::SPECIALIZATION_OPTIONS as $idx => $opt) {
+                $optionsSheet->setCellValue('A' . (string) ($idx + 1), $opt);
+            }
+
+            $colLetter = Coordinate::stringFromColumnIndex(((int) $specializationIndex) + 1);
+            $lastRow = count(self::SPECIALIZATION_OPTIONS);
+            $formula = "=Options!\$A\$1:\$A\${lastRow}";
+
+            for ($r = 2; $r <= 500; $r++) {
+                $validation = new DataValidation();
+                $validation->setType(DataValidation::TYPE_LIST);
+                $validation->setErrorStyle(DataValidation::STYLE_STOP);
+                $validation->setAllowBlank(true);
+                $validation->setShowInputMessage(true);
+                $validation->setShowErrorMessage(true);
+                $validation->setShowDropDown(true);
+                $validation->setErrorTitle('Input error');
+                $validation->setError('Value is not in list.');
+                $validation->setPromptTitle('Spesialisasi');
+                $validation->setPrompt('Pilih salah satu opsi.');
+                $validation->setFormula1($formula);
+
+                $sheet->getCell($colLetter . (string) $r)->setDataValidation($validation);
+            }
+        }
+
         $rowNum = 2;
         foreach ($members as $member) {
             foreach ($allowedColumns as $i => $col) {
                 $val = $member->{$col};
-                if ($col === 'entry_date' && $val) {
-                    $val = is_string($val) ? substr($val, 0, 10) : (string) $val;
+
+                if ($col === 'photo') {
+                    $val = $this->resolveImageUrlForExport($val === null ? null : (string) $val);
+                } elseif ($col === 'name') {
+                    $val = $this->buildDisplayNameForExport($member);
+                } elseif ($col === 'gender') {
+                    $val = $this->formatGenderLabel($val === null ? null : (string) $val);
+                } elseif ($col === 'entry_date') {
+                    if (!$val) {
+                        $val = '';
+                    } elseif ($val instanceof \DateTimeInterface) {
+                        $val = $val->format('Y-m-d');
+                    } elseif (is_string($val)) {
+                        $val = substr($val, 0, 10);
+                    } else {
+                        $val = substr((string) $val, 0, 10);
+                    }
+                } elseif ($col === 'status') {
+                    $val = $this->formatStatusLabel($val === null ? null : (string) $val);
+                } elseif ($val === null) {
+                    $val = '';
                 }
+
                 $cell = Coordinate::stringFromColumnIndex($i + 1) . (string) $rowNum;
                 $sheet->setCellValue($cell, $val);
             }
@@ -333,7 +380,38 @@ class DatabaseMemberController extends Controller
         }
 
         $writer = new Xlsx($spreadsheet);
-        $filename = 'database-members-' . $orgType . '-' . now()->format('Ymd_His') . '.xlsx';
+
+        $affiliationName = '';
+        if (isset($validated['affiliation_id']) && $validated['affiliation_id'] !== null) {
+            $aff = Affiliation::query()->find($validated['affiliation_id']);
+            if ($aff instanceof Affiliation) {
+                $affiliationName = (string) ($aff->name ?? '');
+            }
+        } else {
+            if ($authUser instanceof User && !$authUser->hasRole('super_admin')) {
+                $userAffiliationIds = $authUser->affiliations()->pluck('affiliations.id')->toArray();
+                if (count($userAffiliationIds) === 1) {
+                    $aff = Affiliation::query()->find($userAffiliationIds[0]);
+                    if ($aff instanceof Affiliation) {
+                        $affiliationName = (string) ($aff->name ?? '');
+                    }
+                } elseif (count($userAffiliationIds) > 1) {
+                    $affiliationName = 'all-affiliations';
+                }
+            }
+        }
+
+        $affiliationName = trim($affiliationName);
+        if ($affiliationName === '') {
+            $affiliationName = 'database-members';
+        }
+
+        $safeAffiliationName = mb_strtolower($affiliationName);
+        $safeAffiliationName = preg_replace('/[^a-z0-9]+/i', '_', $safeAffiliationName) ?? $safeAffiliationName;
+        $safeAffiliationName = trim($safeAffiliationName, '_');
+
+        $exportDate = now()->format('M_j_Y');
+        $filename = $safeAffiliationName . '-' . $exportDate . '.xlsx';
 
         return response()->streamDownload(function () use ($writer) {
             $writer->save('php://output');
@@ -430,7 +508,7 @@ class DatabaseMemberController extends Controller
         if ($dupExists) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'member_code sudah digunakan.',
+                'message' => 'Nomor Identitas sudah digunakan.',
             ], 422);
         }
 
@@ -504,7 +582,7 @@ class DatabaseMemberController extends Controller
             if ($dupExists) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'member_code sudah digunakan.',
+                    'message' => 'Nomor Identitas sudah digunakan.',
                 ], 422);
             }
         }
@@ -710,6 +788,157 @@ class DatabaseMemberController extends Controller
         return date('Y-m-d', $ts);
     }
 
+    private function resolveImageUrlForExport(?string $raw): string
+    {
+        if ($raw === null) {
+            return '';
+        }
+
+        $s = trim((string) $raw);
+        if ($s === '') {
+            return '';
+        }
+
+        if (str_starts_with($s, 'http://') || str_starts_with($s, 'https://') || str_starts_with($s, 'data:') || str_starts_with($s, '//')) {
+            return $s;
+        }
+
+        if (str_starts_with($s, '/')) {
+            return asset(ltrim($s, '/'));
+        }
+
+        if (str_starts_with($s, 'public/')) {
+            $s = ltrim(preg_replace('/^public\//', '', $s) ?? $s, '/');
+            return asset($s);
+        }
+
+        if (str_starts_with($s, 'storage/')) {
+            return asset($s);
+        }
+
+        if (str_starts_with($s, 'assets/')) {
+            return asset($s);
+        }
+
+        return asset($s);
+    }
+
+    private function formatGenderLabel(?string $gender): string
+    {
+        $g = trim((string) $gender);
+        return match ($g) {
+            'male' => 'Laki-laki',
+            'female' => 'Perempuan',
+            default => '',
+        };
+    }
+
+    private function formatStatusLabel(?string $status): string
+    {
+        $s = trim((string) $status);
+        return match ($s) {
+            'active' => 'Aktif',
+            'graduated' => 'Lulus',
+            'leave' => 'Cuti',
+            default => $s,
+        };
+    }
+
+    private function buildDisplayNameForExport(DatabaseMember $member): string
+    {
+        $baseName = trim((string) ($member->name ?? ''));
+        $title = trim((string) ($member->title ?? ''));
+
+        if ($baseName === '') {
+            return $title;
+        }
+
+        if ($title === '') {
+            return $baseName;
+        }
+
+        return $baseName . ' ' . $title;
+    }
+
+    public function templateExcel(Request $request)
+    {
+        $validated = $request->validate([
+            'organization_type' => ['required', 'string', Rule::in(self::ORG_TYPES)],
+            'affiliation_id' => 'nullable|integer|exists:affiliations,id',
+        ]);
+
+        $orgType = $validated['organization_type'];
+
+        if ($resp = $this->ensurePermission($orgType, 'import')) {
+            return $resp;
+        }
+
+        $authUser = Auth::user();
+
+        $isPeerGroup = $orgType === 'peer_group';
+        $allowedColumns = $isPeerGroup
+            ? ['member_code', 'name', 'photo', 'gender', 'status']
+            : ['member_code', 'name', 'photo', 'gender', 'status', 'entry_date', 'specialization'];
+
+        $headerLabels = [
+            'member_code' => 'Nomor Identitas',
+            'name' => 'Nama',
+            'photo' => 'Foto',
+            'gender' => 'Jenis Kelamin',
+            'status' => 'Status',
+            'entry_date' => 'Tanggal Masuk',
+            'specialization' => 'Spesialisasi',
+        ];
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        foreach ($allowedColumns as $i => $col) {
+            $cell = Coordinate::stringFromColumnIndex($i + 1) . '1';
+            $sheet->setCellValue($cell, $headerLabels[$col] ?? $col);
+        }
+
+        $writer = new Xlsx($spreadsheet);
+
+        $affiliationName = '';
+        if (isset($validated['affiliation_id']) && $validated['affiliation_id'] !== null) {
+            $aff = Affiliation::query()->find($validated['affiliation_id']);
+            if ($aff instanceof Affiliation) {
+                $affiliationName = (string) ($aff->name ?? '');
+            }
+        } else {
+            if ($authUser instanceof User && !$authUser->hasRole('super_admin')) {
+                $userAffiliationIds = $authUser->affiliations()->pluck('affiliations.id')->toArray();
+                if (count($userAffiliationIds) === 1) {
+                    $aff = Affiliation::query()->find($userAffiliationIds[0]);
+                    if ($aff instanceof Affiliation) {
+                        $affiliationName = (string) ($aff->name ?? '');
+                    }
+                } elseif (count($userAffiliationIds) > 1) {
+                    $affiliationName = 'all-affiliations';
+                }
+            }
+        }
+
+        $affiliationName = trim($affiliationName);
+        if ($affiliationName === '') {
+            $affiliationName = 'database-members';
+        }
+
+        $safeAffiliationName = mb_strtolower($affiliationName);
+        $safeAffiliationName = preg_replace('/[^a-z0-9]+/i', '_', $safeAffiliationName) ?? $safeAffiliationName;
+        $safeAffiliationName = trim($safeAffiliationName, '_');
+
+        $exportDate = now()->format('dmY');
+        $filename = 'template-' . $safeAffiliationName . '-' . $exportDate . '.xlsx';
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
     public function importExcel(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -823,7 +1052,7 @@ class DatabaseMemberController extends Controller
 
         $now = now();
         $rowsToPersist = [];
-        $seenMemberCodes = [];
+        $seenCompositeKeys = [];
 
         $normalizedSpecializations = [];
         foreach (self::SPECIALIZATION_OPTIONS as $opt) {
@@ -912,16 +1141,18 @@ class DatabaseMemberController extends Controller
             }
 
             $normalizedMemberCodeKey = mb_strtolower(trim((string) $payload['member_code']));
-            if ($normalizedMemberCodeKey !== '') {
-                if (array_key_exists($normalizedMemberCodeKey, $seenMemberCodes)) {
+            $normalizedNameKey = mb_strtolower(trim((string) ($payload['name'] ?? '')));
+            $compositeKey = $normalizedMemberCodeKey . '|' . $normalizedNameKey . '|' . (string) ($payload['affiliation_id'] ?? '');
+            if ($normalizedMemberCodeKey !== '' && $normalizedNameKey !== '') {
+                if (array_key_exists($compositeKey, $seenCompositeKeys)) {
                     $errors[] = [
                         'row' => $excelRowNumber,
                         'column' => 'member_code',
-                        'message' => 'Duplicate member_code in excel file.',
+                        'message' => 'Duplicate record in excel file.',
                     ];
                     continue;
                 }
-                $seenMemberCodes[$normalizedMemberCodeKey] = true;
+                $seenCompositeKeys[$compositeKey] = true;
             }
 
             if ($payload['name'] === null) {
@@ -996,6 +1227,7 @@ class DatabaseMemberController extends Controller
                     ->where('organization_type', $payload['organization_type'])
                     ->where('affiliation_id', $payload['affiliation_id'])
                     ->where('member_code', $payload['member_code'])
+                    ->where('name', $payload['name'])
                     ->first();
 
                 $updateData = $payload;

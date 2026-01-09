@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, Download, FileUp, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import api from "@/api/axios";
@@ -219,6 +219,7 @@ function DatabaseContent({ activeOrg }) {
   const [selectedMember, setSelectedMember] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState(null);
+  const formDialogRef = useRef(null);
 
   const [photoMode, setPhotoMode] = useState("url");
   const [photoUploading, setPhotoUploading] = useState(false);
@@ -246,12 +247,13 @@ function DatabaseContent({ activeOrg }) {
   const [importError, setImportError] = useState(null);
   const [importLoading, setImportLoading] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
+  const [templateLoading, setTemplateLoading] = useState(false);
 
   const canView = activeOrg ? hasPermission(permissionKey(activeOrg, "view")) : false;
   const isPeerGroupOrg = activeOrg === "peer_group";
 
   const loadAffiliations = async () => {
-    if (hasUserAffiliations) return;
+    if (hasUserAffiliations && !isSuperAdmin) return;
 
     try {
       const type = AFFILIATION_TYPE_BY_ORG[activeOrg] || "";
@@ -348,7 +350,9 @@ function DatabaseContent({ activeOrg }) {
         per_page: Number(filters.per_page || 10),
       };
 
-      if (!isSuperAdmin && !hasUserAffiliations) {
+      if (isSuperAdmin && selectedAffiliationId) {
+        params.affiliation_id = Number(selectedAffiliationId);
+      } else if (!isSuperAdmin && !hasUserAffiliations) {
         params.affiliation_id = Number(selectedAffiliationId);
       }
 
@@ -456,8 +460,17 @@ function DatabaseContent({ activeOrg }) {
 
   const closeModal = () => {
     setShowModal(false);
-    resetForm();
+    setSelectedMember(null);
+    setFormError(null);
   };
+
+  useEffect(() => {
+    if (!showModal) return;
+    if (!formError) return;
+    const el = formDialogRef.current;
+    if (!el) return;
+    el.scrollTo({ top: 0, behavior: "smooth" });
+  }, [formError, showModal]);
 
   const openImportModal = () => {
     setImportError(null);
@@ -470,6 +483,55 @@ function DatabaseContent({ activeOrg }) {
     setShowImportModal(false);
     setImportError(null);
     setImportFile(null);
+  };
+
+  const handleDownloadTemplate = async () => {
+    if (!activeOrg) return;
+    if (!canImport) return;
+
+    if (!isSuperAdmin && !hasUserAffiliations && !importAffiliationId) {
+      setImportError("Affiliation wajib dipilih.");
+      return;
+    }
+
+    try {
+      setTemplateLoading(true);
+      setImportError(null);
+
+      const params = {
+        organization_type: activeOrg,
+      };
+
+      if (!isSuperAdmin && !hasUserAffiliations) {
+        params.affiliation_id = Number(importAffiliationId);
+      }
+
+      const response = await api.get("/database-members/template-excel", {
+        params,
+        responseType: "blob",
+        headers: { "X-Skip-Auth-Redirect": "1" },
+      });
+
+      const disposition = response.headers?.["content-disposition"] || response.headers?.["Content-Disposition"];
+      const match = typeof disposition === "string" ? disposition.match(/filename\*?=(?:UTF-8''|\")?([^;\"]+)/i) : null;
+      const filename = (match?.[1] || `template-${activeOrg}.xlsx`).replace(/\"/g, "");
+
+      const blob = new Blob([response.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      Swal.fire({ icon: "error", title: "Unduh gagal", text: "Terjadi kesalahan." });
+    } finally {
+      setTemplateLoading(false);
+    }
   };
 
   const uploadPhotoFile = async (file) => {
@@ -762,6 +824,22 @@ function DatabaseContent({ activeOrg }) {
                       </SelectContent>
                     </Select>
                   </div>
+                ) : isSuperAdmin ? (
+                  <div className="space-y-2">
+                    <Label>Afiliasi</Label>
+                    <Select value={selectedAffiliationId} onValueChange={setSelectedAffiliationId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Semua afiliasi" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {affiliations.map((a) => (
+                          <SelectItem key={a.id} value={String(a.id)}>
+                            {a.name} ({a.code})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 ) : null}
 
                 <div className="space-y-2">
@@ -809,9 +887,11 @@ function DatabaseContent({ activeOrg }) {
                       <TableHeader>
                         <TableRow>
                           <TableHead>Foto</TableHead>
+                          {isSuperAdmin ? <TableHead>Afiliasi</TableHead> : null}
                           <TableHead>Nomor Identitas</TableHead>
                           <TableHead>Nama</TableHead>
                           <TableHead>Jenis Kelamin</TableHead>
+                          {!isPeerGroupOrg ? <TableHead>Tanggal Masuk</TableHead> : null}
                           {!isPeerGroupOrg ? <TableHead>Spesialisasi</TableHead> : null}
                           <TableHead>Status</TableHead>
                           <TableHead className="text-right">Aksi</TableHead>
@@ -834,9 +914,11 @@ function DatabaseContent({ activeOrg }) {
                                 ) : null}
                               </div>
                             </TableCell>
+                            {isSuperAdmin ? <TableCell>{m?.affiliation?.name ? (m.affiliation.code ? `${m.affiliation.name} (${m.affiliation.code})` : m.affiliation.name) : "-"}</TableCell> : null}
                             <TableCell className="font-medium">{m.member_code}</TableCell>
                             <TableCell>{buildDisplayName(m)}</TableCell>
                             <TableCell>{m.gender === "male" ? "Laki-laki" : m.gender === "female" ? "Perempuan" : "-"}</TableCell>
+                            {!isPeerGroupOrg ? <TableCell>{toDateInputValue(m.entry_date) || "-"}</TableCell> : null}
                             {!isPeerGroupOrg ? <TableCell>{m.specialization || "-"}</TableCell> : null}
                             <TableCell>{statusBadge(m.status)}</TableCell>
                             <TableCell className="text-right">
@@ -950,6 +1032,21 @@ function DatabaseContent({ activeOrg }) {
               <Button type="button" variant="outline" onClick={closeImportModal} disabled={importLoading}>
                 Batal
               </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleDownloadTemplate}
+                disabled={importLoading || templateLoading}
+              >
+                {templateLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Mengunduh...
+                  </>
+                ) : (
+                  "Download Template"
+                )}
+              </Button>
               <Button type="submit" disabled={importLoading}>
                 {importLoading ? (
                   <>
@@ -966,7 +1063,7 @@ function DatabaseContent({ activeOrg }) {
       </Dialog>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent ref={formDialogRef} className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{modalType === "create" ? "Tambah Member" : "Edit Member"}</DialogTitle>
             <DialogDescription>
