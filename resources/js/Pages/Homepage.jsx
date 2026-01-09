@@ -429,6 +429,7 @@ export default function Homepage() {
             { name: 'FK UNAIR', value: 66 },
             { name: 'FK UNPAD', value: 59 },
             { name: 'FK UNHAS', value: 76 },
+            { name: 'FK UNS', value: 79 },
             { name: 'FK UGM', value: 76 },
             { name: 'FK UDAYANA', value: 78 },
             { name: 'FK USU', value: 57 },
@@ -445,6 +446,7 @@ export default function Homepage() {
             { label: 'FK UNAIR', value: 66 },
             { label: 'FK UNPAD', value: 59 },
             { label: 'FK UNHAS', value: 76 },
+            { label: 'FK UNS', value: 79 },
             { label: 'FK UGM', value: 76 },
             { label: 'FK UDAYANA', value: 78 },
             { label: 'FK USU', value: 57 }

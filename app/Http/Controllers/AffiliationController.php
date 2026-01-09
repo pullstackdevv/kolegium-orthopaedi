@@ -19,9 +19,9 @@ class AffiliationController extends Controller
         $type = $request->string('type')->toString();
 
         $affiliations = Affiliation::query()
-            ->select(['id', 'name', 'code', 'type'])
+            ->select(['id', 'name', 'code', 'type', 'created_at'])
             ->when($type !== '', fn ($q) => $q->where('type', $type))
-            ->orderBy('name')
+            ->orderBy('created_at', 'asc')
             ->get();
 
         return response()->json([

@@ -40,15 +40,17 @@ export default function Subspesialis() {
         }
 
         const list = Array.isArray(response.data?.data) ? response.data.data : [];
-        const merged = list.map((a, idx) => {
-          const base = universityTemplates[idx] ?? universityTemplates[0] ?? {};
+        // Preserve API ordering (by created_at) - map directly without template index
+        const merged = list.map((a) => {
+          const defaultTemplate = universityTemplates[0] ?? {};
           return {
-            ...base,
+            ...defaultTemplate,
             id: a.id,
-            code: a.code ? a.code.charAt(0) + a.code.split('-')[1].charAt(0) : base.code,
-            name: a.name ?? base.name,
-            fullName: a.name ?? base.fullName,
-            affiliationCode: a.code ?? base.code
+            code: a.code ? a.code.charAt(0) + a.code.split('-')[1]?.charAt(0) : defaultTemplate.code,
+            name: a.name ?? defaultTemplate.name,
+            fullName: a.name ?? defaultTemplate.fullName,
+            affiliationCode: a.code ?? defaultTemplate.code,
+            students: defaultTemplate.students // Keep template student count for now
           };
         });
 
