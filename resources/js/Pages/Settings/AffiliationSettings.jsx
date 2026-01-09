@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Building2, Plus, Pencil, Trash2, Users, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Building2, Plus, Pencil, Trash2, Users, Loader2, ChevronLeft, ChevronRight, Upload, X } from "lucide-react";
 import api from "@/api/axios";
 import Swal from "sweetalert2";
 import PermissionGuard from "@/components/PermissionGuard";
@@ -44,7 +44,9 @@ export default function AffiliationSettings() {
   const [formData, setFormData] = useState({
     name: '',
     type: 'residen',
-    code: ''
+    code: '',
+    since: '',
+    logo: null
   });
   
   const [formLoading, setFormLoading] = useState(false);
@@ -54,6 +56,14 @@ export default function AffiliationSettings() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+
+  const getLogoUrl = (logoPath) => {
+    if (!logoPath) return null;
+    if (logoPath.startsWith('http://') || logoPath.startsWith('https://')) {
+      return logoPath;
+    }
+    return `${window.location.origin}${logoPath}`;
+  };
 
   useEffect(() => {
     fetchAffiliations();
@@ -82,7 +92,9 @@ export default function AffiliationSettings() {
     setFormData({
       name: '',
       type: 'residen',
-      code: ''
+      code: '',
+      since: '',
+      logo: null
     });
     setFormError(null);
     setSelectedAffiliation(null);
@@ -132,7 +144,9 @@ export default function AffiliationSettings() {
       setFormData({
         name: affiliation.name,
         type: affiliation.type,
-        code: affiliation.code
+        code: affiliation.code,
+        since: affiliation.since || '',
+        logo: affiliation.logo || null
       });
     } else {
       resetForm();
@@ -151,8 +165,17 @@ export default function AffiliationSettings() {
     setFormError(null);
 
     try {
+      const submitData = new FormData();
+      submitData.append('name', formData.name);
+      submitData.append('type', formData.type);
+      submitData.append('code', formData.code);
+      if (formData.since) submitData.append('since', formData.since);
+      if (formData.logo instanceof File) submitData.append('logo', formData.logo);
+
       if (modalType === 'create') {
-        const response = await api.post('/affiliations', formData);
+        const response = await api.post('/affiliations', submitData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
         if (response.data.status === 'success') {
           Swal.fire({
             icon: 'success',
@@ -164,7 +187,10 @@ export default function AffiliationSettings() {
           handleCloseModal();
         }
       } else if (modalType === 'edit') {
-        const response = await api.put(`/affiliations/${selectedAffiliation.id}`, formData);
+        submitData.append('_method', 'PUT');
+        const response = await api.post(`/affiliations/${selectedAffiliation.id}`, submitData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
         if (response.data.status === 'success') {
           Swal.fire({
             icon: 'success',
@@ -282,9 +308,11 @@ export default function AffiliationSettings() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead>Logo</TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Code</TableHead>
                       <TableHead>Type</TableHead>
+                      <TableHead>Since</TableHead>
                       <TableHead className="text-center">Users</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
@@ -292,13 +320,29 @@ export default function AffiliationSettings() {
                   <TableBody>
                     {paginatedAffiliations.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center text-muted-foreground">
+                        <TableCell colSpan={7} className="text-center text-muted-foreground">
                           No affiliations found
                         </TableCell>
                       </TableRow>
                     ) : (
                       paginatedAffiliations.map((affiliation) => (
                         <TableRow key={affiliation.id}>
+                          <TableCell>
+                            {affiliation.logo ? (
+                              <img 
+                                src={getLogoUrl(affiliation.logo)} 
+                                alt={affiliation.name}
+                                className="h-10 w-10 object-contain rounded"
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                  e.target.nextSibling.style.display = 'flex';
+                                }}
+                              />
+                            ) : null}
+                            <div className={`h-10 w-10 bg-muted rounded flex items-center justify-center ${affiliation.logo ? 'hidden' : ''}`}>
+                              <Building2 className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                          </TableCell>
                           <TableCell className="font-medium">{affiliation.name}</TableCell>
                           <TableCell>
                             <code className="text-xs bg-muted px-2 py-1 rounded">
@@ -309,6 +353,13 @@ export default function AffiliationSettings() {
                             <Badge variant={getTypeBadgeVariant(affiliation.type)}>
                               {getTypeLabel(affiliation.type)}
                             </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {affiliation.since ? (
+                              <span className="text-sm text-muted-foreground">{affiliation.since}</span>
+                            ) : (
+                              <span className="text-sm text-muted-foreground">-</span>
+                            )}
                           </TableCell>
                           <TableCell className="text-center">
                             <div className="flex items-center justify-center gap-1">
@@ -440,6 +491,81 @@ export default function AffiliationSettings() {
                       <SelectItem value="peer_group">Peer Group</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="since">Since (Year Founded)</Label>
+                  <Input
+                    id="since"
+                    type="number"
+                    value={formData.since}
+                    onChange={(e) => setFormData({ ...formData, since: e.target.value })}
+                    placeholder="e.g., 1950"
+                    min="1900"
+                    max={new Date().getFullYear()}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Year the institution was founded
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="logo">University Logo</Label>
+                  <div className="flex items-center gap-4">
+                    {(formData.logo && typeof formData.logo === 'string') && (
+                      <div className="relative">
+                        <img 
+                          src={getLogoUrl(formData.logo)} 
+                          alt="Current logo"
+                          className="h-20 w-20 object-contain rounded border"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute -top-2 -right-2 h-6 w-6"
+                          onClick={() => setFormData({ ...formData, logo: null })}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
+                    {formData.logo instanceof File && (
+                      <div className="relative">
+                        <img 
+                          src={URL.createObjectURL(formData.logo)} 
+                          alt="Preview"
+                          className="h-20 w-20 object-contain rounded border"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute -top-2 -right-2 h-6 w-6"
+                          onClick={() => setFormData({ ...formData, logo: null })}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <Input
+                        id="logo"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setFormData({ ...formData, logo: file });
+                          }
+                        }}
+                        className="cursor-pointer"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Upload university/institution logo (PNG, JPG, SVG)
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 

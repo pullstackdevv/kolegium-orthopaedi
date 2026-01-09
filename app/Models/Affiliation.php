@@ -13,6 +13,8 @@ class Affiliation extends Model
         'name',
         'type',
         'code',
+        'since',
+        'logo',
     ];
 
     protected $casts = [

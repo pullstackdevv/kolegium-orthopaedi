@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\ValidationException;
 
@@ -19,10 +20,16 @@ class AffiliationController extends Controller
         $type = $request->string('type')->toString();
 
         $affiliations = Affiliation::query()
-            ->select(['id', 'name', 'code', 'type', 'created_at'])
+            ->select(['id', 'name', 'code', 'type', 'since', 'logo', 'created_at'])
             ->when($type !== '', fn ($q) => $q->where('type', $type))
             ->orderBy('created_at', 'asc')
-            ->get();
+            ->get()
+            ->map(function ($affiliation) {
+                if ($affiliation->logo) {
+                    $affiliation->logo = Storage::url($affiliation->logo);
+                }
+                return $affiliation;
+            });
 
         return response()->json([
             'status' => 'success',
@@ -55,7 +62,13 @@ class AffiliationController extends Controller
                 $query->orderBy($sortBy, $request->sort_direction ?? 'asc');
             })
             ->orderBy('created_at', 'asc')
-            ->get();
+            ->get()
+            ->map(function ($affiliation) {
+                if ($affiliation->logo) {
+                    $affiliation->logo = Storage::url($affiliation->logo);
+                }
+                return $affiliation;
+            });
 
         return response()->json([
             'status' => 'success',
@@ -77,12 +90,22 @@ class AffiliationController extends Controller
             'name' => 'required|string|max:255',
             'type' => ['required', new Enum(AffiliationType::class)],
             'code' => 'required|string|max:50|unique:affiliations,code',
+            'since' => 'nullable|string|max:4',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         try {
             DB::beginTransaction();
 
+            if ($request->hasFile('logo')) {
+                $validated['logo'] = $request->file('logo')->store('affiliations/logos', 'public');
+            }
+
             $affiliation = Affiliation::create($validated);
+
+            if ($affiliation->logo) {
+                $affiliation->logo = Storage::url($affiliation->logo);
+            }
 
             DB::commit();
 
@@ -107,9 +130,14 @@ class AffiliationController extends Controller
             ], 403);
         }
 
+        $affiliationData = $affiliation->load('users');
+        if ($affiliationData->logo) {
+            $affiliationData->logo = Storage::url($affiliationData->logo);
+        }
+
         return response()->json([
             'status' => 'success',
-            'data' => $affiliation->load('users')
+            'data' => $affiliationData
         ]);
     }
 
@@ -127,19 +155,33 @@ class AffiliationController extends Controller
             'name' => 'sometimes|required|string|max:255',
             'type' => ['sometimes', 'required', new Enum(AffiliationType::class)],
             'code' => 'sometimes|required|string|max:50|unique:affiliations,code,' . $affiliation->id,
+            'since' => 'nullable|string|max:4',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         try {
             DB::beginTransaction();
 
+            if ($request->hasFile('logo')) {
+                if ($affiliation->logo) {
+                    Storage::disk('public')->delete($affiliation->logo);
+                }
+                $validated['logo'] = $request->file('logo')->store('affiliations/logos', 'public');
+            }
+
             $affiliation->update($validated);
+
+            $updatedAffiliation = $affiliation->fresh();
+            if ($updatedAffiliation->logo) {
+                $updatedAffiliation->logo = Storage::url($updatedAffiliation->logo);
+            }
 
             DB::commit();
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Affiliation updated successfully',
-                'data' => $affiliation->fresh()
+                'data' => $updatedAffiliation
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -165,6 +207,10 @@ class AffiliationController extends Controller
 
         try {
             DB::beginTransaction();
+
+            if ($affiliation->logo) {
+                Storage::disk('public')->delete($affiliation->logo);
+            }
 
             $affiliation->delete();
 
