@@ -350,9 +350,9 @@ export default function Homepage() {
   };
   // Stats data
   const stats = [
-    { icon: "mdi:school", value: "720", label: "Active Resident", subtitle: "14 study program" },
-    { icon: "mdi:school", value: "42", label: "Active Fellow", subtitle: "14 study program" },
-    { icon: "mdi:school", value: "64", label: "Active Trainee", subtitle: "14 study program" },
+    { icon: "mdi:school", value: "720", label: "Residency", subtitle: "14 study program" },
+    { icon: "mdi:school", value: "42", label: "Clinical Fellowship", subtitle: "2 study program" },
+    { icon: "mdi:school", value: "64", label: "Subspecialist", subtitle: "2 study program" },
   ];
 
   const examinations = useMemo(() => {
@@ -432,10 +432,10 @@ export default function Homepage() {
             { name: 'FK UGM', value: 76 },
             { name: 'FK UDAYANA', value: 78 },
             { name: 'FK USU', value: 57 },
-            { name: 'FK UBRA', value: 69 },
+            { name: 'FK UB', value: 69 },
             { name: 'FK USRI', value: 40 },
-            { name: 'FK UNAN', value: 51 },
-            { name: 'FK UPK', value: 33 },
+            { name: 'FK UNAND', value: 51 },
+            { name: 'FK USK', value: 33 },
             { name: 'FK ULM', value: 27 },
             { name: 'RS SOEHARSSO', value: 9 }
           ],
