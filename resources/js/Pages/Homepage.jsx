@@ -351,7 +351,7 @@ export default function Homepage() {
   // Stats data
   const stats = [
     { icon: "mdi:school", value: "720", label: "Residency", subtitle: "14 study program" },
-    { icon: "mdi:school", value: "42", label: "Clinical Fellowship", subtitle: "2 study program" },
+    { icon: "mdi:school", value: "42", label: "Clinical Fellowship", subtitle: "5 study program" },
     { icon: "mdi:school", value: "64", label: "Subspecialist", subtitle: "2 study program" },
   ];
 
@@ -437,7 +437,7 @@ export default function Homepage() {
             { name: 'FK UNAND', value: 51 },
             { name: 'FK USK', value: 33 },
             { name: 'FK ULM', value: 27 },
-            { name: 'RS SOEHARSSO', value: 9 }
+            { name: 'RSO SOEHARSO', value: 9 }
           ],
           colors: ['#dc2626', '#3b82f6', '#ec4899', '#8b5cf6', '#f59e0b', '#10b981', '#6b7280', '#06b6d4', '#84cc16', '#f97316', '#a855f7', '#14b8a6', '#64748b'],
           legends: [
@@ -451,12 +451,12 @@ export default function Homepage() {
             { label: 'FK USU', value: 57 }
           ],
           legendsRight: [
-            { label: 'FK UBRA', value: 69 },
+            { label: 'FK UB', value: 69 },
             { label: 'FK USRI', value: 40 },
-            { label: 'FK UNAN', value: 51 },
-            { label: 'FK UPK', value: 33 },
+            { label: 'FK UNAND', value: 51 },
+            { label: 'FK USK', value: 33 },
             { label: 'FK ULM', value: 27 },
-            { label: 'RS SOEHARSSO', value: 9 }
+            { label: 'RSO SOEHARSO', value: 9 }
           ],
           total: 720
         },
@@ -529,14 +529,16 @@ export default function Homepage() {
             { name: 'RSUD Dr. Saiful Anwar Malang', value: 6 },
             { name: 'RSUP Dr. Hasan Sadikin Bandung', value: 10 },
             { name: 'RSUP Dr. Sardjito Yogyakarta', value: 6 },
-            { name: 'RSUD Dr. Moewardi Solo', value: 1 }
+            { name: 'RSUD Dr. Moewardi Solo', value: 1 },
+            { name: 'RSO SOEHARSO', value: 9 }
           ],
           colors: ['#10b981', '#86efac', '#34d399', '#6ee7b7'],
           legends: [
             { label: 'RSUD Dr. Saiful Anwar Malang', value: 6 },
             { label: 'RSUP Dr. Hasan Sadikin Bandung', value: 10 },
             { label: 'RSUP Dr. Sardjito Yogyakarta', value: 6 },
-            { label: 'RSUD Dr. Moewardi Solo', value: 1 }
+            { label: 'RSUD Dr. Moewardi Solo', value: 1 },
+            { label: 'RSO SOEHARSO', value: 9 }
           ],
           total: 23
         },
@@ -553,7 +555,7 @@ export default function Homepage() {
             { name: 'Advanced Orthopaedic Trauma', value: 4 },
             { name: 'Sport Injury', value: 7 }
           ],
-          colors: ['#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#10b981', '#6b7280', '#06b6d4', '#84cc16'],
+          colors: ['#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#10b981', '#6b7280', '#06b6d4', '#84cc16', '#64748b'],
           legends: [
             { label: 'Spine', value: 21 },
             { label: 'Hip And Knee', value: 2 },
