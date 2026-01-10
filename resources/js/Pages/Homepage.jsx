@@ -350,9 +350,9 @@ export default function Homepage() {
   };
   // Stats data
   const stats = [
-    { icon: "mdi:school", value: "720", label: "Residency", subtitle: "14 study program" },
-    { icon: "mdi:school", value: "42", label: "Clinical Fellowship", subtitle: "5 study program" },
-    { icon: "mdi:school", value: "64", label: "Subspecialist", subtitle: "2 study program" },
+    { icon: "mdi:school", value: "720", label: "Residency", subtitle: "14 study program", unit: "active residents" },
+    { icon: "mdi:school", value: "42", label: "Clinical Fellowship", subtitle: "5 study program", unit: "active fellows" },
+    { icon: "mdi:school", value: "64", label: "Subspecialist", subtitle: "2 study program", unit: "active trainee" },
   ];
 
   const examinations = useMemo(() => {
@@ -785,8 +785,9 @@ export default function Homepage() {
                     <Icon icon={stat.icon} className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1">
-                    <div className="text-3xl font-bold text-gray-900 mb-1">
-                      {stat.value}
+                    <div className="mb-1 flex items-baseline gap-2">
+                      <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
+                      <div className="text-sm font-semibold text-gray-500 whitespace-nowrap">{stat.unit || ""}</div>
                     </div>
                     <p className="text-2xl font-semibold text-gray-900 mb-0.5">
                       {stat.label}

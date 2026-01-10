@@ -43,6 +43,15 @@ export default function ClinicalFellowship() {
       kps: "KPS: dr. Ihsan Oesman, SpOT",
       students: 8,
     },
+    {
+      code: "RS",
+      name: "RSO Soeharso",
+      fullName: "RSUP Dr.Sardjito",
+      description:
+        "A continuing education program for specialist doctors to deepen clinical expertise in a particular subspecialty area.",
+      kps: "KPS: dr. Ihsan Oesman, SpOT",
+      students: 9,
+    }
   ];
 
   const [universities, setUniversities] = useState(universityTemplates);
