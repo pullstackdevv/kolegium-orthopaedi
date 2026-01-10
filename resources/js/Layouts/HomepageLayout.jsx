@@ -100,9 +100,12 @@ export default function MarketplaceLayout({ children }) {
                                 label="Study Program Profile" 
                                 active={isActive('/profile-study-program')}
                             >
-                                <DropdownLink href="/profile-study-program/ppds1">Residen</DropdownLink>
+                                {/* <DropdownLink href="/profile-study-program/ppds1">PPDS 1</DropdownLink>
                                 <DropdownLink href="/profile-study-program/clinical-fellowship">Fellow</DropdownLink>
-                                <DropdownLink href="/profile-study-program/subspesialis">Trainee</DropdownLink>
+                                <DropdownLink href="/profile-study-program/subspesialis">Trainee</DropdownLink> */}
+                                <DropdownLink href="/profile-study-program/ppds1">PPDS 1</DropdownLink>
+                                <DropdownLink href="/profile-study-program/clinical-fellowship">Clinical Fellowship</DropdownLink>
+                                <DropdownLink href="/profile-study-program/subspesialis">Subspesialis</DropdownLink>
                             </NavDropdown>
 
                             <NavLink href="/peer-group" active={isActive('/peer-group')}>
@@ -166,14 +169,14 @@ export default function MarketplaceLayout({ children }) {
                                 </button>
                                 {openDropdown === 'profile' && (
                                     <div className="pl-6 space-y-1 mt-1">
-                                        <Link href="/profile-study-program/ppds1" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Residen</Link>
-                                        <Link href="/profile-study-program/clinical-fellowship" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Fellow</Link>
-                                        <Link href="/profile-study-program/subspesialis" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Trainee</Link>
+                                        <Link href="/profile-study-program/ppds1" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>PPDS 1</Link>
+                                        <Link href="/profile-study-program/clinical-fellowship" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Clinical Fellowship</Link>
+                                        <Link href="/profile-study-program/subspesialis" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Subspesialis</Link>
                                     </div>
                                 )}
                             </div>
 
-                            {/* <Link href="#resident" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Resident</Link> */}
+                            {/* <Link href="#resident" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>PPDS 1t</Link> */}
                             <Link href="/calendar-academic" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Academic Calendar</Link>
                             <Link href="/peer-group" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Peer Group</Link>
                             
@@ -227,7 +230,7 @@ export default function MarketplaceLayout({ children }) {
                             <ul className="space-y-2 text-sm text-gray-700">
                                 <li><Link href="/" className="hover:text-blue-600 transition">Home</Link></li>
                                 <li><Link href="/profile-study-program/ppds1" className="hover:text-blue-600 transition">Study Program Profile</Link></li>
-                                {/* <li><Link href="#resident" className="hover:text-blue-600 transition">Resident</Link></li> */}
+                                {/* <li><Link href="#resident" className="hover:text-blue-600 transition">PPDS 1t</Link></li> */}
                                 <li><Link href="/calendar-academic" className="hover:text-blue-600 transition">Academic Calendar</Link></li>
                                 <li><Link href="/peer-group" className="hover:text-blue-600 transition">Peer Group</Link></li>
                                 <li><Link href="/about-us" className="hover:text-blue-600 transition">About Us</Link></li>
