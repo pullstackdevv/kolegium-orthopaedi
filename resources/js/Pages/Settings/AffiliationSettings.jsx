@@ -404,7 +404,7 @@ export default function AffiliationSettings() {
                     {Math.min(currentPage * itemsPerPage, filteredAffiliations.length)} of{' '}
                     {filteredAffiliations.length} affiliations
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
                       size="sm"
@@ -413,6 +413,19 @@ export default function AffiliationSettings() {
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
+                    <div className="flex gap-1">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                        <Button
+                          key={page}
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          className="w-8 h-8 p-0"
+                          onClick={() => setCurrentPage(page)}
+                        >
+                          {page}
+                        </Button>
+                      ))}
+                    </div>
                     <Button
                       variant="outline"
                       size="sm"
