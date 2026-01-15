@@ -43,6 +43,15 @@ export default function ClinicalFellowship() {
       kps: "KPS: dr. Ihsan Oesman, SpOT",
       students: 8,
     },
+    {
+      code: "RS",
+      name: "RSO Soeharso",
+      fullName: "RSUP Dr.Sardjito",
+      description:
+        "A continuing education program for specialist doctors to deepen clinical expertise in a particular subspecialty area.",
+      kps: "KPS: dr. Ihsan Oesman, SpOT",
+      students: 9,
+    }
   ];
 
   const [universities, setUniversities] = useState(universityTemplates);
@@ -95,9 +104,9 @@ export default function ClinicalFellowship() {
   }, []);
 
   const tabs = [
-    { name: "Residen", href: "/profile-study-program/ppds1", active: false },
-    { name: "Fellow", href: "/profile-study-program/clinical-fellowship", active: true },
-    { name: "Trainee", href: "/profile-study-program/subspesialis", active: false }
+    { name: "PPDS 1", href: "/profile-study-program/ppds1", active: false },
+    { name: "Clinical Fellowship", href: "/profile-study-program/clinical-fellowship", active: true },
+    { name: "Subspesialis", href: "/profile-study-program/subspesialis", active: false }
   ];
 
   return (
@@ -110,7 +119,7 @@ export default function ClinicalFellowship() {
             <span>/</span>
             <Link href="/profile-study-program/ppds1" className="hover:underline">Study Program Profile</Link>
             <span>/</span>
-            <span>Fellow</span>
+            <span>Clinical Fellowship</span>
           </div>
         </div>
       </section>

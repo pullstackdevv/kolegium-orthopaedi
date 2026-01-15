@@ -350,9 +350,9 @@ export default function Homepage() {
   };
   // Stats data
   const stats = [
-    { icon: "mdi:school", value: "720", label: "Active Resident", subtitle: "14 study program" },
-    { icon: "mdi:school", value: "42", label: "Active Fellow", subtitle: "14 study program" },
-    { icon: "mdi:school", value: "64", label: "Active Trainee", subtitle: "14 study program" },
+    { icon: "mdi:school", value: "720", label: "Residency", subtitle: "14 study program", unit: "active residents" },
+    { icon: "mdi:school", value: "42", label: "Clinical Fellowship", subtitle: "5 study program", unit: "active fellows" },
+    { icon: "mdi:school", value: "64", label: "Subspecialist", subtitle: "2 study program", unit: "active trainee" },
   ];
 
   const examinations = useMemo(() => {
@@ -432,12 +432,12 @@ export default function Homepage() {
             { name: 'FK UGM', value: 76 },
             { name: 'FK UDAYANA', value: 78 },
             { name: 'FK USU', value: 57 },
-            { name: 'FK UBRA', value: 69 },
+            { name: 'FK UB', value: 69 },
             { name: 'FK USRI', value: 40 },
-            { name: 'FK UNAN', value: 51 },
-            { name: 'FK UPK', value: 33 },
+            { name: 'FK UNAND', value: 51 },
+            { name: 'FK USK', value: 33 },
             { name: 'FK ULM', value: 27 },
-            { name: 'RS SOEHARSSO', value: 9 }
+            { name: 'RSO SOEHARSO', value: 9 }
           ],
           colors: ['#dc2626', '#3b82f6', '#ec4899', '#8b5cf6', '#f59e0b', '#10b981', '#6b7280', '#06b6d4', '#84cc16', '#f97316', '#a855f7', '#14b8a6', '#64748b'],
           legends: [
@@ -451,12 +451,12 @@ export default function Homepage() {
             { label: 'FK USU', value: 57 }
           ],
           legendsRight: [
-            { label: 'FK UBRA', value: 69 },
+            { label: 'FK UB', value: 69 },
             { label: 'FK USRI', value: 40 },
-            { label: 'FK UNAN', value: 51 },
-            { label: 'FK UPK', value: 33 },
+            { label: 'FK UNAND', value: 51 },
+            { label: 'FK USK', value: 33 },
             { label: 'FK ULM', value: 27 },
-            { label: 'RS SOEHARSSO', value: 9 }
+            { label: 'RSO SOEHARSO', value: 9 }
           ],
           total: 720
         },
@@ -529,14 +529,16 @@ export default function Homepage() {
             { name: 'RSUD Dr. Saiful Anwar Malang', value: 6 },
             { name: 'RSUP Dr. Hasan Sadikin Bandung', value: 10 },
             { name: 'RSUP Dr. Sardjito Yogyakarta', value: 6 },
-            { name: 'RSUD Dr. Moewardi Solo', value: 1 }
+            { name: 'RSUD Dr. Moewardi Solo', value: 1 },
+            { name: 'RSO SOEHARSO', value: 9 }
           ],
           colors: ['#10b981', '#86efac', '#34d399', '#6ee7b7'],
           legends: [
             { label: 'RSUD Dr. Saiful Anwar Malang', value: 6 },
             { label: 'RSUP Dr. Hasan Sadikin Bandung', value: 10 },
             { label: 'RSUP Dr. Sardjito Yogyakarta', value: 6 },
-            { label: 'RSUD Dr. Moewardi Solo', value: 1 }
+            { label: 'RSUD Dr. Moewardi Solo', value: 1 },
+            { label: 'RSO SOEHARSO', value: 9 }
           ],
           total: 23
         },
@@ -553,7 +555,7 @@ export default function Homepage() {
             { name: 'Advanced Orthopaedic Trauma', value: 4 },
             { name: 'Sport Injury', value: 7 }
           ],
-          colors: ['#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#10b981', '#6b7280', '#06b6d4', '#84cc16'],
+          colors: ['#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#10b981', '#6b7280', '#06b6d4', '#84cc16', '#64748b'],
           legends: [
             { label: 'Spine', value: 21 },
             { label: 'Hip And Knee', value: 2 },
@@ -783,8 +785,9 @@ export default function Homepage() {
                     <Icon icon={stat.icon} className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1">
-                    <div className="text-3xl font-bold text-gray-900 mb-1">
-                      {stat.value}
+                    <div className="mb-1 flex items-baseline gap-2">
+                      <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
+                      <div className="text-sm font-semibold text-gray-500 whitespace-nowrap">{stat.unit || ""}</div>
                     </div>
                     <p className="text-2xl font-semibold text-gray-900 mb-0.5">
                       {stat.label}

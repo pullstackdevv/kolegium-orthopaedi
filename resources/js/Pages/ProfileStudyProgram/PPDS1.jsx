@@ -178,9 +178,9 @@ export default function PPDS1() {
   }, []);
 
   const tabs = [
-    { name: "Residen", href: "/profile-study-program/ppds1", active: true },
-    { name: "Fellow", href: "/profile-study-program/clinical-fellowship", active: false },
-    { name: "Trainee", href: "/profile-study-program/subspesialis", active: false }
+    { name: "PPDS 1", href: "/profile-study-program/ppds1", active: true },
+    { name: "Clinical Fellowship", href: "/profile-study-program/clinical-fellowship", active: false },
+    { name: "Subspesialis", href: "/profile-study-program/subspesialis", active: false }
   ];
 
   return (
@@ -193,7 +193,7 @@ export default function PPDS1() {
             <span>/</span>
             <Link href="/profile-study-program/ppds1" className="hover:underline">Study Program Profile</Link>
             <span>/</span>
-            <span>Residen</span>
+            <span>PPDS 1</span>
           </div>
         </div>
       </section>
