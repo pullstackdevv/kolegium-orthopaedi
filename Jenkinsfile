@@ -13,11 +13,29 @@ pipeline {
                 echo "🚀 Connecting to VPS ${SERVER_IP} ..."
                 ssh -o StrictHostKeyChecking=no root@${SERVER_IP} << 'ENDSSH'
                     set -e
-                    
-                    # Load environment variables from .env file
+
+                    DEFAULT_DEPLOY_PATH="/www/wwwroot/kolegium-orthopaedi-staging"
+                    DEFAULT_DEPLOY_BRANCH="staging"
+
+                    DEPLOY_PATH="${DEFAULT_DEPLOY_PATH}"
+                    DEPLOY_BRANCH="${DEFAULT_DEPLOY_BRANCH}"
+
+                    # Load environment variables from .env file that lives under DEPLOY_PATH
                     set -a
-                    source /www/wwwroot/kolegium-orthopaedi/.env
+                    if [ -f "${DEPLOY_PATH}/.env" ]; then
+                        source "${DEPLOY_PATH}/.env"
+                    fi
                     set +a
+
+                    if [ -z "${DEPLOY_PATH}" ]; then
+                        echo "❌ DEPLOY_PATH is not set. Please define it inside ${DEFAULT_DEPLOY_PATH}/.env"
+                        exit 1
+                    fi
+
+                    if [ -z "${DEPLOY_BRANCH}" ]; then
+                        echo "❌ DEPLOY_BRANCH is not set. Please define it inside ${DEPLOY_PATH}/.env"
+                        exit 1
+                    fi
                     
                     echo "📦 Navigating to ${DEPLOY_PATH} ..."
                     cd ${DEPLOY_PATH} || exit 1
