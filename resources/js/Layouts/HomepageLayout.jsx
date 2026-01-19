@@ -77,7 +77,7 @@ export default function MarketplaceLayout({ children }) {
                         {/* Logo */}
                         <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
                             <img 
-                                src="/assets/icons/poboi.svg" 
+                                src="/assets/icons/koti-logo.svg" 
                                 alt="POBOI Logo" 
                                 className="h-14 w-auto" 
                                 onError={(e) => e.target.style.display = 'none'}
