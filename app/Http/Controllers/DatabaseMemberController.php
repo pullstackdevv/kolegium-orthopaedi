@@ -243,6 +243,53 @@ class DatabaseMemberController extends Controller
         ]);
     }
 
+    public function publicIndexAll(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'per_page' => 'nullable|integer|min:1|max:100',
+            'page' => 'nullable|integer|min:1',
+            'status' => ['nullable', 'string', Rule::in(['active', 'graduated', 'leave'])],
+            'search' => 'nullable|string|max:255',
+            'organization_type' => ['nullable', 'string', Rule::in(['resident', 'fellow', 'trainee'])],
+            'affiliation_id' => 'nullable|integer|exists:affiliations,id',
+        ]);
+
+        $baseQuery = DatabaseMember::query()
+            ->whereIn('organization_type', ['resident', 'fellow', 'trainee'])
+            ->with('affiliation:id,name,code');
+
+        $query = (clone $baseQuery)
+            ->when(!empty($validated['status']), fn ($q) => $q->where('status', $validated['status']))
+            ->when(!empty($validated['organization_type']), fn ($q) => $q->where('organization_type', $validated['organization_type']))
+            ->when(!empty($validated['affiliation_id']), fn ($q) => $q->where('affiliation_id', $validated['affiliation_id']))
+            ->when(!empty($validated['search']), function ($q) use ($validated) {
+                $search = $validated['search'];
+                $q->where(function ($qq) use ($search) {
+                    $qq->where('name', 'like', "%{$search}%")
+                        ->orWhere('member_code', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('name');
+
+        $members = $query->paginate($request->integer('per_page', 12));
+
+        $stats = [
+            'total' => (clone $baseQuery)->count(),
+            'active' => (clone $baseQuery)->where('status', 'active')->count(),
+            'graduated' => (clone $baseQuery)->where('status', 'graduated')->count(),
+            'leave' => (clone $baseQuery)->where('status', 'leave')->count(),
+            'resident' => (clone $baseQuery)->where('organization_type', 'resident')->count(),
+            'fellow' => (clone $baseQuery)->where('organization_type', 'fellow')->count(),
+            'trainee' => (clone $baseQuery)->where('organization_type', 'trainee')->count(),
+        ];
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $members,
+            'stats' => $stats,
+        ]);
+    }
+
     public function exportExcel(Request $request)
     {
         $validated = $request->validate([

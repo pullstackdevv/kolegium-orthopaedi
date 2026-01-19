@@ -132,6 +132,11 @@ Route::get('/about-us', function () {
     return Inertia::render('AboutUs');
 })->name('about.us');
 
+// Database Members - Public Access
+Route::get('/database-members', function () {
+    return Inertia::render('DatabaseMembers');
+})->name('database.members');
+
 // Login routes
 Route::middleware('guest')->group(function () {
     // GET /cms/login - Show login page

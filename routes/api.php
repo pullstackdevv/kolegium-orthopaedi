@@ -87,3 +87,4 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('public/agenda-events', [AgendaEventController::class, 'publicIndex']);
 Route::get('public/affiliations', [AffiliationController::class, 'publicIndex']);
 Route::get('public/database-members', [DatabaseMemberController::class, 'publicIndex']);
+Route::get('public/database-members/all', [DatabaseMemberController::class, 'publicIndexAll']);
