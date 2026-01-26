@@ -180,7 +180,7 @@ export default function PPDS1() {
   const tabs = [
     { name: "PPDS 1", href: "/profile-study-program/ppds1", active: true },
     { name: "Clinical Fellowship", href: "/profile-study-program/clinical-fellowship", active: false },
-    { name: "Subspesialis", href: "/profile-study-program/subspesialis", active: false }
+    { name: "Subspecialist", href: "/profile-study-program/subspesialis", active: false }
   ];
 
   return (

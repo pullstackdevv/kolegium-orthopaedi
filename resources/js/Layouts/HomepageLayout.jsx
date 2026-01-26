@@ -7,7 +7,11 @@ import {
     Phone,
     Mail,
     MapPin,
-    LayoutDashboard
+    LayoutDashboard,
+    Users,
+    GraduationCap,
+    BookOpen,
+    ArrowRight
 } from "lucide-react";
 import { Icon } from "@iconify/react";
 import { AuthProvider } from "../contexts/AuthContext";
@@ -36,10 +40,12 @@ const NavDropdown = ({ label, active, children }) => (
             }`}
         >
             {label}
-            <ChevronDown className="w-4 h-4" />
+            <ChevronDown className="w-4 h-4 transition-transform group-hover:rotate-180 duration-300" />
         </button>
-        <div className="absolute left-0 mt-1 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
-            {children}
+        <div className="absolute left-0 mt-[22px] w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 bg-white rounded-md shadow-lg border-t-5 border-t-blue-600 border border-gray-200 py-2 z-50">
+            <div className="space-y-0">
+                {children}
+            </div>
         </div>
     </div>
 );
@@ -100,12 +106,9 @@ export default function MarketplaceLayout({ children }) {
                                 label="Study Program Profile" 
                                 active={isActive('/profile-study-program')}
                             >
-                                {/* <DropdownLink href="/profile-study-program/ppds1">PPDS 1</DropdownLink>
-                                <DropdownLink href="/profile-study-program/clinical-fellowship">Fellow</DropdownLink>
-                                <DropdownLink href="/profile-study-program/subspesialis">Trainee</DropdownLink> */}
                                 <DropdownLink href="/profile-study-program/ppds1">PPDS 1</DropdownLink>
                                 <DropdownLink href="/profile-study-program/clinical-fellowship">Clinical Fellowship</DropdownLink>
-                                <DropdownLink href="/profile-study-program/subspesialis">Subspesialis</DropdownLink>
+                                <DropdownLink href="/profile-study-program/subspesialis">Subspecialist</DropdownLink>
                             </NavDropdown>
 
                             <NavDropdown 
@@ -180,7 +183,7 @@ export default function MarketplaceLayout({ children }) {
                                     <div className="pl-6 space-y-1 mt-1">
                                         <Link href="/profile-study-program/ppds1" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>PPDS 1</Link>
                                         <Link href="/profile-study-program/clinical-fellowship" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Clinical Fellowship</Link>
-                                        <Link href="/profile-study-program/subspesialis" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Subspesialis</Link>
+                                        <Link href="/profile-study-program/subspecialist" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Subspecialist</Link>
                                     </div>
                                 )}
                             </div>
@@ -270,7 +273,7 @@ export default function MarketplaceLayout({ children }) {
                             <ul className="space-y-2 text-sm text-gray-700">
                                 <li><Link href="/profile-study-program/ppds1" className="hover:text-blue-600 transition">PPDS 1</Link></li>
                                 <li><Link href="/profile-study-program/clinical-fellowship" className="hover:text-blue-600 transition">Clinical Fellowship</Link></li>
-                                <li><Link href="/profile-study-program/subspesialis" className="hover:text-blue-600 transition">Subspesialis</Link></li>
+                                <li><Link href="/profile-study-program/subspecialist" className="hover:text-blue-600 transition">Subspecialist</Link></li>
                             </ul>
                         </div>
 

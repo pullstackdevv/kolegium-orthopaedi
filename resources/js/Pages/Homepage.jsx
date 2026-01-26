@@ -45,7 +45,7 @@ const ProgramInfo = ({ program }) => {
   const getStudentLabel = () => {
     if (program.id === "P1") return "Active Resident:";
     if (program.id === "CF") return "Active Fellow:";
-    if (program.id === "SP") return "Active Trainee:";
+    if (program.id === "SP") return "Active Trainees:";
     return "Active Students:";
   };
 
@@ -148,11 +148,11 @@ export default function Homepage() {
   
   const heroImages = [
     {
-      src: "/assets/images/homepage/banner.png",
+      src: "/assets/images/homepage/banner-01.png",
       alt: "Indonesian Orthopaedic Team - Image 1"
     },
     {
-      src: "/assets/images/homepage/slide-2.png",
+      src: "/assets/images/homepage/banner-02.png",
       alt: "Indonesian Orthopaedic Team - Image 2"
     }
   ];
@@ -350,9 +350,9 @@ export default function Homepage() {
   };
   // Stats data
   const stats = [
-    { icon: "mdi:school", value: "720", label: "Residency", subtitle: "14 study program", unit: "active residents" },
-    { icon: "mdi:school", value: "42", label: "Clinical Fellowship", subtitle: "5 study program", unit: "active fellows" },
-    { icon: "mdi:school", value: "64", label: "Subspecialist", subtitle: "2 study program", unit: "active trainee" },
+    { icon: "mdi:school", value: "720", label: "Residency", subtitle: "14 study programs", unit: "active residents" },
+    { icon: "mdi:school", value: "42", label: "Clinical Fellowship", subtitle: "5 study programs", unit: "active fellows" },
+    { icon: "mdi:school", value: "64", label: "Subspecialist", subtitle: "2 study programs", unit: "active trainees" },
   ];
 
   const examinations = useMemo(() => {
@@ -503,15 +503,15 @@ export default function Homepage() {
           total: 674
         },
         {
-          title: "Members",
+          title: "Status",
           data: [
             { name: 'Graduated', value: 1157 },
-            { name: 'Active Students', value: 678 }
+            { name: 'Active', value: 678 }
           ],
           colors: ['#10b981', '#f59e0b'],
           legends: [
             { label: 'Graduated', value: 1157 },
-            { label: 'Active Students', value: 678 }
+            { label: 'Active', value: 678 }
           ],
           total: 1835
         }
@@ -524,7 +524,7 @@ export default function Homepage() {
       students: "42",
       charts: [
         {
-          title: "Organizer",
+          title: "Study Programs",
           data: [
             { name: 'RSUD Dr. Saiful Anwar Malang', value: 6 },
             { name: 'RSUP Dr. Hasan Sadikin Bandung', value: 10 },
@@ -543,7 +543,7 @@ export default function Homepage() {
           total: 23
         },
         {
-          title: "specialization",
+          title: "Subspecialty",
           data: [
             { name: 'Spine', value: 21 },
             { name: 'Hip And Knee', value: 2 },
@@ -585,15 +585,15 @@ export default function Homepage() {
           total: 41
         },
         {
-          title: "Members",
+          title: "Status",
           data: [
             { name: 'Graduated', value: 21 },
-            { name: 'Active Students', value: 21 }
+            { name: 'Active', value: 21 }
           ],
           colors: ['#10b981', '#f59e0b'],
           legends: [
             { label: 'Graduated', value: 21 },
-            { label: 'Active Students', value: 21 }
+            { label: 'Active', value: 21 }
           ],
           total: 42
         }
@@ -601,7 +601,7 @@ export default function Homepage() {
     },
     {
       id: "SP",
-      badge: "Subspesialis",
+      badge: "Subspecialist",
       description: "Advanced program for Traumatology — trauma management & reconstruction.",
       students: "64",
       charts: [
@@ -619,7 +619,7 @@ export default function Homepage() {
           total: 40
         },
         {
-          title: "specialization",
+          title: "Subspecialty",
           data: [
             { name: 'Spine', value: 21 },
             { name: 'Hip And Knee', value: 2 },
@@ -661,14 +661,14 @@ export default function Homepage() {
           total: 64
         },
         {
-          title: "Members",
+          title: "Status",
           data: [
-            { name: 'Grad', value: 35 },
+            { name: 'Graduated', value: 35 },
             { name: 'Active', value: 64 }
           ],
           colors: ['#10b981', '#f59e0b'],
           legends: [
-            { label: 'Grad', value: 35 },
+            { label: 'Graduated', value: 35 },
             { label: 'Active', value: 64 }
           ],
           total: 99
@@ -687,7 +687,7 @@ export default function Homepage() {
         {/* Background Image with Gradient Overlay */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="/assets/images/homepage/banner.png" 
+            src="/assets/images/homepage/banner-01.png" 
             alt="Background Banner"
             className="w-full h-full object-cover"
             onError={(e) => {
@@ -701,7 +701,7 @@ export default function Homepage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6 text-white">
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight">
-                E-Dashboard Indonesian Orthopaedic and Traumatology Education
+                E-Dashboard Indonesian for Orthopaedic and Traumatology Education
               </h1>
               <p className="text-base sm:text-lg leading-relaxed max-w-xl opacity-95">
                 Providing open, current, and accurate information. Enhancing integration of academic information & scientific activities through a single gateway.

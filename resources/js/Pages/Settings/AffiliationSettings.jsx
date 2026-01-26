@@ -298,7 +298,7 @@ export default function AffiliationSettings() {
                     <SelectItem value="kolegium">Kolegium</SelectItem>
                     <SelectItem value="residen">Residen</SelectItem>
                     <SelectItem value="clinical_fellowship">Clinical Fellowship</SelectItem>
-                    <SelectItem value="subspesialis">Subspesialis</SelectItem>
+                    <SelectItem value="subspesialis">Subspecialist</SelectItem>
                     <SelectItem value="peer_group">Peer Group</SelectItem>
                   </SelectContent>
                 </Select>
@@ -500,7 +500,7 @@ export default function AffiliationSettings() {
                       <SelectItem value="kolegium">Kolegium</SelectItem>
                       <SelectItem value="residen">Residen</SelectItem>
                       <SelectItem value="clinical_fellowship">Clinical Fellowship</SelectItem>
-                      <SelectItem value="subspesialis">Subspesialis</SelectItem>
+                      <SelectItem value="subspesialis">Subspecialist</SelectItem>
                       <SelectItem value="peer_group">Peer Group</SelectItem>
                     </SelectContent>
                   </Select>

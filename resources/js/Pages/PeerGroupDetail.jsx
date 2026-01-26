@@ -164,7 +164,7 @@ export default function PeerGroupDetail() {
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-blue-700">Clinical Fellowship Members</h2>
+              <h2 className="text-xl font-bold text-blue-700">Peer Group Members</h2>
               <p className="text-sm text-gray-600 mt-1">Showing {startIndex + 1} to {Math.min(endIndex, totalItems)} of {totalItems} members</p>
             </div>
             <div className="overflow-x-auto">
