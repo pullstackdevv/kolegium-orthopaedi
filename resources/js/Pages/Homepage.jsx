@@ -148,11 +148,11 @@ export default function Homepage() {
   
   const heroImages = [
     {
-      src: "/assets/images/homepage/banner-01.png",
+      src: "/assets/images/homepage/banner-00.png",
       alt: "Indonesian Orthopaedic Team - Image 1"
     },
     {
-      src: "/assets/images/homepage/banner-02.png",
+      src: "/assets/images/homepage/banner-01.png",
       alt: "Indonesian Orthopaedic Team - Image 2"
     }
   ];
@@ -687,7 +687,7 @@ export default function Homepage() {
         {/* Background Image with Gradient Overlay */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="/assets/images/homepage/banner-01.png" 
+            src="/assets/images/homepage/banner-00.png" 
             alt="Background Banner"
             className="w-full h-full object-cover"
             onError={(e) => {
