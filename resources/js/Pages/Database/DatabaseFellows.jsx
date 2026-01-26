@@ -2,10 +2,10 @@ import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Search, Users, GraduationCap, UserX, ChevronLeft, ChevronRight } from "lucide-react";
-import HomepageLayout from "../Layouts/HomepageLayout";
+import HomepageLayout from "../../Layouts/HomepageLayout";
 import api from "@/api/axios";
 
-export default function DatabaseMembers() {
+export default function DatabaseFellows() {
   const [members, setMembers] = useState([]);
   const [affiliations, setAffiliations] = useState([]);
   const [pagination, setPagination] = useState({
@@ -20,9 +20,6 @@ export default function DatabaseMembers() {
     active: 0, 
     graduated: 0, 
     leave: 0,
-    resident: 0,
-    fellow: 0,
-    trainee: 0
   });
   
   const [loading, setLoading] = useState(true);
@@ -31,7 +28,6 @@ export default function DatabaseMembers() {
   const [filters, setFilters] = useState({
     status: "",
     search: "",
-    organization_type: "",
     affiliation_id: "",
     per_page: "12",
   });
@@ -45,11 +41,11 @@ export default function DatabaseMembers() {
         const params = {
           page,
           per_page: Number(filters.per_page || 12),
+          organization_type: "fellow",
         };
 
         if (filters.status) params.status = filters.status;
         if (filters.search) params.search = filters.search;
-        if (filters.organization_type) params.organization_type = filters.organization_type;
         if (filters.affiliation_id) params.affiliation_id = filters.affiliation_id;
 
         const response = await api.get("/public/database-members/all", {
@@ -59,7 +55,7 @@ export default function DatabaseMembers() {
 
         if (response.data?.status !== "success") {
           setMembers([]);
-          setError("Gagal mengambil data.");
+          setError("Failed to fetch data.");
           return;
         }
 
@@ -81,19 +77,16 @@ export default function DatabaseMembers() {
             active: Number(st.active || 0),
             graduated: Number(st.graduated || 0),
             leave: Number(st.leave || 0),
-            resident: Number(st.resident || 0),
-            fellow: Number(st.fellow || 0),
-            trainee: Number(st.trainee || 0),
           });
         }
       } catch (e) {
         setMembers([]);
-        setError("Terjadi kesalahan saat mengambil data.");
+        setError("An error occurred while fetching data.");
       } finally {
         setLoading(false);
       }
     },
-    [filters.per_page, filters.search, filters.status, filters.organization_type, filters.affiliation_id]
+    [filters.per_page, filters.search, filters.status, filters.affiliation_id]
   );
 
   useEffect(() => {
@@ -119,15 +112,15 @@ export default function DatabaseMembers() {
   }, [fetchMembers]);
 
   const genderLabel = (v) => {
-    if (v === "male") return "L";
-    if (v === "female") return "P";
+    if (v === "male") return "M";
+    if (v === "female") return "F";
     return "-";
   };
 
   const statusLabel = (v) => {
-    if (v === "active") return "Aktif";
-    if (v === "graduated") return "Lulus";
-    if (v === "leave") return "Cuti";
+    if (v === "active") return "Active";
+    if (v === "graduated") return "Graduated";
+    if (v === "leave") return "Leave";
     return "-";
   };
 
@@ -136,13 +129,6 @@ export default function DatabaseMembers() {
     if (v === "graduated") return "bg-blue-100 text-blue-700";
     if (v === "leave") return "bg-yellow-100 text-yellow-700";
     return "bg-gray-100 text-gray-700";
-  };
-
-  const orgTypeLabel = (v) => {
-    if (v === "resident") return "Residen";
-    if (v === "fellow") return "Fellow";
-    if (v === "trainee") return "Trainee";
-    return "-";
   };
 
   const getPhotoUrl = (photoPath) => {
@@ -163,7 +149,7 @@ export default function DatabaseMembers() {
               Home
             </Link>
             <span>/</span>
-            <span>Database Member</span>
+            <span>Fellows</span>
           </div>
         </div>
       </section>
@@ -173,37 +159,17 @@ export default function DatabaseMembers() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-6">
             <h1 className="text-2xl md:text-3xl font-bold" style={{ color: "#254D95" }}>
-              Database Member
+              Fellows Database
             </h1>
-            <p className="text-gray-600 mt-2">Daftar lengkap member Residen, Fellow, dan Trainee</p>
+            <p className="text-gray-600 mt-2">Complete list of fellow members</p>
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Member</p>
+                <p className="text-sm text-gray-600">Total Fellows</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <Users className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Residen</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.resident}</p>
-              </div>
-              <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
-                <GraduationCap className="w-6 h-6 text-emerald-600" />
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Fellow</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.fellow}</p>
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
                 <GraduationCap className="w-6 h-6 text-purple-600" />
@@ -212,26 +178,36 @@ export default function DatabaseMembers() {
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Trainee</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.trainee}</p>
+                <p className="text-sm text-gray-600">Active</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.active}</p>
               </div>
-              <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
-                <GraduationCap className="w-6 h-6 text-amber-600" />
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <Users className="w-6 h-6 text-blue-600" />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Graduated</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.graduated}</p>
+              </div>
+              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                <GraduationCap className="w-6 h-6 text-purple-600" />
               </div>
             </div>
           </div>
 
           {/* Filters */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Search */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Cari Member</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Search Member</label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Nama atau kode member..."
+                    placeholder="Name or member code..."
                     value={filters.search}
                     onChange={(e) => setFilters({ ...filters, search: e.target.value })}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -239,30 +215,9 @@ export default function DatabaseMembers() {
                 </div>
               </div>
 
-              {/* Organization Type Filter */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Tipe</label>
-                <select
-                  value={filters.organization_type}
-                  onChange={(e) => setFilters({ ...filters, organization_type: e.target.value })}
-                  className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white cursor-pointer"
-                  style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'right 0.75rem center',
-                    backgroundSize: '1.25rem 1.25rem'
-                  }}
-                >
-                  <option value="">Semua Tipe</option>
-                  <option value="resident">Residen</option>
-                  <option value="fellow">Fellow</option>
-                  <option value="trainee">Trainee</option>
-                </select>
-              </div>
-
               {/* Affiliation Filter */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Afiliasi</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Affiliation</label>
                 <select
                   value={filters.affiliation_id}
                   onChange={(e) => setFilters({ ...filters, affiliation_id: e.target.value })}
@@ -274,7 +229,7 @@ export default function DatabaseMembers() {
                     backgroundSize: '1.25rem 1.25rem'
                   }}
                 >
-                  <option value="">Semua Afiliasi</option>
+                  <option value="">All Affiliations</option>
                   {affiliations.map((affiliation) => (
                     <option key={affiliation.id} value={affiliation.id}>
                       {affiliation.code || affiliation.name}
@@ -297,10 +252,10 @@ export default function DatabaseMembers() {
                     backgroundSize: '1.25rem 1.25rem'
                   }}
                 >
-                  <option value="">Semua Status</option>
-                  <option value="active">Aktif</option>
-                  <option value="graduated">Lulus</option>
-                  <option value="leave">Cuti</option>
+                  <option value="">All Status</option>
+                  <option value="active">Active</option>
+                  <option value="graduated">Graduated</option>
+                  <option value="leave">Leave</option>
                 </select>
               </div>
             </div>
@@ -318,7 +273,7 @@ export default function DatabaseMembers() {
           ) : members.length === 0 ? (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
               <UserX className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">Tidak ada data member</p>
+              <p className="text-gray-600">No member data available</p>
             </div>
           ) : (
             <>
@@ -328,22 +283,19 @@ export default function DatabaseMembers() {
                     <thead className="bg-gray-50 border-b border-gray-200">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Foto
+                          Photo
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Kode Member
+                          Member Code
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Nama
+                          Name
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Tipe
+                          Affiliation
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Afiliasi
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Spesialisasi
+                          Subspecialty
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Gender
@@ -384,11 +336,6 @@ export default function DatabaseMembers() {
                             <div className="text-sm text-gray-900">{member.name}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700">
-                              {orgTypeLabel(member.organization_type)}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-900">
                               {member.affiliation ? (member.affiliation.code || member.affiliation.name) : '-'}
                             </div>
@@ -420,7 +367,7 @@ export default function DatabaseMembers() {
               {pagination.last_page > 1 && (
                 <div className="flex items-center justify-between bg-white rounded-xl shadow-sm border border-gray-200 p-4">
                   <div className="text-sm text-gray-600">
-                    Menampilkan {((pagination.current_page - 1) * pagination.per_page) + 1} - {Math.min(pagination.current_page * pagination.per_page, pagination.total)} dari {pagination.total} member
+                    Showing {((pagination.current_page - 1) * pagination.per_page) + 1} - {Math.min(pagination.current_page * pagination.per_page, pagination.total)} of {pagination.total} members
                   </div>
                   <div className="flex items-center gap-2">
                     <button

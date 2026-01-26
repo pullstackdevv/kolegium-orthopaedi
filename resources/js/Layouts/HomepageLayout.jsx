@@ -108,9 +108,14 @@ export default function MarketplaceLayout({ children }) {
                                 <DropdownLink href="/profile-study-program/subspesialis">Subspesialis</DropdownLink>
                             </NavDropdown>
 
-                            <NavLink href="/database-members" active={isActive('/database-members')}>
-                                Residen/Fellow/Trainee
-                            </NavLink>
+                            <NavDropdown 
+                                label="Resident/Fellow/Trainee" 
+                                active={isActive('/database-residents') || isActive('/database-fellows') || isActive('/database-trainees')}
+                            >
+                                <DropdownLink href="/database-residents">Residents</DropdownLink>
+                                <DropdownLink href="/database-fellows">Fellows</DropdownLink>
+                                <DropdownLink href="/database-trainees">Trainees</DropdownLink>
+                            </NavDropdown>
 
                             <NavLink href="/peer-group" active={isActive('/peer-group')}>
                                 Peer Group
@@ -179,8 +184,24 @@ export default function MarketplaceLayout({ children }) {
                                     </div>
                                 )}
                             </div>
-                            
-                            <Link href="/database-members" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Residen/Fellow/Trainee</Link>
+
+                            {/* Mobile Database Members */}
+                            <div>
+                                <button
+                                    onClick={() => toggleDropdown('database')}
+                                    className="w-full flex items-center justify-between px-3 py-3 rounded-lg font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition"
+                                >
+                                    Resident/Fellow/Trainee
+                                    <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'database' ? 'rotate-180' : ''}`} />
+                                </button>
+                                {openDropdown === 'database' && (
+                                    <div className="pl-6 space-y-1 mt-1">
+                                        <Link href="/database-residents" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Residents</Link>
+                                        <Link href="/database-fellows" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Fellows</Link>
+                                        <Link href="/database-trainees" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Trainees</Link>
+                                    </div>
+                                )}
+                            </div>
                             <Link href="/peer-group" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Peer Group</Link>
                             <Link href="/calendar-academic" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Academic Calendar</Link>
                             <Link href="/about-us" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>About Us</Link>
@@ -233,7 +254,9 @@ export default function MarketplaceLayout({ children }) {
                             <ul className="space-y-2 text-sm text-gray-700">
                                 <li><Link href="/" className="hover:text-blue-600 transition">Home</Link></li>
                                 <li><Link href="/profile-study-program/ppds1" className="hover:text-blue-600 transition">Study Program Profile</Link></li>
-                                <li><Link href="/database-members" className="hover:text-blue-600 transition">Residen/Fellow/Trainee</Link></li>
+                                <li><Link href="/database-residents" className="hover:text-blue-600 transition">Residents</Link></li>
+                                <li><Link href="/database-fellows" className="hover:text-blue-600 transition">Fellows</Link></li>
+                                <li><Link href="/database-trainees" className="hover:text-blue-600 transition">Trainees</Link></li>
                                 <li><Link href="/calendar-academic" className="hover:text-blue-600 transition">Academic Calendar</Link></li>
                                 <li><Link href="/peer-group" className="hover:text-blue-600 transition">Peer Group</Link></li>
                                 <li><Link href="/about-us" className="hover:text-blue-600 transition">About Us</Link></li>

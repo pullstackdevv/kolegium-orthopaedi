@@ -132,10 +132,18 @@ Route::get('/about-us', function () {
     return Inertia::render('AboutUs');
 })->name('about.us');
 
-// Database Members - Public Access
-Route::get('/database-members', function () {
-    return Inertia::render('DatabaseMembers');
-})->name('database.members');
+// Database Members - Public Access (Separate pages)
+Route::get('/database-residents', function () {
+    return Inertia::render('Database/DatabaseResidents');
+})->name('database.residents');
+
+Route::get('/database-fellows', function () {
+    return Inertia::render('Database/DatabaseFellows');
+})->name('database.fellows');
+
+Route::get('/database-trainees', function () {
+    return Inertia::render('Database/DatabaseTrainees');
+})->name('database.trainees');
 
 // Login routes
 Route::middleware('guest')->group(function () {

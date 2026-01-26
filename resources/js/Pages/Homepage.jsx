@@ -495,7 +495,7 @@ export default function Homepage() {
             { name: 'Male', value: 628 },
             { name: 'Female', value: 46 }
           ],
-          colors: ['#3b82f6', '#93c5fd'],
+          colors: ['#3b82f6', '#ec4899'],
           legends: [
             { label: 'Male', value: 628 },
             { label: 'Female', value: 46 }
@@ -508,7 +508,7 @@ export default function Homepage() {
             { name: 'Graduated', value: 1157 },
             { name: 'Active Students', value: 678 }
           ],
-          colors: ['#10b981', '#86efac'],
+          colors: ['#10b981', '#f59e0b'],
           legends: [
             { label: 'Graduated', value: 1157 },
             { label: 'Active Students', value: 678 }
@@ -532,7 +532,7 @@ export default function Homepage() {
             { name: 'RSUD Dr. Moewardi Solo', value: 1 },
             { name: 'RSO SOEHARSO', value: 9 }
           ],
-          colors: ['#10b981', '#86efac', '#34d399', '#6ee7b7'],
+          colors: ['#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6'],
           legends: [
             { label: 'RSUD Dr. Saiful Anwar Malang', value: 6 },
             { label: 'RSUP Dr. Hasan Sadikin Bandung', value: 10 },
@@ -577,7 +577,7 @@ export default function Homepage() {
             { name: 'Male', value: 2 },
             { name: 'Female', value: 39 }
           ],
-          colors: ['#3b82f6', '#93c5fd'],
+          colors: ['#3b82f6', '#ec4899'],
           legends: [
             { label: 'Male', value: 2 },
             { label: 'Female', value: 39 }
@@ -590,7 +590,7 @@ export default function Homepage() {
             { name: 'Graduated', value: 21 },
             { name: 'Active Students', value: 21 }
           ],
-          colors: ['#10b981', '#86efac'],
+          colors: ['#10b981', '#f59e0b'],
           legends: [
             { label: 'Graduated', value: 21 },
             { label: 'Active Students', value: 21 }
@@ -611,7 +611,7 @@ export default function Homepage() {
             { name: 'FK UI', value: 20 },
             { name: 'FK UNAIR', value: 20 }
           ],
-          colors: ['#dc2626', '#fca5a5'],
+          colors: ['#dc2626', '#3b82f6'],
           legends: [
             { label: 'FK UI', value: 20 },
             { label: 'FK UNAIR', value: 20 }
@@ -653,7 +653,7 @@ export default function Homepage() {
             { name: 'Male', value: 5 },
             { name: 'Female', value: 59 }
           ],
-          colors: ['#3b82f6', '#93c5fd'],
+          colors: ['#3b82f6', '#ec4899'],
           legends: [
             { label: 'Male', value: 5 },
             { label: 'Female', value: 59 }
@@ -666,7 +666,7 @@ export default function Homepage() {
             { name: 'Grad', value: 35 },
             { name: 'Active', value: 64 }
           ],
-          colors: ['#10b981', '#86efac'],
+          colors: ['#10b981', '#f59e0b'],
           legends: [
             { label: 'Grad', value: 35 },
             { label: 'Active', value: 64 }
