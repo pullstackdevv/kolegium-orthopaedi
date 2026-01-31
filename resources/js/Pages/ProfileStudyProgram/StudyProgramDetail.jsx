@@ -343,531 +343,558 @@ export default function StudyProgramDetail({ university, type }) {
                   <p className="text-sm text-gray-700 leading-relaxed">
                     The Orthopedics and Traumatology Subspecialty Doctor Education Program (Sp-2) aims to train Orthopedic and Traumatology Specialists with balanced academic and clinical skills, enabling them to address various orthopedic and traumatology issues in the community.
                   </p>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    The Sp2 Orthopedic and Traumatology Study Program at the Faculty of Medicine, University of Indonesia (FKUI) is the highest level of professional academic education, a continuation of the Orthopedic and Traumatology Specialist Education.
-                  </p>
+              <p className="text-sm text-gray-700 leading-relaxed">
+                The Sp2 Orthopedic and Traumatology Study Program at the Faculty of Medicine, University of Indonesia (FKUI) is the highest level of professional academic education, a continuation of the Orthopedic and Traumatology Specialist Education.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Icon icon="mdi:calendar-outline" className="w-6 h-6 text-blue-600" />
                 </div>
-                
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Icon icon="mdi:calendar-outline" className="w-6 h-6 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-600 font-medium">Program Duration</p>
-                      <p className="text-sm font-semibold text-gray-900">8 Semester</p>
-                    </div>
+                <div>
+                  <p className="text-xs text-gray-600 font-medium">Program Duration</p>
+                  <p className="text-sm font-semibold text-gray-900">8 Semester</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Icon icon="mdi:medal-outline" className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-600 font-medium">Accreditation</p>
+                  <p className="text-sm font-semibold text-gray-900">A - LAM PT Kes</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Educational Dashboard */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+            <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+              <Icon icon="mdi:chart-donut" className="w-5 h-5" />
+              Educational Dashboard
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              {/* Residen Chart */}
+              <div className="text-center">
+                <div className="flex justify-center mb-2">
+                  <DonutChart
+                    data={[
+                      { name: 'Residen Aktif', value: 65 },
+                      { name: 'Lainnya', value: 35 }
+                    ]}
+                    colors={['#3B82F6', '#E5E7EB']}
+                    centerText="65"
+                    size={120}
+                  />
+                </div>
+                <p className="text-xs font-semibold text-gray-900">Resident</p>
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <span className="text-[10px] text-gray-600">Active: 65</span>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Icon icon="mdi:medal-outline" className="w-6 h-6 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-600 font-medium">Accreditation</p>
-                      <p className="text-sm font-semibold text-gray-900">A - LAM PT Kes</p>
-                    </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                    <span className="text-[10px] text-gray-600">Total: 100</span>
                   </div>
                 </div>
               </div>
 
-              {/* Educational Dashboard */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
-                  <Icon icon="mdi:chart-donut" className="w-5 h-5" />
-                  Educational Dashboard
-                </h2>
-                <div className="grid grid-cols-2 gap-4">
-                  {/* Residen Chart */}
-                  <div className="text-center">
-                    <div className="flex justify-center mb-2">
-                      <DonutChart
-                        data={[
-                          { name: 'Residen Aktif', value: 65 },
-                          { name: 'Lainnya', value: 35 }
-                        ]}
-                        colors={['#3B82F6', '#E5E7EB']}
-                        centerText="65"
-                        size={120}
-                      />
-                    </div>
-                    <p className="text-xs font-semibold text-gray-900">Resident</p>
-                    <div className="flex items-center justify-center gap-2 mt-2">
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                        <span className="text-[10px] text-gray-600">Active: 65</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-                        <span className="text-[10px] text-gray-600">Total: 100</span>
-                      </div>
-                    </div>
+              {/* Alumni Chart */}
+              <div className="text-center">
+                <div className="flex justify-center mb-2">
+                  <DonutChart
+                    data={[
+                      { name: 'Alumni', value: 450 },
+                      { name: 'Lainnya', value: 50 }
+                    ]}
+                    colors={['#EC4899', '#E5E7EB']}
+                    centerText="450"
+                    size={120}
+                  />
+                </div>
+                <p className="text-xs font-semibold text-gray-900">Alumni</p>
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-pink-500"></div>
+                    <span className="text-[10px] text-gray-600">Alumni: 450</span>
                   </div>
-
-                  {/* Alumni Chart */}
-                  <div className="text-center">
-                    <div className="flex justify-center mb-2">
-                      <DonutChart
-                        data={[
-                          { name: 'Alumni', value: 450 },
-                          { name: 'Lainnya', value: 50 }
-                        ]}
-                        colors={['#EC4899', '#E5E7EB']}
-                        centerText="450"
-                        size={120}
-                      />
-                    </div>
-                    <p className="text-xs font-semibold text-gray-900">Alumni</p>
-                    <div className="flex items-center justify-center gap-2 mt-2">
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-pink-500"></div>
-                        <span className="text-[10px] text-gray-600">Alumni: 450</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-                        <span className="text-[10px] text-gray-600">Total: 500</span>
-                      </div>
-                    </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                    <span className="text-[10px] text-gray-600">Total: 500</span>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
 
-              {/* Faculty of Medicine */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
-                  <Icon icon="mdi:school-outline" className="w-5 h-5" />
-                  Faculty of Medicine, University of Indonesia
-                </h2>
-                <div className="grid grid-cols-2 gap-4">
-                  {universityData.staffList.slice(0, 2).map((staff, index) => (
-                    <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                      <div className="flex items-start gap-3 mb-3">
-                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                          <Icon icon="mdi:account" className="w-6 h-6 text-blue-600" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-semibold text-gray-900 leading-tight">
-                            {staff.name}
-                          </h4>
-                          <p className="text-xs text-gray-600 mt-1">
-                            {index === 0 ? "Head of Study Program" : "Secretary of Study Program"}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 text-xs text-blue-600">
-                        <Icon icon="mdi:email-outline" className="w-3 h-3" />
-                        <span>{index === 0 ? "ihsan@orthopaedi.id" : "@orthopaedi.id"}</span>
-                      </div>
+          {/* Faculty of Medicine */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+            <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+              <Icon icon="mdi:school-outline" className="w-5 h-5" />
+              Faculty of Medicine, University of Indonesia
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              {universityData.staffList.slice(0, 2).map((staff, index) => (
+                <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Icon icon="mdi:account" className="w-6 h-6 text-blue-600" />
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Teaching Staff */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
-                  <Icon icon="mdi:account-group" className="w-5 h-5" />
-                  Teaching Staff
-                </h2>
-                <div className="grid grid-cols-3 gap-3">
-                  {universityData.staffList.map((staff, index) => (
-                    <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200 text-center">
-                      <div className="w-14 h-14 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <Icon icon="mdi:account" className="w-8 h-8 text-gray-400" />
-                      </div>
-                      <p className="text-xs font-semibold text-gray-900 leading-tight">
-                        {staff.name.split(',')[0]}
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-semibold text-gray-900 leading-tight">
+                        {staff.name}
+                      </h4>
+                      <p className="text-xs text-gray-600 mt-1">
+                        {index === 0 ? "Head of Study Program" : "Secretary of Study Program"}
                       </p>
-                      <p className="text-[10px] text-gray-600 mt-1">{staff.specialization}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Contact */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
-                  <Icon icon="mdi:map-marker" className="w-5 h-5" />
-                  Contact
-                </h2>
-                <div className="space-y-3">
-                  <div className="flex items-start gap-2">
-                    <MapPin className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <div className="text-xs font-semibold text-gray-900">Address</div>
-                      <div className="text-xs text-gray-700">{universityData.contact.address}</div>
                     </div>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <Mail className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <div className="text-xs font-semibold text-gray-900">Email</div>
-                      <a href={`mailto:${universityData.contact.email}`} className="text-xs text-blue-600 hover:underline">
-                        {universityData.contact.email}
-                      </a>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Phone className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <div className="text-xs font-semibold text-gray-900">Phone</div>
-                      <a href={`tel:${universityData.contact.phone}`} className="text-xs text-blue-600 hover:underline">
-                        {universityData.contact.phone}
-                      </a>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Globe className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <div className="text-xs font-semibold text-gray-900">Website</div>
-                      <a href={`https://${universityData.contact.website}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">
-                        {universityData.contact.website}
-                      </a>
-                    </div>
+                  <div className="flex items-center gap-1 text-xs text-blue-600">
+                    <Icon icon="mdi:email-outline" className="w-3 h-3" />
+                    <span>{index === 0 ? "ihsan@orthopaedi.id" : "@orthopaedi.id"}</span>
                   </div>
                 </div>
-              </div>
+              ))}
+            </div>
+          </div>
 
-              {/* Faculty of Medicine */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
-                  <Icon icon="mdi:school-outline" className="w-5 h-5" />
-                  Faculty of Medicine
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {universityData.staffList.slice(0, 4).map((staff, index) => (
-                    <div key={index} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                          <Icon icon="mdi:account" className="w-6 h-6 text-blue-600" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-xs font-semibold text-gray-900">
-                            {staff.name}
-                          </h4>
-                          <p className="text-xs text-gray-600">{staff.specialization}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+          {/* Teaching Staff */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+            <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+              <Icon icon="mdi:account-group" className="w-5 h-5" />
+              Teaching Staff
+            </h2>
+            <div className="grid grid-cols-3 gap-3">
+              {universityData.staffList.map((staff, index) => (
+                <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200 text-center">
+                  <div className="w-14 h-14 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <Icon icon="mdi:account" className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <p className="text-xs font-semibold text-gray-900 leading-tight">
+                    {staff.name.split(',')[0]}
+                  </p>
+                  <p className="text-[10px] text-gray-600 mt-1">{staff.specialization}</p>
                 </div>
-                <Link href="#" className="text-sm text-blue-600 hover:underline mt-4 inline-block">View All Staff</Link>
-              </div>
+              ))}
+            </div>
+          </div>
 
-              {/* Teaching Staff */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
-                  <Icon icon="mdi:account-group" className="w-5 h-5" />
-                  Teaching Staff
-                </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {universityData.staffList.map((staff, index) => (
-                    <div key={index} className="bg-gray-50 rounded-lg p-3 border border-gray-200 text-center">
-                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <Icon icon="mdi:account" className="w-7 h-7 text-blue-600" />
-                      </div>
-                      <p className="text-[10px] text-gray-900 font-medium leading-tight">{staff.name.split(' ').slice(0, 2).join(' ')}</p>
-                      <p className="text-[9px] text-gray-600 mt-1">{staff.specialization}</p>
+          {showDetailModal && selectedEvent && (
+            <div
+              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+              onClick={() => setShowDetailModal(false)}
+            >
+              <div
+                className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className={`p-6 rounded-t-xl ${selectedEvent.dotClass || "bg-blue-600"}`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-white" />
+                      <span className="text-white font-medium text-sm">
+                        {selectedEvent.dateLabel || "-"}
+                      </span>
                     </div>
-                  ))}
+                    <button
+                      onClick={() => setShowDetailModal(false)}
+                      className="text-white hover:text-gray-200 transition-colors"
+                      type="button"
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+                  </div>
+                  <h3 className="text-xl font-bold text-white">{selectedEvent.title}</h3>
                 </div>
-                <Link href="#" className="text-sm text-blue-600 hover:underline mt-4 inline-block">View All Teaching Staff</Link>
-              </div>
+                <div className="p-6 overflow-y-auto flex-1">
+                  <div className="mb-4 overflow-hidden rounded-lg border border-gray-200">
+                    <img
+                      src={selectedEvent.image || DEFAULT_EVENT_IMAGE}
+                      alt={selectedEvent.title}
+                      className="w-full h-48 object-cover"
+                      onError={(e) => {
+                        if (e.currentTarget.dataset.fallbackApplied === "1") return;
+                        e.currentTarget.dataset.fallbackApplied = "1";
+                        e.currentTarget.src = DEFAULT_EVENT_IMAGE;
+                      }}
+                    />
+                  </div>
 
-              {/* Academic Activities */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
-                  <Icon icon="mdi:calendar-check" className="w-5 h-5" />
-                  Academic Activities
-                </h2>
-                <div className="space-y-3">
-                  {academicActivitiesLoading ? (
-                    <div className="text-xs text-gray-600">Loading activities...</div>
-                  ) : academicActivities.length === 0 ? (
-                    <div className="text-xs text-gray-600">No activities available.</div>
-                  ) : (
-                    academicActivities.map((item, index) => (
-                      <div
-                        key={item.id || index}
-                        className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-all duration-300"
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <span className="text-sm text-gray-700">{item.dateLabel}</span>
-                            <span className="text-gray-400">•</span>
-                            <span className={`${item.badgeClass} text-xs font-semibold px-3 py-1 rounded`}>{item.badge}</span>
-                          </div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-500 mb-1">Event Type</label>
+                    <div className="flex items-center gap-2">
+                      <div className={`w-3 h-3 rounded-full ${selectedEvent.dotClass || "bg-blue-600"}`}></div>
+                      <span className="text-gray-900 font-medium">{selectedEvent.badge || "-"}</span>
+                    </div>
+                  </div>
+
+                  {selectedEvent.description && (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-500 mb-1">Description</label>
+                      <div className="text-gray-700">
+                        <p className={`${!showFullDescription && selectedEvent.description.length > 200 ? "line-clamp-3" : ""}`}>
+                          {selectedEvent.description}
+                        </p>
+                        {selectedEvent.description.length > 200 && (
                           <button
                             type="button"
-                            className="text-sm text-blue-600 hover:underline"
-                            onClick={() => openDetailModal(item)}
+                            onClick={() => setShowFullDescription(!showFullDescription)}
+                            className="text-blue-600 hover:text-blue-700 text-sm font-medium mt-2 flex items-center gap-1"
                           >
-                            Detail
-                          </button>
-                        </div>
-                        <h4 className="text-base font-bold text-gray-900 leading-snug">{item.title}</h4>
-                        <p className="text-sm text-gray-600 mt-1">{item.location || "-"}</p>
-                      </div>
-                    ))
-                  )}
-                </div>
-                <Link href="/calendar-academic" className="text-sm text-blue-600 hover:underline mt-3 inline-block">View All Activities</Link>
-              </div>
-
-              {showDetailModal && selectedEvent && (
-                <div
-                  className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-                  onClick={() => setShowDetailModal(false)}
-                >
-                  <div
-                    className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div className={`p-6 rounded-t-xl ${selectedEvent.dotClass || "bg-blue-600"}`}>
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-5 h-5 text-white" />
-                          <span className="text-white font-medium text-sm">
-                            {selectedEvent.dateLabel || "-"}
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => setShowDetailModal(false)}
-                          className="text-white hover:text-gray-200 transition-colors"
-                          type="button"
-                        >
-                          <X className="w-6 h-6" />
-                        </button>
-                      </div>
-                      <h3 className="text-xl font-bold text-white">{selectedEvent.title}</h3>
-                    </div>
-                    <div className="p-6 overflow-y-auto flex-1">
-                      <div className="mb-4 overflow-hidden rounded-lg border border-gray-200">
-                        <img
-                          src={selectedEvent.image || DEFAULT_EVENT_IMAGE}
-                          alt={selectedEvent.title}
-                          className="w-full h-48 object-cover"
-                          onError={(e) => {
-                            if (e.currentTarget.dataset.fallbackApplied === "1") return;
-                            e.currentTarget.dataset.fallbackApplied = "1";
-                            e.currentTarget.src = DEFAULT_EVENT_IMAGE;
-                          }}
-                        />
-                      </div>
-
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-500 mb-1">Event Type</label>
-                        <div className="flex items-center gap-2">
-                          <div className={`w-3 h-3 rounded-full ${selectedEvent.dotClass || "bg-blue-600"}`}></div>
-                          <span className="text-gray-900 font-medium">{selectedEvent.badge || "-"}</span>
-                        </div>
-                      </div>
-
-                      {selectedEvent.description && (
-                        <div className="mb-4">
-                          <label className="block text-sm font-medium text-gray-500 mb-1">Description</label>
-                          <div className="text-gray-700">
-                            <p className={`${!showFullDescription && selectedEvent.description.length > 200 ? "line-clamp-3" : ""}`}>
-                              {selectedEvent.description}
-                            </p>
-                            {selectedEvent.description.length > 200 && (
-                              <button
-                                type="button"
-                                onClick={() => setShowFullDescription(!showFullDescription)}
-                                className="text-blue-600 hover:text-blue-700 text-sm font-medium mt-2 flex items-center gap-1"
-                              >
-                                {showFullDescription ? (
-                                  <>
-                                    Show Less <ChevronUp className="w-4 h-4" />
-                                  </>
-                                ) : (
-                                  <>
-                                    Show More <ChevronDown className="w-4 h-4" />
-                                  </>
-                                )}
-                              </button>
+                            {showFullDescription ? (
+                              <>
+                                Show Less <ChevronUp className="w-4 h-4" />
+                              </>
+                            ) : (
+                              <>
+                                Show More <ChevronDown className="w-4 h-4" />
+                              </>
                             )}
-                          </div>
-                        </div>
-                      )}
-
-                      {selectedEvent.location && (
-                        <div className="mb-4">
-                          <label className="block text-sm font-medium text-gray-500 mb-1">Location</label>
-                          <p className="text-gray-700 flex items-center gap-2">
-                            <MapPin className="w-4 h-4 text-gray-500" />
-                            {selectedEvent.location}
-                          </p>
-                        </div>
-                      )}
-
-                      {selectedEvent.registration && (
-                        <div className="mb-4">
-                          <label className="block text-sm font-medium text-gray-500 mb-1">Registration</label>
-                          <a
-                            href={selectedEvent.registration}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-700 hover:underline break-all"
-                          >
-                            {selectedEvent.registration}
-                          </a>
-                        </div>
-                      )}
-
-                      <div className="flex gap-3">
-                        <button
-                          onClick={() => setShowDetailModal(false)}
-                          className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                          type="button"
-                        >
-                          Close
-                        </button>
+                          </button>
+                        )}
                       </div>
                     </div>
+                  )}
+
+                  {selectedEvent.location && (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-500 mb-1">Location</label>
+                      <p className="text-gray-700 flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-gray-500" />
+                        {selectedEvent.location}
+                      </p>
+                    </div>
+                  )}
+
+                  {selectedEvent.registration && (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-500 mb-1">Registration</label>
+                      <a
+                        href={selectedEvent.registration}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-700 hover:underline break-all"
+                      >
+                        {selectedEvent.registration}
+                      </a>
+                    </div>
+                  )}
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setShowDetailModal(false)}
+                      className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                      type="button"
+                    >
+                      Close
+                    </button>
                   </div>
                 </div>
-              )}
+              </div>
+            </div>
+          )}
 
-              {/* Gallery */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
-                  <Icon icon="mdi:image-multiple" className="w-5 h-5" />
-                  Gallery
+          {/* Gallery */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+            <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+              <Icon icon="mdi:image-multiple" className="w-5 h-5" />
+              Gallery
+            </h2>
+            <div className="grid grid-cols-2 gap-3">
+              {(universityData.gallery || []).map((item, index) => (
+                <div key={index} className="relative rounded-lg overflow-hidden bg-gradient-to-br from-blue-100 to-blue-200 h-32">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-2">
+                    <p className="text-white text-xs font-semibold">{item.title}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        
+          {/* Right Column - Sidebar */}
+          <div className="lg:col-span-1 space-y-4">
+            {/* Resident Data */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-0">
+              <div className="p-6 border-b border-gray-200">
+                <h2 className="text-2xl font-bold text-blue-700">
+                  Resident Data
                 </h2>
-                <div className="grid grid-cols-2 gap-3">
-                  {universityData.gallery.map((item, index) => (
-                    <div key={index} className="relative rounded-lg overflow-hidden bg-gradient-to-br from-blue-100 to-blue-200 h-32">
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-2">
-                        <p className="text-white text-xs font-semibold">{item.title}</p>
-                      </div>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-semibold text-blue-700">Active Resident</h3>
+                    <div className="text-4xl font-bold text-blue-700">
+                      {universityData.stats.activeResidents}
                     </div>
-                  ))}
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    Total residents currently undergoing education
+                  </p>
+                </div>
+
+                <Link
+                  href={`/profile-study-program/${type}/${universityData.id}/database`}
+                  className="w-full bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold py-3 px-4 rounded-lg transition-colors border-2 border-blue-300 text-center block"
+                >
+                  View Resident Details
+                </Link>
+              </div>
+            </div>
+
+            {/* Contact */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-0">
+              <div className="p-6 border-b border-gray-200">
+                <h2 className="text-2xl font-bold text-blue-700">
+                  Contact
+                </h2>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-blue-700 mb-1">Address</h3>
+                    <p className="text-xs text-gray-600">{universityData.contact.address}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-blue-700 mb-1">Phone</h3>
+                    <a href={`tel:${universityData.contact.phone}`} className="text-xs text-blue-600 hover:underline">
+                      {universityData.contact.phone}
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Mail className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-blue-700 mb-1">E-mail</h3>
+                    <a href={`mailto:${universityData.contact.email}`} className="text-xs text-blue-600 hover:underline">
+                      {universityData.contact.email}
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Right Column - Sidebar */}
-            <div className="lg:col-span-1 space-y-4">
-              {/* Resident Data */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-0">
-                <div className="p-6 border-b border-gray-200">
-                  <h2 className="text-2xl font-bold text-blue-700">
-                    Resident Data
-                  </h2>
-                </div>
-                
-                <div className="p-6 space-y-4">
-                  <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-6">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-lg font-semibold text-blue-700">Active Resident</h3>
-                      <div className="text-4xl font-bold text-blue-700">
-                        {universityData.stats.activeResidents}
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      Total residents currently undergoing education
-                    </p>
-                  </div>
-
-                  <Link 
-                    href={`/profile-study-program/${type}/${universityData.id}/database`}
-                    className="w-full bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold py-3 px-4 rounded-lg transition-colors border-2 border-blue-300 text-center block"
-                  >
-                    View Resident Details
-                  </Link>
-                </div>
-              </div>
-
-              {/* Teaching Hospitals */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <h3 className="text-sm font-bold text-blue-700 mb-3 flex items-center gap-2">
-                  <Icon icon="mdi:hospital-building" className="w-4 h-4" />
-                  Teaching Hospitals
-                </h3>
-                <ul className="space-y-2 text-xs text-gray-700">
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-600 mt-0.5">•</span>
-                    <span>RSCM Kencana</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-600 mt-0.5">•</span>
-                    <span>RS Fatmawati</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-600 mt-0.5">•</span>
-                    <span>RS Persahabatan</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* System Guides */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <h3 className="text-sm font-bold text-blue-700 mb-3">
-                  System Guides
-                </h3>
-                <p className="text-xs text-gray-700 mb-3">
-                  Complete guide for academic and administrative systems
-                </p>
-                <Link href="#" className="text-xs text-blue-600 hover:underline">Download Guide</Link>
-              </div>
-
-              {/* Well-Being Survey */}
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg shadow-md border border-purple-200 p-6 hover:shadow-lg transition-shadow duration-300">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Heart className="w-6 h-6 text-white" />
-                    </div>
+            {/* Specialization */}
+            <div className="bg-white rounded-lg shadow-sm border-2 border-blue-300 p-6">
+              <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                <Icon icon="mdi:school-outline" className="w-5 h-5" />
+                Specialization
+              </h2>
+              <div className="space-y-3">
+                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                  <div className="flex items-start gap-2">
+                    <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
                     <div>
-                      <h3 className="text-base font-bold text-purple-900">Well-Being Survey</h3>
-                      <p className="text-xs text-purple-700">Mental Health & Wellness</p>
+                      <p className="text-sm font-semibold text-gray-900">Spine</p>
+                      <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.O.T.B</p>
                     </div>
                   </div>
                 </div>
+
+                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                  <div className="flex items-start gap-2">
+                    <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">Hip and Knee</p>
+                      <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.P.L</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                  <div className="flex items-start gap-2">
+                    <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">Oncology Orthopaedics and Reconstructions</p>
+                      <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.Onk.Ort.R</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                  <div className="flex items-start gap-2">
+                    <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">Sport Injury</p>
+                      <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.C.O</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                  <div className="flex items-start gap-2">
+                    <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">Paediatric Orthopaedics</p>
+                      <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.A</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                  <div className="flex items-start gap-2">
+                    <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">Foot and Ankle</p>
+                      <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.K.P</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                  <div className="flex items-start gap-2">
+                    <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">Shoulder and Elbow Orthopaedics</p>
+                      <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.O.B.S</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                  <div className="flex items-start gap-2">
+                    <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">Advanced Orthopaedics</p>
+                      <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.T.L</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                  <div className="flex items-start gap-2">
+                    <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">Hand, Arm and Microsurgery</p>
+                      <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.T.L.B.M</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Academic Activities */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 className="text-2xl font-bold text-blue-700 mb-4">
+                Academic Activities
+              </h2>
+              <div className="space-y-3">
+                {[
+                  {
+                    date: "11 Nov 2025",
+                    badge: "Ujian Nasional",
+                    badgeClass: "bg-blue-600 text-white",
+                    title: "Final Paper Presentation",
+                    location: "Jakarta"
+                  },
+                  {
+                    date: "17 Jan 2026",
+                    badge: "Ujian Nasional",
+                    badgeClass: "bg-blue-600 text-white",
+                    title: "Fellowship Admission Test",
+                    location: "Jakarta"
+                  }
+                ].map((item, index) => (
+                  <div
+                    key={index}
+                    className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-all duration-300"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-sm text-gray-700">{item.date}</span>
+                        <span className="text-gray-400">•</span>
+                        <span className={`${item.badgeClass} text-xs font-semibold px-3 py-1 rounded`}>{item.badge}</span>
+                      </div>
+                      <button
+                        type="button"
+                        className="text-sm text-blue-600 hover:underline"
+                        onClick={() => openDetailModal(item)}
+                      >
+                        Detail
+                      </button>
+                    </div>
+                    <h4 className="text-base font-bold text-gray-900 leading-snug">{item.title}</h4>
+                    <p className="text-sm text-gray-600 mt-1">{item.location}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Teaching Hospitals
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <h3 className="text-sm font-bold text-blue-700 mb-3 flex items-center gap-2">
+                <Icon icon="mdi:hospital-building" className="w-4 h-4" />
+                Teaching Hospitals
+              </h3>
+              <ul className="space-y-2 text-xs text-gray-700">
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600 mt-0.5">•</span>
+                  <span>RSCM Kencana</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600 mt-0.5">•</span>
+                  <span>RS Fatmawati</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600 mt-0.5">•</span>
+                  <span>RS Persahabatan</span>
+                </li>
+              </ul>
+            </div> */}
+
+            {/* Well-Being Survey */}
+            <Link 
+              href={`/wellbeing-survey?code=${universityData.id}`}
+              className="block"
+            >
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 hover:shadow-md transition-shadow duration-300">
+                <h2 className="text-3xl font-bold text-blue-700 mb-8 text-center">
+                  Well-Being Survey
+                </h2>
                 
-                <p className="text-sm text-gray-700 mb-4 leading-relaxed">
-                  Share your experience about mental health and wellness. This survey helps us understand your support needs.
-                </p>
-
-                <div className="bg-white rounded-lg p-3 mb-4 border border-purple-100">
-                  <div className="flex items-center gap-2 text-xs text-gray-600">
-                    <Icon icon="mdi:clock-outline" className="w-4 h-4" />
-                    <span>Time to complete: ~5 minutes</span>
+                <div className="flex flex-col items-center text-center mb-8">
+                  <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6">
+                    <Heart className="w-10 h-10 text-red-700" />
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-gray-600 mt-2">
-                    <Icon icon="mdi:lock-outline" className="w-4 h-4" />
-                    <span>Your response is completely anonymous</span>
-                  </div>
+                  <h3 className="text-xl font-bold text-blue-700 mb-2">Resident Welfare Assessment</h3>
+                  <p className="text-base text-gray-600">Complete surveys to track student well-being</p>
                 </div>
 
-                <Link 
-                  href={`/wellbeing-survey?code=${universityData.name}`}
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
-                >
-                  <Heart className="w-5 h-5" />
-                  Start Survey Now
-                </Link>
-              </div>
-
-              {/* Promo/Forum */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <h3 className="text-sm font-bold text-blue-700 mb-3">
-                  Promo/Forum
-                </h3>
-                <div className="space-y-2 text-xs text-gray-700">
-                  <p>• Orthopaedic Case Discussion</p>
-                  <p>• Free Workshop</p>
-                  <p>• National Seminar 2025</p>
+                <div className="bg-red-50 rounded-lg p-6 mb-6 border border-red-200 hover:bg-red-100 transition-colors duration-300">
+                  <p className="text-center font-bold text-red-700 text-lg">Fill Out the Survey Now</p>
                 </div>
+
+                <p className="text-center text-sm text-gray-500">Duration: ± 10 minutes</p>
               </div>
+            </Link>
+
             </div>
           </div>
         </div>
