@@ -42,33 +42,78 @@ export default function StudyProgramDetail({ university, type }) {
     },
     staffList: [
       {
-        name: "Prof. Dr. Ahmad Jabir, SpOT(K)",
+        name: "Dr. dr. Ihsan Oesman, SpOT(K)",
+        specialization: "Subsp.K.P",
+        image: "/assets/images/staff-placeholder.jpg"
+      },
+      {
+        name: "dr. Muhammad Rizqi Adhi Primaputra, SpOT(K)",
+        specialization: "@orthopaedi.id",
+        image: "/assets/images/staff-placeholder.jpg"
+      },
+      {
+        name: "dr. Ifran Saleh, SpOT(K)",
         specialization: "Spine Surgery",
         image: "/assets/images/staff-placeholder.jpg"
       },
       {
-        name: "Dr. Budi Santoso, SpOT(K)",
-        specialization: "Sports Medicine",
-        image: "/assets/images/staff-placeholder.jpg"
-      },
-      {
-        name: "Dr. Chandra Wijaya, SpOT(K)",
-        specialization: "Hand Surgery",
-        image: "/assets/images/staff-placeholder.jpg"
-      },
-      {
-        name: "Dr. Dian Permata, SpOT(K)",
+        name: "Prof. Dr. dr. Ismail Hadisoebroto Dilogo, SpO.T(K), Subsp.P.L",
         specialization: "Pediatric Ortho",
         image: "/assets/images/staff-placeholder.jpg"
       },
       {
-        name: "Dr. Eko Prasetyo, SpOT(K)",
+        name: "Prof. Dr. dr. Andri MT Lubis, SpO.T(K) , Subsp.C.O",
         specialization: "Trauma",
         image: "/assets/images/staff-placeholder.jpg"
       },
       {
-        name: "Dr. Fajar Rahman, SpOT(K)",
+        name: "Dr. dr. Aryadi Kurniawan, SpO.T(K), Subsp.A",
         specialization: "Joint Replacement",
+        image: "/assets/images/staff-placeholder.jpg"
+      },
+      {
+        name: "Prof. Dr. dr. Achmad Fauzi Kamal, SpOT(K)",
+        specialization: "Hand Surgery",
+        image: "/assets/images/staff-placeholder.jpg"
+      },
+      {
+        name: "Dr. dr. Rahyussalim, SpO.T(K) , Subsp.O. T.B",
+        specialization: "Sports Medicine",
+        image: "/assets/images/staff-placeholder.jpg"
+      },
+      {
+        name: "Dr. dr. Ihsan Oesman, SpO.T(K), Subsp.K.P",
+        specialization: "Spine Surgery",
+        image: "/assets/images/staff-placeholder.jpg"
+      },
+      {
+        name: "Dr. dr. Yogi Prabowo, SpO.T(K), Subsp.Onk. Ort.R",
+        specialization: "Oncology",
+        image: "/assets/images/staff-placeholder.jpg"
+      },
+      {
+        name: "Dr. dr. Wahyu Widodo, SpO.T(K) , Subsp.T.L. B.M",
+        specialization: "Trauma",
+        image: "/assets/images/staff-placeholder.jpg"
+      },
+      {
+        name: "Dr. dr. Ludwig Andribert Powantia Pontoh, SpO.T(K), Subsp.P.L",
+        specialization: "Pediatric Ortho",
+        image: "/assets/images/staff-placeholder.jpg"
+      },
+      {
+        name: "Dr. dr. Didik Librianto, SpOT(K)",
+        specialization: "Hand Surgery",
+        image: "/assets/images/staff-placeholder.jpg"
+      },
+      {
+        name: "dr. Muhammad Rizqi Adhi Primaputra, SpOT(K)",
+        specialization: "Joint Replacement",
+        image: "/assets/images/staff-placeholder.jpg"
+      },
+      {
+        name: "dr. Wildan Latief, SpO.T(K), Subsp.T.L. B.M",
+        specialization: "Trauma",
         image: "/assets/images/staff-placeholder.jpg"
       }
     ],
@@ -229,7 +274,7 @@ export default function StudyProgramDetail({ university, type }) {
           <div className="flex items-center gap-2 text-white text-sm">
             <Link href="/" className="hover:underline">Home</Link>
             <span>/</span>
-            <Link href="/profile-study-program/ppds1" className="hover:underline">PPDS 1</Link>
+            <Link href="/profile-study-program/ppds1" className="hover:underline">Study Program Profile</Link>
             <span>/</span>
             <span>{universityData.name}</span>
           </div>
@@ -289,22 +334,47 @@ export default function StudyProgramDetail({ university, type }) {
             {/* Left Column - Main Content */}
             <div className="lg:col-span-2 space-y-6">
 
-              {/* Profil Singkat */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
-                  <Icon icon="mdi:information-outline" className="w-5 h-5" />
-                  Profil Singkat
+              {/* Short Profile */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 className="text-2xl font-bold text-blue-700 mb-6">
+                  Short Profile
                 </h2>
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  {universityData.profileResident.description}
-                </p>
+                <div className="space-y-4 mb-6">
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    The Orthopedics and Traumatology Subspecialty Doctor Education Program (Sp-2) aims to train Orthopedic and Traumatology Specialists with balanced academic and clinical skills, enabling them to address various orthopedic and traumatology issues in the community.
+                  </p>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    The Sp2 Orthopedic and Traumatology Study Program at the Faculty of Medicine, University of Indonesia (FKUI) is the highest level of professional academic education, a continuation of the Orthopedic and Traumatology Specialist Education.
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Icon icon="mdi:calendar-outline" className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-600 font-medium">Program Duration</p>
+                      <p className="text-sm font-semibold text-gray-900">8 Semester</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Icon icon="mdi:medal-outline" className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-600 font-medium">Accreditation</p>
+                      <p className="text-sm font-semibold text-gray-900">A - LAM PT Kes</p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Educational Dashboard FK-UI */}
+              {/* Educational Dashboard */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
                 <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
                   <Icon icon="mdi:chart-donut" className="w-5 h-5" />
-                  Educational Dashboard FK-UI
+                  Educational Dashboard
                 </h2>
                 <div className="grid grid-cols-2 gap-4">
                   {/* Residen Chart */}
@@ -320,11 +390,11 @@ export default function StudyProgramDetail({ university, type }) {
                         size={120}
                       />
                     </div>
-                    <p className="text-xs font-semibold text-gray-900">Residen</p>
+                    <p className="text-xs font-semibold text-gray-900">Resident</p>
                     <div className="flex items-center justify-center gap-2 mt-2">
                       <div className="flex items-center gap-1">
                         <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                        <span className="text-[10px] text-gray-600">Aktif: 65</span>
+                        <span className="text-[10px] text-gray-600">Active: 65</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <div className="w-2 h-2 rounded-full bg-gray-300"></div>
@@ -361,30 +431,69 @@ export default function StudyProgramDetail({ university, type }) {
                 </div>
               </div>
 
-              {/* Data Residen */}
+              {/* Faculty of Medicine */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
                 <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
-                  <Icon icon="mdi:chart-box-outline" className="w-5 h-5" />
-                  Data Residen
+                  <Icon icon="mdi:school-outline" className="w-5 h-5" />
+                  Faculty of Medicine, University of Indonesia
                 </h2>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm text-gray-700">Total Residen Aktif</span>
-                  <span className="text-2xl font-bold text-blue-600">{universityData.stats.activeResidents}</span>
+                <div className="grid grid-cols-2 gap-4">
+                  {universityData.staffList.slice(0, 2).map((staff, index) => (
+                    <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Icon icon="mdi:account" className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-semibold text-gray-900 leading-tight">
+                            {staff.name}
+                          </h4>
+                          <p className="text-xs text-gray-600 mt-1">
+                            {index === 0 ? "Head of Study Program" : "Secretary of Study Program"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-blue-600">
+                        <Icon icon="mdi:email-outline" className="w-3 h-3" />
+                        <span>{index === 0 ? "ihsan@orthopaedi.id" : "@orthopaedi.id"}</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <Link href={`/profile-study-program/${type}/${universityData.id}/database`} className="text-sm text-blue-600 hover:underline">Lihat Detail Data Base</Link>
               </div>
 
-              {/* Kontak Sekretariat */}
+              {/* Teaching Staff */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                  <Icon icon="mdi:account-group" className="w-5 h-5" />
+                  Teaching Staff
+                </h2>
+                <div className="grid grid-cols-3 gap-3">
+                  {universityData.staffList.map((staff, index) => (
+                    <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200 text-center">
+                      <div className="w-14 h-14 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <Icon icon="mdi:account" className="w-8 h-8 text-gray-400" />
+                      </div>
+                      <p className="text-xs font-semibold text-gray-900 leading-tight">
+                        {staff.name.split(',')[0]}
+                      </p>
+                      <p className="text-[10px] text-gray-600 mt-1">{staff.specialization}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Contact */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
                 <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
                   <Icon icon="mdi:map-marker" className="w-5 h-5" />
-                  Kontak Sekretariat
+                  Contact
                 </h2>
                 <div className="space-y-3">
                   <div className="flex items-start gap-2">
                     <MapPin className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                     <div>
-                      <div className="text-xs font-semibold text-gray-900">Alamat</div>
+                      <div className="text-xs font-semibold text-gray-900">Address</div>
                       <div className="text-xs text-gray-700">{universityData.contact.address}</div>
                     </div>
                   </div>
@@ -400,7 +509,7 @@ export default function StudyProgramDetail({ university, type }) {
                   <div className="flex items-start gap-2">
                     <Phone className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                     <div>
-                      <div className="text-xs font-semibold text-gray-900">Telepon</div>
+                      <div className="text-xs font-semibold text-gray-900">Phone</div>
                       <a href={`tel:${universityData.contact.phone}`} className="text-xs text-blue-600 hover:underline">
                         {universityData.contact.phone}
                       </a>
@@ -418,11 +527,11 @@ export default function StudyProgramDetail({ university, type }) {
                 </div>
               </div>
 
-              {/* Fakultas Kedokteran Universitas Indonesia */}
+              {/* Faculty of Medicine */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
                 <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
                   <Icon icon="mdi:school-outline" className="w-5 h-5" />
-                  Fakultas Kedokteran Universitas Indonesia
+                  Faculty of Medicine
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {universityData.staffList.slice(0, 4).map((staff, index) => (
@@ -441,14 +550,14 @@ export default function StudyProgramDetail({ university, type }) {
                     </div>
                   ))}
                 </div>
-                <Link href="#" className="text-sm text-blue-600 hover:underline mt-4 inline-block">Lihat Semua Staf</Link>
+                <Link href="#" className="text-sm text-blue-600 hover:underline mt-4 inline-block">View All Staff</Link>
               </div>
 
-              {/* Staf Pengajar */}
+              {/* Teaching Staff */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
                 <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
                   <Icon icon="mdi:account-group" className="w-5 h-5" />
-                  Staf Pengajar
+                  Teaching Staff
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                   {universityData.staffList.map((staff, index) => (
@@ -461,20 +570,20 @@ export default function StudyProgramDetail({ university, type }) {
                     </div>
                   ))}
                 </div>
-                <Link href="#" className="text-sm text-blue-600 hover:underline mt-4 inline-block">Lihat Semua Staf Pengajar</Link>
+                <Link href="#" className="text-sm text-blue-600 hover:underline mt-4 inline-block">View All Teaching Staff</Link>
               </div>
 
-              {/* Kegiatan Akademik */}
+              {/* Academic Activities */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
                 <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
                   <Icon icon="mdi:calendar-check" className="w-5 h-5" />
-                  Kegiatan Akademik
+                  Academic Activities
                 </h2>
                 <div className="space-y-3">
                   {academicActivitiesLoading ? (
-                    <div className="text-xs text-gray-600">Memuat kegiatan...</div>
+                    <div className="text-xs text-gray-600">Loading activities...</div>
                   ) : academicActivities.length === 0 ? (
-                    <div className="text-xs text-gray-600">Belum ada kegiatan.</div>
+                    <div className="text-xs text-gray-600">No activities available.</div>
                   ) : (
                     academicActivities.map((item, index) => (
                       <div
@@ -501,7 +610,7 @@ export default function StudyProgramDetail({ university, type }) {
                     ))
                   )}
                 </div>
-                <Link href="/calendar-academic" className="text-sm text-blue-600 hover:underline mt-3 inline-block">Lihat Semua Kegiatan</Link>
+                <Link href="/calendar-academic" className="text-sm text-blue-600 hover:underline mt-3 inline-block">View All Activities</Link>
               </div>
 
               {showDetailModal && selectedEvent && (
@@ -619,11 +728,11 @@ export default function StudyProgramDetail({ university, type }) {
                 </div>
               )}
 
-              {/* Galeri */}
+              {/* Gallery */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
                 <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
                   <Icon icon="mdi:image-multiple" className="w-5 h-5" />
-                  Galeri
+                  Gallery
                 </h2>
                 <div className="grid grid-cols-2 gap-3">
                   {universityData.gallery.map((item, index) => (
@@ -647,24 +756,41 @@ export default function StudyProgramDetail({ university, type }) {
 
             {/* Right Column - Sidebar */}
             <div className="lg:col-span-1 space-y-4">
-              {/* Data Residen */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <h3 className="text-sm font-bold text-blue-700 mb-3">
-                  Data Residen
-                </h3>
-                <div className="bg-blue-50 rounded-lg p-3 text-center">
-                  <div className="text-3xl font-bold text-blue-600 mb-1">
-                    {universityData.stats.activeResidents}
+              {/* Resident Data */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-0">
+                <div className="p-6 border-b border-gray-200">
+                  <h2 className="text-2xl font-bold text-blue-700">
+                    Resident Data
+                  </h2>
+                </div>
+                
+                <div className="p-6 space-y-4">
+                  <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-semibold text-blue-700">Active Resident</h3>
+                      <div className="text-4xl font-bold text-blue-700">
+                        {universityData.stats.activeResidents}
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Total residents currently undergoing education
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-600">Total Residen Aktif</p>
+
+                  <Link 
+                    href={`/profile-study-program/${type}/${universityData.id}/database`}
+                    className="w-full bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold py-3 px-4 rounded-lg transition-colors border-2 border-blue-300 text-center block"
+                  >
+                    View Resident Details
+                  </Link>
                 </div>
               </div>
 
-              {/* Rumah Sakit Pendidikan */}
+              {/* Teaching Hospitals */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                 <h3 className="text-sm font-bold text-blue-700 mb-3 flex items-center gap-2">
                   <Icon icon="mdi:hospital-building" className="w-4 h-4" />
-                  Rumah Sakit Pendidikan
+                  Teaching Hospitals
                 </h3>
                 <ul className="space-y-2 text-xs text-gray-700">
                   <li className="flex items-start gap-2">
@@ -682,15 +808,15 @@ export default function StudyProgramDetail({ university, type }) {
                 </ul>
               </div>
 
-              {/* Informasi System Guides */}
+              {/* System Guides */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                 <h3 className="text-sm font-bold text-blue-700 mb-3">
-                  Informasi System Guides
+                  System Guides
                 </h3>
                 <p className="text-xs text-gray-700 mb-3">
-                  Panduan lengkap sistem akademik dan administrasi
+                  Complete guide for academic and administrative systems
                 </p>
-                <Link href="#" className="text-xs text-blue-600 hover:underline">Download Panduan</Link>
+                <Link href="#" className="text-xs text-blue-600 hover:underline">Download Guide</Link>
               </div>
 
               {/* Well-Being Survey */}
@@ -702,23 +828,23 @@ export default function StudyProgramDetail({ university, type }) {
                     </div>
                     <div>
                       <h3 className="text-base font-bold text-purple-900">Well-Being Survey</h3>
-                      <p className="text-xs text-purple-700">Kesejahteraan Mental & Kesehatan</p>
+                      <p className="text-xs text-purple-700">Mental Health & Wellness</p>
                     </div>
                   </div>
                 </div>
                 
                 <p className="text-sm text-gray-700 mb-4 leading-relaxed">
-                  Bagikan pengalaman Anda tentang kesejahteraan mental dan kesehatan. Survei ini membantu kami memahami kebutuhan dukungan Anda.
+                  Share your experience about mental health and wellness. This survey helps us understand your support needs.
                 </p>
 
                 <div className="bg-white rounded-lg p-3 mb-4 border border-purple-100">
                   <div className="flex items-center gap-2 text-xs text-gray-600">
                     <Icon icon="mdi:clock-outline" className="w-4 h-4" />
-                    <span>Waktu pengisian: ~5 menit</span>
+                    <span>Time to complete: ~5 minutes</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-600 mt-2">
                     <Icon icon="mdi:lock-outline" className="w-4 h-4" />
-                    <span>Respons Anda sepenuhnya anonim</span>
+                    <span>Your response is completely anonymous</span>
                   </div>
                 </div>
 
@@ -727,7 +853,7 @@ export default function StudyProgramDetail({ university, type }) {
                   className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
                 >
                   <Heart className="w-5 h-5" />
-                  Mulai Survey Sekarang
+                  Start Survey Now
                 </Link>
               </div>
 
@@ -737,9 +863,9 @@ export default function StudyProgramDetail({ university, type }) {
                   Promo/Forum
                 </h3>
                 <div className="space-y-2 text-xs text-gray-700">
-                  <p>• Diskusi Kasus Orthopaedi</p>
-                  <p>• Workshop Gratis</p>
-                  <p>• Seminar Nasional 2025</p>
+                  <p>• Orthopaedic Case Discussion</p>
+                  <p>• Free Workshop</p>
+                  <p>• National Seminar 2025</p>
                 </div>
               </div>
             </div>
