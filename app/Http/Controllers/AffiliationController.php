@@ -37,6 +37,29 @@ class AffiliationController extends Controller
         ]);
     }
 
+    public function getByCode(string $code): JsonResponse
+    {
+        $affiliation = Affiliation::query()
+            ->where('code', $code)
+            ->first();
+
+        if (!$affiliation) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Affiliation not found.',
+            ], 404);
+        }
+
+        if ($affiliation->logo) {
+            $affiliation->logo = Storage::url($affiliation->logo);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $affiliation,
+        ]);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $authUser = Auth::user();
