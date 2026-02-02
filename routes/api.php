@@ -8,6 +8,7 @@ use App\Http\Controllers\AffiliationController;
 use App\Http\Controllers\DatabaseMemberController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WellbeingSurveyController;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -83,8 +84,24 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('database-members/{databaseMember}/upload-photo', [DatabaseMemberController::class, 'uploadPhotoForMember']);
 });
 
+// Database Members - Public Search (for Well-Being Survey verification)
+Route::get('database-members/search', [DatabaseMemberController::class, 'search']);
+
 // Public agenda routes (landing pages)
 Route::get('public/agenda-events', [AgendaEventController::class, 'publicIndex']);
 Route::get('public/affiliations', [AffiliationController::class, 'publicIndex']);
 Route::get('public/database-members', [DatabaseMemberController::class, 'publicIndex']);
 Route::get('public/database-members/all', [DatabaseMemberController::class, 'publicIndexAll']);
+
+// Well-Being Survey Routes - Public (submit survey)
+Route::post('wellbeing-surveys', [WellbeingSurveyController::class, 'store']);
+Route::get('wellbeing-surveys/{surveyId}/result', [WellbeingSurveyController::class, 'getResult']);
+
+// Well-Being Survey Routes - Protected (admin/analytics)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('wellbeing-surveys/stats', [WellbeingSurveyController::class, 'getStats']);
+    Route::get('wellbeing-surveys', [WellbeingSurveyController::class, 'list']);
+});
+
+// Affiliation lookup by code (public)
+Route::get('affiliations/by-code/{code}', [AffiliationController::class, 'getByCode']);

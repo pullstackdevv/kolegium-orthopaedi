@@ -229,7 +229,7 @@ export default function PPDS1() {
             {universities.map((university, index) => (
               <Link
                 key={index}
-                href={university?.id ? `/profile-study-program/ppds1/${university.id}` : `/profile-study-program/ppds1/fk-ui-${index + 1}`}
+                href={university?.affiliationCode ? `/profile-study-program/ppds1/${university.affiliationCode}` : `/profile-study-program/ppds1/fk-ui-${index + 1}`}
                 className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-300 block"
               >
                 {/* University Logo & Name */}

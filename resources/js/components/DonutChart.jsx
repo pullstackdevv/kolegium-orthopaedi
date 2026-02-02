@@ -33,9 +33,7 @@ export default function DonutChart({ data, colors, centerText, size = 180 }) {
           pointFormat: '<b>{point.percentage:.1f}%</b>'
         },
         accessibility: {
-          point: {
-            valueSuffix: '%'
-          }
+          enabled: false
         },
         plotOptions: {
           pie: {

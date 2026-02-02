@@ -50,9 +50,9 @@ Route::get('/profile-study-program/clinical-fellowship/{id}', function ($id) {
     ]);
 })->name('profile.clinical-fellowship.detail');
 
-// Database Members landing page (public)
-Route::get('/profile-study-program/{type}/{id}/database', function ($type, $id) {
-    $affiliation = Affiliation::query()->select(['id', 'name', 'code', 'type'])->findOrFail($id);
+// Database Members landing page (public) - using affiliation code
+Route::get('/profile-study-program/{type}/{code}/database', function ($type, $code) {
+    $affiliation = Affiliation::query()->select(['id', 'name', 'code', 'type'])->where('code', $code)->firstOrFail();
 
     return Inertia::render('ProfileStudyProgram/DatabaseMembersLanding', [
         'type' => $type,
@@ -61,9 +61,9 @@ Route::get('/profile-study-program/{type}/{id}/database', function ($type, $id) 
 })->where('type', 'ppds1|subspesialis')
 ->name('profile.university.database');
 
-// PPDS1 and Subspesialis Detail (same layout)
-Route::get('/profile-study-program/{type}/{id}', function ($type, $id) {
-    $affiliation = Affiliation::query()->select(['id', 'name', 'code', 'type'])->findOrFail($id);
+// PPDS1 and Subspesialis Detail (same layout) - using affiliation code
+Route::get('/profile-study-program/{type}/{code}', function ($type, $code) {
+    $affiliation = Affiliation::query()->select(['id', 'name', 'code', 'type'])->where('code', $code)->firstOrFail();
     $orgType = $type === 'ppds1' ? 'resident' : ($type === 'subspesialis' ? 'trainee' : null);
 
     $activeResidents = 0;
@@ -75,43 +75,79 @@ Route::get('/profile-study-program/{type}/{id}', function ($type, $id) {
             ->count();
     }
 
-    return Inertia::render('ProfileStudyProgram/UniversityDetail', [
+    return Inertia::render('ProfileStudyProgram/StudyProgramDetail', [
         'type' => $type,
         'university' => [
             'id' => $affiliation->id,
+            'code' => $affiliation->code,
             'name' => $affiliation->code,
             'fullName' => $affiliation->name,
+            'facultyName' => 'Faculty of Medicine',
+            'universityName' => 'University of Indonesia',
             'description' => $type === 'ppds1' ? 'PPDS I Orthopaedi & Traumatologi' : 'Subspesialis Orthopaedi & Traumatologi',
             'image' => '/assets/images/university-building.jpg',
             'stats' => [
                 'activeResidents' => $activeResidents,
-                'faculty' => 0,
-                'teachingHospitals' => 0,
+                'faculty' => 30,
+                'teachingHospitals' => 5,
             ],
             'profileResident' => [
-                'name' => '-',
-                'position' => '-',
+                'name' => 'Dr. Ihsan Oesman, SpOT(K)',
+                'position' => 'Head of Study Program',
                 'image' => '/assets/images/profile-placeholder.jpg',
-                'description' => '-',
+                'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
             ],
             'contact' => [
-                'address' => '-',
-                'email' => '-',
-                'phone' => '-',
-                'website' => '-',
+                'address' => 'Jl. Salemba Raya No. 6, Jakarta Pusat',
+                'email' => 'ortopedi@ui.ac.id',
+                'phone' => '+62 21 391 0123',
+                'website' => 'www.ortopedi-fkui.com',
             ],
             'information' => [
-                'accreditation' => '-',
-                'established' => '-',
-                'duration' => '-',
-                'capacity' => '-',
+                'accreditation' => 'A - LAM PT Kes',
+                'established' => '1960',
+                'duration' => '8 Semester',
+                'capacity' => '20 per tahun',
             ],
-            'staffList' => [],
+            'staffList' => [
+                ['name' => 'Dr. dr. Ihsan Oesman, SpOT(K)', 'specialization' => 'Subsp.K.P'],
+                ['name' => 'dr. Muhammad Rizqi Adhi Primaputra, SpOT(K)', 'specialization' => '@orthopaedi.id'],
+                ['name' => 'dr. Ifran Saleh, SpOT(K)', 'specialization' => 'Spine Surgery'],
+                ['name' => 'Prof. Dr. dr. Ismail Hadisoebroto Dilogo, SpO.T(K), Subsp.P.L', 'specialization' => 'Pediatric Ortho'],
+                ['name' => 'Prof. Dr. dr. Andri MT Lubis, SpO.T(K), Subsp.C.O', 'specialization' => 'Trauma'],
+                ['name' => 'Dr. dr. Aryadi Kurniawan, SpO.T(K), Subsp.A', 'specialization' => 'Joint Replacement'],
+                ['name' => 'Prof. Dr. dr. Achmad Fauzi Kamal, SpOT(K)', 'specialization' => 'Hand Surgery'],
+                ['name' => 'Dr. dr. Rahyussalim, SpO.T(K), Subsp.O. T.B', 'specialization' => 'Sports Medicine'],
+                ['name' => 'Dr. dr. Ihsan Oesman, SpO.T(K), Subsp.K.P', 'specialization' => 'Spine Surgery'],
+                ['name' => 'Dr. dr. Yogi Prabowo, SpO.T(K), Subsp.Onk. Ort.R', 'specialization' => 'Oncology'],
+                ['name' => 'Dr. dr. Wahyu Widodo, SpO.T(K), Subsp.T.L. B.M', 'specialization' => 'Trauma'],
+                ['name' => 'Dr. dr. Ludwig Andribert Powantia Pontoh, SpO.T(K), Subsp.P.L', 'specialization' => 'Pediatric Ortho'],
+                ['name' => 'Dr. dr. Didik Librianto, SpOT(K)', 'specialization' => 'Hand Surgery'],
+                ['name' => 'dr. Muhammad Rizqi Adhi Primaputra, SpOT(K)', 'specialization' => 'Joint Replacement'],
+                ['name' => 'dr. Wildan Latief, SpO.T(K), Subsp.T.L. B.M', 'specialization' => 'Trauma'],
+            ],
             'residents' => [
-                'year1' => [],
-                'year2' => [],
+                'year1' => [
+                    ['name' => 'Dr. Andi Wijaya'],
+                    ['name' => 'Dr. Budi Hartono'],
+                    ['name' => 'Dr. Citra Dewi'],
+                    ['name' => 'Dr. Dedi Suryanto'],
+                    ['name' => 'Dr. Eka Putri'],
+                    ['name' => 'Dr. Fajar Ramadhan'],
+                ],
+                'year2' => [
+                    ['name' => 'Dr. Gilang Pratama'],
+                    ['name' => 'Dr. Hani Safitri'],
+                    ['name' => 'Dr. Irfan Hakim'],
+                    ['name' => 'Dr. Joko Susilo'],
+                ],
             ],
-            'gallery' => [],
+            'gallery' => [
+                ['image' => '/assets/images/gallery-1.jpg', 'title' => 'Kegiatan Pembelajaran'],
+                ['image' => '/assets/images/gallery-2.jpg', 'title' => 'Workshop Orthopaedi'],
+                ['image' => '/assets/images/gallery-3.jpg', 'title' => 'Seminar Nasional'],
+                ['image' => '/assets/images/gallery-4.jpg', 'title' => 'Praktik Klinik'],
+            ],
         ],
     ]);
 })->where('type', 'ppds1|subspesialis')
@@ -131,6 +167,16 @@ Route::get('/calendar-academic', function () {
 Route::get('/about-us', function () {
     return Inertia::render('AboutUs');
 })->name('about.us');
+
+// Well-Being Survey Routes - Public Access
+Route::get('/wellbeing-survey', [\App\Http\Controllers\WellbeingSurveyController::class, 'index'])
+    ->name('wellbeing-survey.index');
+
+Route::get('/wellbeing-survey/show', [\App\Http\Controllers\WellbeingSurveyController::class, 'show'])
+    ->name('wellbeing-survey.show');
+
+Route::post('/wellbeing-survey/submit', [\App\Http\Controllers\WellbeingSurveyController::class, 'store'])
+    ->name('wellbeing-survey.store');
 
 // Database Members - Public Access (Separate pages)
 Route::get('/database-residents', function () {
