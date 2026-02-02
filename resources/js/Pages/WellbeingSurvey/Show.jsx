@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { usePage } from "@inertiajs/react";
 import HomepageLayout from "../../Layouts/HomepageLayout";
 import Step1MentalWellbeing from "../../components/WellbeingSurvey/Step1MentalWellbeing";
 import Step2Questionnaire from "../../components/WellbeingSurvey/Step2Questionnaire";
@@ -8,12 +8,13 @@ import Step4Result from "../../components/WellbeingSurvey/Step4Result";
 import CrisisResources from "../../components/WellbeingSurvey/CrisisResources";
 import api from "@/api/axios";
 
-export default function WellbeingSurveyShow({ affiliation, crisisResources: initialCrisisResources }) {
-  const [searchParams] = useSearchParams();
+export default function WellbeingSurveyShow({ affiliation, crisisResources: initialCrisisResources, member }) {
+  const { url } = usePage();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [crisisResources, setCrisisResources] = useState(initialCrisisResources);
   const [affiliationData, setAffiliationData] = useState(affiliation);
+  const [memberData, setMemberData] = useState(member);
   const [surveyData, setSurveyData] = useState({
     affiliation_id: affiliation?.id,
     affiliation_code: affiliation?.code,
@@ -21,6 +22,10 @@ export default function WellbeingSurveyShow({ affiliation, crisisResources: init
     faculty: affiliation?.faculty,
     study_program_name: affiliation?.study_program_name,
     program_type: affiliation?.program_type,
+    member_id: member?.id || null,
+    member_code: member?.member_code || null,
+    member_name: member?.name || null,
+    member_contact: member?.contact || null,
     participant_type: null,
     mood: null,
     burnout: false,
@@ -34,11 +39,12 @@ export default function WellbeingSurveyShow({ affiliation, crisisResources: init
   const [result, setResult] = useState(null);
 
   useEffect(() => {
-    const code = searchParams.get("code");
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
     if (code && !affiliationData) {
       fetchAffiliationByCode(code);
     }
-  }, [searchParams, affiliationData]);
+  }, [affiliationData]);
 
   const fetchAffiliationByCode = async (code) => {
     try {
@@ -100,6 +106,19 @@ export default function WellbeingSurveyShow({ affiliation, crisisResources: init
   const handleSubmit = async () => {
     try {
       setLoading(true);
+      
+      // Ensure affiliation_id is set
+      if (!surveyData.affiliation_id && affiliationData?.id) {
+        surveyData.affiliation_id = affiliationData.id;
+      }
+      
+      // Validate required fields
+      if (!surveyData.affiliation_id) {
+        alert("Affiliation information is missing. Please reload the page.");
+        setLoading(false);
+        return;
+      }
+      
       const response = await api.post("/api/wellbeing-surveys", surveyData);
       if (response.data.status === "success") {
         setResult(response.data.data);
@@ -107,6 +126,7 @@ export default function WellbeingSurveyShow({ affiliation, crisisResources: init
       }
     } catch (error) {
       console.error("Error submitting survey:", error);
+      console.error("Survey data:", surveyData);
       alert("Failed to submit survey. Please try again.");
     } finally {
       setLoading(false);
@@ -137,6 +157,35 @@ export default function WellbeingSurveyShow({ affiliation, crisisResources: init
               Indonesian Orthopaedic & Traumatology Education Dashboard
             </p>
           </div>
+
+          {/* Member Information Card */}
+          {memberData && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg shadow-md p-6 mb-8">
+              <h3 className="text-lg font-bold text-blue-700 mb-4">Verified Member Information</h3>
+              <div className="grid grid-cols-3 gap-4">
+                {memberData.member_code && (
+                  <div>
+                    <p className="text-xs text-gray-600">Member Code</p>
+                    <p className="font-semibold text-gray-900">
+                      {memberData.member_code.charAt(0)}{'*'.repeat(Math.max(0, memberData.member_code.length - 2))}{memberData.member_code.charAt(memberData.member_code.length - 1)}
+                    </p>
+                  </div>
+                )}
+                {memberData.name && (
+                  <div>
+                    <p className="text-xs text-gray-600">Name</p>
+                    <p className="font-semibold text-gray-900">{memberData.name}</p>
+                  </div>
+                )}
+                {memberData.contact && (
+                  <div>
+                    <p className="text-xs text-gray-600">Contact</p>
+                    <p className="font-semibold text-gray-900">{memberData.contact}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Main Card */}
           <div className="bg-white rounded-lg shadow-md p-8">

@@ -84,6 +84,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('database-members/{databaseMember}/upload-photo', [DatabaseMemberController::class, 'uploadPhotoForMember']);
 });
 
+// Database Members - Public Search (for Well-Being Survey verification)
+Route::get('database-members/search', [DatabaseMemberController::class, 'search']);
+
 // Public agenda routes (landing pages)
 Route::get('public/agenda-events', [AgendaEventController::class, 'publicIndex']);
 Route::get('public/affiliations', [AffiliationController::class, 'publicIndex']);

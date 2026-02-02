@@ -282,7 +282,7 @@ export default function StudyProgramDetail({ university, type }) {
       </section>
 
       {/* Main Content */}
-      <section className="bg-gray-50 py-8">
+      <section className="bg-gray-50 py-8" >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header Card with Image and Info */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
@@ -298,7 +298,7 @@ export default function StudyProgramDetail({ university, type }) {
                   }}
                 />
               </div>
-              
+
               {/* Right: Info */}
               <div className="flex-1 p-6">
                 <div className="flex items-start gap-4">
@@ -343,511 +343,396 @@ export default function StudyProgramDetail({ university, type }) {
                   <p className="text-sm text-gray-700 leading-relaxed">
                     The Orthopedics and Traumatology Subspecialty Doctor Education Program (Sp-2) aims to train Orthopedic and Traumatology Specialists with balanced academic and clinical skills, enabling them to address various orthopedic and traumatology issues in the community.
                   </p>
-              <p className="text-sm text-gray-700 leading-relaxed">
-                The Sp2 Orthopedic and Traumatology Study Program at the Faculty of Medicine, University of Indonesia (FKUI) is the highest level of professional academic education, a continuation of the Orthopedic and Traumatology Specialist Education.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Icon icon="mdi:calendar-outline" className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-600 font-medium">Program Duration</p>
-                  <p className="text-sm font-semibold text-gray-900">8 Semester</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Icon icon="mdi:medal-outline" className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-600 font-medium">Accreditation</p>
-                  <p className="text-sm font-semibold text-gray-900">A - LAM PT Kes</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Educational Dashboard */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-            <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
-              <Icon icon="mdi:chart-donut" className="w-5 h-5" />
-              Educational Dashboard
-            </h2>
-            <div className="grid grid-cols-2 gap-4">
-              {/* Residen Chart */}
-              <div className="text-center">
-                <div className="flex justify-center mb-2">
-                  <DonutChart
-                    data={[
-                      { name: 'Residen Aktif', value: 65 },
-                      { name: 'Lainnya', value: 35 }
-                    ]}
-                    colors={['#3B82F6', '#E5E7EB']}
-                    centerText="65"
-                    size={120}
-                  />
-                </div>
-                <p className="text-xs font-semibold text-gray-900">Resident</p>
-                <div className="flex items-center justify-center gap-2 mt-2">
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                    <span className="text-[10px] text-gray-600">Active: 65</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-                    <span className="text-[10px] text-gray-600">Total: 100</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Alumni Chart */}
-              <div className="text-center">
-                <div className="flex justify-center mb-2">
-                  <DonutChart
-                    data={[
-                      { name: 'Alumni', value: 450 },
-                      { name: 'Lainnya', value: 50 }
-                    ]}
-                    colors={['#EC4899', '#E5E7EB']}
-                    centerText="450"
-                    size={120}
-                  />
-                </div>
-                <p className="text-xs font-semibold text-gray-900">Alumni</p>
-                <div className="flex items-center justify-center gap-2 mt-2">
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-pink-500"></div>
-                    <span className="text-[10px] text-gray-600">Alumni: 450</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-                    <span className="text-[10px] text-gray-600">Total: 500</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Faculty of Medicine */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-            <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
-              <Icon icon="mdi:school-outline" className="w-5 h-5" />
-              Faculty of Medicine, University of Indonesia
-            </h2>
-            <div className="grid grid-cols-2 gap-4">
-              {universityData.staffList.slice(0, 2).map((staff, index) => (
-                <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Icon icon="mdi:account" className="w-6 h-6 text-blue-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-semibold text-gray-900 leading-tight">
-                        {staff.name}
-                      </h4>
-                      <p className="text-xs text-gray-600 mt-1">
-                        {index === 0 ? "Head of Study Program" : "Secretary of Study Program"}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 text-xs text-blue-600">
-                    <Icon icon="mdi:email-outline" className="w-3 h-3" />
-                    <span>{index === 0 ? "ihsan@orthopaedi.id" : "@orthopaedi.id"}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Teaching Staff */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-            <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
-              <Icon icon="mdi:account-group" className="w-5 h-5" />
-              Teaching Staff
-            </h2>
-            <div className="grid grid-cols-3 gap-3">
-              {universityData.staffList.map((staff, index) => (
-                <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200 text-center">
-                  <div className="w-14 h-14 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <Icon icon="mdi:account" className="w-8 h-8 text-gray-400" />
-                  </div>
-                  <p className="text-xs font-semibold text-gray-900 leading-tight">
-                    {staff.name.split(',')[0]}
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    The Sp2 Orthopedic and Traumatology Study Program at the Faculty of Medicine, University of Indonesia (FKUI) is the highest level of professional academic education, a continuation of the Orthopedic and Traumatology Specialist Education.
                   </p>
-                  <p className="text-[10px] text-gray-600 mt-1">{staff.specialization}</p>
                 </div>
-              ))}
-            </div>
-          </div>
 
-          {showDetailModal && selectedEvent && (
-            <div
-              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-              onClick={() => setShowDetailModal(false)}
-            >
-              <div
-                className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className={`p-6 rounded-t-xl ${selectedEvent.dotClass || "bg-blue-600"}`}>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-white" />
-                      <span className="text-white font-medium text-sm">
-                        {selectedEvent.dateLabel || "-"}
-                      </span>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Icon icon="mdi:calendar-outline" className="w-6 h-6 text-blue-600" />
                     </div>
-                    <button
-                      onClick={() => setShowDetailModal(false)}
-                      className="text-white hover:text-gray-200 transition-colors"
-                      type="button"
-                    >
-                      <X className="w-6 h-6" />
-                    </button>
-                  </div>
-                  <h3 className="text-xl font-bold text-white">{selectedEvent.title}</h3>
-                </div>
-                <div className="p-6 overflow-y-auto flex-1">
-                  <div className="mb-4 overflow-hidden rounded-lg border border-gray-200">
-                    <img
-                      src={selectedEvent.image || DEFAULT_EVENT_IMAGE}
-                      alt={selectedEvent.title}
-                      className="w-full h-48 object-cover"
-                      onError={(e) => {
-                        if (e.currentTarget.dataset.fallbackApplied === "1") return;
-                        e.currentTarget.dataset.fallbackApplied = "1";
-                        e.currentTarget.src = DEFAULT_EVENT_IMAGE;
-                      }}
-                    />
-                  </div>
-
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-500 mb-1">Event Type</label>
-                    <div className="flex items-center gap-2">
-                      <div className={`w-3 h-3 rounded-full ${selectedEvent.dotClass || "bg-blue-600"}`}></div>
-                      <span className="text-gray-900 font-medium">{selectedEvent.badge || "-"}</span>
+                    <div>
+                      <p className="text-xs text-gray-600 font-medium">Program Duration</p>
+                      <p className="text-sm font-semibold text-gray-900">8 Semester</p>
                     </div>
                   </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Icon icon="mdi:medal-outline" className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-600 font-medium">Accreditation</p>
+                      <p className="text-sm font-semibold text-gray-900">A - LAM PT Kes</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-                  {selectedEvent.description && (
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-500 mb-1">Description</label>
-                      <div className="text-gray-700">
-                        <p className={`${!showFullDescription && selectedEvent.description.length > 200 ? "line-clamp-3" : ""}`}>
-                          {selectedEvent.description}
-                        </p>
-                        {selectedEvent.description.length > 200 && (
-                          <button
-                            type="button"
-                            onClick={() => setShowFullDescription(!showFullDescription)}
-                            className="text-blue-600 hover:text-blue-700 text-sm font-medium mt-2 flex items-center gap-1"
-                          >
-                            {showFullDescription ? (
-                              <>
-                                Show Less <ChevronUp className="w-4 h-4" />
-                              </>
-                            ) : (
-                              <>
-                                Show More <ChevronDown className="w-4 h-4" />
-                              </>
-                            )}
-                          </button>
-                        )}
+              {/* Educational Dashboard */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                  <Icon icon="mdi:chart-donut" className="w-5 h-5" />
+                  Educational Dashboard
+                </h2>
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Residen Chart */}
+                  <div className="text-center">
+                    <div className="flex justify-center mb-2">
+                      <DonutChart
+                        data={[
+                          { name: 'Residen Aktif', value: 65 },
+                          { name: 'Lainnya', value: 35 }
+                        ]}
+                        colors={['#3B82F6', '#E5E7EB']}
+                        centerText="65"
+                        size={120}
+                      />
+                    </div>
+                    <p className="text-xs font-semibold text-gray-900">Resident</p>
+                    <div className="flex items-center justify-center gap-2 mt-2">
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                        <span className="text-[10px] text-gray-600">Active: 65</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                        <span className="text-[10px] text-gray-600">Total: 100</span>
                       </div>
                     </div>
-                  )}
+                  </div>
 
-                  {selectedEvent.location && (
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-500 mb-1">Location</label>
-                      <p className="text-gray-700 flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-gray-500" />
-                        {selectedEvent.location}
-                      </p>
+                  {/* Alumni Chart */}
+                  <div className="text-center">
+                    <div className="flex justify-center mb-2">
+                      <DonutChart
+                        data={[
+                          { name: 'Alumni', value: 450 },
+                          { name: 'Lainnya', value: 50 }
+                        ]}
+                        colors={['#EC4899', '#E5E7EB']}
+                        centerText="450"
+                        size={120}
+                      />
                     </div>
-                  )}
+                    <p className="text-xs font-semibold text-gray-900">Alumni</p>
+                    <div className="flex items-center justify-center gap-2 mt-2">
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full bg-pink-500"></div>
+                        <span className="text-[10px] text-gray-600">Alumni: 450</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                        <span className="text-[10px] text-gray-600">Total: 500</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-                  {selectedEvent.registration && (
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-500 mb-1">Registration</label>
-                      <a
-                        href={selectedEvent.registration}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 hover:underline break-all"
-                      >
-                        {selectedEvent.registration}
+              {/* Faculty of Medicine */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                  <Icon icon="mdi:school-outline" className="w-5 h-5" />
+                  Faculty of Medicine, University of Indonesia
+                </h2>
+                <div className="grid grid-cols-2 gap-4">
+                  {universityData.staffList.slice(0, 2).map((staff, index) => (
+                    <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Icon icon="mdi:account" className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-semibold text-gray-900 leading-tight">
+                            {staff.name}
+                          </h4>
+                          <p className="text-xs text-gray-600 mt-1">
+                            {index === 0 ? "Head of Study Program" : "Secretary of Study Program"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-blue-600">
+                        <Icon icon="mdi:email-outline" className="w-3 h-3" />
+                        <span>{index === 0 ? "ihsan@orthopaedi.id" : "@orthopaedi.id"}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Teaching Staff */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                  <Icon icon="mdi:account-group" className="w-5 h-5" />
+                  Teaching Staff
+                </h2>
+                <div className="grid grid-cols-3 gap-3">
+                  {universityData.staffList.map((staff, index) => (
+                    <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200 text-center">
+                      <div className="w-14 h-14 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <Icon icon="mdi:account" className="w-8 h-8 text-gray-400" />
+                      </div>
+                      <p className="text-xs font-semibold text-gray-900 leading-tight">
+                        {staff.name.split(',')[0]}
+                      </p>
+                      <p className="text-[10px] text-gray-600 mt-1">{staff.specialization}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Gallery */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                  <Icon icon="mdi:image-multiple" className="w-5 h-5" />
+                  Gallery
+                </h2>
+                <div className="grid grid-cols-2 gap-3">
+                  {(universityData.gallery || []).map((item, index) => (
+                    <div key={index} className="relative rounded-lg overflow-hidden bg-gradient-to-br from-blue-100 to-blue-200 h-32">
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-2">
+                        <p className="text-white text-xs font-semibold">{item.title}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Sidebar */}
+            <div className="lg:col-span-1 space-y-4">
+              {/* Resident Data */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-0">
+                <div className="p-6 border-b border-gray-200">
+                  <h2 className="text-2xl font-bold text-blue-700">
+                    Resident Data
+                  </h2>
+                </div>
+
+                <div className="p-6 space-y-4">
+                  <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-semibold text-blue-700">Active Resident</h3>
+                      <div className="text-4xl font-bold text-blue-700">
+                        {universityData.stats.activeResidents}
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Total residents currently undergoing education
+                    </p>
+                  </div>
+
+                  <Link
+                    href={`/profile-study-program/${type}/${universityData.id}/database`}
+                    className="w-full bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold py-3 px-4 rounded-lg transition-colors border-2 border-blue-300 text-center block"
+                  >
+                    View Resident Details
+                  </Link>
+                </div>
+              </div>
+
+              {/* Contact */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-0">
+                <div className="p-6 border-b border-gray-200">
+                  <h2 className="text-2xl font-bold text-blue-700">
+                    Contact
+                  </h2>
+                </div>
+
+                <div className="p-6 space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-blue-700 mb-1">Address</h3>
+                      <p className="text-xs text-gray-600">{universityData.contact.address}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Phone className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-blue-700 mb-1">Phone</h3>
+                      <a href={`tel:${universityData.contact.phone}`} className="text-xs text-blue-600 hover:underline">
+                        {universityData.contact.phone}
                       </a>
                     </div>
-                  )}
+                  </div>
 
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => setShowDetailModal(false)}
-                      className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                      type="button"
-                    >
-                      Close
-                    </button>
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Mail className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-blue-700 mb-1">E-mail</h3>
+                      <a href={`mailto:${universityData.contact.email}`} className="text-xs text-blue-600 hover:underline">
+                        {universityData.contact.email}
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* Gallery */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-            <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
-              <Icon icon="mdi:image-multiple" className="w-5 h-5" />
-              Gallery
-            </h2>
-            <div className="grid grid-cols-2 gap-3">
-              {(universityData.gallery || []).map((item, index) => (
-                <div key={index} className="relative rounded-lg overflow-hidden bg-gradient-to-br from-blue-100 to-blue-200 h-32">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-2">
-                    <p className="text-white text-xs font-semibold">{item.title}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        
-          {/* Right Column - Sidebar */}
-          <div className="lg:col-span-1 space-y-4">
-            {/* Resident Data */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-0">
-              <div className="p-6 border-b border-gray-200">
-                <h2 className="text-2xl font-bold text-blue-700">
-                  Resident Data
+              {/* Specialization */}
+              <div className="bg-white rounded-lg shadow-sm border-2 border-blue-300 p-6">
+                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                  <Icon icon="mdi:school-outline" className="w-5 h-5" />
+                  Specialization
                 </h2>
-              </div>
-
-              <div className="p-6 space-y-4">
-                <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-semibold text-blue-700">Active Resident</h3>
-                    <div className="text-4xl font-bold text-blue-700">
-                      {universityData.stats.activeResidents}
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    Total residents currently undergoing education
-                  </p>
-                </div>
-
-                <Link
-                  href={`/profile-study-program/${type}/${universityData.id}/database`}
-                  className="w-full bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold py-3 px-4 rounded-lg transition-colors border-2 border-blue-300 text-center block"
-                >
-                  View Resident Details
-                </Link>
-              </div>
-            </div>
-
-            {/* Contact */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-0">
-              <div className="p-6 border-b border-gray-200">
-                <h2 className="text-2xl font-bold text-blue-700">
-                  Contact
-                </h2>
-              </div>
-
-              <div className="p-6 space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-blue-700 mb-1">Address</h3>
-                    <p className="text-xs text-gray-600">{universityData.contact.address}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Phone className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-blue-700 mb-1">Phone</h3>
-                    <a href={`tel:${universityData.contact.phone}`} className="text-xs text-blue-600 hover:underline">
-                      {universityData.contact.phone}
-                    </a>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Mail className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-blue-700 mb-1">E-mail</h3>
-                    <a href={`mailto:${universityData.contact.email}`} className="text-xs text-blue-600 hover:underline">
-                      {universityData.contact.email}
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Specialization */}
-            <div className="bg-white rounded-lg shadow-sm border-2 border-blue-300 p-6">
-              <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
-                <Icon icon="mdi:school-outline" className="w-5 h-5" />
-                Specialization
-              </h2>
-              <div className="space-y-3">
-                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                  <div className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">Spine</p>
-                      <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.O.T.B</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                  <div className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">Hip and Knee</p>
-                      <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.P.L</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                  <div className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">Oncology Orthopaedics and Reconstructions</p>
-                      <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.Onk.Ort.R</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                  <div className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">Sport Injury</p>
-                      <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.C.O</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                  <div className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">Paediatric Orthopaedics</p>
-                      <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.A</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                  <div className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">Foot and Ankle</p>
-                      <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.K.P</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                  <div className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">Shoulder and Elbow Orthopaedics</p>
-                      <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.O.B.S</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                  <div className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">Advanced Orthopaedics</p>
-                      <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.T.L</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                  <div className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">Hand, Arm and Microsurgery</p>
-                      <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.T.L.B.M</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Academic Activities */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-2xl font-bold text-blue-700 mb-4">
-                Academic Activities
-              </h2>
-              <div className="space-y-3">
-                {[
-                  {
-                    date: "11 Nov 2025",
-                    badge: "Ujian Nasional",
-                    badgeClass: "bg-blue-600 text-white",
-                    title: "Final Paper Presentation",
-                    location: "Jakarta"
-                  },
-                  {
-                    date: "17 Jan 2026",
-                    badge: "Ujian Nasional",
-                    badgeClass: "bg-blue-600 text-white",
-                    title: "Fellowship Admission Test",
-                    location: "Jakarta"
-                  }
-                ].map((item, index) => (
-                  <div
-                    key={index}
-                    className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-all duration-300"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-sm text-gray-700">{item.date}</span>
-                        <span className="text-gray-400">•</span>
-                        <span className={`${item.badgeClass} text-xs font-semibold px-3 py-1 rounded`}>{item.badge}</span>
+                <div className="space-y-3">
+                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                    <div className="flex items-start gap-2">
+                      <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">Spine</p>
+                        <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.O.T.B</p>
                       </div>
-                      <button
-                        type="button"
-                        className="text-sm text-blue-600 hover:underline"
-                        onClick={() => openDetailModal(item)}
-                      >
-                        Detail
-                      </button>
                     </div>
-                    <h4 className="text-base font-bold text-gray-900 leading-snug">{item.title}</h4>
-                    <p className="text-sm text-gray-600 mt-1">{item.location}</p>
                   </div>
-                ))}
-              </div>
-            </div>
 
-            {/* Teaching Hospitals
+                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                    <div className="flex items-start gap-2">
+                      <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">Hip and Knee</p>
+                        <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.P.L</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                    <div className="flex items-start gap-2">
+                      <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">Oncology Orthopaedics and Reconstructions</p>
+                        <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.Onk.Ort.R</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                    <div className="flex items-start gap-2">
+                      <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">Sport Injury</p>
+                        <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.C.O</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                    <div className="flex items-start gap-2">
+                      <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">Paediatric Orthopaedics</p>
+                        <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.A</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                    <div className="flex items-start gap-2">
+                      <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">Foot and Ankle</p>
+                        <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.K.P</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                    <div className="flex items-start gap-2">
+                      <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">Shoulder and Elbow Orthopaedics</p>
+                        <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.O.B.S</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                    <div className="flex items-start gap-2">
+                      <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">Advanced Orthopaedics</p>
+                        <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.T.L</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                    <div className="flex items-start gap-2">
+                      <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">Hand, Arm and Microsurgery</p>
+                        <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.T.L.B.M</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Academic Activities */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 className="text-2xl font-bold text-blue-700 mb-4">
+                  Academic Activities
+                </h2>
+                <div className="space-y-3">
+                  {[
+                    {
+                      date: "11 Nov 2025",
+                      badge: "Ujian Nasional",
+                      badgeClass: "bg-blue-600 text-white",
+                      title: "Final Paper Presentation",
+                      location: "Jakarta"
+                    },
+                    {
+                      date: "17 Jan 2026",
+                      badge: "Ujian Nasional",
+                      badgeClass: "bg-blue-600 text-white",
+                      title: "Fellowship Admission Test",
+                      location: "Jakarta"
+                    }
+                  ].map((item, index) => (
+                    <div
+                      key={index}
+                      className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-all duration-300"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-sm text-gray-700">{item.date}</span>
+                          <span className="text-gray-400">•</span>
+                          <span className={`${item.badgeClass} text-xs font-semibold px-3 py-1 rounded`}>{item.badge}</span>
+                        </div>
+                        <button
+                          type="button"
+                          className="text-sm text-blue-600 hover:underline"
+                          onClick={() => openDetailModal(item)}
+                        >
+                          Detail
+                        </button>
+                      </div>
+                      <h4 className="text-base font-bold text-gray-900 leading-snug">{item.title}</h4>
+                      <p className="text-sm text-gray-600 mt-1">{item.location}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Teaching Hospitals
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
               <h3 className="text-sm font-bold text-blue-700 mb-3 flex items-center gap-2">
                 <Icon icon="mdi:hospital-building" className="w-4 h-4" />
@@ -869,36 +754,81 @@ export default function StudyProgramDetail({ university, type }) {
               </ul>
             </div> */}
 
-            {/* Well-Being Survey */}
-            <Link 
-              href={`/wellbeing-survey?code=${universityData.id}`}
-              className="block"
-            >
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 hover:shadow-md transition-shadow duration-300">
-                <h2 className="text-3xl font-bold text-blue-700 mb-8 text-center">
-                  Well-Being Survey
-                </h2>
-                
-                <div className="flex flex-col items-center text-center mb-8">
-                  <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6">
-                    <Heart className="w-10 h-10 text-red-700" />
+              {/* Well-Being Survey */}
+              <Link
+                href={`/wellbeing-survey?code=${universityData.code}`}
+                className="block"
+              >
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 hover:shadow-md transition-shadow duration-300">
+                  <h2 className="text-3xl font-bold text-blue-700 mb-8 text-center">
+                    Well-Being Survey
+                  </h2>
+
+                  <div className="flex flex-col items-center text-center mb-8">
+                    <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6">
+                      <Heart className="w-10 h-10 text-red-700" />
+                    </div>
+                    <h3 className="text-xl font-bold text-blue-700 mb-2">Resident Welfare Assessment</h3>
+                    <p className="text-base text-gray-600">Complete surveys to track student well-being</p>
                   </div>
-                  <h3 className="text-xl font-bold text-blue-700 mb-2">Resident Welfare Assessment</h3>
-                  <p className="text-base text-gray-600">Complete surveys to track student well-being</p>
+
+                  <div className="bg-red-50 rounded-lg p-6 mb-6 border border-red-200 hover:bg-red-100 transition-colors duration-300">
+                    <p className="text-center font-bold text-red-700 text-lg">Fill Out the Survey Now</p>
+                  </div>
+
+                  <p className="text-center text-sm text-gray-500">Duration: ± 10 minutes</p>
                 </div>
-
-                <div className="bg-red-50 rounded-lg p-6 mb-6 border border-red-200 hover:bg-red-100 transition-colors duration-300">
-                  <p className="text-center font-bold text-red-700 text-lg">Fill Out the Survey Now</p>
-                </div>
-
-                <p className="text-center text-sm text-gray-500">Duration: ± 10 minutes</p>
-              </div>
-            </Link>
-
+              </Link>
             </div>
           </div>
         </div>
       </section>
+
+
+      {showDetailModal && selectedEvent && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowDetailModal(false)}
+        >
+          <div
+            className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={`p-6 rounded-t-xl ${selectedEvent.dotClass || "bg-blue-600"}`}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-white" />
+                  <span className="text-white font-medium text-sm">
+                    {selectedEvent.dateLabel || "-"}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setShowDetailModal(false)}
+                  className="text-white hover:text-gray-200 transition-colors"
+                  type="button"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <h3 className="text-xl font-bold text-white">{selectedEvent.title}</h3>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1">
+              <div className="text-sm text-gray-700">
+                <p>{selectedEvent.description || "No description available"}</p>
+              </div>
+            </div>
+            <div className="p-6 border-t border-gray-200 flex gap-3">
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                type="button"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </HomepageLayout>
   );
 }

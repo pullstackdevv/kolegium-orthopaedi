@@ -1306,4 +1306,75 @@ class DatabaseMemberController extends Controller
             throw $e;
         }
     }
+
+    public function search(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'search_type' => ['required', 'string', 'in:member_code,nama,contact'],
+            'search_value' => 'required|string|max:255',
+            'affiliation_id' => 'nullable|integer|exists:affiliations,id',
+        ]);
+
+        $searchType = $validated['search_type'];
+        $searchValue = $validated['search_value'];
+        $affiliationId = $validated['affiliation_id'] ?? null;
+
+        \Log::info('Member Search Debug', [
+            'search_type' => $searchType,
+            'search_value' => $searchValue,
+            'affiliation_id' => $affiliationId,
+        ]);
+
+        $query = DatabaseMember::query();
+
+        // Filter by affiliation if provided
+        if ($affiliationId) {
+            $query->where('affiliation_id', $affiliationId);
+        }
+
+        // Search by type
+        if ($searchType === 'member_code') {
+            $query->where('member_code', $searchValue);
+        } elseif ($searchType === 'nama') {
+            $query->where('name', 'like', "%{$searchValue}%");
+        } elseif ($searchType === 'contact') {
+            $query->where('contact', 'like', "%{$searchValue}%");
+        }
+
+        \Log::info('Member Search Query', [
+            'sql' => $query->toSql(),
+            'bindings' => $query->getBindings(),
+        ]);
+
+        $member = $query->select(['id', 'member_code', 'name', 'contact', 'affiliation_id'])->first();
+
+        \Log::info('Member Search Result', [
+            'found' => $member ? true : false,
+            'member' => $member ? $member->toArray() : null,
+        ]);
+
+        if ($member) {
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'id' => $member->id,
+                    'member_code' => $member->member_code,
+                    'name' => $member->name,
+                    'contact' => $member->contact,
+                    'affiliation_id' => $member->affiliation_id,
+                ],
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Member not found',
+            'data' => null,
+            'debug' => [
+                'search_type' => $searchType,
+                'search_value' => $searchValue,
+                'affiliation_id' => $affiliationId,
+            ],
+        ], 404);
+    }
 }

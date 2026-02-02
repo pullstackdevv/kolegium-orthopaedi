@@ -175,6 +175,9 @@ Route::get('/wellbeing-survey', [\App\Http\Controllers\WellbeingSurveyController
 Route::get('/wellbeing-survey/show', [\App\Http\Controllers\WellbeingSurveyController::class, 'show'])
     ->name('wellbeing-survey.show');
 
+Route::post('/wellbeing-survey/submit', [\App\Http\Controllers\WellbeingSurveyController::class, 'store'])
+    ->name('wellbeing-survey.store');
+
 // Database Members - Public Access (Separate pages)
 Route::get('/database-residents', function () {
     return Inertia::render('Database/DatabaseResidents');

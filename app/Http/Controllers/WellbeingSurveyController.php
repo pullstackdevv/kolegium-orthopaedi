@@ -26,7 +26,7 @@ class WellbeingSurveyController extends Controller
         $crisisResources = null;
 
         if ($code) {
-            $affiliation = Affiliation::where('code', $code)->first();
+            $affiliation = Affiliation::where('code', $code)->select(['id', 'code', 'name', 'type', 'university', 'faculty', 'study_program_name', 'program_type'])->first();
             
             if ($affiliation) {
                 $crisisResources = $this->resolveCrisisResources($affiliation);
