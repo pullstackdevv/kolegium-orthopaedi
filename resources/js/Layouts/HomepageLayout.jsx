@@ -20,10 +20,10 @@ import { AuthProvider } from "../contexts/AuthContext";
 const NavLink = ({ href, active, children }) => (
     <Link 
         href={href}
-        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+        className={`p-2 text-[13px] font-semibold tracking-wide uppercase transition-all duration-200 ${
             active 
-                ? 'text-blue-600 bg-blue-50' 
-                : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                ? 'text-primary' 
+                : 'text-slate-600 hover:text-secondary'
         }`}
     >
         {children}
@@ -33,16 +33,16 @@ const NavLink = ({ href, active, children }) => (
 const NavDropdown = ({ label, active, children }) => (
     <div className="relative group">
         <button 
-            className={`flex items-center gap-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`flex items-center gap-1 px-4 py-2 text-[13px] font-semibold tracking-wide uppercase transition-all duration-200 ${
                 active 
-                    ? 'text-blue-600 bg-blue-50' 
-                    : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                    ? 'text-primary' 
+                    : 'text-slate-600 hover:text-secondary'
             }`}
         >
             {label}
             <ChevronDown className="w-4 h-4 transition-transform group-hover:rotate-180 duration-300" />
         </button>
-        <div className="absolute left-0 mt-[22px] w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 bg-white rounded-md shadow-lg border-t-5 border-t-blue-600 border border-gray-200 py-2 z-50">
+        <div className="absolute left-0 mt-[18px] w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 bg-white rounded-none shadow-2xl border border-primary/10 border-t-[6px] border-t-primary py-3 z-50">
             <div className="space-y-0">
                 {children}
             </div>
@@ -53,7 +53,7 @@ const NavDropdown = ({ label, active, children }) => (
 const DropdownLink = ({ href, children }) => (
     <Link 
         href={href}
-        className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition"
+        className="block px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-secondary/10 hover:text-secondary transition"
     >
         {children}
     </Link>
@@ -77,7 +77,7 @@ export default function MarketplaceLayout({ children }) {
         <AuthProvider>
             <div className="min-h-screen bg-[#F8FAFC]">
             {/* Header */}
-            <header className="bg-white shadow-sm sticky top-0 z-50">
+            <header className="bg-white shadow-md sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-20">
                         {/* Logo */}
@@ -146,7 +146,7 @@ export default function MarketplaceLayout({ children }) {
                         {/* Mobile menu button */}
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="lg:hidden p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100 transition"
+                            className="lg:hidden p-2 rounded-md text-slate-600 hover:text-secondary hover:bg-secondary/10 transition"
                             aria-label="Toggle menu"
                         >
                             {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -156,14 +156,14 @@ export default function MarketplaceLayout({ children }) {
 
                 {/* Mobile menu */}
                 {isMobileMenuOpen && (
-                    <div className="lg:hidden border-t border-gray-200 bg-white">
+                    <div className="lg-hidden border-t border-gray-200 bg-white text-slate-700">
                         <div className="px-4 pt-2 pb-3 space-y-1">
                             <Link 
                                 href="/" 
-                                className={`block px-3 py-3 rounded-lg font-medium transition ${
+                                className={`block px-3 py-3 rounded-lg font-semibold tracking-wide uppercase transition ${
                                     isActive('/') && url === '/' 
-                                        ? 'text-blue-600 bg-blue-50' 
-                                        : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                                        ? 'text-primary bg-primary/10 border border-primary/20' 
+                                        : 'text-slate-600 hover:text-secondary hover:bg-secondary/10 border border-transparent'
                                 }`}
                                 onClick={() => setIsMobileMenuOpen(false)}
                             >
@@ -174,16 +174,19 @@ export default function MarketplaceLayout({ children }) {
                             <div>
                                 <button
                                     onClick={() => toggleDropdown('profile')}
-                                    className="w-full flex items-center justify-between px-3 py-3 rounded-lg font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition"
+                                    className="w-full flex items-center justify-between px-3 py-3 rounded-lg font-semibold tracking-wide uppercase text-[#254D95] hover:text-[#34A1F4] hover:bg-[#34A1F4]/10 transition"
                                 >
                                     Profile Study Program
                                     <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'profile' ? 'rotate-180' : ''}`} />
                                 </button>
                                 {openDropdown === 'profile' && (
                                     <div className="pl-6 space-y-1 mt-1">
-                                        <Link href="/profile-study-program/ppds1" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>PPDS 1</Link>
-                                        <Link href="/profile-study-program/clinical-fellowship" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Clinical Fellowship</Link>
-                                        <Link href="/profile-study-program/subspecialist" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Subspecialist</Link>
+                                        <Link href="/profile-study-program/ppds1" className="block px-3 py-2 text-sm text-slate-600 hover:text-[#34A1F4] hover:bg-[#34A1F4]/10 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>PPDS 1</Link>
+                                        <Link href="/profile-study-program/clinical-fellowship" className="block px-3 py-2 text-sm text-slate-600 hover:text-[#34A1F4] hover:bg-[#34A1F4]/10 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Clinical Fellowship</Link>
+                                        <Link href="/profile-study-program/subspecialist" className="block px-3 py-2 text-sm text-slate-600 hover:text-[#34A1F4] hover:bg-[#34A1F4]/10 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Subspecialist</Link>
+                                        <Link href="/profile-study-program/ppds1" className="block px-3 py-2 text-sm text-slate-600 hover:text-secondary hover:bg-secondary/10 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>PPDS 1</Link>
+                                        <Link href="/profile-study-program/clinical-fellowship" className="block px-3 py-2 text-sm text-slate-600 hover:text-secondary hover:bg-secondary/10 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Clinical Fellowship</Link>
+                                        <Link href="/profile-study-program/subspecialist" className="block px-3 py-2 text-sm text-slate-600 hover:text-secondary hover:bg-secondary/10 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Subspecialist</Link>
                                     </div>
                                 )}
                             </div>
@@ -192,27 +195,27 @@ export default function MarketplaceLayout({ children }) {
                             <div>
                                 <button
                                     onClick={() => toggleDropdown('database')}
-                                    className="w-full flex items-center justify-between px-3 py-3 rounded-lg font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition"
+                                    className="w-full flex items-center justify-between px-3 py-3 rounded-lg font-semibold tracking-wide uppercase text-primary hover:text-secondary hover:bg-secondary/10 transition"
                                 >
                                     Resident/Fellow/Trainee
                                     <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'database' ? 'rotate-180' : ''}`} />
                                 </button>
                                 {openDropdown === 'database' && (
                                     <div className="pl-6 space-y-1 mt-1">
-                                        <Link href="/database-residents" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Residents</Link>
-                                        <Link href="/database-fellows" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Fellows</Link>
-                                        <Link href="/database-trainees" className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Trainees</Link>
+                                        <Link href="/database-residents" className="block px-3 py-2 text-sm text-slate-600 hover:text-secondary hover:bg-secondary/10 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Residents</Link>
+                                        <Link href="/database-fellows" className="block px-3 py-2 text-sm text-slate-600 hover:text-secondary hover:bg-secondary/10 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Fellows</Link>
+                                        <Link href="/database-trainees" className="block px-3 py-2 text-sm text-slate-600 hover:text-secondary hover:bg-secondary/10 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Trainees</Link>
                                     </div>
                                 )}
                             </div>
-                            <Link href="/peer-group" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Peer Group</Link>
-                            <Link href="/calendar-academic" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>Academic Calendar</Link>
-                            <Link href="/about-us" className="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 rounded-lg font-medium transition" onClick={() => setIsMobileMenuOpen(false)}>About Us</Link>
+                            <Link href="/peer-group" className="block px-3 py-3 rounded-lg font-semibold tracking-wide uppercase text-slate-600 hover:text-secondary hover:bg-secondary/10 transition" onClick={() => setIsMobileMenuOpen(false)}>Peer Group</Link>
+                            <Link href="/calendar-academic" className="block px-3 py-3 rounded-lg font-semibold tracking-wide uppercase text-slate-600 hover:text-secondary hover:bg-secondary/10 transition" onClick={() => setIsMobileMenuOpen(false)}>Academic Calendar</Link>
+                            <Link href="/about-us" className="block px-3 py-3 rounded-lg font-semibold tracking-wide uppercase text-slate-600 hover:text-secondary hover:bg-secondary/10 transition" onClick={() => setIsMobileMenuOpen(false)}>About Us</Link>
                             
                             {auth?.user && (
                                 <Link 
                                     href="/cms" 
-                                    className="flex items-center gap-2 px-3 py-3 rounded-lg font-medium bg-gray-900 text-white hover:bg-gray-800 transition mt-2"
+                                    className="flex items-center gap-2 px-3 py-3 rounded-lg font-semibold bg-primary text-white hover:bg-secondary transition mt-2"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                     <LayoutDashboard className="w-4 h-4" />
