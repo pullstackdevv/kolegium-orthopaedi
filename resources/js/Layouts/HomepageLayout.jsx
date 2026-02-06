@@ -248,11 +248,9 @@ export default function MarketplaceLayout({ children }) {
                             </div>
                             <div className="text-sm text-white/85 space-y-3 leading-relaxed">
                                 <div>
-                                    <p className="font-semibold text-white mb-1">Jakarta Office</p>
                                     <p>Gedung Menara Era, Lantai 8, Unit 8-04 Jl. Senen Raya 135 – 137, Jakarta 10410, INDONESIA</p>
                                 </div>
                                 <div>
-                                    <p className="font-semibold text-white mb-1">South Jakarta Office</p>
                                     <p>Jl. Hang Jebat Blok F3, RT.5/RW.8, Gunung, Kec. Kby. Baru, Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12120, Indonesia</p>
                                 </div>
                             </div>
@@ -308,8 +306,9 @@ export default function MarketplaceLayout({ children }) {
                                 </li>
                                 <li className="mt-4">
                                     <a href="mailto:kolegiumorthopaediindonesia@gmail.com" className="hover:text-secondary transition duration-300 font-medium flex items-center gap-2 break-all">
-                                        <Icon icon="mdi:email" className="w-4 h-4 flex-shrink-0" />
+                                       <span>
                                         kolegiumorthopaediindonesia@gmail.com
+                                       </span>
                                     </a>
                                 </li>
                             </ul>
