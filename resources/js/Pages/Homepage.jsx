@@ -51,10 +51,10 @@ const ProgramInfo = ({ program }) => {
 
   return (
     <div className="flex flex-col justify-center">
-      <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-8 h-full flex flex-col justify-center">
+      <div className="bg-gradient-to-br from-primary/5 via-secondary/5 to-white rounded-2xl p-8 h-full flex flex-col justify-center">
         <div className="space-y-6">
           <div className="flex items-center gap-3">
-            <span className="bg-blue-600 text-white px-4 py-2 rounded-lg text-2xl font-bold">
+            <span className="bg-primary text-white px-4 py-2 rounded-lg text-2xl font-bold">
               {program.id}
             </span>
             <span className="text-2xl font-bold text-gray-900">{program.badge}</span>
@@ -62,9 +62,9 @@ const ProgramInfo = ({ program }) => {
           <p className="text-base text-gray-700 leading-relaxed">
             {program.description}
           </p>
-          <div className="pt-4 border-t border-blue-200">
+          <div className="pt-4 border-t border-primary/20">
             <p className="text-sm text-gray-600 mb-1">{getStudentLabel()}</p>
-            <p className="text-3xl font-bold text-blue-600">{program.students}</p>
+            <p className="text-3xl font-bold text-primary">{program.students}</p>
           </div>
         </div>
       </div>
@@ -174,9 +174,9 @@ export default function Homepage() {
       id: "ujian_nasional",
       examLabel: "National Exam",
       name: "Ujian Nasional",
-      solidBg: "bg-blue-600",
-      softBg: "bg-blue-100",
-      softText: "text-blue-700",
+      solidBg: "bg-primary",
+      softBg: "bg-primary/10",
+      softText: "text-primary",
     },
     {
       id: "event_lokal",
@@ -218,9 +218,9 @@ export default function Homepage() {
         id: String(type || ""),
         examLabel: "Event",
         name: "Event",
-        solidBg: "bg-blue-600",
-        softBg: "bg-blue-100",
-        softText: "text-blue-700",
+        solidBg: "bg-primary",
+        softBg: "bg-primary/10",
+        softText: "text-primary",
       }
     );
   };
@@ -372,7 +372,7 @@ export default function Homepage() {
           endDate: end,
           type: ev.type,
           status: meta.examLabel || "Exam",
-          statusColor: meta.solidBg || "bg-blue-600",
+          statusColor: meta.solidBg || "bg-primary",
           title: ev.title,
           location: ev.location || "",
           description: ev.description,
@@ -694,7 +694,7 @@ export default function Homepage() {
               e.target.style.display = 'none';
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-700/80 to-blue-600/70"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-secondary/70"></div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
@@ -781,7 +781,7 @@ export default function Homepage() {
                 className="bg-white rounded-xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
                     <Icon icon={stat.icon} className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1">
@@ -810,7 +810,7 @@ export default function Homepage() {
             <h2 className="text-3xl font-bold text-gray-900">Upcoming Examination</h2>
             <Link
               href="/calendar-academic"
-              className="inline-flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:text-secondary transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               aria-label="Show more upcoming examinations in Academic Calendar"
             >
               Show More
@@ -819,15 +819,15 @@ export default function Homepage() {
           </div>
           {examinations.length === 0 ? (
             <div className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-50">
-                <Calendar className="h-6 w-6 text-blue-600" />
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                <Calendar className="h-6 w-6 text-primary" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">No upcoming examinations</h3>
               <p className="mt-1 text-sm text-gray-600">Check the academic calendar to see the full schedule and the latest updates.</p>
               <div className="mt-5">
                 <Link
                   href="/calendar-academic"
-                  className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                  className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-secondary transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                 >
                   View Calendar
                 </Link>
@@ -854,7 +854,7 @@ export default function Homepage() {
                         href={exam.registration}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium transition"
+                        className="text-primary hover:text-secondary text-sm font-medium transition"
                         onClick={(e) => e.stopPropagation()}
                       >
                         Detail
@@ -862,7 +862,7 @@ export default function Homepage() {
                     ) : (
                       <button
                         type="button"
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium transition"
+                        className="text-primary hover:text-secondary text-sm font-medium transition"
                         onClick={(e) => {
                           e.stopPropagation();
                           openDetailModal(exam);
@@ -953,7 +953,7 @@ export default function Homepage() {
                         href={event.registration}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium inline-flex items-center gap-1"
+                        className="text-primary hover:text-secondary text-sm font-medium inline-flex items-center gap-1"
                         onClick={(e) => e.stopPropagation()}
                       >
                         Registration <ChevronRight className="w-4 h-4" />
@@ -1042,7 +1042,7 @@ export default function Homepage() {
                     href={selectedEvent.registration}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-700 hover:underline break-all"
+                    className="text-primary hover:text-secondary hover:underline break-all"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {selectedEvent.registration}
@@ -1052,7 +1052,7 @@ export default function Homepage() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDetailModal(false)}
-                  className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors font-medium"
                 >
                   Close
                 </button>

@@ -151,14 +151,6 @@ export default function StudyProgramDetail({ university, type }) {
   const [academicActivitiesLoading, setAcademicActivitiesLoading] = useState(true);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [showFullDescription, setShowFullDescription] = useState(false);
-
-  const toYmd = (date) => {
-    const d = new Date(date);
-    if (Number.isNaN(d.getTime())) return "";
-    d.setHours(12, 0, 0, 0);
-    return d.toISOString().slice(0, 10);
-  };
 
   const formatFullDate = (dateStr) => {
     const d = new Date(dateStr);
@@ -181,7 +173,7 @@ export default function StudyProgramDetail({ university, type }) {
     const type = String(typeStr || "");
     const KNOWN = {
       ujian_lokal: { label: "Ujian Lokal", className: "bg-red-500 text-white" },
-      ujian_nasional: { label: "Ujian Nasional", className: "bg-blue-500 text-white" },
+      ujian_nasional: { label: "Ujian Nasional", className: "bg-primary text-white" },
       event_lokal: { label: "Event Lokal", className: "bg-green-500 text-white" },
       event_nasional: { label: "Event Nasional", className: "bg-orange-500 text-white" },
       event_peer_group: { label: "Peer Group International", className: "bg-purple-500 text-white" },
@@ -203,60 +195,53 @@ export default function StudyProgramDetail({ university, type }) {
     if (key.includes("nasional")) return { label, className: "bg-emerald-500 text-white", dotClass: "bg-emerald-500" };
     if (key.includes("seminar")) return { label, className: "bg-indigo-500 text-white", dotClass: "bg-indigo-500" };
     if (type.startsWith("ujian_")) return { label, className: "bg-red-500 text-white", dotClass: "bg-red-500" };
-    return { label, className: "bg-blue-600 text-white", dotClass: "bg-blue-600" };
+    return { label, className: "bg-primary text-white", dotClass: "bg-primary" };
   };
 
   const openDetailModal = (ev) => {
     setSelectedEvent(ev);
-    setShowFullDescription(false);
     setShowDetailModal(true);
   };
 
   useEffect(() => {
     const fetchAcademicActivities = async () => {
+      setAcademicActivitiesLoading(true);
+
       try {
-        setAcademicActivitiesLoading(true);
+        const { data } = await api.get("/public/agenda-events", {
+          params: { affiliation_id: universityData.id },
+        });
 
-        const params = {
-          affiliation_id: universityData.id,
-        };
-
-        const response = await api.get("/public/agenda-events", { params });
-
-        if (response.data?.status !== "success") {
+        if (data?.status !== "success") {
           setAcademicActivities([]);
           return;
         }
 
-        const items = Array.isArray(response.data?.data) ? response.data.data : [];
-        const mapped = items
-          .filter((ev) => {
-            const t = String(ev?.type || "");
-            return t.startsWith("event_") || t.startsWith("ujian_");
-          })
-          .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
+        const items = (data?.data ?? [])
+          .filter((event) => /^(event|ujian)_/.test(String(event?.type ?? "")))
+          .sort((a, b) => new Date(a.start_date) - new Date(b.start_date))
           .slice(0, 2)
-          .map((ev) => {
-            const badgeMeta = getEventBadgeMeta(ev.type);
+          .map((event) => {
+            const badgeMeta = getEventBadgeMeta(event.type);
             return {
-              id: ev.id,
-              dateLabel: formatDateLabel(ev.start_date, ev.end_date),
-              startDate: ev.start_date,
-              endDate: ev.end_date,
-              title: ev.title,
-              location: ev.location,
+              id: event.id,
+              dateLabel: formatDateLabel(event.start_date, event.end_date),
+              startDate: event.start_date,
+              endDate: event.end_date,
+              title: event.title,
+              location: event.location,
               badge: badgeMeta.label,
               badgeClass: badgeMeta.className,
               dotClass: badgeMeta.dotClass,
-              type: ev.type,
-              description: ev.description,
-              registration: ev.registration_url,
-              image: ev.image_url,
+              type: event.type,
+              description: event.description,
+              registration: event.registration_url,
+              image: event.image_url,
             };
           });
 
-        setAcademicActivities(mapped);
-      } catch (e) {
+        setAcademicActivities(items);
+      } catch (error) {
         setAcademicActivities([]);
       } finally {
         setAcademicActivitiesLoading(false);
@@ -269,7 +254,7 @@ export default function StudyProgramDetail({ university, type }) {
   return (
     <HomepageLayout>
       {/* Breadcrumb */}
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 py-6">
+      <section className="bg-gradient-to-r from-primary to-secondary py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 text-white text-sm">
             <Link href="/" className="hover:underline">Home</Link>
@@ -288,7 +273,7 @@ export default function StudyProgramDetail({ university, type }) {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
             <div className="flex flex-col md:flex-row">
               {/* Left: Image */}
-              <div className="md:w-48 h-48 md:h-auto bg-gradient-to-br from-blue-100 to-blue-200 flex-shrink-0">
+              <div className="md:w-48 h-48 md:h-auto bg-gradient-to-br from-primary/10 via-secondary/10 to-white flex-shrink-0">
                 <img
                   src={universityData.image}
                   alt={universityData.fullName}
@@ -302,25 +287,25 @@ export default function StudyProgramDetail({ university, type }) {
               {/* Right: Info */}
               <div className="flex-1 p-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
                     <Icon icon="mdi:school" className="w-8 h-8 text-white" />
                   </div>
                   <div className="flex-1">
                     <p className="text-xs text-gray-600 mb-1">{universityData.description}</p>
-                    <h1 className="text-xl md:text-2xl font-bold text-blue-700 mb-3">
+                    <h1 className="text-xl md:text-2xl font-bold text-primary mb-3">
                       {universityData.fullName}
                     </h1>
                     <div className="grid grid-cols-3 gap-4">
                       <div>
-                        <div className="text-2xl font-bold text-blue-600">{universityData.stats.activeResidents}</div>
+                        <div className="text-2xl font-bold text-primary">{universityData.stats.activeResidents}</div>
                         <div className="text-xs text-gray-600">Residen Aktif</div>
                       </div>
                       <div>
-                        <div className="text-2xl font-bold text-blue-600">{universityData.stats.faculty}</div>
+                        <div className="text-2xl font-bold text-primary">{universityData.stats.faculty}</div>
                         <div className="text-xs text-gray-600">Staf Pengajar</div>
                       </div>
                       <div>
-                        <div className="text-2xl font-bold text-blue-600">{universityData.stats.teachingHospitals}</div>
+                        <div className="text-2xl font-bold text-primary">{universityData.stats.teachingHospitals}</div>
                         <div className="text-xs text-gray-600">Specialist center</div>
                       </div>
                     </div>
@@ -336,7 +321,7 @@ export default function StudyProgramDetail({ university, type }) {
 
               {/* Short Profile */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-2xl font-bold text-blue-700 mb-6">
+                <h2 className="text-2xl font-bold text-primary mb-6">
                   Short Profile
                 </h2>
                 <div className="space-y-4 mb-6">
@@ -350,8 +335,8 @@ export default function StudyProgramDetail({ university, type }) {
 
                 <div className="grid grid-cols-2 gap-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Icon icon="mdi:calendar-outline" className="w-6 h-6 text-blue-600" />
+                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Icon icon="mdi:calendar-outline" className="w-6 h-6 text-primary" />
                     </div>
                     <div>
                       <p className="text-xs text-gray-600 font-medium">Program Duration</p>
@@ -359,8 +344,8 @@ export default function StudyProgramDetail({ university, type }) {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Icon icon="mdi:medal-outline" className="w-6 h-6 text-blue-600" />
+                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Icon icon="mdi:medal-outline" className="w-6 h-6 text-primary" />
                     </div>
                     <div>
                       <p className="text-xs text-gray-600 font-medium">Accreditation</p>
@@ -372,7 +357,7 @@ export default function StudyProgramDetail({ university, type }) {
 
               {/* Educational Dashboard */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                   <Icon icon="mdi:chart-donut" className="w-5 h-5" />
                   Educational Dashboard
                 </h2>
@@ -385,7 +370,7 @@ export default function StudyProgramDetail({ university, type }) {
                           { name: 'Residen Aktif', value: 65 },
                           { name: 'Lainnya', value: 35 }
                         ]}
-                        colors={['#3B82F6', '#E5E7EB']}
+                        colors={["#254D95", "#E5E7EB"]}
                         centerText="65"
                         size={120}
                       />
@@ -393,7 +378,7 @@ export default function StudyProgramDetail({ university, type }) {
                     <p className="text-xs font-semibold text-gray-900">Resident</p>
                     <div className="flex items-center justify-center gap-2 mt-2">
                       <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                        <div className="w-2 h-2 rounded-full bg-primary"></div>
                         <span className="text-[10px] text-gray-600">Active: 65</span>
                       </div>
                       <div className="flex items-center gap-1">
@@ -433,7 +418,7 @@ export default function StudyProgramDetail({ university, type }) {
 
               {/* Faculty of Medicine */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                   <Icon icon="mdi:school-outline" className="w-5 h-5" />
                   Faculty of Medicine, University of Indonesia
                 </h2>
@@ -441,8 +426,8 @@ export default function StudyProgramDetail({ university, type }) {
                   {universityData.staffList.slice(0, 2).map((staff, index) => (
                     <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                       <div className="flex items-start gap-3 mb-3">
-                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                          <Icon icon="mdi:account" className="w-6 h-6 text-blue-600" />
+                        <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Icon icon="mdi:account" className="w-6 h-6 text-primary" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="text-sm font-semibold text-gray-900 leading-tight">
@@ -453,7 +438,7 @@ export default function StudyProgramDetail({ university, type }) {
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1 text-xs text-blue-600">
+                      <div className="flex items-center gap-1 text-xs text-primary">
                         <Icon icon="mdi:email-outline" className="w-3 h-3" />
                         <span>{index === 0 ? "ihsan@orthopaedi.id" : "@orthopaedi.id"}</span>
                       </div>
@@ -464,7 +449,7 @@ export default function StudyProgramDetail({ university, type }) {
 
               {/* Teaching Staff */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                   <Icon icon="mdi:account-group" className="w-5 h-5" />
                   Teaching Staff
                 </h2>
@@ -485,13 +470,13 @@ export default function StudyProgramDetail({ university, type }) {
 
               {/* Gallery */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                   <Icon icon="mdi:image-multiple" className="w-5 h-5" />
                   Gallery
                 </h2>
                 <div className="grid grid-cols-2 gap-3">
                   {(universityData.gallery || []).map((item, index) => (
-                    <div key={index} className="relative rounded-lg overflow-hidden bg-gradient-to-br from-blue-100 to-blue-200 h-32">
+                    <div key={index} className="relative rounded-lg overflow-hidden bg-gradient-to-br from-primary/10 via-secondary/10 to-white h-32">
                       <img
                         src={item.image}
                         alt={item.title}
@@ -514,16 +499,16 @@ export default function StudyProgramDetail({ university, type }) {
               {/* Resident Data */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-0">
                 <div className="p-6 border-b border-gray-200">
-                  <h2 className="text-2xl font-bold text-blue-700">
+                  <h2 className="text-2xl font-bold text-primary">
                     Resident Data
                   </h2>
                 </div>
 
                 <div className="p-6 space-y-4">
-                  <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-6">
+                  <div className="bg-primary/5 border-2 border-primary/15 rounded-lg p-6">
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-lg font-semibold text-blue-700">Active Resident</h3>
-                      <div className="text-4xl font-bold text-blue-700">
+                      <h3 className="text-lg font-semibold text-primary">Active Resident</h3>
+                      <div className="text-4xl font-bold text-primary">
                         {universityData.stats.activeResidents}
                       </div>
                     </div>
@@ -534,7 +519,7 @@ export default function StudyProgramDetail({ university, type }) {
 
                   <Link
                     href={`/profile-study-program/${type}/${universityData.id}/database`}
-                    className="w-full bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold py-3 px-4 rounded-lg transition-colors border-2 border-blue-300 text-center block"
+                    className="w-full bg-primary/10 hover:bg-secondary/10 text-primary hover:text-secondary font-semibold py-3 px-4 rounded-lg transition-colors border-2 border-primary/20 text-center block"
                   >
                     View Resident Details
                   </Link>
@@ -544,41 +529,41 @@ export default function StudyProgramDetail({ university, type }) {
               {/* Contact */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-0">
                 <div className="p-6 border-b border-gray-200">
-                  <h2 className="text-2xl font-bold text-blue-700">
+                  <h2 className="text-2xl font-bold text-primary">
                     Contact
                   </h2>
                 </div>
 
                 <div className="p-6 space-y-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-5 h-5 text-blue-600" />
+                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-semibold text-blue-700 mb-1">Address</h3>
+                      <h3 className="text-sm font-semibold text-primary mb-1">Address</h3>
                       <p className="text-xs text-gray-600">{universityData.contact.address}</p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Phone className="w-5 h-5 text-blue-600" />
+                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Phone className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-semibold text-blue-700 mb-1">Phone</h3>
-                      <a href={`tel:${universityData.contact.phone}`} className="text-xs text-blue-600 hover:underline">
+                      <h3 className="text-sm font-semibold text-primary mb-1">Phone</h3>
+                      <a href={`tel:${universityData.contact.phone}`} className="text-xs text-primary hover:text-secondary">
                         {universityData.contact.phone}
                       </a>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Mail className="w-5 h-5 text-blue-600" />
+                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Mail className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-semibold text-blue-700 mb-1">E-mail</h3>
-                      <a href={`mailto:${universityData.contact.email}`} className="text-xs text-blue-600 hover:underline">
+                      <h3 className="text-sm font-semibold text-primary mb-1">E-mail</h3>
+                      <a href={`mailto:${universityData.contact.email}`} className="text-xs text-primary hover:text-secondary">
                         {universityData.contact.email}
                       </a>
                     </div>
@@ -587,8 +572,8 @@ export default function StudyProgramDetail({ university, type }) {
               </div>
 
               {/* Specialization */}
-              <div className="bg-white rounded-lg shadow-sm border-2 border-blue-300 p-6">
-                <h2 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+              <div className="bg-white rounded-lg shadow-sm border-2 border-primary/20 p-6">
+                <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                   <Icon icon="mdi:school-outline" className="w-5 h-5" />
                   Specialization
                 </h2>
@@ -687,72 +672,40 @@ export default function StudyProgramDetail({ university, type }) {
 
               {/* Academic Activities */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-2xl font-bold text-blue-700 mb-4">
+                <h2 className="text-2xl font-bold text-primary mb-4">
                   Academic Activities
                 </h2>
-                <div className="space-y-3">
-                  {[
-                    {
-                      date: "11 Nov 2025",
-                      badge: "Ujian Nasional",
-                      badgeClass: "bg-blue-600 text-white",
-                      title: "Final Paper Presentation",
-                      location: "Jakarta"
-                    },
-                    {
-                      date: "17 Jan 2026",
-                      badge: "Ujian Nasional",
-                      badgeClass: "bg-blue-600 text-white",
-                      title: "Fellowship Admission Test",
-                      location: "Jakarta"
-                    }
-                  ].map((item, index) => (
-                    <div
-                      key={index}
-                      className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-all duration-300"
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className="text-sm text-gray-700">{item.date}</span>
-                          <span className="text-gray-400">•</span>
-                          <span className={`${item.badgeClass} text-xs font-semibold px-3 py-1 rounded`}>{item.badge}</span>
+                {academicActivities.length === 0 ? (
+                  <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center text-sm text-gray-600">
+                    No upcoming academic activities for this program.
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {academicActivities.map((item) => (
+                      <div key={item.id} className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="text-sm text-gray-700">{item.dateLabel}</span>
+                            <span className="text-gray-400">•</span>
+                            <span className={`${item.badgeClass} text-xs font-semibold px-3 py-1 rounded`}>
+                              {item.badge}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            className="text-sm text-primary hover:text-secondary"
+                            onClick={() => openDetailModal(item)}
+                          >
+                            Detail
+                          </button>
                         </div>
-                        <button
-                          type="button"
-                          className="text-sm text-blue-600 hover:underline"
-                          onClick={() => openDetailModal(item)}
-                        >
-                          Detail
-                        </button>
+                        <h4 className="text-base font-bold text-gray-900 leading-snug">{item.title}</h4>
+                        <p className="text-sm text-gray-600 mt-1">{item.location}</p>
                       </div>
-                      <h4 className="text-base font-bold text-gray-900 leading-snug">{item.title}</h4>
-                      <p className="text-sm text-gray-600 mt-1">{item.location}</p>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
-
-              {/* Teaching Hospitals
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-              <h3 className="text-sm font-bold text-blue-700 mb-3 flex items-center gap-2">
-                <Icon icon="mdi:hospital-building" className="w-4 h-4" />
-                Teaching Hospitals
-              </h3>
-              <ul className="space-y-2 text-xs text-gray-700">
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-600 mt-0.5">•</span>
-                  <span>RSCM Kencana</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-600 mt-0.5">•</span>
-                  <span>RS Fatmawati</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-600 mt-0.5">•</span>
-                  <span>RS Persahabatan</span>
-                </li>
-              </ul>
-            </div> */}
 
               {/* Well-Being Survey */}
               <Link
@@ -760,7 +713,7 @@ export default function StudyProgramDetail({ university, type }) {
                 className="block"
               >
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 hover:shadow-md transition-shadow duration-300">
-                  <h2 className="text-3xl font-bold text-blue-700 mb-8 text-center">
+                  <h2 className="text-3xl font-bold text-primary mb-8 text-center">
                     Well-Being Survey
                   </h2>
 
@@ -768,7 +721,7 @@ export default function StudyProgramDetail({ university, type }) {
                     <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6">
                       <Heart className="w-10 h-10 text-red-700" />
                     </div>
-                    <h3 className="text-xl font-bold text-blue-700 mb-2">Resident Welfare Assessment</h3>
+                    <h3 className="text-xl font-bold text-primary mb-2">Resident Welfare Assessment</h3>
                     <p className="text-base text-gray-600">Complete surveys to track student well-being</p>
                   </div>
 
@@ -794,7 +747,7 @@ export default function StudyProgramDetail({ university, type }) {
             className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className={`p-6 rounded-t-xl ${selectedEvent.dotClass || "bg-blue-600"}`}>
+            <div className={`p-6 rounded-t-xl ${selectedEvent.dotClass || "bg-primary"}`}>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-white" />

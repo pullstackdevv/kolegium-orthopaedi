@@ -112,7 +112,7 @@ export default function ClinicalFellowship() {
   return (
     <HomepageLayout>
       {/* Breadcrumb Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 py-6">
+      <section className="bg-gradient-to-r from-primary to-secondary py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 text-white text-sm">
             <Link href="/" className="hover:underline">Home</Link>
@@ -133,8 +133,8 @@ export default function ClinicalFellowship() {
                 href={tab.href}
                 className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors ${
                   tab.active
-                    ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-gray-600 hover:text-secondary hover:border-secondary/40"
                 }`}
               >
                 {tab.name}
@@ -147,7 +147,7 @@ export default function ClinicalFellowship() {
       <section className="bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold" style={{ color: '#254D95' }}>Study Program Profile</h1>
+            <h1 className="text-3xl font-bold text-primary">Study Program Profile</h1>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {universities.map((university, index) => (
@@ -169,8 +169,8 @@ export default function ClinicalFellowship() {
                       }}
                     />
                   ) : null}
-                  <div className={`w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 ${university.logo ? 'hidden' : ''}`}>
-                    <span className="text-blue-600 font-bold text-base">{university.code}</span>
+                  <div className={`w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 ${university.logo ? 'hidden' : ''}`}>
+                    <span className="text-primary font-bold text-base">{university.code}</span>
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-gray-900">{university.name}</h3>

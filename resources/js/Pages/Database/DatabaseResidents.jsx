@@ -125,9 +125,9 @@ export default function DatabaseResidents() {
   };
 
   const statusPillClass = (v) => {
-    if (v === "active") return "bg-emerald-100 text-emerald-700";
-    if (v === "graduated") return "bg-blue-100 text-blue-700";
-    if (v === "leave") return "bg-yellow-100 text-yellow-700";
+    if (v === "active") return "bg-primary/10 text-primary";
+    if (v === "graduated") return "bg-secondary/10 text-secondary";
+    if (v === "leave") return "bg-amber-100 text-amber-700";
     return "bg-gray-100 text-gray-700";
   };
 
@@ -142,7 +142,7 @@ export default function DatabaseResidents() {
   return (
     <HomepageLayout>
       {/* Breadcrumb */}
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 py-6">
+      <section className="bg-gradient-to-r from-primary to-secondary py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 text-white text-sm">
             <Link href="/" className="hover:underline">
@@ -158,7 +158,7 @@ export default function DatabaseResidents() {
       <section className="bg-gray-50 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold" style={{ color: "#254D95" }}>
+            <h1 className="text-2xl md:text-3xl font-bold text-primary">
               Residents Database
             </h1>
             <p className="text-gray-600 mt-2">Complete list of resident members</p>
@@ -171,8 +171,8 @@ export default function DatabaseResidents() {
                 <p className="text-sm text-gray-600">Total Residents</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
               </div>
-              <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
-                <GraduationCap className="w-6 h-6 text-emerald-600" />
+              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                <GraduationCap className="w-6 h-6 text-primary" />
               </div>
             </div>
 
@@ -181,8 +181,8 @@ export default function DatabaseResidents() {
                 <p className="text-sm text-gray-600">Active</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.active}</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <Users className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center">
+                <Users className="w-6 h-6 text-secondary" />
               </div>
             </div>
 
@@ -191,8 +191,8 @@ export default function DatabaseResidents() {
                 <p className="text-sm text-gray-600">Graduated</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.graduated}</p>
               </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                <GraduationCap className="w-6 h-6 text-purple-600" />
+              <div className="w-12 h-12 bg-primary/5 rounded-full flex items-center justify-center">
+                <GraduationCap className="w-6 h-6 text-primary" />
               </div>
             </div>
           </div>
@@ -210,7 +210,7 @@ export default function DatabaseResidents() {
                     placeholder="Name or member code..."
                     value={filters.search}
                     onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
                 </div>
               </div>
@@ -221,7 +221,7 @@ export default function DatabaseResidents() {
                 <select
                   value={filters.affiliation_id}
                   onChange={(e) => setFilters({ ...filters, affiliation_id: e.target.value })}
-                  className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white cursor-pointer"
+                  className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent appearance-none bg-white cursor-pointer"
                   style={{
                     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
                     backgroundRepeat: 'no-repeat',
@@ -244,7 +244,7 @@ export default function DatabaseResidents() {
                 <select
                   value={filters.status}
                   onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                  className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white cursor-pointer"
+                  className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent appearance-none bg-white cursor-pointer"
                   style={{
                     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
                     backgroundRepeat: 'no-repeat',
@@ -264,7 +264,7 @@ export default function DatabaseResidents() {
           {/* Members Table */}
           {loading ? (
             <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
           ) : error ? (
             <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
@@ -320,7 +320,7 @@ export default function DatabaseResidents() {
                                   }}
                                 />
                               ) : (
-                                <span className="text-blue-600 font-bold text-sm">
+                                <span className="text-primary font-bold text-sm">
                                   {member.name?.charAt(0)?.toUpperCase() || '?'}
                                 </span>
                               )}
