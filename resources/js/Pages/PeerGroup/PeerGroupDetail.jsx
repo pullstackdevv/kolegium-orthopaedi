@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
 import { Users, Calendar, ChevronRight, ChevronLeft } from "lucide-react";
-import HomepageLayout from "../Layouts/HomepageLayout";
+import HomepageLayout from "../../Layouts/HomepageLayout";
 
 export default function PeerGroupDetail() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -47,7 +47,7 @@ export default function PeerGroupDetail() {
 
   return (
     <HomepageLayout>
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 py-6">
+      <section className="bg-gradient-to-r from-primary to-secondary py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 text-white text-sm">
             <Link href="/" className="hover:underline">Home</Link>
@@ -95,7 +95,7 @@ export default function PeerGroupDetail() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-blue-700 mb-4">Short Profile</h2>
+              <h2 className="text-xl font-bold text-primary mb-4">Short Profile</h2>
               <p className="text-sm text-gray-700 leading-relaxed mb-3">
                 The Indonesian Orthopaedic Spine Surgeon Association (IOSSA) is a professional organization dedicated to advancing the field of spine surgery in Indonesia.
               </p>
@@ -104,8 +104,8 @@ export default function PeerGroupDetail() {
               </p>
             </div>
             <div className="lg:col-span-1 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-blue-700 mb-4">Agenda</h2>
-              <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+              <h2 className="text-xl font-bold text-primary mb-4">Agenda</h2>
+              <div className="bg-primary/10 rounded-lg p-4 border border-primary/20">
                 <p className="text-xs text-gray-600 mb-3 font-medium">Upcoming Events</p>
                 <div>
                   <p className="font-semibold text-gray-900 text-sm">Annual Meeting 2025</p>
@@ -118,7 +118,7 @@ export default function PeerGroupDetail() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h3 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                   <Icon icon="mdi:office-building" className="w-5 h-5" />
                   President
                 </h3>
@@ -132,7 +132,7 @@ export default function PeerGroupDetail() {
                 </div>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                   <Icon icon="mdi:office-building" className="w-5 h-5" />
                   Vice President
                 </h3>
@@ -147,7 +147,7 @@ export default function PeerGroupDetail() {
               </div>
             </div>
             <div className="mt-6">
-              <h3 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+              <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                 <Icon icon="mdi:office-building" className="w-5 h-5" />
                 Secretary General
               </h3>
@@ -164,7 +164,7 @@ export default function PeerGroupDetail() {
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-blue-700">Peer Group Members</h2>
+              <h2 className="text-xl font-bold text-primary">Peer Group Members</h2>
               <p className="text-sm text-gray-600 mt-1">Showing {startIndex + 1} to {Math.min(endIndex, totalItems)} of {totalItems} members</p>
             </div>
             <div className="overflow-x-auto">
@@ -188,7 +188,7 @@ export default function PeerGroupDetail() {
                       <td className="px-6 py-4 text-sm text-gray-700">{fellow.specialty}</td>
                       <td className="px-6 py-4 text-sm text-gray-700">{fellow.year}</td>
                       <td className="px-6 py-4">
-                        <span className={`${fellow.statusColor} text-white text-xs font-semibold px-3 py-1 rounded-full`}>
+                        <span className={`${fellow.statusColor || "bg-primary"} text-white text-xs font-semibold px-3 py-1 rounded-full`}>
                           {fellow.status}
                         </span>
                       </td>

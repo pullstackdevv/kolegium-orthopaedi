@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
 import { Users, Calendar, ChevronRight, ChevronLeft } from "lucide-react";
-import HomepageLayout from "../Layouts/HomepageLayout";
+import HomepageLayout from "../../Layouts/HomepageLayout";
 
 export default function PeerGroup() {
   // Peer Groups Data
@@ -84,7 +84,7 @@ export default function PeerGroup() {
   return (
     <HomepageLayout>
       {/* Breadcrumb */}
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 py-6">
+      <section className="bg-gradient-to-r from-primary to-secondary py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 text-white text-sm">
             <Link href="/" className="hover:underline">Home</Link>
@@ -98,7 +98,7 @@ export default function PeerGroup() {
       <section className="bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Page Title */}
-          <h1 className="text-3xl font-bold text-blue-600 mb-8">Peer Group</h1>
+          <h1 className="text-3xl font-bold text-primary mb-8">Peer Group</h1>
 
           {/* Peer Groups Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -127,7 +127,7 @@ export default function PeerGroup() {
                   </div>
                   <Link 
                     href={`/peer-group/${group.id}`}
-                    className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                    className="text-primary hover:text-secondary text-sm font-medium"
                   >
                     Detail
                   </Link>

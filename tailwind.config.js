@@ -24,6 +24,10 @@ export default {
     				DEFAULT: '#34A1F4',
     				foreground: '#FFFFFF'
     			},
+				tertiary: {
+					DEFAULT: '#880E0D',
+					foreground: '#FFFFFF'
+				},
     			background: 'hsl(var(--background))',
     			foreground: 'hsl(var(--foreground))',
     			card: {

@@ -18,12 +18,12 @@ Route::get('/', function () {
 
 // Peer Group page
 Route::get('/peer-group', function () {
-    return Inertia::render('PeerGroup', ['layout' => 'HomepageLayout']);
+    return Inertia::render('PeerGroup/index', ['layout' => 'HomepageLayout']);
 })->name('peer-group');
 
 // Peer Group Detail page
 Route::get('/peer-group/{id}', function ($id) {
-    return Inertia::render('PeerGroupDetail', [
+    return Inertia::render('PeerGroup/PeerGroupDetail', [
         'layout' => 'HomepageLayout',
         'peerGroupId' => $id
     ]);

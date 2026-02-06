@@ -58,7 +58,7 @@ export default function AboutUs() {
   return (
     <HomepageLayout>
       {/* Breadcrumb */}
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 py-6">
+      <section className="bg-gradient-to-r from-primary to-secondary py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 text-white text-sm">
             <Link href="/" className="hover:underline">Home</Link>
@@ -79,24 +79,24 @@ export default function AboutUs() {
 
           {/* Board Members Section */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-            <h2 className="text-xl font-bold text-blue-700 mb-6">Board of Directors</h2>
+            <h2 className="text-xl font-bold text-primary mb-6">Board of Directors</h2>
             
             {/* Top Row - 5 Members */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 mb-6">
               {topBoardMembers.map((member, index) => (
                 <div key={index} className="text-center">
-                  <div className="w-24 h-32 mx-auto mb-3 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center overflow-hidden border-2 border-gray-300">
+                  <div className="w-24 h-32 mx-auto mb-3 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg flex items-center justify-center overflow-hidden border-2 border-gray-200">
                     <img
                       src={member.image}
                       alt={member.name}
                       className="w-full h-full object-cover"
                       onError={(e) => {
                         e.target.style.display = 'none';
-                        e.target.parentElement.innerHTML = '<div class="w-full h-full bg-blue-600 rounded-lg flex items-center justify-center"><svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg></div>';
+                        e.target.parentElement.innerHTML = '<div class="w-full h-full bg-primary rounded-lg flex items-center justify-center"><svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg></div>';
                       }}
                     />
                   </div>
-                  <p className="text-xs font-bold text-blue-600 mb-1">{member.period}</p>
+                  <p className="text-xs font-bold text-primary mb-1">{member.period}</p>
                   <h3 className="text-[10px] text-gray-900 leading-tight px-1">
                     {member.name}
                   </h3>
@@ -115,11 +115,11 @@ export default function AboutUs() {
                       className="w-full h-full object-cover"
                       onError={(e) => {
                         e.target.style.display = 'none';
-                        e.target.parentElement.innerHTML = '<div class="w-full h-full bg-blue-600 rounded-lg flex items-center justify-center"><svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg></div>';
+                        e.target.parentElement.innerHTML = '<div class="w-full h-full bg-primary rounded-lg flex items-center justify-center"><svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg></div>';
                       }}
                     />
                   </div>
-                  <p className="text-xs font-bold text-blue-600 mb-1">{member.period}</p>
+                  <p className="text-xs font-bold text-primary mb-1">{member.period}</p>
                   <h3 className="text-[10px] text-gray-900 leading-tight px-1">
                     {member.name}
                   </h3>
@@ -131,7 +131,7 @@ export default function AboutUs() {
           {/* Committee Formation History */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
             {/* Description */}
-            <div className="mb-6 p-4 border-l-4 border-blue-600 bg-blue-50">
+            <div className="mb-6 p-4 border-l-4 border-primary bg-primary/5">
               <p className="text-sm text-gray-700 leading-relaxed">
                 Before the formation of the Indonesian Orthopaedic and Traumatology College, it was called the <strong>Permanent Committee for Qualification Examinations</strong>, where this Committee was tasked with organizing the National Board Orthopaedic Examination for Orthopaedic and Traumatology PPDS throughout Indonesia, with a list of positions as a Committee before the formation of the College, as follows:
               </p>
@@ -140,12 +140,12 @@ export default function AboutUs() {
             {/* Committee Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Card 1 - Single member */}
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg p-5 border border-blue-200">
+              <div className="bg-gradient-to-br from-gray-50 to-secondary/10 rounded-lg p-5 border border-secondary/30">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                  <span className="text-lg font-bold text-blue-700">1988</span>
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  <span className="text-lg font-bold text-primary">1988</span>
                 </div>
-                <h3 className="text-base font-bold text-blue-700 mb-3">
+                <h3 className="text-base font-bold text-primary mb-3">
                   Standing Committee for Examination & Qualification
                 </h3>
                 <div className="space-y-2">
@@ -157,12 +157,12 @@ export default function AboutUs() {
               </div>
 
               {/* Card 2 - Two members */}
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg p-5 border border-blue-200">
+              <div className="bg-gradient-to-br from-gray-50 to-secondary/10 rounded-lg p-5 border border-secondary/30">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                  <span className="text-lg font-bold text-blue-700">1988</span>
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  <span className="text-lg font-bold text-primary">1988</span>
                 </div>
-                <h3 className="text-base font-bold text-blue-700 mb-3">
+                <h3 className="text-base font-bold text-primary mb-3">
                   Standing Committee for Examination & Qualification
                 </h3>
                 <div className="space-y-2">
@@ -178,12 +178,12 @@ export default function AboutUs() {
               </div>
 
               {/* Card 3 - Two members */}
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg p-5 border border-blue-200">
+              <div className="bg-gradient-to-br from-gray-50 to-secondary/10 rounded-lg p-5 border border-secondary/30">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                  <span className="text-lg font-bold text-blue-700">1988</span>
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  <span className="text-lg font-bold text-primary">1988</span>
                 </div>
-                <h3 className="text-base font-bold text-blue-700 mb-3">
+                <h3 className="text-base font-bold text-primary mb-3">
                   Standing Committee for Examination & Qualification
                 </h3>
                 <div className="space-y-2">
@@ -199,12 +199,12 @@ export default function AboutUs() {
               </div>
 
               {/* Card 4 - Two members */}
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg p-5 border border-blue-200">
+              <div className="bg-gradient-to-br from-gray-50 to-secondary/10 rounded-lg p-5 border border-secondary/30">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                  <span className="text-lg font-bold text-blue-700">1988</span>
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  <span className="text-lg font-bold text-primary">1988</span>
                 </div>
-                <h3 className="text-base font-bold text-blue-700 mb-3">
+                <h3 className="text-base font-bold text-primary mb-3">
                   Standing Committee for Examination & Qualification
                 </h3>
                 <div className="space-y-2">
@@ -220,12 +220,12 @@ export default function AboutUs() {
               </div>
 
               {/* Card 5 - Two members */}
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg p-5 border border-blue-200">
+              <div className="bg-gradient-to-br from-gray-50 to-secondary/10 rounded-lg p-5 border border-secondary/30">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                  <span className="text-lg font-bold text-blue-700">1988</span>
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  <span className="text-lg font-bold text-primary">1988</span>
                 </div>
-                <h3 className="text-base font-bold text-blue-700 mb-3">
+                <h3 className="text-base font-bold text-primary mb-3">
                   Standing Committee for Examination & Qualification
                 </h3>
                 <div className="space-y-2">
@@ -245,7 +245,7 @@ export default function AboutUs() {
           {/* College Chairs History Section */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
             {/* Description */}
-            <div className="mb-6 p-4 border-l-4 border-blue-600 bg-blue-50">
+            <div className="mb-6 p-4 border-l-4 border-primary bg-primary/5">
               <p className="text-sm text-gray-700 leading-relaxed">
                 In 1998, the Indonesian Orthopaedic and Traumatology College was formed, with the following list of chairs:
               </p>
@@ -254,12 +254,12 @@ export default function AboutUs() {
             {/* Chairs Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Card 1: 1998-2002 (2 members) */}
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg p-5 border border-blue-200">
+              <div className="bg-gradient-to-br from-gray-50 to-secondary/10 rounded-lg p-5 border border-secondary/30">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                  <span className="text-base font-bold text-blue-700">1998 – 2002</span>
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  <span className="text-base font-bold text-primary">1998 – 2002</span>
                 </div>
-                <h3 className="text-sm font-bold text-blue-700 mb-3">
+                <h3 className="text-sm font-bold text-primary mb-3">
                   Indonesian Orthopaedic and Traumatology College
                 </h3>
                 <div className="space-y-1.5 text-xs">
@@ -275,12 +275,12 @@ export default function AboutUs() {
               </div>
 
               {/* Card 2: 1998-2002 (2 members) */}
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg p-5 border border-blue-200">
+              <div className="bg-gradient-to-br from-gray-50 to-secondary/10 rounded-lg p-5 border border-secondary/30">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                  <span className="text-base font-bold text-blue-700">1998 – 2002</span>
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  <span className="text-base font-bold text-primary">1998 – 2002</span>
                 </div>
-                <h3 className="text-sm font-bold text-blue-700 mb-3">
+                <h3 className="text-sm font-bold text-primary mb-3">
                   Indonesian Orthopaedic and Traumatology College
                 </h3>
                 <div className="space-y-1.5 text-xs">
@@ -296,12 +296,12 @@ export default function AboutUs() {
               </div>
 
               {/* Card 3: 1998-2002 (2 members) */}
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg p-5 border border-blue-200">
+              <div className="bg-gradient-to-br from-gray-50 to-secondary/10 rounded-lg p-5 border border-secondary/30">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                  <span className="text-base font-bold text-blue-700">1998 – 2002</span>
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  <span className="text-base font-bold text-primary">1998 – 2002</span>
                 </div>
-                <h3 className="text-sm font-bold text-blue-700 mb-3">
+                <h3 className="text-sm font-bold text-primary mb-3">
                   Indonesian Orthopaedic and Traumatology College
                 </h3>
                 <div className="space-y-1.5 text-xs">
@@ -317,12 +317,12 @@ export default function AboutUs() {
               </div>
 
               {/* Card 4: 1998-2002 (2 members) */}
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg p-5 border border-blue-200">
+              <div className="bg-gradient-to-br from-gray-50 to-secondary/10 rounded-lg p-5 border border-secondary/30">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                  <span className="text-base font-bold text-blue-700">1998 – 2002</span>
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  <span className="text-base font-bold text-primary">1998 – 2002</span>
                 </div>
-                <h3 className="text-sm font-bold text-blue-700 mb-3">
+                <h3 className="text-sm font-bold text-primary mb-3">
                   Indonesian Orthopaedic and Traumatology College
                 </h3>
                 <div className="space-y-1.5 text-xs">
@@ -338,12 +338,12 @@ export default function AboutUs() {
               </div>
 
               {/* Card 5: 1998-2002 (3 members) */}
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg p-5 border border-blue-200">
+              <div className="bg-gradient-to-br from-gray-50 to-secondary/10 rounded-lg p-5 border border-secondary/30">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                  <span className="text-base font-bold text-blue-700">1998 – 2002</span>
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  <span className="text-base font-bold text-primary">1998 – 2002</span>
                 </div>
-                <h3 className="text-sm font-bold text-blue-700 mb-3">
+                <h3 className="text-sm font-bold text-primary mb-3">
                   Indonesian Orthopaedic and Traumatology College
                 </h3>
                 <div className="space-y-1.5 text-xs">
@@ -363,12 +363,12 @@ export default function AboutUs() {
               </div>
 
               {/* Card 6: 1998-2002 (3 members) */}
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg p-5 border border-blue-200">
+              <div className="bg-gradient-to-br from-gray-50 to-secondary/10 rounded-lg p-5 border border-secondary/30">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                  <span className="text-base font-bold text-blue-700">1998 – 2002</span>
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  <span className="text-base font-bold text-primary">1998 – 2002</span>
                 </div>
-                <h3 className="text-sm font-bold text-blue-700 mb-3">
+                <h3 className="text-sm font-bold text-primary mb-3">
                   Indonesian Orthopaedic and Traumatology College
                 </h3>
                 <div className="space-y-1.5 text-xs">
@@ -388,12 +388,12 @@ export default function AboutUs() {
               </div>
 
               {/* Card 7: 1998-2002 (3 members) */}
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg p-5 border border-blue-200">
+              <div className="bg-gradient-to-br from-gray-50 to-secondary/10 rounded-lg p-5 border border-secondary/30">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                  <span className="text-base font-bold text-blue-700">1998 – 2002</span>
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  <span className="text-base font-bold text-primary">1998 – 2002</span>
                 </div>
-                <h3 className="text-sm font-bold text-blue-700 mb-3">
+                <h3 className="text-sm font-bold text-primary mb-3">
                   Indonesian Orthopaedic and Traumatology College
                 </h3>
                 <div className="space-y-1.5 text-xs">
@@ -413,12 +413,12 @@ export default function AboutUs() {
               </div>
 
               {/* Card 8: 1998-2002 (4 members) */}
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg p-5 border border-blue-200">
+              <div className="bg-gradient-to-br from-gray-50 to-secondary/10 rounded-lg p-5 border border-secondary/30">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                  <span className="text-base font-bold text-blue-700">1998 – 2002</span>
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  <span className="text-base font-bold text-primary">1998 – 2002</span>
                 </div>
-                <h3 className="text-sm font-bold text-blue-700 mb-3">
+                <h3 className="text-sm font-bold text-primary mb-3">
                   Indonesian Orthopaedic and Traumatology College
                 </h3>
                 <div className="space-y-1.5 text-xs">
@@ -442,12 +442,12 @@ export default function AboutUs() {
               </div>
 
               {/* Card 9: Bulan Nop 2019 - Nop 2022 */}
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg p-5 border border-blue-200">
+              <div className="bg-gradient-to-br from-gray-50 to-secondary/10 rounded-lg p-5 border border-secondary/30">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                  <span className="text-base font-bold text-blue-700">Bulan Nop 2019 – Nop 2022</span>
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  <span className="text-base font-bold text-primary">Bulan Nop 2019 – Nop 2022</span>
                 </div>
-                <h3 className="text-sm font-bold text-blue-700 mb-3">
+                <h3 className="text-sm font-bold text-primary mb-3">
                   Indonesian Orthopaedic and Traumatology College
                 </h3>
                 <div className="space-y-1.5 text-xs">
@@ -463,12 +463,12 @@ export default function AboutUs() {
               </div>
 
               {/* Card 10: Bulan Nop 2022 - Nop 2025 */}
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg p-5 border border-blue-200">
+              <div className="bg-gradient-to-br from-gray-50 to-secondary/10 rounded-lg p-5 border border-secondary/30">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                  <span className="text-base font-bold text-blue-700">Bulan Nop 2022 – Nop 2025</span>
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  <span className="text-base font-bold text-primary">Bulan Nop 2022 – Nop 2025</span>
                 </div>
-                <h3 className="text-sm font-bold text-blue-700 mb-3">
+                <h3 className="text-sm font-bold text-primary mb-3">
                   Indonesian Orthopaedic and Traumatology College
                 </h3>
                 <div className="space-y-1.5 text-xs">
@@ -498,7 +498,7 @@ export default function AboutUs() {
             {/* Header */}
             <div className="mb-6">
               <h2 className="text-lg font-bold text-gray-900 mb-2">ORGANIZATIONAL STRUCTURE</h2>
-              <h3 className="text-sm font-semibold text-blue-600 mb-4">
+              <h3 className="text-sm font-semibold text-primary mb-4">
                 Organizational Structure of the Indonesian Orthopaedic and Traumatology College for the 2022-2025 Period
               </h3>
             </div>
@@ -540,7 +540,7 @@ export default function AboutUs() {
 
             {/* Ketua/Dept/Staff Section */}
             <div className="mb-6">
-              <h4 className="text-sm font-bold text-blue-700 mb-3">Ketua/Dept/Staff Orthopaedi & Traumatology & KPR/SPS</h4>
+              <h4 className="text-sm font-bold text-primary mb-3">Ketua/Dept/Staff Orthopaedi & Traumatology & KPR/SPS</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-xs">
                 <div>
                   <p className="font-semibold text-gray-900">FK - Jakarta</p>
@@ -565,7 +565,7 @@ export default function AboutUs() {
 
             {/* FK Universities List */}
             <div className="mb-6">
-              <h4 className="text-sm font-bold text-blue-700 mb-3">FK (Daftar) - Bandung</h4>
+              <h4 className="text-sm font-bold text-primary mb-3">FK (Daftar) - Bandung</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-1 text-xs text-gray-700">
                 <div>
                   <p>• FK UNPAD - Bandung</p>
@@ -686,7 +686,7 @@ export default function AboutUs() {
           {/* Organizational Structure 2024-2028 Section */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 mb-8">
             {/* Title */}
-            <h2 className="text-xl font-bold text-blue-700 text-center mb-8">
+            <h2 className="text-xl font-bold text-primary text-center mb-8">
               ORGANIZATIONAL STRUCTURE OF THE COLLEGE OF ORTHOPAEDICS AND TRAUMATOLOGY FOR THE PERIOD 2024-2028
             </h2>
 
