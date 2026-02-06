@@ -233,82 +233,109 @@ export default function MarketplaceLayout({ children }) {
             </main>
 
             {/* Footer */}
-            <footer className="bg-gradient-to-r from-blue-100 to-blue-200">
-                <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <footer className="bg-gradient-to-b from-primary/90 via-primary to-gray-900">
+                <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
                         {/* Logo & Address Column */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-3">
-                                <img src="/assets/icons/poboi.svg" alt="POBOI Logo" className="h-12 w-auto" 
+                            <div className="flex items-center gap-3 mb-6 px-4 py-3">
+                                <img src="/assets/icons/poboi.svg" alt="POBOI Logo" className="h-14 w-auto" 
                                     onError={(e) => e.target.style.display = 'none'}
                                 />
-                                <img src="/assets/images/logos/kolegium.svg" alt="Kolegium Logo" className="h-12 w-auto"
+                                <img src="/assets/images/logos/kolegium.svg" alt="Kolegium Logo" className="h-14 w-auto"
                                     onError={(e) => e.target.style.display = 'none'}
                                 />
                             </div>
-                            <div className="text-sm text-gray-700 space-y-1">                             
-                                <p>Gedung Menara Era, Lantai 8, Unit 8-04Jl. Senen Raya 135 – 137, Jakarta 10410, INDONESIA</p>
-                            </div>
-                            <div className="text-sm text-gray-700 space-y-1">
-                                <p>Jl. Hang Jebat Blok F3, RT.5/RW.8, Gunung, Kec. Kby. Baru, Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12120, Indonesia</p>
+                            <div className="text-sm text-white/85 space-y-3 leading-relaxed">
+                                <div>
+                                    <p className="font-semibold text-white mb-1">Jakarta Office</p>
+                                    <p>Gedung Menara Era, Lantai 8, Unit 8-04 Jl. Senen Raya 135 – 137, Jakarta 10410, INDONESIA</p>
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-white mb-1">South Jakarta Office</p>
+                                    <p>Jl. Hang Jebat Blok F3, RT.5/RW.8, Gunung, Kec. Kby. Baru, Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12120, Indonesia</p>
+                                </div>
                             </div>
                         </div>
 
                         {/* Menu Column */}
                         <div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-4">Menu</h3>
-                            <ul className="space-y-2 text-sm text-gray-700">
-                                <li><Link href="/" className="hover:text-blue-600 transition">Home</Link></li>
-                                <li><Link href="/profile-study-program/ppds1" className="hover:text-blue-600 transition">Study Program Profile</Link></li>
-                                <li><Link href="/database-residents" className="hover:text-blue-600 transition">Residents</Link></li>
-                                <li><Link href="/database-fellows" className="hover:text-blue-600 transition">Fellows</Link></li>
-                                <li><Link href="/database-trainees" className="hover:text-blue-600 transition">Trainees</Link></li>
-                                <li><Link href="/calendar-academic" className="hover:text-blue-600 transition">Academic Calendar</Link></li>
-                                <li><Link href="/peer-group" className="hover:text-blue-600 transition">Peer Group</Link></li>
-                                <li><Link href="/about-us" className="hover:text-blue-600 transition">About Us</Link></li>
-                                <li><Link href="/cms" className="hover:text-blue-600 transition">Login</Link></li>
+                            <h3 className="text-lg font-bold text-white mb-6 pb-3 border-b-2 border-secondary/50">Menu</h3>
+                            <ul className="space-y-3 text-sm text-white/80">
+                                <li><Link href="/" className="hover:text-secondary transition duration-300 font-medium">Home</Link></li>
+                                <li><Link href="/profile-study-program/ppds1" className="hover:text-secondary transition duration-300 font-medium">Study Program Profile</Link></li>
+                                <li><Link href="/database-residents" className="hover:text-secondary transition duration-300 font-medium">Residents</Link></li>
+                                <li><Link href="/database-fellows" className="hover:text-secondary transition duration-300 font-medium">Fellows</Link></li>
+                                <li><Link href="/database-trainees" className="hover:text-secondary transition duration-300 font-medium">Trainees</Link></li>
+                                <li><Link href="/calendar-academic" className="hover:text-secondary transition duration-300 font-medium">Academic Calendar</Link></li>
+                                <li><Link href="/peer-group" className="hover:text-secondary transition duration-300 font-medium">Peer Group</Link></li>
+                                <li><Link href="/about-us" className="hover:text-secondary transition duration-300 font-medium">About Us</Link></li>
+                                <li><Link href="/cms" className="hover:text-secondary transition duration-300 font-medium">Login</Link></li>
                             </ul>
                         </div>
 
                         {/* Program Column */}
                         <div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-4">Program</h3>
-                            <ul className="space-y-2 text-sm text-gray-700">
-                                <li><Link href="/profile-study-program/ppds1" className="hover:text-blue-600 transition">PPDS 1</Link></li>
-                                <li><Link href="/profile-study-program/clinical-fellowship" className="hover:text-blue-600 transition">Clinical Fellowship</Link></li>
-                                <li><Link href="/profile-study-program/subspecialist" className="hover:text-blue-600 transition">Subspecialist</Link></li>
+                            <h3 className="text-lg font-bold text-white mb-6 pb-3 border-b-2 border-secondary/50">Program</h3>
+                            <ul className="space-y-3 text-sm text-white/80">
+                                <li><Link href="/profile-study-program/ppds1" className="hover:text-secondary transition duration-300 font-medium">PPDS 1</Link></li>
+                                <li><Link href="/profile-study-program/clinical-fellowship" className="hover:text-secondary transition duration-300 font-medium">Clinical Fellowship</Link></li>
+                                <li><Link href="/profile-study-program/subspecialist" className="hover:text-secondary transition duration-300 font-medium">Subspecialist</Link></li>
                             </ul>
                         </div>
 
                         {/* Contact Column */}
                         <div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-4">Contact</h3>
-                            <ul className="space-y-2 text-sm text-gray-700">
-                                <li><a href="tel:+622138319351" className="hover:text-blue-600 transition">+62 21 383 9351</a></li>
-                                <li><a href="tel:+6281283839351" className="hover:text-blue-600 transition">+62 812 8383 9351</a></li>
-                                <li><a href="tel:+622138318658" className="hover:text-blue-600 transition">+62 21 383 18658</a></li>
-                                <li className="mt-4"><a href="mailto:kolegiumorthopaediindonesia@gmail.com" className="hover:text-blue-600 transition break-all">kolegiumorthopaediindonesia@gmail.com</a></li>
+                            <h3 className="text-lg font-bold text-white mb-6 pb-3 border-b-2 border-secondary/50">Contact</h3>
+                            <ul className="space-y-3 text-sm text-white/80">
+                                <li>
+                                    <a href="tel:+622138319351" className="hover:text-secondary transition duration-300 font-medium flex items-center gap-2">
+                                        <Icon icon="mdi:phone" className="w-4 h-4" />
+                                        +62 21 383 9351
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="tel:+6281283839351" className="hover:text-secondary transition duration-300 font-medium flex items-center gap-2">
+                                        <Icon icon="mdi:phone" className="w-4 h-4" />
+                                        +62 812 8383 9351
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="tel:+622138318658" className="hover:text-secondary transition duration-300 font-medium flex items-center gap-2">
+                                        <Icon icon="mdi:phone" className="w-4 h-4" />
+                                        +62 21 383 18658
+                                    </a>
+                                </li>
+                                <li className="mt-4">
+                                    <a href="mailto:kolegiumorthopaediindonesia@gmail.com" className="hover:text-secondary transition duration-300 font-medium flex items-center gap-2 break-all">
+                                        <Icon icon="mdi:email" className="w-4 h-4 flex-shrink-0" />
+                                        kolegiumorthopaediindonesia@gmail.com
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </div>
 
+                    {/* Divider */}
+                    <div className="border-t border-white/20 my-8"></div>
+
                     {/* Copyright & Social Media */}
-                    <div className="pt-6 border-t border-blue-300 flex flex-col md:flex-row justify-between items-center gap-4">
-                        <p className="text-sm text-gray-700">
-                            ©️2025 E-Dashboard Indonesian Orthopaedic and Traumatology Education. All rights reserved.
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                        <p className="text-sm text-white/75 text-center md:text-left">
+                            © 2025 E-Dashboard Indonesian Orthopaedic and Traumatology Education. All rights reserved.
                         </p>
-                        <div className="flex gap-4">
-                            <a href="#" className="text-gray-700 hover:text-blue-600 transition">
-                                <Icon icon="mdi:facebook" className="w-5 h-5" />
+                        <div className="flex gap-6">
+                            <a href="#" className="text-white/70 hover:text-secondary transition duration-300 hover:scale-110 transform">
+                                <Icon icon="mdi:facebook" className="w-6 h-6" />
                             </a>
-                            <a href="#" className="text-gray-700 hover:text-blue-600 transition">
-                                <Icon icon="mdi:youtube" className="w-5 h-5" />
+                            <a href="#" className="text-white/70 hover:text-secondary transition duration-300 hover:scale-110 transform">
+                                <Icon icon="mdi:youtube" className="w-6 h-6" />
                             </a>
-                            <a href="#" className="text-gray-700 hover:text-blue-600 transition">
-                                <Icon icon="mdi:instagram" className="w-5 h-5" />
+                            <a href="#" className="text-white/70 hover:text-secondary transition duration-300 hover:scale-110 transform">
+                                <Icon icon="mdi:instagram" className="w-6 h-6" />
                             </a>
-                            <a href="#" className="text-gray-700 hover:text-blue-600 transition">
-                                <Icon icon="mdi:twitter" className="w-5 h-5" />
+                            <a href="#" className="text-white/70 hover:text-secondary transition duration-300 hover:scale-110 transform">
+                                <Icon icon="mdi:twitter" className="w-6 h-6" />
                             </a>
                         </div>
                     </div>
