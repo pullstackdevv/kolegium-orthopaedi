@@ -297,15 +297,15 @@ export default function StudyProgramDetail({ university, type }) {
                     </h1>
                     <div className="grid grid-cols-3 gap-4">
                       <div>
-                        <div className="text-2xl font-bold text-primary">{universityData.stats.activeResidents}</div>
+                        <div className="text-xl font-bold text-primary">{universityData.stats.activeResidents}</div>
                         <div className="text-xs text-gray-600">Residen Aktif</div>
                       </div>
                       <div>
-                        <div className="text-2xl font-bold text-primary">{universityData.stats.faculty}</div>
+                        <div className="text-xl font-bold text-primary">{universityData.stats.faculty}</div>
                         <div className="text-xs text-gray-600">Staf Pengajar</div>
                       </div>
                       <div>
-                        <div className="text-2xl font-bold text-primary">{universityData.stats.teachingHospitals}</div>
+                        <div className="text-xl font-bold text-primary">{universityData.stats.teachingHospitals}</div>
                         <div className="text-xs text-gray-600">Specialist center</div>
                       </div>
                     </div>
@@ -321,7 +321,7 @@ export default function StudyProgramDetail({ university, type }) {
 
               {/* Short Profile */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-2xl font-bold text-primary mb-6">
+                <h2 className="text-xl font-bold text-primary mb-6">
                   Short Profile
                 </h2>
                 <div className="space-y-4 mb-6">
@@ -499,7 +499,7 @@ export default function StudyProgramDetail({ university, type }) {
               {/* Resident Data */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-0">
                 <div className="p-6 border-b border-gray-200">
-                  <h2 className="text-2xl font-bold text-primary">
+                  <h2 className="text-xl font-bold text-primary">
                     Resident Data
                   </h2>
                 </div>
@@ -529,7 +529,7 @@ export default function StudyProgramDetail({ university, type }) {
               {/* Contact */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-0">
                 <div className="p-6 border-b border-gray-200">
-                  <h2 className="text-2xl font-bold text-primary">
+                  <h2 className="text-xl font-bold text-primary">
                     Contact
                   </h2>
                 </div>
@@ -572,7 +572,7 @@ export default function StudyProgramDetail({ university, type }) {
               </div>
 
               {/* Specialization */}
-              <div className="bg-white rounded-lg shadow-sm border-2 border-primary/20 p-6">
+              <div className="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-6">
                 <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                   <Icon icon="mdi:school-outline" className="w-5 h-5" />
                   Specialization
@@ -672,7 +672,7 @@ export default function StudyProgramDetail({ university, type }) {
 
               {/* Academic Activities */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-2xl font-bold text-primary mb-4">
+                <h2 className="text-xl font-bold text-primary mb-4">
                   Academic Activities
                 </h2>
                 {academicActivities.length === 0 ? (
@@ -713,7 +713,7 @@ export default function StudyProgramDetail({ university, type }) {
                 className="block"
               >
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 hover:shadow-md transition-shadow duration-300">
-                  <h2 className="text-3xl font-bold text-primary mb-8 text-center">
+                  <h2 className="text-xl font-bold text-primary mb-8 text-center">
                     Well-Being Survey
                   </h2>
 
@@ -721,17 +721,35 @@ export default function StudyProgramDetail({ university, type }) {
                     <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6">
                       <Heart className="w-10 h-10 text-red-700" />
                     </div>
-                    <h3 className="text-xl font-bold text-primary mb-2">Resident Welfare Assessment</h3>
+                    <h3 className="text-lg font-bold text-primary mb-2">Resident Welfare Assessment</h3>
                     <p className="text-base text-gray-600">Complete surveys to track student well-being</p>
                   </div>
 
                   <div className="bg-red-50 rounded-lg p-6 mb-6 border border-red-200 hover:bg-red-100 transition-colors duration-300">
-                    <p className="text-center font-bold text-red-700 text-lg">Fill Out the Survey Now</p>
+                    <p className="text-center font-bold text-red-700 text-md">Fill Out the Survey Now</p>
                   </div>
 
                   <p className="text-center text-sm text-gray-500">Duration: ± 10 minutes</p>
                 </div>
               </Link>
+
+              {/* Registration */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+                <h2 className="text-xl font-bold text-primary mb-6">
+                  Registration
+                </h2>
+
+                <div className="space-y-4">
+                  <p className="text-base text-gray-700 leading-relaxed">
+                    Registration is opened 2 (two) times a year (January and July Period) via SIMAK UI:
+                  </p>
+
+                  <p className="text-sm text-gray-600 mt-4">
+                    <span className="font-semibold">Link: </span> 
+                    <a href="https://simak.ui.ac.id/spesialiskedokteran.html" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">https://simak.ui.ac.id/spesialiskedokteran.html</a>
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
