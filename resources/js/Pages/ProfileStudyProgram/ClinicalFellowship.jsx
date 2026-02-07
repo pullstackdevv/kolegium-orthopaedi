@@ -153,7 +153,7 @@ export default function ClinicalFellowship() {
             {universities.map((university, index) => (
               <Link
                 key={index}
-                href={university?.affiliationCode ? `/profile-study-program/clinical-fellowship/${university.affiliationCode}` : `/profile-study-program/clinical-fellowship/rsup-sardjito-${index + 1}`}
+                href={`/profile-study-program/clinical-fellowship/${university.id}`}
                 className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-300 block"
               >
                 {/* Hospital Logo & Name */}

@@ -251,6 +251,12 @@ export default function StudyProgramDetail({ university, type }) {
     fetchAcademicActivities();
   }, [agendaSection, universityData.id]);
 
+  const DEFAULT_LOGO = "/assets/images/logo-univ/FK-UI.png";
+  const DEFAULT_PHOTO = "/assets/images/university/FK-UI.png";
+
+  const resolvedLogo = universityData.logo || DEFAULT_LOGO;
+  const resolvedPhoto = universityData.image || DEFAULT_PHOTO;
+
   return (
     <HomepageLayout>
       {/* Breadcrumb */}
@@ -270,45 +276,57 @@ export default function StudyProgramDetail({ university, type }) {
       <section className="bg-gray-50 py-8" >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header Card with Image and Info */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-            <div className="flex flex-col md:flex-row">
+          <div className=" p-6 mb-6">
+            <div className="flex flex-col md:flex-row gap-8 items-start">
               {/* Left: Image */}
-              <div className="md:w-48 h-48 md:h-auto bg-gradient-to-br from-primary/10 via-secondary/10 to-white flex-shrink-0">
+              <div className="w-full md:w-1/3 h-64 flex-shrink-0 overflow-hidden rounded-2xl">
                 <img
-                  src={universityData.image}
+                  src={resolvedPhoto}
                   alt={universityData.fullName}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    e.target.style.display = 'none';
+                    if (e.target.src !== DEFAULT_PHOTO) {
+                      e.target.src = DEFAULT_PHOTO;
+                    }
                   }}
                 />
               </div>
 
               {/* Right: Info */}
-              <div className="flex-1 p-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-                    <Icon icon="mdi:school" className="w-8 h-8 text-white" />
+              <div className="flex-1">
+                <div className="flex items-center gap-6 mb-6">
+                  <div className="w-24 h-24 rounded-full bg-white border-8 border-primary flex items-center justify-center flex-shrink-0 overflow-hidden shadow-md">
+                    <img
+                      src={resolvedLogo}
+                      alt={`${universityData.name} logo`}
+                      className="w-full h-full object-contain p-3"
+                      onError={(e) => {
+                        if (e.target.src !== DEFAULT_LOGO) {
+                          e.target.src = DEFAULT_LOGO;
+                        }
+                      }}
+                    />
                   </div>
                   <div className="flex-1">
-                    <p className="text-xs text-gray-600 mb-1">{universityData.description}</p>
-                    <h1 className="text-xl md:text-2xl font-bold text-primary mb-3">
+                    <p className="text-lg font-semibold text-primary mb-1">{universityData.description}</p>
+                    <h1 className="text-2xl md:text-4xl font-bold text-primary leading-tight">
                       {universityData.fullName}
                     </h1>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <div className="text-xl font-bold text-primary">{universityData.stats.activeResidents}</div>
-                        <div className="text-xs text-gray-600">Residen Aktif</div>
-                      </div>
-                      <div>
-                        <div className="text-xl font-bold text-primary">{universityData.stats.faculty}</div>
-                        <div className="text-xs text-gray-600">Staf Pengajar</div>
-                      </div>
-                      <div>
-                        <div className="text-xl font-bold text-primary">{universityData.stats.teachingHospitals}</div>
-                        <div className="text-xs text-gray-600">Specialist center</div>
-                      </div>
-                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-8 ms-32">
+                  <div className="text-center md:text-left">
+                    <div className="text-3xl font-bold text-primary">{universityData.stats.activeResidents}</div>
+                    <div className="text-lg text-gray-600 mt-1">Residen Aktif</div>
+                  </div>
+                  <div className="text-center md:text-left">
+                    <div className="text-3xl font-bold text-primary">{universityData.stats.faculty}</div>
+                    <div className="text-lg text-gray-600 mt-1">Staff Pendidik</div>
+                  </div>
+                  <div className="text-center md:text-left">
+                    <div className="text-3xl font-bold text-primary">{universityData.stats.teachingHospitals}</div>
+                    <div className="text-lg text-gray-600 mt-1">RS Pendidikan</div>
                   </div>
                 </div>
               </div>
@@ -571,7 +589,139 @@ export default function StudyProgramDetail({ university, type }) {
                 </div>
               </div>
 
-              {/* Specialization */}
+              {/* Teaching Hospital - Only show for resident and clinical fellowship */}
+              {(type === 'resident' || type === 'clinical-fellowship') && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 className="text-lg font-bold text-primary mb-6 flex items-center gap-2">
+                  <Icon icon="mdi:hospital-box" className="w-5 h-5" />
+                  Teaching Hospital
+                </h2>
+
+                <div className="space-y-6">
+                  {/* Main Teaching Hospital */}
+                  <div>
+                    <h3 className="text-sm font-semibold text-primary mb-3">Main Teaching Hospital</h3>
+                    <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                      <div className="flex items-start gap-3">
+                        <span className="w-2 h-2 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">Dr. Cipto Mangunkusumo National General Hospital</p>
+                          <p className="text-xs text-gray-600 mt-1">Jumlah Staff</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Satellite Network Teaching Hospital */}
+                  <div>
+                    <h3 className="text-sm font-semibold text-secondary mb-3">Satellite Network Teaching Hospital</h3>
+                    <div className="bg-green-50 rounded-lg p-4 border border-green-200 space-y-3">
+                      <div className="flex items-start gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">Fatmawati General Hospital</p>
+                          <p className="text-xs text-gray-600">Jakarta</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">Friendship Hospital</p>
+                          <p className="text-xs text-gray-600">Jakarta</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">Gatot Subroto Army Hospital</p>
+                          <p className="text-xs text-gray-600">Jakarta</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">Koja Regional Hospital</p>
+                          <p className="text-xs text-gray-600">Jakarta</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">Tangerang Regency Regional Hospital</p>
+                          <p className="text-xs text-gray-600">Tangerang</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">Dr. Soeradji Tirtonegoro Regional Hospital</p>
+                          <p className="text-xs text-gray-600">Klaten</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">Jombang Regional Hospital</p>
+                          <p className="text-xs text-gray-600">Jombang</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">Dr. Soedarso Hospital</p>
+                          <p className="text-xs text-gray-600">Pontianak</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">Orthopedic Hospital</p>
+                          <p className="text-xs text-gray-600">Purwokerto</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">Siaga Medika Hospital</p>
+                          <p className="text-xs text-gray-600">Banyumas</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">Siaga Medika Hospital</p>
+                          <p className="text-xs text-gray-600">Pemalang</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* International Cooperation */}
+                  <div>
+                    <h3 className="text-sm font-semibold text-tertiary mb-3">International Cooperation</h3>
+                    <div className="bg-red-50 rounded-lg p-4 border border-red-200 space-y-3">
+                      <div className="flex items-start gap-2">
+                        <span className="w-2 h-2 bg-red-600 rounded-full mt-1.5 flex-shrink-0"></span>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">Orthopedic Department, Chiang Mai University</p>
+                          <p className="text-xs text-gray-600">Thailand</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="w-2 h-2 bg-red-600 rounded-full mt-1.5 flex-shrink-0"></span>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">University of Hiroshima</p>
+                          <p className="text-xs text-gray-600">Japan</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              )}
+
+              {/* Specialization - Only show for PPDS1 */}
+              {type !== 'resident' && type !== 'clinical-fellowship' && (
               <div className="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-6">
                 <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                   <Icon icon="mdi:school-outline" className="w-5 h-5" />
@@ -669,6 +819,7 @@ export default function StudyProgramDetail({ university, type }) {
                   </div>
                 </div>
               </div>
+              )}
 
               {/* Academic Activities */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
