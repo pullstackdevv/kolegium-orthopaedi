@@ -9,6 +9,8 @@ use App\Http\Controllers\DatabaseMemberController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WellbeingSurveyController;
+use App\Http\Controllers\AffiliationProfileController;
+use App\Http\Controllers\OrgStructureMemberController;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -71,6 +73,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('agenda-events/{agendaEvent}/publish', [AgendaEventController::class, 'publish']);
     Route::post('agenda-events/{agendaEvent}/unpublish', [AgendaEventController::class, 'unpublish']);
 
+    // Affiliation Profile (CMS) routes
+    Route::get('affiliation-profiles', [AffiliationProfileController::class, 'show']);
+    Route::post('affiliation-profiles', [AffiliationProfileController::class, 'upsert']);
+    Route::post('affiliation-profiles/upload-cover', [AffiliationProfileController::class, 'uploadCoverImage']);
+    Route::post('affiliation-profiles/upload-logo', [AffiliationProfileController::class, 'uploadLogo']);
+    Route::delete('affiliation-profiles/{affiliationId}', [AffiliationProfileController::class, 'destroy']);
+
     // Database Members (CMS) routes
     Route::get('database-members', [DatabaseMemberController::class, 'index']);
     Route::get('database-members/affiliations', [DatabaseMemberController::class, 'affiliations']);
@@ -82,6 +91,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('database-members/{databaseMember}', [DatabaseMemberController::class, 'update']);
     Route::delete('database-members/{databaseMember}', [DatabaseMemberController::class, 'destroy']);
     Route::post('database-members/{databaseMember}/upload-photo', [DatabaseMemberController::class, 'uploadPhotoForMember']);
+
+    // Org Structure Members (CMS) routes
+    Route::get('org-structure-members', [OrgStructureMemberController::class, 'index']);
+    Route::get('org-structure-members/affiliations', [OrgStructureMemberController::class, 'affiliations']);
+    Route::post('org-structure-members/upload-photo', [OrgStructureMemberController::class, 'uploadPhoto']);
+    Route::post('org-structure-members', [OrgStructureMemberController::class, 'store']);
+    Route::put('org-structure-members/{orgStructureMember}', [OrgStructureMemberController::class, 'update']);
+    Route::delete('org-structure-members/{orgStructureMember}', [OrgStructureMemberController::class, 'destroy']);
+    Route::post('org-structure-members/{orgStructureMember}/upload-photo', [OrgStructureMemberController::class, 'uploadPhotoForMember']);
 });
 
 // Database Members - Public Search (for Well-Being Survey verification)
@@ -103,5 +121,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('wellbeing-surveys', [WellbeingSurveyController::class, 'list']);
 });
 
+// Org Structure Members - Public
+Route::get('public/org-structure-members', [OrgStructureMemberController::class, 'publicIndex']);
+
 // Affiliation lookup by code (public)
 Route::get('affiliations/by-code/{code}', [AffiliationController::class, 'getByCode']);
+
+// Affiliation Profile - Public
+Route::get('public/affiliation-profiles/{affiliationId}', [AffiliationProfileController::class, 'publicShow']);

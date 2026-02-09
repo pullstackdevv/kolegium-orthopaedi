@@ -13,92 +13,30 @@ export default function ClinicalFellowshipDetail({ fellowship }) {
   });
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Sample data
+  // Data from backend (loaded from affiliation_profiles table)
   const fellowshipData = fellowship || {
-    id: "rsup-sardjito",
-    name: "RSUP Dr. Sardjito Yogyakarta",
+    id: null,
+    code: "",
+    name: "",
     title: "Clinical Fellowship",
-    image: "/assets/images/hospital-building.jpg",
+    logo: null,
+    image: null,
     stats: {
-      fellowActive: 80,
-      staffPendidik: 30,
-      rsPendidikan: 6
+      fellowActive: 0,
+      staffPendidik: 0,
+      rsPendidikan: 0
     },
-    profileSingkat: "Program PPDS Orthopedi dan Traumatologi FKUI merupakan program pendidikan dokter spesialis yang terkemuka di bidang ortopedi nasional dan internasional. Kami telah sukses dalam menghasilkan lulusan yang berstandar tinggi dengan keterampilan klinis di berbagai rumah sakit pendidikan klinis di berbagai rumah sakit pendidikan utama yang tersebar di seluruh Indonesia. Dengan tenaga pendidik yang berpengalaman dan fasilitas lengkap, kami memberikan pengalaman klinis di berbagai rumah sakit pendidikan utama yang tersebar di seluruh nusantara. Setiap lulusan kami berhasil mencapai standar tertinggi dalam profesi mereka di berbagai rumah sakit utama di Indonesia dan internasional.",
+    profileSingkat: "",
     contact: {
-      address: "Jl. Kesehatan No. 1, Sekip, Sleman, DI. Yogyakarta 55281",
-      phone: "(0274) 587333",
-      website: "https://www.sardjito.co.id"
+      address: "",
+      phone: "",
+      website: ""
     },
     registration: {
-      title: "Pendaftaran dibuka 2 (dua) kali dalam setahun",
-      periods: "Periode: Januari dan Juni/ Juli melalui SIMAK UI",
-      link: "https://simak.ui.ac.id/pendaftaran/dokter.html"
+      info: ""
     },
-    staff: [
-      {
-        name: "dr. Yuni Artha Pratama Putri, Sp.OT (Subsp. Onk. Ort BKV)",
-        specialization: "Subspecialist Spine",
-        program: "Penanggung Jawab Program SP Orthopaedi Onkologi and Bone Surgery"
-      },
-      {
-        name: "dr. Yuni Artha Pratama Putri, Sp.OT (Subsp. Onk. Ort BKV)",
-        specialization: "Subspecialist Spine",
-        program: "Penanggung Jawab Program SP Orthopaedi Onkologi and Bone Surgery"
-      },
-      {
-        name: "dr. Martinus Sp.OT Subdip.T.L.B (INA)",
-        specialization: "Subspecialist Spine",
-        program: "Penanggung Jawab Program SP Hand, Wrist and Elbow Surgery"
-      },
-      {
-        name: "dr. Martinus Sp.OT Subdip.T.L.B (INA)",
-        specialization: "Subspecialist Spine",
-        program: "Penanggung Jawab Program SP Hand, Wrist and Elbow Surgery"
-      },
-      {
-        name: "dr. Martinus Sp.OT Subdip.T.L.B (INA)",
-        specialization: "Subspecialist Spine",
-        program: "Penanggung Jawab Program SP Orthopaedi Onkologi and Reconstructive Microsurgery"
-      },
-      {
-        name: "dr. Martinus Sp.OT Subdip.T.L.B (INA)",
-        specialization: "Subspecialist Spine",
-        program: "Penanggung Jawab Program SP Orthopaedi Onkologi and Reconstructive Microsurgery"
-      }
-    ],
-    students: [
-      {
-        id: 1,
-        name: "Dr. Reza Rahmat",
-        penyelenggara: "RSUP Dr. Sardjito Yogya",
-        semester: "Semester 8",
-        clinicalFellowship: "Hip and Knee",
-        gender: "L",
-        status: "Lulus",
-        statusColor: "bg-blue-500"
-      },
-      {
-        id: 2,
-        name: "Dr. M. Mulky Yasin",
-        penyelenggara: "RSUD Dr. Saiful Anwar Ma",
-        semester: "Semester 4",
-        clinicalFellowship: "Foot and Ankle",
-        gender: "L",
-        status: "Aktif",
-        statusColor: "bg-green-500"
-      },
-      {
-        id: 3,
-        name: "Dr. Rizki Safriadi",
-        penyelenggara: "RSUD Dr. Moewardi Solo",
-        semester: "Semester 8",
-        clinicalFellowship: "Spine",
-        gender: "L",
-        status: "Aktif",
-        statusColor: "bg-green-500"
-      }
-    ]
+    staff: [],
+    students: []
   };
 
   const handleFilterChange = (key, value) => {
@@ -176,12 +114,19 @@ export default function ClinicalFellowshipDetail({ fellowship }) {
                   <Icon icon="mdi:file-document-outline" className="w-6 h-6" />
                   Profile Singkat
                 </h2>
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  {fellowshipData.profileSingkat}
-                </p>
+                {fellowshipData.profileSingkat ? (
+                  <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                    {fellowshipData.profileSingkat}
+                  </div>
+                ) : (
+                  <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center text-sm text-gray-500">
+                    No profile description available yet.
+                  </div>
+                )}
               </div>
 
               {/* Clinical Fellowship Staff */}
+              {fellowshipData.staff?.length > 0 && (
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h2 className="text-xl font-bold text-blue-700 mb-6 flex items-center gap-2">
                   <Icon icon="mdi:hospital-building" className="w-6 h-6" />
@@ -204,6 +149,7 @@ export default function ClinicalFellowshipDetail({ fellowship }) {
                   ))}
                 </div>
               </div>
+              )}
 
               {/* Filters */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -371,18 +317,58 @@ export default function ClinicalFellowshipDetail({ fellowship }) {
 
             {/* Right Column - Sidebar */}
             <div className="lg:col-span-1 space-y-6">
+              {/* Struktur Organisasi */}
+              {fellowshipData.orgStructure?.length > 0 && (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 className="text-lg font-bold text-blue-700 mb-4">
+                  Struktur Organisasi
+                </h3>
+                <div className="space-y-4">
+                  {fellowshipData.orgStructure.map((member) => (
+                    <div key={member.id} className="flex items-start gap-3">
+                      {member.photo ? (
+                        <img
+                          src={member.photo}
+                          alt={member.name}
+                          className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                          onError={(e) => { e.target.style.display = 'none'; }}
+                        />
+                      ) : (
+                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Icon icon="mdi:account" className="w-5 h-5 text-blue-600" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 leading-tight">{member.name}</p>
+                        {member.position && (
+                          <p className="text-xs text-gray-600 mt-0.5">{member.position}</p>
+                        )}
+                        {member.email && (
+                          <a href={`mailto:${member.email}`} className="text-xs text-blue-600 hover:underline">{member.email}</a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              )}
+
               {/* Kontak Sekretariat */}
+              {(fellowshipData.contact?.address || fellowshipData.contact?.phone || fellowshipData.contact?.website) && (
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h3 className="text-lg font-bold text-blue-700 mb-4">
                   Kontak Sekretariat
                 </h3>
                 <div className="space-y-4">
+                  {fellowshipData.contact.address && (
                   <div className="flex items-start gap-3">
                     <MapPin className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
                     <div className="flex-1">
                       <div className="text-sm text-gray-700">{fellowshipData.contact.address}</div>
                     </div>
                   </div>
+                  )}
+                  {fellowshipData.contact.phone && (
                   <div className="flex items-start gap-3">
                     <Phone className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
                     <div className="flex-1">
@@ -392,6 +378,8 @@ export default function ClinicalFellowshipDetail({ fellowship }) {
                       </a>
                     </div>
                   </div>
+                  )}
+                  {fellowshipData.contact.website && (
                   <div className="flex items-start gap-3">
                     <Globe className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
                     <div className="flex-1">
@@ -400,31 +388,35 @@ export default function ClinicalFellowshipDetail({ fellowship }) {
                       </a>
                     </div>
                   </div>
+                  )}
                 </div>
               </div>
+              )}
 
               {/* Pendaftaran */}
+              {fellowshipData.registration?.info && (
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h3 className="text-lg font-bold text-blue-700 mb-4">
                   Pendaftaran
                 </h3>
-                <div className="space-y-3">
-                  <p className="text-sm text-gray-700">
-                    {fellowshipData.registration.title}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    {fellowshipData.registration.periods}
-                  </p>
-                  <a
-                    href={fellowshipData.registration.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-blue-600 hover:underline break-all block"
-                  >
-                    {fellowshipData.registration.link}
-                  </a>
+                <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                  {fellowshipData.registration.info}
                 </div>
+                {fellowshipData.registration?.url && (
+                  <div className="mt-4">
+                    <span className="text-sm text-gray-600">Link Pendaftaran: </span>
+                    <a
+                      href={fellowshipData.registration.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline break-all text-sm"
+                    >
+                      {fellowshipData.registration.url}
+                    </a>
+                  </div>
+                )}
               </div>
+              )}
             </div>
           </div>
         </div>

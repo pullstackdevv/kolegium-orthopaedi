@@ -102,6 +102,18 @@ class RoleSeeder extends Seeder
             'database.peer_group.edit',
             'database.peer_group.delete',
             'database.peer_group.import',
+
+            'profile.study_program.resident.view',
+            'profile.study_program.resident.edit',
+
+            'profile.study_program.fellow.view',
+            'profile.study_program.fellow.edit',
+
+            'profile.study_program.trainee.view',
+            'profile.study_program.trainee.edit',
+
+            'profile.peer_group.view',
+            'profile.peer_group.edit',
         ];
 
         foreach ($permissionNames as $permissionName) {
@@ -176,6 +188,13 @@ class RoleSeeder extends Seeder
                     'database.study_program.trainee.edit',
                     'database.study_program.trainee.delete',
                     'database.study_program.trainee.import',
+
+                    'profile.study_program.resident.view',
+                    'profile.study_program.resident.edit',
+                    'profile.study_program.fellow.view',
+                    'profile.study_program.fellow.edit',
+                    'profile.study_program.trainee.view',
+                    'profile.study_program.trainee.edit',
                 ],
                 'is_active' => true,
                 'is_system' => true
@@ -196,6 +215,9 @@ class RoleSeeder extends Seeder
                     'database.study_program.resident.edit',
                     'database.study_program.resident.delete',
                     'database.study_program.resident.import',
+
+                    'profile.study_program.resident.view',
+                    'profile.study_program.resident.edit',
                 ],
                 'is_active' => true,
                 'is_system' => true
@@ -216,6 +238,9 @@ class RoleSeeder extends Seeder
                     'database.study_program.fellow.edit',
                     'database.study_program.fellow.delete',
                     'database.study_program.fellow.import',
+
+                    'profile.study_program.fellow.view',
+                    'profile.study_program.fellow.edit',
                 ],
                 'is_active' => true,
                 'is_system' => true
@@ -236,6 +261,9 @@ class RoleSeeder extends Seeder
                     'database.study_program.trainee.edit',
                     'database.study_program.trainee.delete',
                     'database.study_program.trainee.import',
+
+                    'profile.study_program.trainee.view',
+                    'profile.study_program.trainee.edit',
                 ],
                 'is_active' => true,
                 'is_system' => true
@@ -256,6 +284,9 @@ class RoleSeeder extends Seeder
                     'database.peer_group.edit',
                     'database.peer_group.delete',
                     'database.peer_group.import',
+
+                    'profile.peer_group.view',
+                    'profile.peer_group.edit',
                 ],
                 'is_active' => true,
                 'is_system' => true
