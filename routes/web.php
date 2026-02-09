@@ -9,7 +9,9 @@ use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Affiliation;
+use App\Models\AffiliationProfile;
 use App\Models\DatabaseMember;
+use App\Models\OrgStructureMember;
 
 // Public Homepage - no login required
 Route::get('/', function () {
@@ -23,9 +25,57 @@ Route::get('/peer-group', function () {
 
 // Peer Group Detail page
 Route::get('/peer-group/{id}', function ($id) {
+    $affiliation = Affiliation::query()->where('id', $id)->orWhere('code', $id)->firstOrFail();
+    $profile = AffiliationProfile::where('affiliation_id', $affiliation->id)->first();
+
+    $totalMembers = DatabaseMember::query()
+        ->where('organization_type', 'peer_group')
+        ->where('affiliation_id', $affiliation->id)
+        ->count();
+
+    $profileLogoUrl = $profile && $profile->logo ? \Illuminate\Support\Facades\Storage::url($profile->logo) : null;
+    $logoUrl = $profileLogoUrl ?? ($affiliation->logo ? \Illuminate\Support\Facades\Storage::url($affiliation->logo) : null);
+    $coverImageUrl = $profile && $profile->cover_image ? \Illuminate\Support\Facades\Storage::url($profile->cover_image) : null;
+
+    // Fetch org structure members
+    $orgMembers = OrgStructureMember::query()
+        ->where('organization_type', 'peer_group')
+        ->where('affiliation_id', $affiliation->id)
+        ->orderBy('position_order')
+        ->orderBy('name')
+        ->get()
+        ->map(fn ($m) => [
+            'id' => $m->id,
+            'name' => $m->name,
+            'position' => $m->position ?? '',
+            'email' => $m->email ?? '',
+            'photo' => $m->photo ? (str_starts_with($m->photo, 'http') ? $m->photo : \Illuminate\Support\Facades\Storage::url($m->photo)) : null,
+        ])
+        ->toArray();
+
     return Inertia::render('PeerGroup/PeerGroupDetail', [
         'layout' => 'HomepageLayout',
-        'peerGroupId' => $id
+        'peerGroupId' => $id,
+        'peerGroup' => [
+            'id' => $affiliation->id,
+            'code' => $affiliation->code,
+            'name' => $affiliation->code,
+            'fullName' => $affiliation->name,
+            'subTitle' => $profile->sub_title ?? '',
+            'logo' => $logoUrl,
+            'image' => $coverImageUrl,
+            'members' => $totalMembers,
+            'description' => $profile->description ?? '',
+            'registrationInfo' => $profile->registration_info ?? '',
+            'registrationUrl' => $profile->registration_url ?? '',
+            'contact' => [
+                'address' => $profile->contact_address ?? '',
+                'phone' => $profile->contact_phone ?? '',
+                'email' => $profile->contact_email ?? '',
+                'website' => $profile->contact_website ?? '',
+            ],
+            'orgStructure' => $orgMembers,
+        ],
     ]);
 })->name('peer-group.detail');
 
@@ -45,8 +95,64 @@ Route::get('/profile-study-program/subspesialis', function () {
 // University Detail Routes - Public Access
 // Clinical Fellowship Detail (has different layout)
 Route::get('/profile-study-program/clinical-fellowship/{id}', function ($id) {
+    $affiliation = Affiliation::query()->where('id', $id)->orWhere('code', $id)->firstOrFail();
+    $profile = AffiliationProfile::where('affiliation_id', $affiliation->id)->first();
+
+    $activeFellows = DatabaseMember::query()
+        ->where('organization_type', 'fellow')
+        ->where('affiliation_id', $affiliation->id)
+        ->where('status', 'active')
+        ->count();
+
+    $profileLogoUrl = $profile && $profile->logo ? \Illuminate\Support\Facades\Storage::url($profile->logo) : null;
+    $logoUrl = $profileLogoUrl ?? ($affiliation->logo ? \Illuminate\Support\Facades\Storage::url($affiliation->logo) : null);
+    $coverImageUrl = $profile && $profile->cover_image ? \Illuminate\Support\Facades\Storage::url($profile->cover_image) : null;
+
+    // Fetch org structure members
+    $orgMembers = OrgStructureMember::query()
+        ->where('organization_type', 'fellow')
+        ->where('affiliation_id', $affiliation->id)
+        ->orderBy('position_order')
+        ->orderBy('name')
+        ->get()
+        ->map(fn ($m) => [
+            'id' => $m->id,
+            'name' => $m->name,
+            'position' => $m->position ?? '',
+            'email' => $m->email ?? '',
+            'photo' => $m->photo ? (str_starts_with($m->photo, 'http') ? $m->photo : \Illuminate\Support\Facades\Storage::url($m->photo)) : null,
+        ])
+        ->toArray();
+
     return Inertia::render('ProfileStudyProgram/ClinicalFellowshipDetail', [
-        'fellowshipId' => $id
+        'fellowshipId' => $id,
+        'fellowship' => [
+            'id' => $affiliation->id,
+            'code' => $affiliation->code,
+            'name' => $affiliation->name,
+            'title' => 'Clinical Fellowship',
+            'subTitle' => $profile->sub_title ?? '',
+            'logo' => $logoUrl,
+            'image' => $coverImageUrl,
+            'stats' => [
+                'fellowActive' => $activeFellows,
+                'staffPendidik' => count($orgMembers),
+                'rsPendidikan' => 0,
+            ],
+            'profileSingkat' => $profile->description ?? '',
+            'contact' => [
+                'address' => $profile->contact_address ?? '',
+                'phone' => $profile->contact_phone ?? '',
+                'website' => $profile->contact_website ?? '',
+            ],
+            'registration' => [
+                'info' => $profile->registration_info ?? '',
+                'url' => $profile->registration_url ?? '',
+            ],
+            'orgStructure' => $orgMembers,
+            'staff' => [],
+            'students' => [],
+        ],
     ]);
 })->name('profile.clinical-fellowship.detail');
 
@@ -63,7 +169,8 @@ Route::get('/profile-study-program/{type}/{code}/database', function ($type, $co
 
 // PPDS1 and Subspesialis Detail (same layout) - using affiliation code
 Route::get('/profile-study-program/{type}/{code}', function ($type, $code) {
-    $affiliation = Affiliation::query()->select(['id', 'name', 'code', 'type'])->where('code', $code)->firstOrFail();
+    $affiliation = Affiliation::query()->where('code', $code)->firstOrFail();
+    $profile = AffiliationProfile::where('affiliation_id', $affiliation->id)->first();
     $orgType = $type === 'ppds1' ? 'resident' : ($type === 'subspesialis' ? 'trainee' : null);
 
     $activeResidents = 0;
@@ -75,6 +182,27 @@ Route::get('/profile-study-program/{type}/{code}', function ($type, $code) {
             ->count();
     }
 
+    // Resolve image URLs — prefer profile logo, fallback to affiliation logo
+    $profileLogoUrl = $profile && $profile->logo ? \Illuminate\Support\Facades\Storage::url($profile->logo) : null;
+    $logoUrl = $profileLogoUrl ?? ($affiliation->logo ? \Illuminate\Support\Facades\Storage::url($affiliation->logo) : null);
+    $coverImageUrl = $profile && $profile->cover_image ? \Illuminate\Support\Facades\Storage::url($profile->cover_image) : null;
+
+    // Fetch org structure members for this affiliation
+    $orgMembers = OrgStructureMember::query()
+        ->where('organization_type', $orgType ?? 'resident')
+        ->where('affiliation_id', $affiliation->id)
+        ->orderBy('position_order')
+        ->orderBy('name')
+        ->get()
+        ->map(fn ($m) => [
+            'id' => $m->id,
+            'name' => $m->name,
+            'position' => $m->position ?? '',
+            'email' => $m->email ?? '',
+            'photo' => $m->photo ? (str_starts_with($m->photo, 'http') ? $m->photo : \Illuminate\Support\Facades\Storage::url($m->photo)) : null,
+        ])
+        ->toArray();
+
     return Inertia::render('ProfileStudyProgram/StudyProgramDetail', [
         'type' => $type,
         'university' => [
@@ -82,72 +210,30 @@ Route::get('/profile-study-program/{type}/{code}', function ($type, $code) {
             'code' => $affiliation->code,
             'name' => $affiliation->code,
             'fullName' => $affiliation->name,
-            'facultyName' => 'Faculty of Medicine',
-            'universityName' => 'University of Indonesia',
-            'description' => $type === 'ppds1' ? 'PPDS I Orthopaedi & Traumatologi' : 'Subspesialis Orthopaedi & Traumatologi',
-            'image' => '/assets/images/university-building.jpg',
+            'logo' => $logoUrl,
+            'subTitle' => $profile->sub_title ?? '',
+            'description' => $profile->description ?? ($type === 'ppds1' ? 'PPDS I Orthopaedi & Traumatologi' : 'Subspesialis Orthopaedi & Traumatologi'),
+            'image' => $coverImageUrl,
             'stats' => [
                 'activeResidents' => $activeResidents,
-                'faculty' => 30,
-                'teachingHospitals' => 5,
-            ],
-            'profileResident' => [
-                'name' => 'Dr. Ihsan Oesman, SpOT(K)',
-                'position' => 'Head of Study Program',
-                'image' => '/assets/images/profile-placeholder.jpg',
-                'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+                'faculty' => count($orgMembers),
+                'teachingHospitals' => 0,
             ],
             'contact' => [
-                'address' => 'Jl. Salemba Raya No. 6, Jakarta Pusat',
-                'email' => 'ortopedi@ui.ac.id',
-                'phone' => '+62 21 391 0123',
-                'website' => 'www.ortopedi-fkui.com',
+                'address' => $profile->contact_address ?? '',
+                'email' => $profile->contact_email ?? '',
+                'phone' => $profile->contact_phone ?? '',
+                'website' => $profile->contact_website ?? '',
             ],
             'information' => [
-                'accreditation' => 'A - LAM PT Kes',
-                'established' => '1960',
-                'duration' => '8 Semester',
-                'capacity' => '20 per tahun',
+                'accreditation' => $profile->accreditation ?? '',
+                'established' => $profile->established_year ?? '',
+                'duration' => $profile->program_duration ?? '',
+                'capacity' => $profile->capacity ?? '',
             ],
-            'staffList' => [
-                ['name' => 'Dr. dr. Ihsan Oesman, SpOT(K)', 'specialization' => 'Subsp.K.P'],
-                ['name' => 'dr. Muhammad Rizqi Adhi Primaputra, SpOT(K)', 'specialization' => '@orthopaedi.id'],
-                ['name' => 'dr. Ifran Saleh, SpOT(K)', 'specialization' => 'Spine Surgery'],
-                ['name' => 'Prof. Dr. dr. Ismail Hadisoebroto Dilogo, SpO.T(K), Subsp.P.L', 'specialization' => 'Pediatric Ortho'],
-                ['name' => 'Prof. Dr. dr. Andri MT Lubis, SpO.T(K), Subsp.C.O', 'specialization' => 'Trauma'],
-                ['name' => 'Dr. dr. Aryadi Kurniawan, SpO.T(K), Subsp.A', 'specialization' => 'Joint Replacement'],
-                ['name' => 'Prof. Dr. dr. Achmad Fauzi Kamal, SpOT(K)', 'specialization' => 'Hand Surgery'],
-                ['name' => 'Dr. dr. Rahyussalim, SpO.T(K), Subsp.O. T.B', 'specialization' => 'Sports Medicine'],
-                ['name' => 'Dr. dr. Ihsan Oesman, SpO.T(K), Subsp.K.P', 'specialization' => 'Spine Surgery'],
-                ['name' => 'Dr. dr. Yogi Prabowo, SpO.T(K), Subsp.Onk. Ort.R', 'specialization' => 'Oncology'],
-                ['name' => 'Dr. dr. Wahyu Widodo, SpO.T(K), Subsp.T.L. B.M', 'specialization' => 'Trauma'],
-                ['name' => 'Dr. dr. Ludwig Andribert Powantia Pontoh, SpO.T(K), Subsp.P.L', 'specialization' => 'Pediatric Ortho'],
-                ['name' => 'Dr. dr. Didik Librianto, SpOT(K)', 'specialization' => 'Hand Surgery'],
-                ['name' => 'dr. Muhammad Rizqi Adhi Primaputra, SpOT(K)', 'specialization' => 'Joint Replacement'],
-                ['name' => 'dr. Wildan Latief, SpO.T(K), Subsp.T.L. B.M', 'specialization' => 'Trauma'],
-            ],
-            'residents' => [
-                'year1' => [
-                    ['name' => 'Dr. Andi Wijaya'],
-                    ['name' => 'Dr. Budi Hartono'],
-                    ['name' => 'Dr. Citra Dewi'],
-                    ['name' => 'Dr. Dedi Suryanto'],
-                    ['name' => 'Dr. Eka Putri'],
-                    ['name' => 'Dr. Fajar Ramadhan'],
-                ],
-                'year2' => [
-                    ['name' => 'Dr. Gilang Pratama'],
-                    ['name' => 'Dr. Hani Safitri'],
-                    ['name' => 'Dr. Irfan Hakim'],
-                    ['name' => 'Dr. Joko Susilo'],
-                ],
-            ],
-            'gallery' => [
-                ['image' => '/assets/images/gallery-1.jpg', 'title' => 'Kegiatan Pembelajaran'],
-                ['image' => '/assets/images/gallery-2.jpg', 'title' => 'Workshop Orthopaedi'],
-                ['image' => '/assets/images/gallery-3.jpg', 'title' => 'Seminar Nasional'],
-                ['image' => '/assets/images/gallery-4.jpg', 'title' => 'Praktik Klinik'],
-            ],
+            'registrationInfo' => $profile->registration_info ?? '',
+            'registrationUrl' => $profile->registration_url ?? '',
+            'orgStructure' => $orgMembers,
         ],
     ]);
 })->where('type', 'ppds1|subspesialis')
@@ -273,6 +359,16 @@ Route::middleware([Authenticate::class])
 
         // Change Password Route
         Route::post('/change-password', [\App\Http\Controllers\UserController::class, 'changePasswordWeb'])->name('change-password');
+
+        // Affiliation Profile Editor
+        Route::get('/affiliation-profile', function () {
+            return Inertia::render('AffiliationProfile/index');
+        })->name('affiliation-profile');
+
+        // Organizational Structure
+        Route::get('/org-structure', function () {
+            return Inertia::render('OrgStructure/index');
+        })->name('org-structure');
 
         // Generic coming soon page for not-yet-developed CMS menus
         Route::get('/coming-soon/{slug}', function ($slug) {

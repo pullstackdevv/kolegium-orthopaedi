@@ -4,30 +4,33 @@ import { Icon } from "@iconify/react";
 import { Users, Calendar, ChevronRight, ChevronLeft } from "lucide-react";
 import HomepageLayout from "../../Layouts/HomepageLayout";
 
-export default function PeerGroupDetail() {
+export default function PeerGroupDetail({ peerGroup }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   
+  // Data from backend (loaded from affiliation_profiles table)
   const peerGroupInfo = {
-    name: "IOSSA",
-    fullName: "Indonesian Orthopaedic Spine Surgeon Association",
-    members: 80,
-    activeMembers: 30
+    name: peerGroup?.name || "",
+    fullName: peerGroup?.fullName || "",
+    members: peerGroup?.members || 0,
+    activeMembers: 0,
+    logo: peerGroup?.logo || null,
+    image: peerGroup?.image || null,
+    subTitle: peerGroup?.subTitle || "",
+    description: peerGroup?.description || "",
+    registrationInfo: peerGroup?.registrationInfo || "",
+    registrationUrl: peerGroup?.registrationUrl || "",
+    contact: peerGroup?.contact || { address: "", phone: "", email: "", website: "" },
+    orgStructure: peerGroup?.orgStructure || [],
   };
 
   const leadership = {
-    president: { name: "Dr. dr. I Gusti Lanang Ngurah Agung Artha Wiguna, Sp.OT(K)" },
-    vicePresident: { name: "dr. Yudha Mathan Sakti, Sp.OT(K)" },
-    secretary: { name: "dr. Heka Priyamurti, Sp.OT(K)" }
+    president: { name: "" },
+    vicePresident: { name: "" },
+    secretary: { name: "" }
   };
 
-  const allFellowships = [
-    { no: 1, organizer: "RSUD Dr. Saiful Anwar Malang", name: "dr. Hamzah, SpOT", specialty: "Spine", year: "Desember 2023", status: "LULUS", statusColor: "bg-green-500" },
-    { no: 2, organizer: "RSUD Dr. Saiful Anwar Malang", name: "dr. Aditya Jaya Manggala, SpOT", specialty: "Spine", year: "Desember 2023", status: "LULUS", statusColor: "bg-green-500" },
-    { no: 3, organizer: "RSUD Dr. Saiful Anwar Malang", name: "dr. Hidayat, SpOT", specialty: "Spine", year: "Februari 2024", status: "LULUS", statusColor: "bg-green-500" },
-    { no: 4, organizer: "RSUD Dr. Saiful Anwar Malang", name: "dr. Teuku Arief Dian, SpOT", specialty: "Spine", year: "Februari 2024", status: "LULUS", statusColor: "bg-green-500" },
-    { no: 5, organizer: "RSUD Dr. Saiful Anwar Malang", name: "dr. Rudy, SpOT", specialty: "Spine", year: "Agustus 2024", status: "LULUS", statusColor: "bg-green-500" }
-  ];
+  const allFellowships = [];
 
   const totalItems = allFellowships.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -64,17 +67,17 @@ export default function PeerGroupDetail() {
           <div className="overflow-hidden mb-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
               <div className="relative h-80 lg:h-auto p-12">
-                <img src="/assets/images/peergroup/peergroup.png" alt="Peer Group" className="w-full h-full object-cover" />
+                <img src={peerGroupInfo.image || "/assets/images/peergroup/peergroup.png"} alt="Peer Group" className="w-full h-full object-cover" />
               </div>
               <div className="p-8 lg:p-12 flex flex-col justify-center">
                 <div className="flex items-start gap-6 mb-8">
                   <div className="flex-shrink-0">
                     <div className="w-24 h-24 rounded-full overflow-hidden border-8 border-primary bg-white flex items-center justify-center">
-                      <img src="/assets/images/logo-univ/FK-UI.png" alt="Logo" className="w-16 h-16 object-contain" />
+                      <img src={peerGroupInfo.logo || "/assets/images/logo-univ/FK-UI.png"} alt="Logo" className="w-16 h-16 object-contain" />
                     </div>
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm text-gray-600 font-medium mb-1">Peer Group</p>
+                    <p className="text-sm text-gray-600 font-medium mb-1">{peerGroupInfo.subTitle || 'Peer Group'}</p>
                     <h1 className="text-4xl font-bold text-primary mb-2">{peerGroupInfo.name}</h1>
                     <p className="text-2xl text-primary/90 font-semibold leading-tight">{peerGroupInfo.fullName}</p>
                   </div>
@@ -96,12 +99,15 @@ export default function PeerGroupDetail() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h2 className="text-xl font-bold text-primary mb-4">Short Profile</h2>
-              <p className="text-sm text-gray-700 leading-relaxed mb-3">
-                The Indonesian Orthopaedic Spine Surgeon Association (IOSSA) is a professional organization dedicated to advancing the field of spine surgery in Indonesia.
-              </p>
-              <p className="text-sm text-gray-700 leading-relaxed">
-                Through collaborative programs, scientific meetings, and training initiatives, IOSSA aims to enhance patient care and uphold the highest standards.
-              </p>
+              {peerGroupInfo.description ? (
+                <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                  {peerGroupInfo.description}
+                </div>
+              ) : (
+                <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center text-sm text-gray-500">
+                  No profile description available yet.
+                </div>
+              )}
             </div>
             <div className="lg:col-span-1 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h2 className="text-xl font-bold text-primary mb-4">Agenda</h2>
@@ -115,8 +121,69 @@ export default function PeerGroupDetail() {
             </div>
           </div>
 
+          {/* Registration */}
+          {(peerGroupInfo.registrationInfo || peerGroupInfo.registrationUrl) && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+            <h2 className="text-xl font-bold text-primary mb-4">Registration</h2>
+            {peerGroupInfo.registrationInfo && (
+              <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                {peerGroupInfo.registrationInfo}
+              </div>
+            )}
+            {peerGroupInfo.registrationUrl && (
+              <div className="mt-4">
+                <span className="text-sm text-gray-600">Link Pendaftaran: </span>
+                <a
+                  href={peerGroupInfo.registrationUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline break-all text-sm"
+                >
+                  {peerGroupInfo.registrationUrl}
+                </a>
+              </div>
+            )}
+          </div>
+          )}
+
+          {/* Struktur Organisasi */}
+          {peerGroupInfo.orgStructure.length > 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+            <h2 className="text-xl font-bold text-primary mb-4">Struktur Organisasi</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {peerGroupInfo.orgStructure.map((member) => (
+                <div key={member.id} className="flex items-start gap-3 bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  {member.photo ? (
+                    <img
+                      src={member.photo}
+                      alt={member.name}
+                      className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                      onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                  ) : (
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Icon icon="mdi:account" className="w-6 h-6 text-primary" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 leading-tight">{member.name}</p>
+                    {member.position && (
+                      <p className="text-xs text-gray-600 mt-0.5">{member.position}</p>
+                    )}
+                    {member.email && (
+                      <a href={`mailto:${member.email}`} className="text-xs text-primary hover:underline">{member.email}</a>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          )}
+
+          {(leadership.president.name || leadership.vicePresident.name || leadership.secretary.name) && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {leadership.president.name && (
               <div>
                 <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                   <Icon icon="mdi:office-building" className="w-5 h-5" />
@@ -131,6 +198,8 @@ export default function PeerGroupDetail() {
                   </div>
                 </div>
               </div>
+              )}
+              {leadership.vicePresident.name && (
               <div>
                 <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                   <Icon icon="mdi:office-building" className="w-5 h-5" />
@@ -145,7 +214,9 @@ export default function PeerGroupDetail() {
                   </div>
                 </div>
               </div>
+              )}
             </div>
+            {leadership.secretary.name && (
             <div className="mt-6">
               <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                 <Icon icon="mdi:office-building" className="w-5 h-5" />
@@ -160,7 +231,9 @@ export default function PeerGroupDetail() {
                 </div>
               </div>
             </div>
+            )}
           </div>
+          )}
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-6 border-b border-gray-200">

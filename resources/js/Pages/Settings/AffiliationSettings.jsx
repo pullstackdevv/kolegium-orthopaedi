@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Building2, Plus, Pencil, Trash2, Users, Loader2, ChevronLeft, ChevronRight, Upload, X } from "lucide-react";
+import { Building2, Plus, Pencil, Trash2, Users, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import api from "@/api/axios";
 import Swal from "sweetalert2";
 import PermissionGuard from "@/components/PermissionGuard";
@@ -45,8 +45,7 @@ export default function AffiliationSettings() {
     name: '',
     type: 'residen',
     code: '',
-    since: '',
-    logo: null
+    since: ''
   });
   
   const [formLoading, setFormLoading] = useState(false);
@@ -93,8 +92,7 @@ export default function AffiliationSettings() {
       name: '',
       type: 'residen',
       code: '',
-      since: '',
-      logo: null
+      since: ''
     });
     setFormError(null);
     setSelectedAffiliation(null);
@@ -145,8 +143,7 @@ export default function AffiliationSettings() {
         name: affiliation.name,
         type: affiliation.type,
         code: affiliation.code,
-        since: affiliation.since || '',
-        logo: affiliation.logo || null
+        since: affiliation.since || ''
       });
     } else {
       resetForm();
@@ -170,7 +167,6 @@ export default function AffiliationSettings() {
       submitData.append('type', formData.type);
       submitData.append('code', formData.code);
       if (formData.since) submitData.append('since', formData.since);
-      if (formData.logo instanceof File) submitData.append('logo', formData.logo);
 
       if (modalType === 'create') {
         const response = await api.post('/affiliations', submitData, {
@@ -522,64 +518,6 @@ export default function AffiliationSettings() {
                   </p>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="logo">University Logo</Label>
-                  <div className="flex items-center gap-4">
-                    {(formData.logo && typeof formData.logo === 'string') && (
-                      <div className="relative">
-                        <img 
-                          src={getLogoUrl(formData.logo)} 
-                          alt="Current logo"
-                          className="h-20 w-20 object-contain rounded border"
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon"
-                          className="absolute -top-2 -right-2 h-6 w-6"
-                          onClick={() => setFormData({ ...formData, logo: null })}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    )}
-                    {formData.logo instanceof File && (
-                      <div className="relative">
-                        <img 
-                          src={URL.createObjectURL(formData.logo)} 
-                          alt="Preview"
-                          className="h-20 w-20 object-contain rounded border"
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon"
-                          className="absolute -top-2 -right-2 h-6 w-6"
-                          onClick={() => setFormData({ ...formData, logo: null })}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    )}
-                    <div className="flex-1">
-                      <Input
-                        id="logo"
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            setFormData({ ...formData, logo: file });
-                          }
-                        }}
-                        className="cursor-pointer"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Upload university/institution logo (PNG, JPG, SVG)
-                      </p>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               <DialogFooter>

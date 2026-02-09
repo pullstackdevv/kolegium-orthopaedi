@@ -6,139 +6,77 @@ import HomepageLayout from "../../Layouts/HomepageLayout";
 import DonutChart from "../../components/DonutChart";
 import api from "@/api/axios";
 
+const DEFAULT_STAFF_LIST = [
+  { name: "Prof. Dr. Ahmad Jabir, SpOT(K)", specialization: "Spine Surgery", image: "/assets/images/staff-placeholder.jpg" },
+  { name: "Dr. Budi Santoso, SpOT(K)", specialization: "Sports Medicine", image: "/assets/images/staff-placeholder.jpg" },
+  { name: "Dr. Chandra Wijaya, SpOT(K)", specialization: "Hand Surgery", image: "/assets/images/staff-placeholder.jpg" },
+  { name: "Dr. Dian Permata, SpOT(K)", specialization: "Pediatric Ortho", image: "/assets/images/staff-placeholder.jpg" },
+  { name: "Dr. Eko Prasetyo, SpOT(K)", specialization: "Trauma", image: "/assets/images/staff-placeholder.jpg" },
+  { name: "Dr. Fajar Rahman, SpOT(K)", specialization: "Joint Replacement", image: "/assets/images/staff-placeholder.jpg" }
+];
+
 const DEFAULT_EVENT_IMAGE =
   "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1200'%20height='600'%20viewBox='0%200%201200%20600'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='%23DBEAFE'/%3E%3Cstop%20offset='1'%20stop-color='%23BFDBFE'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='1200'%20height='600'%20fill='url(%23g)'/%3E%3Ccircle%20cx='600'%20cy='300'%20r='120'%20fill='%2393C5FD'/%3E%3Cpath%20d='M520%20320l60-60a25%2025%200%200%201%2035%200l45%2045%2065-65a25%2025%200%200%201%2035%200l80%2080v90H520z'%20fill='%2360A5FA'/%3E%3Ctext%20x='600'%20y='470'%20text-anchor='middle'%20font-family='Arial'%20font-size='28'%20fill='%231E3A8A'%20opacity='0.85'%3ENo%20Image%3C/text%3E%3C/svg%3E";
 
+
+const DEFAULT_RESIDENTS = {
+  year1: [
+    { name: "Dr. Andi Wijaya", image: "/assets/images/resident-placeholder.jpg" },
+    { name: "Dr. Budi Hartono", image: "/assets/images/resident-placeholder.jpg" },
+    { name: "Dr. Citra Dewi", image: "/assets/images/resident-placeholder.jpg" },
+    { name: "Dr. Dedi Suryanto", image: "/assets/images/resident-placeholder.jpg" },
+    { name: "Dr. Eka Putri", image: "/assets/images/resident-placeholder.jpg" },
+    { name: "Dr. Fajar Ramadhan", image: "/assets/images/resident-placeholder.jpg" }
+  ],
+  year2: [
+    { name: "Dr. Gilang Pratama", image: "/assets/images/resident-placeholder.jpg" },
+    { name: "Dr. Hani Safitri", image: "/assets/images/resident-placeholder.jpg" },
+    { name: "Dr. Irfan Hakim", image: "/assets/images/resident-placeholder.jpg" },
+    { name: "Dr. Joko Susilo", image: "/assets/images/resident-placeholder.jpg" }
+  ]
+};
+
+const DEFAULT_GALLERY = [
+  { image: "/assets/images/gallery-1.jpg", title: "Kegiatan Pembelajaran" },
+  { image: "/assets/images/gallery-2.jpg", title: "Workshop Orthopaedi" },
+  { image: "/assets/images/gallery-3.jpg", title: "Seminar Nasional" },
+  { image: "/assets/images/gallery-4.jpg", title: "Praktik Klinik" }
+];
+
 export default function StudyProgramDetail({ university, type }) {
-  // Sample data - akan diganti dengan data dari props/API
-  const universityData = university || {
-    id: "fk-ui",
-    name: "FK-UI",
-    fullName: "Fakultas Kedokteran Universitas Indonesia",
-    description: "PPDS I Orthopaedi & Traumatologi",
-    image: "/assets/images/university-building.jpg",
+  // Data from backend (loaded from affiliation_profiles table)
+  const universityData = {
+    id: null,
+    name: "",
+    fullName: "",
+    description: "",
+    image: null,
+    logo: null,
     stats: {
-      activeResidents: 80,
-      faculty: 30,
-      teachingHospitals: 6
-    },
-    profileResident: {
-      name: "Dr. Ihsan Oesman, SpOT(K)",
-      position: "Kepala Program Studi",
-      image: "/assets/images/profile-placeholder.jpg",
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+      activeResidents: 0,
+      faculty: 0,
+      teachingHospitals: 0
     },
     contact: {
-      address: "Jl. Salemba Raya No. 6, Jakarta Pusat",
-      email: "ortopedi@ui.ac.id",
-      phone: "+62 21 391 0123",
-      website: "www.ortopedi-fkui.com"
+      address: "",
+      email: "",
+      phone: "",
+      website: ""
     },
     information: {
-      accreditation: "A",
-      established: "1960",
-      duration: "8 Semester",
-      capacity: "20 per tahun"
+      accreditation: "",
+      established: "",
+      duration: "",
+      capacity: ""
     },
-    staffList: [
-      {
-        name: "Dr. dr. Ihsan Oesman, SpOT(K)",
-        specialization: "Subsp.K.P",
-        image: "/assets/images/staff-placeholder.jpg"
-      },
-      {
-        name: "dr. Muhammad Rizqi Adhi Primaputra, SpOT(K)",
-        specialization: "@orthopaedi.id",
-        image: "/assets/images/staff-placeholder.jpg"
-      },
-      {
-        name: "dr. Ifran Saleh, SpOT(K)",
-        specialization: "Spine Surgery",
-        image: "/assets/images/staff-placeholder.jpg"
-      },
-      {
-        name: "Prof. Dr. dr. Ismail Hadisoebroto Dilogo, SpO.T(K), Subsp.P.L",
-        specialization: "Pediatric Ortho",
-        image: "/assets/images/staff-placeholder.jpg"
-      },
-      {
-        name: "Prof. Dr. dr. Andri MT Lubis, SpO.T(K) , Subsp.C.O",
-        specialization: "Trauma",
-        image: "/assets/images/staff-placeholder.jpg"
-      },
-      {
-        name: "Dr. dr. Aryadi Kurniawan, SpO.T(K), Subsp.A",
-        specialization: "Joint Replacement",
-        image: "/assets/images/staff-placeholder.jpg"
-      },
-      {
-        name: "Prof. Dr. dr. Achmad Fauzi Kamal, SpOT(K)",
-        specialization: "Hand Surgery",
-        image: "/assets/images/staff-placeholder.jpg"
-      },
-      {
-        name: "Dr. dr. Rahyussalim, SpO.T(K) , Subsp.O. T.B",
-        specialization: "Sports Medicine",
-        image: "/assets/images/staff-placeholder.jpg"
-      },
-      {
-        name: "Dr. dr. Ihsan Oesman, SpO.T(K), Subsp.K.P",
-        specialization: "Spine Surgery",
-        image: "/assets/images/staff-placeholder.jpg"
-      },
-      {
-        name: "Dr. dr. Yogi Prabowo, SpO.T(K), Subsp.Onk. Ort.R",
-        specialization: "Oncology",
-        image: "/assets/images/staff-placeholder.jpg"
-      },
-      {
-        name: "Dr. dr. Wahyu Widodo, SpO.T(K) , Subsp.T.L. B.M",
-        specialization: "Trauma",
-        image: "/assets/images/staff-placeholder.jpg"
-      },
-      {
-        name: "Dr. dr. Ludwig Andribert Powantia Pontoh, SpO.T(K), Subsp.P.L",
-        specialization: "Pediatric Ortho",
-        image: "/assets/images/staff-placeholder.jpg"
-      },
-      {
-        name: "Dr. dr. Didik Librianto, SpOT(K)",
-        specialization: "Hand Surgery",
-        image: "/assets/images/staff-placeholder.jpg"
-      },
-      {
-        name: "dr. Muhammad Rizqi Adhi Primaputra, SpOT(K)",
-        specialization: "Joint Replacement",
-        image: "/assets/images/staff-placeholder.jpg"
-      },
-      {
-        name: "dr. Wildan Latief, SpO.T(K), Subsp.T.L. B.M",
-        specialization: "Trauma",
-        image: "/assets/images/staff-placeholder.jpg"
-      }
-    ],
-    residents: {
-      year1: [
-        { name: "Dr. Andi Wijaya", image: "/assets/images/resident-placeholder.jpg" },
-        { name: "Dr. Budi Hartono", image: "/assets/images/resident-placeholder.jpg" },
-        { name: "Dr. Citra Dewi", image: "/assets/images/resident-placeholder.jpg" },
-        { name: "Dr. Dedi Suryanto", image: "/assets/images/resident-placeholder.jpg" },
-        { name: "Dr. Eka Putri", image: "/assets/images/resident-placeholder.jpg" },
-        { name: "Dr. Fajar Ramadhan", image: "/assets/images/resident-placeholder.jpg" }
-      ],
-      year2: [
-        { name: "Dr. Gilang Pratama", image: "/assets/images/resident-placeholder.jpg" },
-        { name: "Dr. Hani Safitri", image: "/assets/images/resident-placeholder.jpg" },
-        { name: "Dr. Irfan Hakim", image: "/assets/images/resident-placeholder.jpg" },
-        { name: "Dr. Joko Susilo", image: "/assets/images/resident-placeholder.jpg" }
-      ]
-    },
-    gallery: [
-      { image: "/assets/images/gallery-1.jpg", title: "Kegiatan Pembelajaran" },
-      { image: "/assets/images/gallery-2.jpg", title: "Workshop Orthopaedi" },
-      { image: "/assets/images/gallery-3.jpg", title: "Seminar Nasional" },
-      { image: "/assets/images/gallery-4.jpg", title: "Praktik Klinik" }
-    ]
+    registrationInfo: "",
+    orgStructure: [],
+    residents: DEFAULT_RESIDENTS,
+    gallery: DEFAULT_GALLERY,
+    ...university,
+    orgStructure: university?.orgStructure || [],
+    residents: university?.residents || DEFAULT_RESIDENTS,
+    gallery: university?.gallery?.length ? university.gallery : DEFAULT_GALLERY,
   };
 
   const agendaSection = useMemo(() => {
@@ -308,7 +246,7 @@ export default function StudyProgramDetail({ university, type }) {
                     />
                   </div>
                   <div className="flex-1">
-                    <p className="text-lg font-semibold text-primary mb-1">{universityData.description}</p>
+                    <p className="text-lg font-semibold text-primary mb-1">{universityData.subTitle}</p>
                     <h1 className="text-2xl md:text-4xl font-bold text-primary leading-tight">
                       {universityData.fullName}
                     </h1>
@@ -342,34 +280,41 @@ export default function StudyProgramDetail({ university, type }) {
                 <h2 className="text-xl font-bold text-primary mb-6">
                   Short Profile
                 </h2>
-                <div className="space-y-4 mb-6">
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    The Orthopedics and Traumatology Subspecialty Doctor Education Program (Sp-2) aims to train Orthopedic and Traumatology Specialists with balanced academic and clinical skills, enabling them to address various orthopedic and traumatology issues in the community.
-                  </p>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    The Sp2 Orthopedic and Traumatology Study Program at the Faculty of Medicine, University of Indonesia (FKUI) is the highest level of professional academic education, a continuation of the Orthopedic and Traumatology Specialist Education.
-                  </p>
-                </div>
+                {universityData.description ? (
+                  <div className="space-y-4 mb-6">
+                    <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                      {universityData.description}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center text-sm text-gray-500 mb-6">
+                    No profile description available yet.
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 gap-6">
+                  {universityData.information?.duration && (
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
                       <Icon icon="mdi:calendar-outline" className="w-6 h-6 text-primary" />
                     </div>
                     <div>
                       <p className="text-xs text-gray-600 font-medium">Program Duration</p>
-                      <p className="text-sm font-semibold text-gray-900">8 Semester</p>
+                      <p className="text-sm font-semibold text-gray-900">{universityData.information.duration}</p>
                     </div>
                   </div>
+                  )}
+                  {universityData.information?.accreditation && (
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
                       <Icon icon="mdi:medal-outline" className="w-6 h-6 text-primary" />
                     </div>
                     <div>
                       <p className="text-xs text-gray-600 font-medium">Accreditation</p>
-                      <p className="text-sm font-semibold text-gray-900">A - LAM PT Kes</p>
+                      <p className="text-sm font-semibold text-gray-900">{universityData.information.accreditation}</p>
                     </div>
                   </div>
+                  )}
                 </div>
               </div>
 
@@ -434,14 +379,93 @@ export default function StudyProgramDetail({ university, type }) {
                 </div>
               </div>
 
-              {/* Faculty of Medicine */}
+              {/* Struktur Organisasi - Dynamic or Default Fallback */}
+              {universityData.orgStructure?.length > 0 ? (
+              <>
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
                 <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                   <Icon icon="mdi:school-outline" className="w-5 h-5" />
-                  Faculty of Medicine, University of Indonesia
+                  Struktur Organisasi
                 </h2>
                 <div className="grid grid-cols-2 gap-4">
-                  {universityData.staffList.slice(0, 2).map((staff, index) => (
+                  {universityData.orgStructure.slice(0, 2).map((member) => (
+                    <div key={member.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                      <div className="flex items-start gap-3 mb-3">
+                        {member.photo ? (
+                          <img
+                            src={member.photo}
+                            alt={member.name}
+                            className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                          />
+                        ) : null}
+                        <div className={`w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 ${member.photo ? 'hidden' : ''}`}>
+                          <Icon icon="mdi:account" className="w-6 h-6 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-semibold text-gray-900 leading-tight">
+                            {member.name}
+                          </h4>
+                          {member.position && (
+                            <p className="text-xs text-gray-600 mt-1">{member.position}</p>
+                          )}
+                        </div>
+                      </div>
+                      {member.email && (
+                        <div className="flex items-center gap-1 text-xs text-primary">
+                          <Icon icon="mdi:email-outline" className="w-3 h-3" />
+                          <a href={`mailto:${member.email}`} className="hover:underline">{member.email}</a>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Staf Pengajar - from org structure (remaining members) */}
+              {universityData.orgStructure.length > 2 && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+                  <Icon icon="mdi:account-group" className="w-5 h-5" />
+                  Staf Pengajar
+                </h2>
+                <div className="grid grid-cols-3 gap-3">
+                  {universityData.orgStructure.slice(2).map((member) => (
+                    <div key={member.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200 text-center">
+                      {member.photo ? (
+                        <img
+                          src={member.photo}
+                          alt={member.name}
+                          className="w-14 h-14 rounded-full object-cover mx-auto mb-2"
+                          onError={(e) => { e.target.style.display = 'none'; }}
+                        />
+                      ) : (
+                        <div className="w-14 h-14 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-2">
+                          <Icon icon="mdi:account" className="w-8 h-8 text-gray-400" />
+                        </div>
+                      )}
+                      <p className="text-xs font-semibold text-gray-900 leading-tight">
+                        {member.name.split(',')[0]}
+                      </p>
+                      {member.position && (
+                        <p className="text-[10px] text-gray-600 mt-1">{member.position}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              )}
+              </>
+              ) : (
+              <>
+              {/* Default Faculty of Medicine */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+                  <Icon icon="mdi:school-outline" className="w-5 h-5" />
+                  Faculty of Medicine, {universityData.fullName || 'University of Indonesia'}
+                </h2>
+                <div className="grid grid-cols-2 gap-4">
+                  {DEFAULT_STAFF_LIST.slice(0, 2).map((staff, index) => (
                     <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                       <div className="flex items-start gap-3 mb-3">
                         <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
@@ -465,14 +489,14 @@ export default function StudyProgramDetail({ university, type }) {
                 </div>
               </div>
 
-              {/* Teaching Staff */}
+              {/* Default Teaching Staff */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
                 <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                   <Icon icon="mdi:account-group" className="w-5 h-5" />
                   Teaching Staff
                 </h2>
                 <div className="grid grid-cols-3 gap-3">
-                  {universityData.staffList.map((staff, index) => (
+                  {DEFAULT_STAFF_LIST.map((staff, index) => (
                     <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200 text-center">
                       <div className="w-14 h-14 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-2">
                         <Icon icon="mdi:account" className="w-8 h-8 text-gray-400" />
@@ -485,6 +509,8 @@ export default function StudyProgramDetail({ university, type }) {
                   ))}
                 </div>
               </div>
+              </>
+              )}
 
               {/* Gallery */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
@@ -493,7 +519,7 @@ export default function StudyProgramDetail({ university, type }) {
                   Gallery
                 </h2>
                 <div className="grid grid-cols-2 gap-3">
-                  {(universityData.gallery || []).map((item, index) => (
+                  {universityData.gallery.map((item, index) => (
                     <div key={index} className="relative rounded-lg overflow-hidden bg-gradient-to-br from-primary/10 via-secondary/10 to-white h-32">
                       <img
                         src={item.image}
@@ -536,7 +562,7 @@ export default function StudyProgramDetail({ university, type }) {
                   </div>
 
                   <Link
-                    href={`/profile-study-program/${type}/${universityData.id}/database`}
+                    href={`/profile-study-program/${type}/${universityData.code}/database`}
                     className="w-full bg-primary/10 hover:bg-secondary/10 text-primary hover:text-secondary font-semibold py-3 px-4 rounded-lg transition-colors border-2 border-primary/20 text-center block"
                   >
                     View Resident Details
@@ -545,6 +571,7 @@ export default function StudyProgramDetail({ university, type }) {
               </div>
 
               {/* Contact */}
+              {(universityData.contact?.address || universityData.contact?.phone || universityData.contact?.email) && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-0">
                 <div className="p-6 border-b border-gray-200">
                   <h2 className="text-xl font-bold text-primary">
@@ -553,6 +580,7 @@ export default function StudyProgramDetail({ university, type }) {
                 </div>
 
                 <div className="p-6 space-y-4">
+                  {universityData.contact.address && (
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
                       <MapPin className="w-5 h-5 text-primary" />
@@ -562,7 +590,9 @@ export default function StudyProgramDetail({ university, type }) {
                       <p className="text-xs text-gray-600">{universityData.contact.address}</p>
                     </div>
                   </div>
+                  )}
 
+                  {universityData.contact.phone && (
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
                       <Phone className="w-5 h-5 text-primary" />
@@ -574,7 +604,9 @@ export default function StudyProgramDetail({ university, type }) {
                       </a>
                     </div>
                   </div>
+                  )}
 
+                  {universityData.contact.email && (
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
                       <Mail className="w-5 h-5 text-primary" />
@@ -586,8 +618,10 @@ export default function StudyProgramDetail({ university, type }) {
                       </a>
                     </div>
                   </div>
+                  )}
                 </div>
               </div>
+              )}
 
               {/* Teaching Hospital - Only show for resident and clinical fellowship */}
               {(type === 'resident' || type === 'clinical-fellowship') && (
@@ -885,22 +919,32 @@ export default function StudyProgramDetail({ university, type }) {
               </Link>
 
               {/* Registration */}
+              {universityData.registrationInfo && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                 <h2 className="text-xl font-bold text-primary mb-6">
                   Registration
                 </h2>
 
                 <div className="space-y-4">
-                  <p className="text-base text-gray-700 leading-relaxed">
-                    Registration is opened 2 (two) times a year (January and July Period) via SIMAK UI:
-                  </p>
-
-                  <p className="text-sm text-gray-600 mt-4">
-                    <span className="font-semibold">Link: </span> 
-                    <a href="https://simak.ui.ac.id/spesialiskedokteran.html" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">https://simak.ui.ac.id/spesialiskedokteran.html</a>
-                  </p>
+                  <div className="text-base text-gray-700 leading-relaxed whitespace-pre-line">
+                    {universityData.registrationInfo}
+                  </div>
+                  {universityData.registrationUrl && (
+                    <div className="mt-4">
+                      <span className="text-sm text-gray-600">Link Pendaftaran: </span>
+                      <a
+                        href={universityData.registrationUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline break-all"
+                      >
+                        {universityData.registrationUrl}
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
+              )}
             </div>
           </div>
         </div>
