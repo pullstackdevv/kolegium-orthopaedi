@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertCircle, Download, FileUp, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { AlertCircle, Check, ChevronsUpDown, Download, FileUp, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import api from "@/api/axios";
 import Swal from "sweetalert2";
@@ -8,7 +8,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePage } from "@inertiajs/react";
 import { Datepicker } from "flowbite-react";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -169,6 +172,17 @@ const buildDisplayName = (member) => {
   return `${baseName} ${title}`;
 };
 
+const calculateSemester = (entryDate) => {
+  if (!entryDate) return "-";
+  const entry = new Date(entryDate);
+  if (Number.isNaN(entry.getTime())) return "-";
+  const now = new Date();
+  const entryIdx = entry.getFullYear() * 2 + (entry.getMonth() >= 6 ? 1 : 0);
+  const nowIdx = now.getFullYear() * 2 + (now.getMonth() >= 6 ? 1 : 0);
+  const sem = nowIdx - entryIdx + 1;
+  return sem > 0 ? sem : "-";
+};
+
 export default function DatabasePage() {
   const page = usePage();
   const inertiaUrl = page.url;
@@ -239,7 +253,58 @@ function DatabaseContent({ activeOrg }) {
     group: "",
     title: "",
     location: "",
+    regency_id: "",
   });
+
+  const [provinces, setProvinces] = useState([]);
+  const [regencies, setRegencies] = useState([]);
+  const [selectedProvince, setSelectedProvince] = useState("");
+  const [regenciesLoading, setRegenciesLoading] = useState(false);
+
+  const isPeerGroupOrg = activeOrg === "peer_group";
+  const isResidentOrg = activeOrg === "resident";
+
+  const fetchProvinces = async () => {
+    try {
+      const res = await api.get("/provinces", { headers: { "X-Skip-Auth-Redirect": "1" } });
+      const data = res.data;
+      setProvinces(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error("Failed to fetch provinces", e);
+    }
+  };
+
+  const fetchRegencies = async (provinceId) => {
+    if (!provinceId) {
+      setRegencies([]);
+      return;
+    }
+    try {
+      setRegenciesLoading(true);
+      const res = await api.get(`/provinces/${provinceId}/regencies`, { headers: { "X-Skip-Auth-Redirect": "1" } });
+      const data = res.data;
+      setRegencies(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error("Failed to fetch regencies", e);
+      setRegencies([]);
+    } finally {
+      setRegenciesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isResidentOrg && formData.status === "graduated" && provinces.length === 0) {
+      fetchProvinces();
+    }
+  }, [formData.status, isResidentOrg]);
+
+  useEffect(() => {
+    if (selectedProvince) {
+      fetchRegencies(selectedProvince);
+    } else {
+      setRegencies([]);
+    }
+  }, [selectedProvince]);
 
   const [showImportModal, setShowImportModal] = useState(false);
   const [importFile, setImportFile] = useState(null);
@@ -250,7 +315,6 @@ function DatabaseContent({ activeOrg }) {
   const [templateLoading, setTemplateLoading] = useState(false);
 
   const canView = activeOrg ? hasPermission(permissionKey(activeOrg, "view")) : false;
-  const isPeerGroupOrg = activeOrg === "peer_group";
 
   const loadAffiliations = async () => {
     if (hasUserAffiliations && !isSuperAdmin) return;
@@ -419,8 +483,11 @@ function DatabaseContent({ activeOrg }) {
       group: "",
       title: "",
       location: "",
+      regency_id: "",
     });
     setPhotoMode("url");
+    setSelectedProvince("");
+    setRegencies([]);
   };
 
   const openCreateModal = () => {
@@ -452,8 +519,18 @@ function DatabaseContent({ activeOrg }) {
       group: member?.group || "",
       title: member?.title || "",
       location: member?.location || "",
+      regency_id: member?.regency_id ? String(member.regency_id) : "",
     });
     setPhotoMode("url");
+
+    const provinceId = member?.regency?.province_id ? String(member.regency.province_id) : "";
+    setSelectedProvince(provinceId);
+    if (provinceId) {
+      fetchRegencies(provinceId);
+    } else {
+      setRegencies([]);
+    }
+
     setModalType("edit");
     setShowModal(true);
   };
@@ -588,6 +665,12 @@ function DatabaseContent({ activeOrg }) {
       if (!isPeerGroupOrg) {
         payload.entry_date = formData.entry_date || null;
         payload.specialization = formData.specialization || null;
+      }
+
+      if (isResidentOrg && formData.status === "graduated") {
+        payload.regency_id = formData.regency_id ? Number(formData.regency_id) : null;
+      } else {
+        payload.regency_id = null;
       }
 
       if (!hasUserAffiliations) {
@@ -893,6 +976,7 @@ function DatabaseContent({ activeOrg }) {
                           <TableHead>Jenis Kelamin</TableHead>
                           {!isPeerGroupOrg ? <TableHead>Tanggal Masuk</TableHead> : null}
                           {!isPeerGroupOrg ? <TableHead>Spesialisasi</TableHead> : null}
+                          {isResidentOrg ? <TableHead>Semester</TableHead> : null}
                           <TableHead>Status</TableHead>
                           <TableHead className="text-right">Aksi</TableHead>
                         </TableRow>
@@ -920,6 +1004,7 @@ function DatabaseContent({ activeOrg }) {
                             <TableCell>{m.gender === "male" ? "Laki-laki" : m.gender === "female" ? "Perempuan" : "-"}</TableCell>
                             {!isPeerGroupOrg ? <TableCell>{toDateInputValue(m.entry_date) || "-"}</TableCell> : null}
                             {!isPeerGroupOrg ? <TableCell>{m.specialization || "-"}</TableCell> : null}
+                            {isResidentOrg ? <TableCell>{calculateSemester(m.entry_date)}</TableCell> : null}
                             <TableCell>{statusBadge(m.status)}</TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-2">
@@ -1174,7 +1259,16 @@ function DatabaseContent({ activeOrg }) {
 
               <div className="space-y-2">
                 <Label>Status *</Label>
-                <Select value={formData.status} onValueChange={(v) => setFormData((p) => ({ ...p, status: v }))}>
+                <Select
+                  value={formData.status}
+                  onValueChange={(v) => {
+                    setFormData((p) => ({ ...p, status: v, regency_id: v !== "graduated" ? "" : p.regency_id }));
+                    if (v !== "graduated") {
+                      setSelectedProvince("");
+                      setRegencies([]);
+                    }
+                  }}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih status" />
                   </SelectTrigger>
@@ -1185,6 +1279,119 @@ function DatabaseContent({ activeOrg }) {
                   </SelectContent>
                 </Select>
               </div>
+
+              {isResidentOrg && formData.status === "graduated" ? (
+                <>
+                  <div className="space-y-2">
+                    <Label>Provinsi</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-full justify-between font-normal",
+                            !selectedProvince && "text-muted-foreground"
+                          )}
+                        >
+                          {selectedProvince
+                            ? provinces.find((p) => String(p.id) === String(selectedProvince))?.name || "Pilih provinsi"
+                            : "Pilih provinsi"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput placeholder="Cari provinsi..." />
+                          <CommandList>
+                            <CommandEmpty>Provinsi tidak ditemukan.</CommandEmpty>
+                            <CommandGroup>
+                              {provinces.map((prov) => (
+                                <CommandItem
+                                  key={prov.id}
+                                  value={prov.name}
+                                  onSelect={() => {
+                                    const newVal = String(prov.id) === String(selectedProvince) ? "" : String(prov.id);
+                                    setSelectedProvince(newVal);
+                                    setFormData((p) => ({ ...p, regency_id: "" }));
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      String(selectedProvince) === String(prov.id) ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {prov.name}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Kabupaten / Kota</Label>
+                    {regenciesLoading ? (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Memuat data kabupaten...
+                      </div>
+                    ) : (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            disabled={!selectedProvince || regencies.length === 0}
+                            className={cn(
+                              "w-full justify-between font-normal",
+                              !formData.regency_id && "text-muted-foreground"
+                            )}
+                          >
+                            {formData.regency_id
+                              ? regencies.find((r) => String(r.id) === String(formData.regency_id))?.name || "Pilih kabupaten/kota"
+                              : "Pilih kabupaten/kota"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0">
+                          <Command>
+                            <CommandInput placeholder="Cari kabupaten/kota..." />
+                            <CommandList>
+                              <CommandEmpty>Kabupaten/kota tidak ditemukan.</CommandEmpty>
+                              <CommandGroup>
+                                {regencies.map((reg) => (
+                                  <CommandItem
+                                    key={reg.id}
+                                    value={reg.name}
+                                    onSelect={() => {
+                                      setFormData((p) => ({
+                                        ...p,
+                                        regency_id: String(p.regency_id) === String(reg.id) ? "" : String(reg.id),
+                                      }));
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        String(formData.regency_id) === String(reg.id) ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                    {reg.name}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    )}
+                  </div>
+                </>
+              ) : null}
 
               <div className="space-y-2">
                 <Label>Jenis Kelamin</Label>

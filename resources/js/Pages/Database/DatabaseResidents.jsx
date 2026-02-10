@@ -5,6 +5,17 @@ import { Search, Users, GraduationCap, UserX, ChevronLeft, ChevronRight } from "
 import HomepageLayout from "../../Layouts/HomepageLayout";
 import api from "@/api/axios";
 
+const calculateSemester = (entryDate) => {
+  if (!entryDate) return "-";
+  const entry = new Date(entryDate);
+  if (Number.isNaN(entry.getTime())) return "-";
+  const now = new Date();
+  const entryIdx = entry.getFullYear() * 2 + (entry.getMonth() >= 6 ? 1 : 0);
+  const nowIdx = now.getFullYear() * 2 + (now.getMonth() >= 6 ? 1 : 0);
+  const sem = nowIdx - entryIdx + 1;
+  return sem > 0 ? sem : "-";
+};
+
 export default function DatabaseResidents() {
   const [members, setMembers] = useState([]);
   const [affiliations, setAffiliations] = useState([]);
@@ -298,6 +309,9 @@ export default function DatabaseResidents() {
                           Gender
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Semester
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Status
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -339,6 +353,9 @@ export default function DatabaseResidents() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-900">{genderLabel(member.gender)}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">{calculateSemester(member.entry_date)}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`text-xs px-2 py-1 rounded-full ${statusPillClass(member.status)}`}>

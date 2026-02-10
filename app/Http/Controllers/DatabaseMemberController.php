@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DatabaseMember;
 use App\Models\Affiliation;
+use App\Models\Regency;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -188,7 +189,7 @@ class DatabaseMemberController extends Controller
         }
 
         $members = $query
-            ->with(['affiliation:id,name,code'])
+            ->with(['affiliation:id,name,code', 'regency:id,province_id,name', 'regency.province:id,name'])
             ->orderBy('name')
             ->paginate($request->integer('per_page', 10));
 
@@ -327,31 +328,33 @@ class DatabaseMemberController extends Controller
         }
 
         $isPeerGroup = $orgType === 'peer_group';
+        $isResident = $orgType === 'resident';
 
-        $allowedColumns = $isPeerGroup
-            ? ['photo', 'member_code', 'name', 'gender', 'status']
-            : ['photo', 'member_code', 'name', 'gender', 'entry_date', 'specialization', 'status'];
+        if ($isPeerGroup) {
+            $allowedColumns = ['photo', 'member_code', 'name', 'gender', 'status'];
+        } elseif ($isResident) {
+            $allowedColumns = ['photo', 'member_code', 'name', 'gender', 'entry_date', 'specialization', 'semester', 'status', 'regency'];
+        } else {
+            $allowedColumns = ['photo', 'member_code', 'name', 'gender', 'entry_date', 'specialization', 'status'];
+        }
 
-        $headerLabels = $isPeerGroup
-            ? [
-                'photo' => 'Foto',
-                'member_code' => 'Nomor Identitas',
-                'name' => 'Nama',
-                'gender' => 'Jenis Kelamin',
-                'status' => 'Status',
-            ]
-            : [
-                'photo' => 'Foto',
-                'member_code' => 'Nomor Identitas',
-                'name' => 'Nama',
-                'gender' => 'Jenis Kelamin',
-                'entry_date' => 'Tanggal Masuk',
-                'specialization' => 'Spesialisasi',
-                'status' => 'Status',
-            ];
+        $headerLabels = [
+            'photo' => 'Foto',
+            'member_code' => 'Nomor Identitas',
+            'name' => 'Nama',
+            'gender' => 'Jenis Kelamin',
+            'entry_date' => 'Tanggal Masuk',
+            'specialization' => 'Spesialisasi',
+            'semester' => 'Semester',
+            'status' => 'Status',
+            'regency' => 'Kabupaten/Kota',
+        ];
 
-        $selectColumns = array_values(array_unique(array_merge($allowedColumns, ['title'])));
-        $members = $query->orderBy('name')->get($selectColumns);
+        $selectColumns = array_values(array_unique(array_merge(
+            array_filter($allowedColumns, fn ($c) => !in_array($c, ['semester', 'regency'], true)),
+            ['title', 'regency_id']
+        )));
+        $members = $query->with('regency:id,name')->orderBy('name')->get($selectColumns);
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -414,8 +417,18 @@ class DatabaseMemberController extends Controller
                     } else {
                         $val = substr((string) $val, 0, 10);
                     }
+                } elseif ($col === 'semester') {
+                    $entryDateRaw = $member->entry_date;
+                    if ($entryDateRaw instanceof \DateTimeInterface) {
+                        $entryDateRaw = $entryDateRaw->format('Y-m-d');
+                    } elseif ($entryDateRaw !== null) {
+                        $entryDateRaw = substr((string) $entryDateRaw, 0, 10);
+                    }
+                    $val = $this->calculateSemester($entryDateRaw);
                 } elseif ($col === 'status') {
                     $val = $this->formatStatusLabel($val === null ? null : (string) $val);
+                } elseif ($col === 'regency') {
+                    $val = $member->regency ? $member->regency->name : '';
                 } elseif ($val === null) {
                     $val = '';
                 }
@@ -525,6 +538,7 @@ class DatabaseMemberController extends Controller
             'group' => 'nullable|string|max:255',
             'title' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:255',
+            'regency_id' => 'nullable|integer|exists:regencies,id',
         ]);
 
         $orgType = $validated['organization_type'];
@@ -597,6 +611,7 @@ class DatabaseMemberController extends Controller
             'group' => 'nullable|string|max:255',
             'title' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:255',
+            'regency_id' => 'nullable|integer|exists:regencies,id',
         ]);
 
         $validated['organization_type'] = $orgType;
@@ -785,6 +800,11 @@ class DatabaseMemberController extends Controller
             'title' => 'title',
             'lokasi' => 'location',
             'location' => 'location',
+            'kabupaten' => 'kabupaten_kota',
+            'kabupaten_kota' => 'kabupaten_kota',
+            'kota' => 'kabupaten_kota',
+            'district' => 'kabupaten_kota',
+            'regency' => 'kabupaten_kota',
         ];
 
         return $aliases[$normalized] ?? $normalized;
@@ -891,6 +911,29 @@ class DatabaseMemberController extends Controller
         };
     }
 
+    private function calculateSemester(?string $entryDate): string
+    {
+        if ($entryDate === null || $entryDate === '') {
+            return '-';
+        }
+
+        $ts = strtotime($entryDate);
+        if ($ts === false) {
+            return '-';
+        }
+
+        $entryYear = (int) date('Y', $ts);
+        $entryMonth = (int) date('n', $ts);
+        $nowYear = (int) date('Y');
+        $nowMonth = (int) date('n');
+
+        $entryIdx = $entryYear * 2 + ($entryMonth >= 7 ? 1 : 0);
+        $nowIdx = $nowYear * 2 + ($nowMonth >= 7 ? 1 : 0);
+        $sem = $nowIdx - $entryIdx + 1;
+
+        return $sem > 0 ? (string) $sem : '-';
+    }
+
     private function buildDisplayNameForExport(DatabaseMember $member): string
     {
         $baseName = trim((string) ($member->name ?? ''));
@@ -923,9 +966,15 @@ class DatabaseMemberController extends Controller
         $authUser = Auth::user();
 
         $isPeerGroup = $orgType === 'peer_group';
-        $allowedColumns = $isPeerGroup
-            ? ['member_code', 'name', 'photo', 'gender', 'status']
-            : ['member_code', 'name', 'photo', 'gender', 'status', 'entry_date', 'specialization'];
+        $isResident = $orgType === 'resident';
+
+        if ($isPeerGroup) {
+            $allowedColumns = ['member_code', 'name', 'photo', 'gender', 'status'];
+        } elseif ($isResident) {
+            $allowedColumns = ['member_code', 'name', 'photo', 'gender', 'status', 'entry_date', 'specialization', 'kabupaten_kota'];
+        } else {
+            $allowedColumns = ['member_code', 'name', 'photo', 'gender', 'status', 'entry_date', 'specialization'];
+        }
 
         $headerLabels = [
             'member_code' => 'Nomor Identitas',
@@ -935,6 +984,7 @@ class DatabaseMemberController extends Controller
             'status' => 'Status',
             'entry_date' => 'Tanggal Masuk',
             'specialization' => 'Spesialisasi',
+            'kabupaten_kota' => 'Kabupaten/Kota',
         ];
 
         $spreadsheet = new Spreadsheet();
@@ -1040,6 +1090,7 @@ class DatabaseMemberController extends Controller
             'group',
             'title',
             'location',
+            'kabupaten_kota',
         ];
 
         $requiredColumns = [
@@ -1176,6 +1227,28 @@ class DatabaseMemberController extends Controller
                 ];
 
                 $payload['status'] = $statusMap[$sv] ?? $payload['status'];
+            }
+
+            if (isset($payload['kabupaten_kota']) && $payload['kabupaten_kota'] !== null) {
+                $regencyName = trim((string) $payload['kabupaten_kota']);
+                if ($regencyName !== '') {
+                    $regency = Regency::query()
+                        ->whereRaw('LOWER(name) = ?', [mb_strtolower($regencyName)])
+                        ->first();
+                    if ($regency) {
+                        $payload['regency_id'] = $regency->id;
+                    } else {
+                        $errors[] = [
+                            'row' => $excelRowNumber,
+                            'column' => 'kabupaten_kota',
+                            'message' => "Kabupaten/Kota '{$regencyName}' tidak ditemukan.",
+                        ];
+                        continue;
+                    }
+                }
+                unset($payload['kabupaten_kota']);
+            } else {
+                unset($payload['kabupaten_kota']);
             }
 
             if ($payload['member_code'] === null) {

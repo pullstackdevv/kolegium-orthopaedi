@@ -80,6 +80,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('affiliation-profiles/upload-logo', [AffiliationProfileController::class, 'uploadLogo']);
     Route::delete('affiliation-profiles/{affiliationId}', [AffiliationProfileController::class, 'destroy']);
 
+    // Provinces & Regencies
+    Route::get('provinces', function () {
+        return response()->json(\App\Models\Province::orderBy('name')->get(['id', 'name']));
+    });
+    Route::get('provinces/{province}/regencies', function (\App\Models\Province $province) {
+        return response()->json($province->regencies()->orderBy('name')->get(['id', 'province_id', 'name']));
+    });
+
     // Database Members (CMS) routes
     Route::get('database-members', [DatabaseMemberController::class, 'index']);
     Route::get('database-members/affiliations', [DatabaseMemberController::class, 'affiliations']);
