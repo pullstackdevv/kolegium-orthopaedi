@@ -75,6 +75,8 @@ export default function StudyProgramDetail({ university, type }) {
     gallery: DEFAULT_GALLERY,
     ...university,
     orgStructure: university?.orgStructure || [],
+    teacherStaff: university?.teacherStaff || [],
+    educationalDashboard: university?.educationalDashboard || null,
     residents: university?.residents || DEFAULT_RESIDENTS,
     gallery: university?.gallery?.length ? university.gallery : DEFAULT_GALLERY,
   };
@@ -319,65 +321,77 @@ export default function StudyProgramDetail({ university, type }) {
               </div>
 
               {/* Educational Dashboard */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-                <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
-                  <Icon icon="mdi:chart-donut" className="w-5 h-5" />
-                  Educational Dashboard
-                </h2>
-                <div className="grid grid-cols-2 gap-4">
-                  {/* Residen Chart */}
-                  <div className="text-center">
-                    <div className="flex justify-center mb-2">
-                      <DonutChart
-                        data={[
-                          { name: 'Residen Aktif', value: 65 },
-                          { name: 'Lainnya', value: 35 }
-                        ]}
-                        colors={["#254D95", "#E5E7EB"]}
-                        centerText="65"
-                        size={120}
-                      />
-                    </div>
-                    <p className="text-xs font-semibold text-gray-900">Resident</p>
-                    <div className="flex items-center justify-center gap-2 mt-2">
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-primary"></div>
-                        <span className="text-[10px] text-gray-600">Active: 65</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-                        <span className="text-[10px] text-gray-600">Total: 100</span>
-                      </div>
-                    </div>
-                  </div>
+              {(() => {
+                const db = universityData.educationalDashboard;
+                const resActive = db?.resident?.active ?? 65;
+                const resTotal = db?.resident?.total ?? 100;
+                const resOther = Math.max(resTotal - resActive, 0);
+                const alumniCount = db?.alumni?.count ?? 450;
+                const alumniTotal = db?.alumni?.total ?? 500;
+                const alumniOther = Math.max(alumniTotal - alumniCount, 0);
 
-                  {/* Alumni Chart */}
-                  <div className="text-center">
-                    <div className="flex justify-center mb-2">
-                      <DonutChart
-                        data={[
-                          { name: 'Alumni', value: 450 },
-                          { name: 'Lainnya', value: 50 }
-                        ]}
-                        colors={['#EC4899', '#E5E7EB']}
-                        centerText="450"
-                        size={120}
-                      />
-                    </div>
-                    <p className="text-xs font-semibold text-gray-900">Alumni</p>
-                    <div className="flex items-center justify-center gap-2 mt-2">
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-pink-500"></div>
-                        <span className="text-[10px] text-gray-600">Alumni: 450</span>
+                return (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                    <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+                      <Icon icon="mdi:chart-donut" className="w-5 h-5" />
+                      Educational Dashboard
+                    </h2>
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Residen Chart */}
+                      <div className="text-center">
+                        <div className="flex justify-center mb-2">
+                          <DonutChart
+                            data={[
+                              { name: 'Residen Aktif', value: resActive || 1 },
+                              { name: 'Lainnya', value: resOther || (resActive ? 0 : 1) }
+                            ]}
+                            colors={["#254D95", "#E5E7EB"]}
+                            centerText={String(resActive)}
+                            size={120}
+                          />
+                        </div>
+                        <p className="text-xs font-semibold text-gray-900">Resident</p>
+                        <div className="flex items-center justify-center gap-2 mt-2">
+                          <div className="flex items-center gap-1">
+                            <div className="w-2 h-2 rounded-full bg-primary"></div>
+                            <span className="text-[10px] text-gray-600">Active: {resActive}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                            <span className="text-[10px] text-gray-600">Total: {resTotal}</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-                        <span className="text-[10px] text-gray-600">Total: 500</span>
+
+                      {/* Alumni Chart */}
+                      <div className="text-center">
+                        <div className="flex justify-center mb-2">
+                          <DonutChart
+                            data={[
+                              { name: 'Alumni', value: alumniCount || 1 },
+                              { name: 'Lainnya', value: alumniOther || (alumniCount ? 0 : 1) }
+                            ]}
+                            colors={['#EC4899', '#E5E7EB']}
+                            centerText={String(alumniCount)}
+                            size={120}
+                          />
+                        </div>
+                        <p className="text-xs font-semibold text-gray-900">Alumni</p>
+                        <div className="flex items-center justify-center gap-2 mt-2">
+                          <div className="flex items-center gap-1">
+                            <div className="w-2 h-2 rounded-full bg-pink-500"></div>
+                            <span className="text-[10px] text-gray-600">Alumni: {alumniCount}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                            <span className="text-[10px] text-gray-600">Total: {alumniTotal}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                );
+              })()}
 
               {/* Struktur Organisasi - Dynamic or Default Fallback */}
               {universityData.orgStructure?.length > 0 ? (
@@ -422,37 +436,52 @@ export default function StudyProgramDetail({ university, type }) {
                 </div>
               </div>
 
-              {/* Staf Pengajar - from org structure (remaining members) */}
-              {universityData.orgStructure.length > 2 && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-                <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
-                  <Icon icon="mdi:account-group" className="w-5 h-5" />
+              {/* Teacher Staff - from teacher_staff_members table */}
+              {universityData.teacherStaff?.length > 0 && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-3">
+                  <Icon icon="mdi:account-group" className="w-7 h-7 text-primary" />
                   Staf Pengajar
                 </h2>
-                <div className="grid grid-cols-3 gap-3">
-                  {universityData.orgStructure.slice(2).map((member) => (
-                    <div key={member.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200 text-center">
-                      {member.photo ? (
-                        <img
-                          src={member.photo}
-                          alt={member.name}
-                          className="w-14 h-14 rounded-full object-cover mx-auto mb-2"
-                          onError={(e) => { e.target.style.display = 'none'; }}
-                        />
-                      ) : (
-                        <div className="w-14 h-14 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-2">
-                          <Icon icon="mdi:account" className="w-8 h-8 text-gray-400" />
-                        </div>
-                      )}
-                      <p className="text-xs font-semibold text-gray-900 leading-tight">
-                        {member.name.split(',')[0]}
-                      </p>
-                      {member.position && (
-                        <p className="text-[10px] text-gray-600 mt-1">{member.position}</p>
-                      )}
+                <hr className="border-gray-200 mb-6" />
+                {(() => {
+                  const grouped = {};
+                  universityData.teacherStaff.forEach((m) => {
+                    const div = m.division || "Lainnya";
+                    if (!grouped[div]) grouped[div] = [];
+                    grouped[div].push(m);
+                  });
+                  return Object.entries(grouped).map(([divName, members]) => (
+                    <div key={divName} className="mb-8 last:mb-0">
+                      <h3 className="text-sm font-semibold text-primary mb-4">{divName}</h3>
+                      <div className="grid grid-cols-3 gap-4">
+                        {members.map((member) => (
+                          <div key={member.id} className="bg-white rounded-xl py-5 px-3 border border-gray-200 text-center flex flex-col items-center">
+                            {member.photo ? (
+                              <img
+                                src={member.photo}
+                                alt={member.name}
+                                className="w-16 h-16 rounded-full object-cover mb-3"
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                  e.target.nextElementSibling && (e.target.nextElementSibling.style.display = 'flex');
+                                }}
+                              />
+                            ) : null}
+                            {!member.photo && (
+                              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-3">
+                                <Icon icon="mdi:account" className="w-9 h-9 text-gray-400" />
+                              </div>
+                            )}
+                            <p className="text-xs font-medium text-gray-800 leading-tight">
+                              {member.institution_origin ? `${member.institution_origin}` : "-"}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  ))}
-                </div>
+                  ));
+                })()}
               </div>
               )}
               </>
