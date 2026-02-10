@@ -27,6 +27,7 @@ class DatabaseMember extends Model
         'group',
         'title',
         'location',
+        'regency_id',
     ];
 
     protected $casts = [
@@ -36,5 +37,10 @@ class DatabaseMember extends Model
     public function affiliation(): BelongsTo
     {
         return $this->belongsTo(Affiliation::class);
+    }
+
+    public function regency(): BelongsTo
+    {
+        return $this->belongsTo(Regency::class);
     }
 }
