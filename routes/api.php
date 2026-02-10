@@ -11,6 +11,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\WellbeingSurveyController;
 use App\Http\Controllers\AffiliationProfileController;
 use App\Http\Controllers\OrgStructureMemberController;
+use App\Http\Controllers\TeacherStaffMemberController;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -108,6 +109,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('org-structure-members/{orgStructureMember}', [OrgStructureMemberController::class, 'update']);
     Route::delete('org-structure-members/{orgStructureMember}', [OrgStructureMemberController::class, 'destroy']);
     Route::post('org-structure-members/{orgStructureMember}/upload-photo', [OrgStructureMemberController::class, 'uploadPhotoForMember']);
+
+    // Teacher Staff Members (CMS) routes
+    Route::get('teacher-staff-members', [TeacherStaffMemberController::class, 'index']);
+    Route::get('teacher-staff-members/affiliations', [TeacherStaffMemberController::class, 'affiliations']);
+    Route::get('teacher-staff-members/divisions', [TeacherStaffMemberController::class, 'divisions']);
+    Route::post('teacher-staff-members/upload-photo', [TeacherStaffMemberController::class, 'uploadPhoto']);
+    Route::post('teacher-staff-members', [TeacherStaffMemberController::class, 'store']);
+    Route::put('teacher-staff-members/{teacherStaffMember}', [TeacherStaffMemberController::class, 'update']);
+    Route::delete('teacher-staff-members/{teacherStaffMember}', [TeacherStaffMemberController::class, 'destroy']);
+    Route::post('teacher-staff-members/{teacherStaffMember}/upload-photo', [TeacherStaffMemberController::class, 'uploadPhotoForMember']);
 });
 
 // Database Members - Public Search (for Well-Being Survey verification)
@@ -131,6 +142,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Org Structure Members - Public
 Route::get('public/org-structure-members', [OrgStructureMemberController::class, 'publicIndex']);
+Route::get('public/teacher-staff-members', [TeacherStaffMemberController::class, 'publicIndex']);
 
 // Affiliation lookup by code (public)
 Route::get('affiliations/by-code/{code}', [AffiliationController::class, 'getByCode']);

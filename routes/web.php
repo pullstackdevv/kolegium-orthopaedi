@@ -12,6 +12,7 @@ use App\Models\Affiliation;
 use App\Models\AffiliationProfile;
 use App\Models\DatabaseMember;
 use App\Models\OrgStructureMember;
+use App\Models\TeacherStaffMember;
 
 // Public Homepage - no login required
 Route::get('/', function () {
@@ -182,6 +183,27 @@ Route::get('/profile-study-program/{type}/{code}', function ($type, $code) {
             ->count();
     }
 
+    // Educational Dashboard stats from database_members
+    $dbBaseQuery = DatabaseMember::query()
+        ->where('organization_type', $orgType ?? 'resident')
+        ->where('affiliation_id', $affiliation->id);
+
+    $totalResidents = (clone $dbBaseQuery)->count();
+    $activeResidentsCount = (clone $dbBaseQuery)->where('status', 'active')->count();
+    $graduatedCount = (clone $dbBaseQuery)->where('status', 'graduated')->count();
+    $leaveCount = (clone $dbBaseQuery)->where('status', 'leave')->count();
+
+    $educationalDashboard = [
+        'resident' => [
+            'active' => $activeResidentsCount,
+            'total' => $totalResidents,
+        ],
+        'alumni' => [
+            'count' => $graduatedCount,
+            'total' => $totalResidents,
+        ],
+    ];
+
     // Resolve image URLs — prefer profile logo, fallback to affiliation logo
     $profileLogoUrl = $profile && $profile->logo ? \Illuminate\Support\Facades\Storage::url($profile->logo) : null;
     $logoUrl = $profileLogoUrl ?? ($affiliation->logo ? \Illuminate\Support\Facades\Storage::url($affiliation->logo) : null);
@@ -199,6 +221,21 @@ Route::get('/profile-study-program/{type}/{code}', function ($type, $code) {
             'name' => $m->name,
             'position' => $m->position ?? '',
             'email' => $m->email ?? '',
+            'photo' => $m->photo ? (str_starts_with($m->photo, 'http') ? $m->photo : \Illuminate\Support\Facades\Storage::url($m->photo)) : null,
+        ])
+        ->toArray();
+
+    // Fetch teacher staff members for this affiliation
+    $teacherStaff = TeacherStaffMember::query()
+        ->where('affiliation_id', $affiliation->id)
+        ->with('division:id,name')
+        ->orderBy('name')
+        ->get()
+        ->map(fn ($m) => [
+            'id' => $m->id,
+            'name' => $m->name,
+            'institution_origin' => $m->institution_origin ?? '',
+            'division' => $m->division?->name ?? '',
             'photo' => $m->photo ? (str_starts_with($m->photo, 'http') ? $m->photo : \Illuminate\Support\Facades\Storage::url($m->photo)) : null,
         ])
         ->toArray();
@@ -233,7 +270,9 @@ Route::get('/profile-study-program/{type}/{code}', function ($type, $code) {
             ],
             'registrationInfo' => $profile->registration_info ?? '',
             'registrationUrl' => $profile->registration_url ?? '',
+            'educationalDashboard' => $educationalDashboard,
             'orgStructure' => $orgMembers,
+            'teacherStaff' => $teacherStaff,
         ],
     ]);
 })->where('type', 'ppds1|subspesialis')
