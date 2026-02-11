@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\AffiliationType;
 use App\Models\Affiliation;
+use App\Models\TeacherStaffMember;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,6 +30,7 @@ class AffiliationController extends Controller
 
         $affiliations = Affiliation::query()
             ->select(['id', 'name', 'code', 'type', 'since', 'logo', 'created_at'])
+            ->with('profile:id,affiliation_id,description,sub_title,logo')
             ->when($type !== '', fn ($q) => $q->where('type', $type))
             ->orderBy('created_at', 'asc')
             ->get()
@@ -36,6 +38,13 @@ class AffiliationController extends Controller
                 if ($affiliation->logo) {
                     $affiliation->logo = Storage::url($affiliation->logo);
                 }
+
+                // Include profile data
+                $profile = $affiliation->profile;
+                $profileLogoUrl = $profile && $profile->logo ? Storage::url($profile->logo) : null;
+                $affiliation->profile_description = $profile->description ?? '';
+                $affiliation->profile_sub_title = $profile->sub_title ?? '';
+                $affiliation->profile_logo = $profileLogoUrl ?? $affiliation->logo;
 
                 // Add dynamic counts if orgType is available
                 if ($orgType) {
@@ -47,7 +56,11 @@ class AffiliationController extends Controller
                     $affiliation->staff_count = $affiliation->orgStructureMembers()
                         ->where('organization_type', $orgType)
                         ->count();
+
+                    $affiliation->teacher_staff_count = TeacherStaffMember::where('affiliation_id', $affiliation->id)->count();
                 }
+
+                unset($affiliation->profile);
 
                 return $affiliation;
             });
