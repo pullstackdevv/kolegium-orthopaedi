@@ -45,6 +45,7 @@ const EMPTY_FORM = {
   description: "",
   sub_title: "",
   accreditation: "",
+  degree: "",
   established_year: "",
   program_duration: "",
   capacity: "",
@@ -164,6 +165,7 @@ function AffiliationProfileContent() {
         description: profile.description || "",
         sub_title: profile.sub_title || "",
         accreditation: profile.accreditation || "",
+        degree: profile.degree || "",
         established_year: profile.established_year || "",
         program_duration: profile.program_duration || "",
         capacity: profile.capacity || "",
@@ -618,6 +620,20 @@ function AffiliationProfileContent() {
                 className="mt-1"
               />
             </div>
+            {section === 'resident' && (
+            <div>
+              <Label htmlFor="degree">Degree</Label>
+              <Input
+                id="degree"
+                value={form.degree}
+                onChange={(e) =>
+                  handleChange("degree", e.target.value)
+                }
+                placeholder="e.g. Sp.OT"
+                className="mt-1"
+              />
+            </div>
+            )}
             <div>
               <Label htmlFor="established_year">Established Year</Label>
               <Input

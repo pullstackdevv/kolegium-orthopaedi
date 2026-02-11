@@ -264,6 +264,7 @@ Route::get('/profile-study-program/{type}/{code}', function ($type, $code) {
             ],
             'information' => [
                 'accreditation' => $profile->accreditation ?? '',
+                'degree' => $profile->degree ?? '',
                 'established' => $profile->established_year ?? '',
                 'duration' => $profile->program_duration ?? '',
                 'capacity' => $profile->capacity ?? '',

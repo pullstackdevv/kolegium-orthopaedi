@@ -73,7 +73,7 @@ export default function PeerGroupDetail({ peerGroup }) {
                 <div className="flex items-start gap-6 mb-8">
                   <div className="flex-shrink-0">
                     <div className="w-24 h-24 rounded-full overflow-hidden border-8 border-primary bg-white flex items-center justify-center">
-                      <img src={peerGroupInfo.logo || "/assets/images/logo-univ/FK-UI.png"} alt="Logo" className="w-16 h-16 object-contain" />
+                      <img src={peerGroupInfo.logo || "/assets/images/logo-univ/FK-UI.png"} alt="Logo" className="w-full h-full object-cover" />
                     </div>
                   </div>
                   <div className="flex-1">

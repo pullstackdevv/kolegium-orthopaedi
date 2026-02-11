@@ -239,7 +239,7 @@ export default function StudyProgramDetail({ university, type }) {
                     <img
                       src={resolvedLogo}
                       alt={`${universityData.name} logo`}
-                      className="w-full h-full object-contain p-3"
+                      className="w-full h-full object-cover"
                       onError={(e) => {
                         if (e.target.src !== DEFAULT_LOGO) {
                           e.target.src = DEFAULT_LOGO;
@@ -303,6 +303,17 @@ export default function StudyProgramDetail({ university, type }) {
                     <div>
                       <p className="text-xs text-gray-600 font-medium">Program Duration</p>
                       <p className="text-sm font-semibold text-gray-900">{universityData.information.duration}</p>
+                    </div>
+                  </div>
+                  )}
+                  {universityData.information?.degree && type !== 'subspesialis' && (
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Icon icon="mdi:graduation-cap" className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-600 font-medium">Degree</p>
+                      <p className="text-sm font-semibold text-gray-900">{universityData.information.degree}</p>
                     </div>
                   </div>
                   )}
@@ -436,58 +447,10 @@ export default function StudyProgramDetail({ university, type }) {
                 </div>
               </div>
 
-              {/* Teacher Staff - from teacher_staff_members table */}
-              {universityData.teacherStaff?.length > 0 && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-3">
-                  <Icon icon="mdi:account-group" className="w-7 h-7 text-primary" />
-                  Staf Pengajar
-                </h2>
-                <hr className="border-gray-200 mb-6" />
-                {(() => {
-                  const grouped = {};
-                  universityData.teacherStaff.forEach((m) => {
-                    const div = m.division || "Lainnya";
-                    if (!grouped[div]) grouped[div] = [];
-                    grouped[div].push(m);
-                  });
-                  return Object.entries(grouped).map(([divName, members]) => (
-                    <div key={divName} className="mb-8 last:mb-0">
-                      <h3 className="text-sm font-semibold text-primary mb-4">{divName}</h3>
-                      <div className="grid grid-cols-3 gap-4">
-                        {members.map((member) => (
-                          <div key={member.id} className="bg-white rounded-xl py-5 px-3 border border-gray-200 text-center flex flex-col items-center">
-                            {member.photo ? (
-                              <img
-                                src={member.photo}
-                                alt={member.name}
-                                className="w-16 h-16 rounded-full object-cover mb-3"
-                                onError={(e) => {
-                                  e.target.style.display = 'none';
-                                  e.target.nextElementSibling && (e.target.nextElementSibling.style.display = 'flex');
-                                }}
-                              />
-                            ) : null}
-                            {!member.photo && (
-                              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-3">
-                                <Icon icon="mdi:account" className="w-9 h-9 text-gray-400" />
-                              </div>
-                            )}
-                            <p className="text-xs font-medium text-gray-800 leading-tight">
-                              {member.institution_origin ? `${member.institution_origin}` : "-"}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ));
-                })()}
-              </div>
-              )}
               </>
               ) : (
               <>
-              {/* Default Faculty of Medicine */}
+              {/* Default Faculty of Medicine (when no orgStructure data) */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
                 <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                   <Icon icon="mdi:school-outline" className="w-5 h-5" />
@@ -539,6 +502,60 @@ export default function StudyProgramDetail({ university, type }) {
                 </div>
               </div>
               </>
+              )}
+
+              {/* Teacher Staff - independent from orgStructure */}
+              {universityData.teacherStaff?.length > 0 && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-3">
+                  <Icon icon="mdi:account-group" className="w-7 h-7 text-primary" />
+                  Staf Pengajar
+                </h2>
+                <hr className="border-gray-200 mb-6" />
+                {(() => {
+                  const grouped = {};
+                  universityData.teacherStaff.forEach((m) => {
+                    const div = m.division || "Lainnya";
+                    if (!grouped[div]) grouped[div] = [];
+                    grouped[div].push(m);
+                  });
+                  return Object.entries(grouped).map(([divName, members]) => (
+                    <div key={divName} className="mb-8 last:mb-0">
+                      <h3 className="text-sm font-semibold text-primary mb-4">{divName}</h3>
+                      <div className="grid grid-cols-3 gap-4">
+                        {members.map((member) => (
+                          <div key={member.id} className="bg-white rounded-xl py-5 px-3 border border-gray-200 text-center flex flex-col items-center">
+                            {member.photo ? (
+                              <img
+                                src={member.photo}
+                                alt={member.name}
+                                className="w-16 h-16 rounded-full object-cover mb-3"
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                  e.target.nextElementSibling && (e.target.nextElementSibling.style.display = 'flex');
+                                }}
+                              />
+                            ) : null}
+                            {!member.photo && (
+                              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-3">
+                                <Icon icon="mdi:account" className="w-9 h-9 text-gray-400" />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-xs font-semibold text-gray-900 leading-tight">
+                                {member.name}
+                              </h4>
+                              <p className="text-[10px] text-gray-600 mt-1">
+                                {member.institution_origin ? `${member.institution_origin}` : "-"}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ));
+                })()}
+              </div>
               )}
 
               {/* Gallery */}
@@ -648,6 +665,34 @@ export default function StudyProgramDetail({ university, type }) {
                     </div>
                   </div>
                   )}
+                </div>
+              </div>
+              )}
+
+              {/* Peminatan - Only show for subspesialis */}
+              {type === 'subspesialis' && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 className="text-lg font-bold text-primary mb-6 flex items-center gap-2">
+                  <Icon icon="mdi:office-building" className="w-5 h-5" />
+                  Peminatan
+                </h2>
+                <div className="space-y-3">
+                  {[
+                    'Hip and Knee',
+                    'Orthopaedic Oncology',
+                    'Hand, Upper Limb, & Microsurgery',
+                    'Orthopaedic Spine',
+                    'Pediatric Orthopaedic',
+                    'Shoulder and Elbow Orthopaedics',
+                    'Foot and Ankle',
+                    'Sport Injury',
+                    'Advanced Orthopaedics',
+                  ].map((item, idx) => (
+                    <div key={idx} className="bg-gray-50 rounded-xl px-5 py-4 border border-blue-200 flex items-center gap-3">
+                      <span className="w-2.5 h-2.5 bg-primary rounded-full flex-shrink-0"></span>
+                      <p className="text-sm font-semibold text-gray-900">{item}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
               )}
@@ -784,7 +829,7 @@ export default function StudyProgramDetail({ university, type }) {
               )}
 
               {/* Specialization - Only show for PPDS1 */}
-              {type !== 'resident' && type !== 'clinical-fellowship' && (
+              {type === 'ppds1' && (
               <div className="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-6">
                 <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                   <Icon icon="mdi:school-outline" className="w-5 h-5" />
