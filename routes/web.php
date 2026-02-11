@@ -23,7 +23,48 @@ Route::get('/', function () {
 
 // Peer Group page
 Route::get('/peer-group', function () {
-    return Inertia::render('PeerGroup/index', ['layout' => 'HomepageLayout']);
+    $peerGroups = Affiliation::query()
+        ->where('type', 'peer_group')
+        ->orderBy('name')
+        ->get()
+        ->map(function ($affiliation) {
+            $profile = AffiliationProfile::where('affiliation_id', $affiliation->id)->first();
+            $logoUrl = null;
+            if ($profile && $profile->logo) {
+                $logoUrl = \Illuminate\Support\Facades\Storage::url($profile->logo);
+            } elseif ($affiliation->logo) {
+                $logoUrl = \Illuminate\Support\Facades\Storage::url($affiliation->logo);
+            }
+
+            // Get president from org structure (first by position_order)
+            $president = OrgStructureMember::query()
+                ->where('organization_type', 'peer_group')
+                ->where('affiliation_id', $affiliation->id)
+                ->orderBy('position_order')
+                ->first();
+
+            $totalMembers = DatabaseMember::query()
+                ->where('organization_type', 'peer_group')
+                ->where('affiliation_id', $affiliation->id)
+                ->count();
+
+            return [
+                'id' => $affiliation->id,
+                'code' => $affiliation->code,
+                'name' => $affiliation->code ?: $affiliation->name,
+                'fullName' => $affiliation->name,
+                'logo' => $logoUrl,
+                'president' => $president ? $president->name : '',
+                'presidentPosition' => $president ? ($president->position ?? 'President') : '',
+                'description' => $profile->description ?? '',
+                'members' => $totalMembers,
+            ];
+        });
+
+    return Inertia::render('PeerGroup/index', [
+        'layout' => 'HomepageLayout',
+        'peerGroups' => $peerGroups,
+    ]);
 })->name('peer-group');
 
 // Peer Group Detail page
@@ -127,6 +168,24 @@ Route::get('/profile-study-program/clinical-fellowship/{id}', function ($id) {
         ])
         ->toArray();
 
+    // Fetch teacher staff members with division
+    $teacherStaff = TeacherStaffMember::query()
+        ->where('affiliation_id', $affiliation->id)
+        ->with('division')
+        ->orderBy('name')
+        ->get()
+        ->map(fn ($m) => [
+            'id' => $m->id,
+            'name' => $m->name,
+            'photo' => $m->photo ? (str_starts_with($m->photo, 'http') ? $m->photo : \Illuminate\Support\Facades\Storage::url($m->photo)) : null,
+            'institution_origin' => $m->institution_origin ?? '',
+            'division' => $m->division->name ?? '',
+        ])
+        ->toArray();
+
+    // Fetch teaching hospitals count
+    $teachingHospitalCount = TeachingHospital::where('affiliation_id', $affiliation->id)->count();
+
     return Inertia::render('ProfileStudyProgram/ClinicalFellowshipDetail', [
         'fellowshipId' => $id,
         'fellowship' => [
@@ -139,10 +198,10 @@ Route::get('/profile-study-program/clinical-fellowship/{id}', function ($id) {
             'image' => $coverImageUrl,
             'stats' => [
                 'fellowActive' => $activeFellows,
-                'staffPendidik' => count($orgMembers),
-                'rsPendidikan' => 0,
+                'staffPendidik' => count($teacherStaff),
+                'rsPendidikan' => $teachingHospitalCount,
             ],
-            'profileSingkat' => $profile->description ?? '',
+            'description' => $profile->description ?? '',
             'contact' => [
                 'address' => $profile->contact_address ?? '',
                 'phone' => $profile->contact_phone ?? '',
@@ -153,8 +212,7 @@ Route::get('/profile-study-program/clinical-fellowship/{id}', function ($id) {
                 'url' => $profile->registration_url ?? '',
             ],
             'orgStructure' => $orgMembers,
-            'staff' => [],
-            'students' => [],
+            'teacherStaff' => $teacherStaff,
         ],
     ]);
 })->name('profile.clinical-fellowship.detail');
