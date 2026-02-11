@@ -496,10 +496,10 @@ export default function StudyProgramDetail({ university, type }) {
                       <div className="w-14 h-14 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-2">
                         <Icon icon="mdi:account" className="w-8 h-8 text-gray-400" />
                       </div>
-                      <p className="text-xs font-semibold text-gray-900 leading-tight">
+                      <p className="text-sm font-semibold text-gray-900 leading-tight">
                         {staff.name.split(',')[0]}
                       </p>
-                      <p className="text-[10px] text-gray-600 mt-1">{staff.specialization}</p>
+                      <p className="text-xs text-gray-600 mt-1">{staff.specialization}</p>
                     </div>
                   ))}
                 </div>
