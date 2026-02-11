@@ -93,7 +93,7 @@ export default function DatabaseTrainees() {
     const fetchAffiliations = async () => {
       try {
         const response = await api.get("/public/affiliations", {
-          params: { per_page: 1000 },
+          params: { per_page: 1000, type: "subspesialis" },
           headers: { "X-Skip-Auth-Redirect": "1" },
         });
         if (response.data?.status === "success") {
