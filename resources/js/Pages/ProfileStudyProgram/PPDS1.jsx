@@ -163,8 +163,8 @@ export default function PPDS1() {
             affiliationCode: a.code ?? defaultTemplate.code,
             logo: a.logo ?? null,
             since: a.since ?? null,
-            students: defaultTemplate.students,
-            staff: defaultTemplate.staff
+            students: a.active_members ?? defaultTemplate.students,
+            staff: a.staff_count ?? defaultTemplate.staff
           };
         });
 

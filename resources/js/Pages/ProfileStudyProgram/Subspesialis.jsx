@@ -62,8 +62,8 @@ export default function Subspesialis() {
             affiliationCode: a.code ?? defaultTemplate.code,
             logo: a.logo ?? null,
             since: a.since ?? null,
-            students: defaultTemplate.students,
-            staff: defaultTemplate.staff
+            students: a.active_members ?? defaultTemplate.students,
+            staff: a.staff_count ?? defaultTemplate.staff
           };
         });
 
@@ -126,7 +126,7 @@ export default function Subspesialis() {
             {universities.map((university, index) => (
               <Link
                 key={index}
-                href={`/profile-study-program/subspesialis/${university.id}`}
+                href={`/profile-study-program/subspesialis/${university.affiliationCode}`}
                 className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-300 block"
               >
                 <div className="flex items-center gap-3 mb-4">

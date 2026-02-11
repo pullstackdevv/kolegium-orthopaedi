@@ -17,6 +17,7 @@ class AffiliationProfile extends Model
         'logo',
         'cover_image',
         'accreditation',
+        'degree',
         'established_year',
         'program_duration',
         'capacity',

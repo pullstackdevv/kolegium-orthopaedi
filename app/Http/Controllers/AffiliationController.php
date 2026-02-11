@@ -19,15 +19,36 @@ class AffiliationController extends Controller
     {
         $type = $request->string('type')->toString();
 
+        // Map affiliation type to organization_type for database_members
+        $orgTypeMap = [
+            'residen' => 'resident',
+            'subspesialis' => 'trainee',
+            'clinical_fellowship' => 'fellow',
+        ];
+        $orgType = $orgTypeMap[$type] ?? null;
+
         $affiliations = Affiliation::query()
             ->select(['id', 'name', 'code', 'type', 'since', 'logo', 'created_at'])
             ->when($type !== '', fn ($q) => $q->where('type', $type))
             ->orderBy('created_at', 'asc')
             ->get()
-            ->map(function ($affiliation) {
+            ->map(function ($affiliation) use ($orgType) {
                 if ($affiliation->logo) {
                     $affiliation->logo = Storage::url($affiliation->logo);
                 }
+
+                // Add dynamic counts if orgType is available
+                if ($orgType) {
+                    $affiliation->active_members = $affiliation->databaseMembers()
+                        ->where('organization_type', $orgType)
+                        ->where('status', 'active')
+                        ->count();
+
+                    $affiliation->staff_count = $affiliation->orgStructureMembers()
+                        ->where('organization_type', $orgType)
+                        ->count();
+                }
+
                 return $affiliation;
             });
 
