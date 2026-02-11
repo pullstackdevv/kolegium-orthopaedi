@@ -23,10 +23,10 @@ export default function ClinicalFellowshipDetail({ fellowship }) {
     image: null,
     stats: {
       fellowActive: 0,
-      staffPendidik: 0,
-      rsPendidikan: 0
+      teachingStaff: 0,
+      teachingHospitals: 0
     },
-    profileSingkat: "",
+    shortProfile: "",
     contact: {
       address: "",
       phone: "",
@@ -94,25 +94,25 @@ export default function ClinicalFellowshipDetail({ fellowship }) {
                     </div>
                     <div className="text-center">
                       <div className="text-3xl font-bold text-blue-600 mb-1">
-                        {fellowshipData.stats.staffPendidik}
+                        {fellowshipData.stats.teachingStaff}
                       </div>
-                      <div className="text-sm text-gray-600">Staff Pendidik</div>
+                      <div className="text-sm text-gray-600">Teaching Staff</div>
                     </div>
                     <div className="text-center">
                       <div className="text-3xl font-bold text-blue-600 mb-1">
-                        {fellowshipData.stats.rsPendidikan}
+                        {fellowshipData.stats.teachingHospitals}
                       </div>
-                      <div className="text-sm text-gray-600">RS Pendidikan</div>
+                      <div className="text-sm text-gray-600">Teaching Hospitals</div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Profile Singkat */}
+              {/* Short Profile */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h2 className="text-xl font-bold text-blue-700 mb-4 flex items-center gap-2">
                   <Icon icon="mdi:file-document-outline" className="w-6 h-6" />
-                  Profile Singkat
+                  Short Profile
                 </h2>
                 {fellowshipData.profileSingkat ? (
                   <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
@@ -164,24 +164,24 @@ export default function ClinicalFellowshipDetail({ fellowship }) {
                       onChange={(e) => handleFilterChange('clinicalFellowship', e.target.value)}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     >
-                      <option value="all">Semua</option>
+                      <option value="all">All</option>
                       <option value="hip-knee">Hip and Knee</option>
                       <option value="foot-ankle">Foot and Ankle</option>
                       <option value="spine">Spine</option>
                     </select>
                   </div>
 
-                  {/* Penyelenggara Filter */}
+                  {/* Institution Filter */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Penyelenggara
+                      Institution
                     </label>
                     <select
                       value={filters.penyelenggara}
                       onChange={(e) => handleFilterChange('penyelenggara', e.target.value)}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     >
-                      <option value="all">Semua</option>
+                      <option value="all">All</option>
                       <option value="sardjito">RSUP Dr. Sardjito</option>
                       <option value="saiful">RSUD Dr. Saiful Anwar</option>
                     </select>
@@ -197,16 +197,16 @@ export default function ClinicalFellowshipDetail({ fellowship }) {
                       onChange={(e) => handleFilterChange('status', e.target.value)}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     >
-                      <option value="all">Semua</option>
-                      <option value="aktif">Aktif</option>
-                      <option value="lulus">Lulus</option>
+                      <option value="all">All</option>
+                      <option value="active">Active</option>
+                      <option value="graduated">Graduated</option>
                     </select>
                   </div>
 
                   {/* Search */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Cari Residen
+                      Search Fellow
                     </label>
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -214,7 +214,7 @@ export default function ClinicalFellowshipDetail({ fellowship }) {
                         type="text"
                         value={filters.search}
                         onChange={(e) => handleFilterChange('search', e.target.value)}
-                        placeholder="Cari..."
+                        placeholder="Search..."
                         className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                       />
                     </div>
@@ -227,9 +227,9 @@ export default function ClinicalFellowshipDetail({ fellowship }) {
                 <div className="p-6 border-b border-gray-200">
                   <div className="flex items-center justify-between">
                     <h2 className="text-xl font-bold text-blue-700">
-                      Daftar Mahasiswa Clinical Fellowship
+                      Clinical Fellowship Students
                     </h2>
-                    <p className="text-sm text-gray-600">Menampilkan 3 dari 58 residen</p>
+                    <p className="text-sm text-gray-600">Showing 3 of 58 fellows</p>
                   </div>
                 </div>
 
@@ -238,8 +238,8 @@ export default function ClinicalFellowshipDetail({ fellowship }) {
                     <thead className="bg-gray-50 border-b border-gray-200">
                       <tr>
                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">No</th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Residen</th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Penyelenggara</th>
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Fellow</th>
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Institution</th>
                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Semester</th>
                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Clinical Fellowship</th>
                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Gender</th>
@@ -317,11 +317,11 @@ export default function ClinicalFellowshipDetail({ fellowship }) {
 
             {/* Right Column - Sidebar */}
             <div className="lg:col-span-1 space-y-6">
-              {/* Struktur Organisasi */}
+              {/* Organizational Structure */}
               {fellowshipData.orgStructure?.length > 0 && (
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h3 className="text-lg font-bold text-blue-700 mb-4">
-                  Struktur Organisasi
+                  Organizational Structure
                 </h3>
                 <div className="space-y-4">
                   {fellowshipData.orgStructure.map((member) => (
@@ -353,11 +353,11 @@ export default function ClinicalFellowshipDetail({ fellowship }) {
               </div>
               )}
 
-              {/* Kontak Sekretariat */}
+              {/* Secretariat Contact */}
               {(fellowshipData.contact?.address || fellowshipData.contact?.phone || fellowshipData.contact?.website) && (
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h3 className="text-lg font-bold text-blue-700 mb-4">
-                  Kontak Sekretariat
+                  Secretariat Contact
                 </h3>
                 <div className="space-y-4">
                   {fellowshipData.contact.address && (
@@ -393,18 +393,18 @@ export default function ClinicalFellowshipDetail({ fellowship }) {
               </div>
               )}
 
-              {/* Pendaftaran */}
+              {/* Registration */}
               {fellowshipData.registration?.info && (
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h3 className="text-lg font-bold text-blue-700 mb-4">
-                  Pendaftaran
+                  Registration
                 </h3>
                 <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
                   {fellowshipData.registration.info}
                 </div>
                 {fellowshipData.registration?.url && (
                   <div className="mt-4">
-                    <span className="text-sm text-gray-600">Link Pendaftaran: </span>
+                    <span className="text-sm text-gray-600">Registration Link: </span>
                     <a
                       href={fellowshipData.registration.url}
                       target="_blank"

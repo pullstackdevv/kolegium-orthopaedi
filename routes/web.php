@@ -13,6 +13,8 @@ use App\Models\AffiliationProfile;
 use App\Models\DatabaseMember;
 use App\Models\OrgStructureMember;
 use App\Models\TeacherStaffMember;
+use App\Models\TeachingHospital;
+use App\Models\Specialization;
 
 // Public Homepage - no login required
 Route::get('/', function () {
@@ -253,8 +255,8 @@ Route::get('/profile-study-program/{type}/{code}', function ($type, $code) {
             'image' => $coverImageUrl,
             'stats' => [
                 'activeResidents' => $activeResidents,
-                'faculty' => count($orgMembers),
-                'teachingHospitals' => 0,
+                'faculty' => count($teacherStaff),
+                'teachingHospitals' => TeachingHospital::where('affiliation_id', $affiliation->id)->count(),
             ],
             'contact' => [
                 'address' => $profile->contact_address ?? '',
@@ -274,6 +276,19 @@ Route::get('/profile-study-program/{type}/{code}', function ($type, $code) {
             'educationalDashboard' => $educationalDashboard,
             'orgStructure' => $orgMembers,
             'teacherStaff' => $teacherStaff,
+            'teachingHospitals' => TeachingHospital::query()
+                ->where('affiliation_id', $affiliation->id)
+                ->orderBy('category')
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get(['id', 'category', 'name', 'location'])
+                ->toArray(),
+            'specializations' => Specialization::query()
+                ->where('affiliation_id', $affiliation->id)
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->toArray(),
         ],
     ]);
 })->where('type', 'ppds1|subspesialis')
