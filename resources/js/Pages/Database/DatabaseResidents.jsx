@@ -104,7 +104,7 @@ export default function DatabaseResidents() {
     const fetchAffiliations = async () => {
       try {
         const response = await api.get("/public/affiliations", {
-          params: { per_page: 1000 },
+          params: { per_page: 1000, type: "residen" },
           headers: { "X-Skip-Auth-Redirect": "1" },
         });
         if (response.data?.status === "success") {

@@ -257,11 +257,11 @@ class DatabaseMemberController extends Controller
 
         $baseQuery = DatabaseMember::query()
             ->whereIn('organization_type', ['resident', 'fellow', 'trainee'])
+            ->when(!empty($validated['organization_type']), fn ($q) => $q->where('organization_type', $validated['organization_type']))
             ->with('affiliation:id,name,code');
 
         $query = (clone $baseQuery)
             ->when(!empty($validated['status']), fn ($q) => $q->where('status', $validated['status']))
-            ->when(!empty($validated['organization_type']), fn ($q) => $q->where('organization_type', $validated['organization_type']))
             ->when(!empty($validated['affiliation_id']), fn ($q) => $q->where('affiliation_id', $validated['affiliation_id']))
             ->when(!empty($validated['search']), function ($q) use ($validated) {
                 $search = $validated['search'];
