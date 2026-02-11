@@ -76,6 +76,8 @@ export default function StudyProgramDetail({ university, type }) {
     ...university,
     orgStructure: university?.orgStructure || [],
     teacherStaff: university?.teacherStaff || [],
+    teachingHospitals: university?.teachingHospitals || [],
+    specializations: university?.specializations || [],
     educationalDashboard: university?.educationalDashboard || null,
     residents: university?.residents || DEFAULT_RESIDENTS,
     gallery: university?.gallery?.length ? university.gallery : DEFAULT_GALLERY,
@@ -258,15 +260,15 @@ export default function StudyProgramDetail({ university, type }) {
                 <div className="grid grid-cols-3 gap-8 ms-32">
                   <div className="text-center md:text-left">
                     <div className="text-3xl font-bold text-primary">{universityData.stats.activeResidents}</div>
-                    <div className="text-lg text-gray-600 mt-1">Residen Aktif</div>
+                    <div className="text-lg text-gray-600 mt-1">Active Residents</div>
                   </div>
                   <div className="text-center md:text-left">
                     <div className="text-3xl font-bold text-primary">{universityData.stats.faculty}</div>
-                    <div className="text-lg text-gray-600 mt-1">Staff Pendidik</div>
+                    <div className="text-lg text-gray-600 mt-1">Teaching Staff</div>
                   </div>
                   <div className="text-center md:text-left">
                     <div className="text-3xl font-bold text-primary">{universityData.stats.teachingHospitals}</div>
-                    <div className="text-lg text-gray-600 mt-1">RS Pendidikan</div>
+                    <div className="text-lg text-gray-600 mt-1">Teaching Hospitals</div>
                   </div>
                 </div>
               </div>
@@ -353,8 +355,8 @@ export default function StudyProgramDetail({ university, type }) {
                         <div className="flex justify-center mb-2">
                           <DonutChart
                             data={[
-                              { name: 'Residen Aktif', value: resActive || 1 },
-                              { name: 'Lainnya', value: resOther || (resActive ? 0 : 1) }
+                              { name: 'Active Residents', value: resActive || 1 },
+                              { name: 'Others', value: resOther || (resActive ? 0 : 1) }
                             ]}
                             colors={["#254D95", "#E5E7EB"]}
                             centerText={String(resActive)}
@@ -380,7 +382,7 @@ export default function StudyProgramDetail({ university, type }) {
                           <DonutChart
                             data={[
                               { name: 'Alumni', value: alumniCount || 1 },
-                              { name: 'Lainnya', value: alumniOther || (alumniCount ? 0 : 1) }
+                              { name: 'Others', value: alumniOther || (alumniCount ? 0 : 1) }
                             ]}
                             colors={['#EC4899', '#E5E7EB']}
                             centerText={String(alumniCount)}
@@ -410,7 +412,7 @@ export default function StudyProgramDetail({ university, type }) {
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
                 <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                   <Icon icon="mdi:school-outline" className="w-5 h-5" />
-                  Struktur Organisasi
+                  Organizational Structure
                 </h2>
                 <div className="grid grid-cols-2 gap-4">
                   {universityData.orgStructure.slice(0, 2).map((member) => (
@@ -481,7 +483,8 @@ export default function StudyProgramDetail({ university, type }) {
                 </div>
               </div>
 
-              {/* Default Teaching Staff */}
+              {/* Default Teaching Staff - hidden when dynamic teacherStaff data exists */}
+              {!(universityData.teacherStaff?.length > 0) && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
                 <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                   <Icon icon="mdi:account-group" className="w-5 h-5" />
@@ -501,6 +504,7 @@ export default function StudyProgramDetail({ university, type }) {
                   ))}
                 </div>
               </div>
+              )}
               </>
               )}
 
@@ -509,13 +513,13 @@ export default function StudyProgramDetail({ university, type }) {
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-3">
                   <Icon icon="mdi:account-group" className="w-7 h-7 text-primary" />
-                  Staf Pengajar
+                  Teaching Staff
                 </h2>
                 <hr className="border-gray-200 mb-6" />
                 {(() => {
                   const grouped = {};
                   universityData.teacherStaff.forEach((m) => {
-                    const div = m.division || "Lainnya";
+                    const div = m.division || "Others";
                     if (!grouped[div]) grouped[div] = [];
                     grouped[div].push(m);
                   });
@@ -669,164 +673,64 @@ export default function StudyProgramDetail({ university, type }) {
               </div>
               )}
 
-              {/* Peminatan - Only show for subspesialis */}
-              {type === 'subspesialis' && (
+              {/* Teaching Hospital - Dynamic */}
+              {universityData.teachingHospitals?.length > 0 && (() => {
+                const mainHospitals = universityData.teachingHospitals.filter(h => h.category === 'main');
+                const satelliteHospitals = universityData.teachingHospitals.filter(h => h.category === 'satellite');
+                const internationalHospitals = universityData.teachingHospitals.filter(h => h.category === 'international');
+                const sections = [
+                  { key: 'main', label: 'Main Teaching Hospital', items: mainHospitals, bg: 'bg-green-50', border: 'border-green-200', dot: 'bg-blue-600', titleColor: 'text-primary' },
+                  { key: 'satellite', label: 'Satellite Network Teaching Hospital', items: satelliteHospitals, bg: 'bg-gray-50', border: 'border-gray-200', dot: 'bg-green-500', titleColor: 'text-secondary' },
+                  { key: 'international', label: 'International Cooperation', items: internationalHospitals, bg: 'bg-red-50', border: 'border-red-200', dot: 'bg-red-500', titleColor: 'text-orange-500' },
+                ].filter(s => s.items.length > 0);
+
+                return (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                      <Icon icon="mdi:hospital-building" className="w-6 h-6 text-primary" />
+                      Teaching Hospital
+                    </h2>
+                    <div className="space-y-6">
+                      {sections.map((sec, sIdx) => (
+                        <div key={sec.key}>
+                          {sIdx > 0 && <hr className="border-gray-200 mb-6" />}
+                          <h3 className={`text-sm font-semibold ${sec.titleColor} mb-3`}>{sec.label}</h3>
+                          <div className={`${sec.bg} rounded-lg p-4 border ${sec.border} space-y-3`}>
+                            {sec.items.map((hospital) => (
+                              <div key={hospital.id} className="flex items-start gap-2">
+                                <span className={`w-2 h-2 ${sec.dot} rounded-full mt-1.5 flex-shrink-0`}></span>
+                                <div>
+                                  <p className="text-sm font-semibold text-gray-900">{hospital.name}</p>
+                                  {hospital.location && <p className="text-xs text-gray-500">{hospital.location}</p>}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Peminatan - Only show for subspesialis with data */}
+              {type === 'subspesialis' && universityData.specializations?.length > 0 && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h2 className="text-lg font-bold text-primary mb-6 flex items-center gap-2">
                   <Icon icon="mdi:office-building" className="w-5 h-5" />
-                  Peminatan
+                  Specialization
                 </h2>
                 <div className="space-y-3">
-                  {[
-                    'Hip and Knee',
-                    'Orthopaedic Oncology',
-                    'Hand, Upper Limb, & Microsurgery',
-                    'Orthopaedic Spine',
-                    'Pediatric Orthopaedic',
-                    'Shoulder and Elbow Orthopaedics',
-                    'Foot and Ankle',
-                    'Sport Injury',
-                    'Advanced Orthopaedics',
-                  ].map((item, idx) => (
-                    <div key={idx} className="bg-gray-50 rounded-xl px-5 py-4 border border-blue-200 flex items-center gap-3">
+                  {universityData.specializations.map((spec) => (
+                    <div key={spec.id} className="bg-gray-50 rounded-xl px-5 py-4 border border-blue-200 flex items-center gap-3">
                       <span className="w-2.5 h-2.5 bg-primary rounded-full flex-shrink-0"></span>
-                      <p className="text-sm font-semibold text-gray-900">{item}</p>
+                      <p className="text-sm font-semibold text-gray-900">{spec.name}</p>
                     </div>
                   ))}
                 </div>
               </div>
               )}
 
-              {/* Teaching Hospital - Only show for resident and clinical fellowship */}
-              {(type === 'resident' || type === 'clinical-fellowship') && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-lg font-bold text-primary mb-6 flex items-center gap-2">
-                  <Icon icon="mdi:hospital-box" className="w-5 h-5" />
-                  Teaching Hospital
-                </h2>
-
-                <div className="space-y-6">
-                  {/* Main Teaching Hospital */}
-                  <div>
-                    <h3 className="text-sm font-semibold text-primary mb-3">Main Teaching Hospital</h3>
-                    <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                      <div className="flex items-start gap-3">
-                        <span className="w-2 h-2 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">Dr. Cipto Mangunkusumo National General Hospital</p>
-                          <p className="text-xs text-gray-600 mt-1">Jumlah Staff</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Satellite Network Teaching Hospital */}
-                  <div>
-                    <h3 className="text-sm font-semibold text-secondary mb-3">Satellite Network Teaching Hospital</h3>
-                    <div className="bg-green-50 rounded-lg p-4 border border-green-200 space-y-3">
-                      <div className="flex items-start gap-2">
-                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">Fatmawati General Hospital</p>
-                          <p className="text-xs text-gray-600">Jakarta</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">Friendship Hospital</p>
-                          <p className="text-xs text-gray-600">Jakarta</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">Gatot Subroto Army Hospital</p>
-                          <p className="text-xs text-gray-600">Jakarta</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">Koja Regional Hospital</p>
-                          <p className="text-xs text-gray-600">Jakarta</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">Tangerang Regency Regional Hospital</p>
-                          <p className="text-xs text-gray-600">Tangerang</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">Dr. Soeradji Tirtonegoro Regional Hospital</p>
-                          <p className="text-xs text-gray-600">Klaten</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">Jombang Regional Hospital</p>
-                          <p className="text-xs text-gray-600">Jombang</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">Dr. Soedarso Hospital</p>
-                          <p className="text-xs text-gray-600">Pontianak</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">Orthopedic Hospital</p>
-                          <p className="text-xs text-gray-600">Purwokerto</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">Siaga Medika Hospital</p>
-                          <p className="text-xs text-gray-600">Banyumas</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">Siaga Medika Hospital</p>
-                          <p className="text-xs text-gray-600">Pemalang</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* International Cooperation */}
-                  <div>
-                    <h3 className="text-sm font-semibold text-tertiary mb-3">International Cooperation</h3>
-                    <div className="bg-red-50 rounded-lg p-4 border border-red-200 space-y-3">
-                      <div className="flex items-start gap-2">
-                        <span className="w-2 h-2 bg-red-600 rounded-full mt-1.5 flex-shrink-0"></span>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">Orthopedic Department, Chiang Mai University</p>
-                          <p className="text-xs text-gray-600">Thailand</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="w-2 h-2 bg-red-600 rounded-full mt-1.5 flex-shrink-0"></span>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">University of Hiroshima</p>
-                          <p className="text-xs text-gray-600">Japan</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              )}
 
               {/* Specialization - Only show for PPDS1 */}
               {type === 'ppds1' && (
@@ -1005,7 +909,7 @@ export default function StudyProgramDetail({ university, type }) {
                   </div>
                   {universityData.registrationUrl && (
                     <div className="mt-4">
-                      <span className="text-sm text-gray-600">Link Pendaftaran: </span>
+                      <span className="text-sm text-gray-600">Registration Link: </span>
                       <a
                         href={universityData.registrationUrl}
                         target="_blank"

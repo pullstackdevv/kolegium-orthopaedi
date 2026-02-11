@@ -134,6 +134,7 @@ class AffiliationProfileController extends Controller
             'description' => 'nullable|string',
             'sub_title' => 'nullable|string|max:255',
             'accreditation' => 'nullable|string|max:255',
+            'degree' => 'nullable|string|max:255',
             'established_year' => 'nullable|string|max:50',
             'program_duration' => 'nullable|string|max:100',
             'capacity' => 'nullable|string|max:100',

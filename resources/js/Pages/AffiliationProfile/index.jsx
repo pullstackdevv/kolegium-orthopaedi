@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Loader2, Save, Upload, Image as ImageIcon, Trash2, ArrowLeft, Pencil, Building2, Search } from "lucide-react";
+import { Loader2, Save, Upload, Image as ImageIcon, Trash2, ArrowLeft, Pencil, Building2, Search, Plus, Hospital } from "lucide-react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import api from "@/api/axios";
 import Swal from "sweetalert2";
@@ -100,7 +100,47 @@ function AffiliationProfileContent() {
   const [logoPreview, setLogoPreview] = useState(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
 
+  // Teaching Hospital state (resident only)
+  const [hospitals, setHospitals] = useState([]);
+  const [hospitalForm, setHospitalForm] = useState({ category: 'main', name: '', location: '', sort_order: 0 });
+  const [editingHospitalId, setEditingHospitalId] = useState(null);
+  const [showHospitalForm, setShowHospitalForm] = useState(false);
+  const [savingHospital, setSavingHospital] = useState(false);
+
+  // Peminatan/Specialization state (trainee only)
+  const [specializations, setSpecializations] = useState([]);
+  const [specForm, setSpecForm] = useState({ name: '', sort_order: 0 });
+  const [editingSpecId, setEditingSpecId] = useState(null);
+  const [showSpecForm, setShowSpecForm] = useState(false);
+  const [savingSpec, setSavingSpec] = useState(false);
+
   const pageTitle = buildPageTitle(scope, section);
+
+  // Teaching Hospital fetch
+  const fetchHospitals = useCallback(async (affiliationId) => {
+    if (section !== 'resident' || !affiliationId) return;
+    try {
+      const { data } = await api.get('/teaching-hospitals', { params: { affiliation_id: affiliationId } });
+      if (data?.status === 'success') {
+        setHospitals(data.data || []);
+      }
+    } catch (e) {
+      console.error('Failed to fetch teaching hospitals:', e);
+    }
+  }, [section]);
+
+  // Peminatan/Specialization fetch
+  const fetchSpecializations = useCallback(async (affiliationId) => {
+    if (section !== 'trainee' || !affiliationId) return;
+    try {
+      const { data } = await api.get('/specializations', { params: { affiliation_id: affiliationId } });
+      if (data?.status === 'success') {
+        setSpecializations(data.data || []);
+      }
+    } catch (e) {
+      console.error('Failed to fetch specializations:', e);
+    }
+  }, [section]);
 
   // Fetch list of affiliations (super admin) or single profile (non-super admin)
   const fetchInitial = useCallback(async () => {
@@ -122,6 +162,8 @@ function AffiliationProfileContent() {
           setAffiliation(result.affiliation);
           loadFormFromProfile(result.profile);
           setView("edit");
+          if (section === 'resident') fetchHospitals(result.affiliation.id);
+          if (section === 'trainee') fetchSpecializations(result.affiliation.id);
         }
       }
     } catch (error) {
@@ -130,7 +172,7 @@ function AffiliationProfileContent() {
     } finally {
       setLoading(false);
     }
-  }, [scope, section]);
+  }, [scope, section, fetchHospitals, fetchSpecializations]);
 
   // Fetch profile for a specific affiliation (when super admin clicks one)
   const fetchProfileForAffiliation = useCallback(
@@ -148,6 +190,8 @@ function AffiliationProfileContent() {
           }
           loadFormFromProfile(result.profile);
           setView("edit");
+          if (section === 'resident' && result.affiliation) fetchHospitals(result.affiliation.id);
+          if (section === 'trainee' && result.affiliation) fetchSpecializations(result.affiliation.id);
         }
       } catch (error) {
         console.error("Failed to fetch profile:", error);
@@ -156,7 +200,7 @@ function AffiliationProfileContent() {
         setLoading(false);
       }
     },
-    [scope, section]
+    [scope, section, fetchHospitals, fetchSpecializations]
   );
 
   const loadFormFromProfile = (profile) => {
@@ -207,6 +251,140 @@ function AffiliationProfileContent() {
     setLogoFile(null);
     setLogoPreview(null);
     setView("list");
+  };
+
+  // Teaching Hospital handlers
+  const resetHospitalForm = () => {
+    setHospitalForm({ category: 'main', name: '', location: '', sort_order: 0 });
+    setEditingHospitalId(null);
+    setShowHospitalForm(false);
+  };
+
+  const handleHospitalSave = async () => {
+    if (!affiliation || !hospitalForm.name.trim()) {
+      Swal.fire('Error', 'Hospital name is required', 'error');
+      return;
+    }
+    setSavingHospital(true);
+    try {
+      if (editingHospitalId) {
+        const { data } = await api.put(`/teaching-hospitals/${editingHospitalId}`, hospitalForm);
+        if (data?.status === 'success') {
+          Swal.fire('Success', 'Teaching hospital updated', 'success');
+        }
+      } else {
+        const { data } = await api.post('/teaching-hospitals', { ...hospitalForm, affiliation_id: affiliation.id });
+        if (data?.status === 'success') {
+          Swal.fire('Success', 'Teaching hospital added', 'success');
+        }
+      }
+      resetHospitalForm();
+      fetchHospitals(affiliation.id);
+    } catch (e) {
+      console.error('Failed to save hospital:', e);
+      Swal.fire('Error', 'Failed to save teaching hospital', 'error');
+    } finally {
+      setSavingHospital(false);
+    }
+  };
+
+  const handleHospitalEdit = (hospital) => {
+    setHospitalForm({
+      category: hospital.category,
+      name: hospital.name,
+      location: hospital.location || '',
+      sort_order: hospital.sort_order || 0,
+    });
+    setEditingHospitalId(hospital.id);
+    setShowHospitalForm(true);
+  };
+
+  const handleHospitalDelete = async (hospitalId) => {
+    const result = await Swal.fire({
+      title: 'Delete Teaching Hospital?',
+      text: 'This data cannot be recovered once deleted.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+    });
+    if (!result.isConfirmed) return;
+    try {
+      const { data } = await api.delete(`/teaching-hospitals/${hospitalId}`);
+      if (data?.status === 'success') {
+        Swal.fire('Deleted', 'Teaching hospital deleted', 'success');
+        fetchHospitals(affiliation.id);
+      }
+    } catch (e) {
+      Swal.fire('Error', 'Failed to delete', 'error');
+    }
+  };
+
+  // Peminatan/Specialization handlers
+  const resetSpecForm = () => {
+    setSpecForm({ name: '', sort_order: 0 });
+    setEditingSpecId(null);
+    setShowSpecForm(false);
+  };
+
+  const handleSpecSave = async () => {
+    if (!affiliation || !specForm.name.trim()) {
+      Swal.fire('Error', 'Specialization name is required', 'error');
+      return;
+    }
+    setSavingSpec(true);
+    try {
+      if (editingSpecId) {
+        const { data } = await api.put(`/specializations/${editingSpecId}`, specForm);
+        if (data?.status === 'success') {
+          Swal.fire('Success', 'Specialization updated', 'success');
+        }
+      } else {
+        const { data } = await api.post('/specializations', { ...specForm, affiliation_id: affiliation.id });
+        if (data?.status === 'success') {
+          Swal.fire('Success', 'Specialization added', 'success');
+        }
+      }
+      resetSpecForm();
+      fetchSpecializations(affiliation.id);
+    } catch (e) {
+      console.error('Failed to save specialization:', e);
+      Swal.fire('Error', 'Failed to save specialization', 'error');
+    } finally {
+      setSavingSpec(false);
+    }
+  };
+
+  const handleSpecEdit = (spec) => {
+    setSpecForm({
+      name: spec.name,
+      sort_order: spec.sort_order || 0,
+    });
+    setEditingSpecId(spec.id);
+    setShowSpecForm(true);
+  };
+
+  const handleSpecDelete = async (specId) => {
+    const result = await Swal.fire({
+      title: 'Delete Specialization?',
+      text: 'This data cannot be recovered once deleted.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+    });
+    if (!result.isConfirmed) return;
+    try {
+      const { data } = await api.delete(`/specializations/${specId}`);
+      if (data?.status === 'success') {
+        Swal.fire('Deleted', 'Specialization deleted', 'success');
+        fetchSpecializations(affiliation.id);
+      }
+    } catch (e) {
+      Swal.fire('Error', 'Failed to delete', 'error');
+    }
   };
 
   const handleChange = (field, value) => {
@@ -664,7 +842,7 @@ function AffiliationProfileContent() {
                 id="capacity"
                 value={form.capacity}
                 onChange={(e) => handleChange("capacity", e.target.value)}
-                placeholder="e.g. 20 per tahun"
+                placeholder="e.g. 20 per year"
                 className="mt-1"
               />
             </div>
@@ -735,6 +913,290 @@ function AffiliationProfileContent() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Teaching Hospital - Resident only */}
+      {section === 'resident' && (
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Hospital className="w-5 h-5" />
+                Teaching Hospital
+              </CardTitle>
+              <CardDescription>
+                Manage teaching hospitals for this affiliation
+              </CardDescription>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => {
+                resetHospitalForm();
+                setShowHospitalForm(true);
+              }}
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Add
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Add/Edit Form */}
+          {showHospitalForm && (
+            <div className="border border-primary/30 rounded-lg p-4 bg-primary/5 space-y-3">
+              <p className="text-sm font-semibold text-primary">
+                {editingHospitalId ? 'Edit Teaching Hospital' : 'Add Teaching Hospital'}
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="th_name">Hospital Name *</Label>
+                  <Input
+                    id="th_name"
+                    value={hospitalForm.name}
+                    onChange={(e) => setHospitalForm(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="e.g. RSUPN Dr. Cipto Mangunkusumo"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="th_location">Location</Label>
+                  <Input
+                    id="th_location"
+                    value={hospitalForm.location}
+                    onChange={(e) => setHospitalForm(prev => ({ ...prev, location: e.target.value }))}
+                    placeholder="e.g. Jakarta"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="th_category">Category *</Label>
+                  <select
+                    id="th_category"
+                    value={hospitalForm.category}
+                    onChange={(e) => setHospitalForm(prev => ({ ...prev, category: e.target.value }))}
+                    className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  >
+                    <option value="main">Main Teaching Hospital</option>
+                    <option value="satellite">Satellite Network</option>
+                    <option value="international">International Cooperation</option>
+                  </select>
+                </div>
+                <div>
+                  <Label htmlFor="th_order">Sort Order</Label>
+                  <Input
+                    id="th_order"
+                    type="number"
+                    min="0"
+                    value={hospitalForm.sort_order}
+                    onChange={(e) => setHospitalForm(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-2 pt-1">
+                <Button size="sm" onClick={handleHospitalSave} disabled={savingHospital}>
+                  {savingHospital ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
+                  {editingHospitalId ? 'Update' : 'Save'}
+                </Button>
+                <Button size="sm" variant="outline" onClick={resetHospitalForm}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Hospital List grouped by category */}
+          {hospitals.length === 0 && !showHospitalForm && (
+            <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center text-sm text-muted-foreground">
+              No teaching hospital data yet.
+            </div>
+          )}
+
+          {/* Main Teaching Hospital */}
+          {hospitals.filter(h => h.category === 'main').length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-primary mb-2 uppercase tracking-wide">Main Teaching Hospital</p>
+              <div className="space-y-2">
+                {hospitals.filter(h => h.category === 'main').map(h => (
+                  <div key={h.id} className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></span>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{h.name}</p>
+                        {h.location && <p className="text-xs text-gray-500">{h.location}</p>}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button size="sm" variant="ghost" onClick={() => handleHospitalEdit(h)}>
+                        <Pencil className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button size="sm" variant="ghost" className="text-red-500 hover:text-red-700" onClick={() => handleHospitalDelete(h.id)}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Satellite Network */}
+          {hospitals.filter(h => h.category === 'satellite').length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-green-600 mb-2 uppercase tracking-wide">Satellite Network Teaching Hospital</p>
+              <div className="space-y-2">
+                {hospitals.filter(h => h.category === 'satellite').map(h => (
+                  <div key={h.id} className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></span>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{h.name}</p>
+                        {h.location && <p className="text-xs text-gray-500">{h.location}</p>}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button size="sm" variant="ghost" onClick={() => handleHospitalEdit(h)}>
+                        <Pencil className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button size="sm" variant="ghost" className="text-red-500 hover:text-red-700" onClick={() => handleHospitalDelete(h.id)}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* International Cooperation */}
+          {hospitals.filter(h => h.category === 'international').length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-orange-500 mb-2 uppercase tracking-wide">International Cooperation</p>
+              <div className="space-y-2">
+                {hospitals.filter(h => h.category === 'international').map(h => (
+                  <div key={h.id} className="flex items-center justify-between bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></span>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{h.name}</p>
+                        {h.location && <p className="text-xs text-gray-500">{h.location}</p>}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button size="sm" variant="ghost" onClick={() => handleHospitalEdit(h)}>
+                        <Pencil className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button size="sm" variant="ghost" className="text-red-500 hover:text-red-700" onClick={() => handleHospitalDelete(h.id)}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+      )}
+
+      {/* Peminatan - Trainee only */}
+      {section === 'trainee' && (
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="w-5 h-5" />
+                Specialization
+              </CardTitle>
+              <CardDescription>
+                Manage specialization areas for this affiliation
+              </CardDescription>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => {
+                resetSpecForm();
+                setShowSpecForm(true);
+              }}
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Add
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Add/Edit Form */}
+          {showSpecForm && (
+            <div className="border border-primary/30 rounded-lg p-4 bg-primary/5 space-y-3">
+              <p className="text-sm font-semibold text-primary">
+                {editingSpecId ? 'Edit Specialization' : 'Add Specialization'}
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="spec_name">Specialization Name *</Label>
+                  <Input
+                    id="spec_name"
+                    value={specForm.name}
+                    onChange={(e) => setSpecForm(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="e.g. Hip and Knee"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="spec_order">Sort Order</Label>
+                  <Input
+                    id="spec_order"
+                    type="number"
+                    min="0"
+                    value={specForm.sort_order}
+                    onChange={(e) => setSpecForm(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-2 pt-1">
+                <Button size="sm" onClick={handleSpecSave} disabled={savingSpec}>
+                  {savingSpec ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
+                  {editingSpecId ? 'Update' : 'Save'}
+                </Button>
+                <Button size="sm" variant="outline" onClick={resetSpecForm}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Specialization List */}
+          {specializations.length === 0 && !showSpecForm && (
+            <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center text-sm text-muted-foreground">
+              No specialization data yet.
+            </div>
+          )}
+
+          {specializations.length > 0 && (
+            <div className="space-y-2">
+              {specializations.map(spec => (
+                <div key={spec.id} className="flex items-center justify-between bg-gray-50 border border-blue-200 rounded-xl px-5 py-3">
+                  <div className="flex items-center gap-3">
+                    <span className="w-2.5 h-2.5 bg-primary rounded-full flex-shrink-0"></span>
+                    <p className="text-sm font-medium text-gray-900">{spec.name}</p>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button size="sm" variant="ghost" onClick={() => handleSpecEdit(spec)}>
+                      <Pencil className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button size="sm" variant="ghost" className="text-red-500 hover:text-red-700" onClick={() => handleSpecDelete(spec.id)}>
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+      )}
 
       {/* Registration Info */}
       <Card>

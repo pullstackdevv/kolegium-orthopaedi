@@ -100,9 +100,9 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
   };
 
   const statusLabel = (v) => {
-    if (v === "active") return "Aktif";
-    if (v === "graduated") return "Lulus";
-    if (v === "leave") return "Cuti";
+    if (v === "active") return "Active";
+    if (v === "graduated") return "Graduated";
+    if (v === "leave") return "On Leave";
     return "-";
   };
 
@@ -113,7 +113,7 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
     return "bg-gray-100 text-gray-700";
   };
 
-  const title = type === "ppds1" ? "Data Residen PPDS1" : "Data Trainee Subspesialis";
+  const title = type === "ppds1" ? "PPDS1 Resident Data" : "Subspecialist Trainee Data";
 
   return (
     <HomepageLayout>
@@ -148,7 +148,7 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between">
               <div>
-                <div className="text-sm text-gray-600">Total Residen</div>
+                <div className="text-sm text-gray-600">Total Members</div>
                 <div className="text-2xl font-bold" style={{ color: "#254D95" }}>
                   {stats.total}
                 </div>
@@ -160,7 +160,7 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between">
               <div>
-                <div className="text-sm text-gray-600">Aktif Semester Ini</div>
+                <div className="text-sm text-gray-600">Active This Semester</div>
                 <div className="text-2xl font-bold" style={{ color: "#254D95" }}>
                   {stats.active}
                 </div>
@@ -186,7 +186,7 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <div className="text-xs font-semibold text-gray-700 mb-1">Program Studi</div>
+                <div className="text-xs font-semibold text-gray-700 mb-1">Study Program</div>
                 <div className="h-10 px-3 rounded-md border border-gray-200 flex items-center text-sm text-gray-700 bg-gray-50">
                   {affiliation?.name || "-"}
                 </div>
@@ -195,7 +195,7 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
               <div>
                 <div className="text-xs font-semibold text-gray-700 mb-1">Semester</div>
                 <div className="h-10 px-3 rounded-md border border-gray-200 flex items-center text-sm text-gray-500 bg-gray-50">
-                  Semua
+                  All
                 </div>
               </div>
 
@@ -206,19 +206,19 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
                   value={filters.status}
                   onChange={(e) => setFilters((p) => ({ ...p, status: e.target.value }))}
                 >
-                  <option value="">Semua</option>
-                  <option value="active">Aktif</option>
-                  <option value="graduated">Lulus</option>
-                  <option value="leave">Cuti</option>
+                  <option value="">All</option>
+                  <option value="active">Active</option>
+                  <option value="graduated">Graduated</option>
+                  <option value="leave">On Leave</option>
                 </select>
               </div>
 
               <div>
-                <div className="text-xs font-semibold text-gray-700 mb-1">Cari Residen</div>
+                <div className="text-xs font-semibold text-gray-700 mb-1">Search Member</div>
                 <div className="relative">
                   <input
                     className="h-10 w-full pl-10 pr-3 rounded-md border border-gray-200 text-sm"
-                    placeholder="Cari nama / nomor identitas"
+                    placeholder="Search name / ID number"
                     value={filters.search}
                     onChange={(e) => setFilters((p) => ({ ...p, search: e.target.value }))}
                     onKeyDown={(e) => {
@@ -240,7 +240,7 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
                 className="h-9 px-4 rounded-md bg-blue-600 text-white text-sm hover:bg-blue-700"
                 onClick={() => fetchMembers({ page: 1 })}
               >
-                Terapkan
+                Apply
               </button>
             </div>
           </div>
@@ -248,15 +248,15 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
               <h2 className="text-lg font-bold" style={{ color: "#254D95" }}>
-                Daftar Residen
+                Member List
               </h2>
               <div className="text-sm text-gray-600">
-                Menampilkan {members.length} dari {pagination.total} residen
+                Showing {members.length} of {pagination.total} members
               </div>
             </div>
 
             {loading ? (
-              <div className="p-8 text-sm text-gray-600">Memuat data...</div>
+              <div className="p-8 text-sm text-gray-600">Loading data...</div>
             ) : error ? (
               <div className="p-8 text-sm text-red-600">{error}</div>
             ) : (
@@ -265,11 +265,11 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="text-left text-sm font-semibold text-gray-700 px-5 py-3">No</th>
-                      <th className="text-left text-sm font-semibold text-gray-700 px-5 py-3">Residen</th>
-                      <th className="text-left text-sm font-semibold text-gray-700 px-5 py-3">Prodi</th>
+                      <th className="text-left text-sm font-semibold text-gray-700 px-5 py-3">Member</th>
+                      <th className="text-left text-sm font-semibold text-gray-700 px-5 py-3">Program</th>
                       <th className="text-left text-sm font-semibold text-gray-700 px-5 py-3">Gender</th>
                       <th className="text-left text-sm font-semibold text-gray-700 px-5 py-3">Status</th>
-                      <th className="text-left text-sm font-semibold text-gray-700 px-5 py-3">Spesialisasi</th>
+                      <th className="text-left text-sm font-semibold text-gray-700 px-5 py-3">Specialization</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -292,7 +292,7 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
                     {members.length === 0 ? (
                       <tr>
                         <td className="px-5 py-6 text-sm text-gray-600" colSpan={6}>
-                          Belum ada data.
+                          No data available.
                         </td>
                       </tr>
                     ) : null}

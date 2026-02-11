@@ -12,6 +12,8 @@ use App\Http\Controllers\WellbeingSurveyController;
 use App\Http\Controllers\AffiliationProfileController;
 use App\Http\Controllers\OrgStructureMemberController;
 use App\Http\Controllers\TeacherStaffMemberController;
+use App\Http\Controllers\TeachingHospitalController;
+use App\Http\Controllers\SpecializationController;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -119,6 +121,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('teacher-staff-members/{teacherStaffMember}', [TeacherStaffMemberController::class, 'update']);
     Route::delete('teacher-staff-members/{teacherStaffMember}', [TeacherStaffMemberController::class, 'destroy']);
     Route::post('teacher-staff-members/{teacherStaffMember}/upload-photo', [TeacherStaffMemberController::class, 'uploadPhotoForMember']);
+
+    // Teaching Hospitals (CMS) routes
+    Route::get('teaching-hospitals', [TeachingHospitalController::class, 'index']);
+    Route::post('teaching-hospitals', [TeachingHospitalController::class, 'store']);
+    Route::put('teaching-hospitals/{teachingHospital}', [TeachingHospitalController::class, 'update']);
+    Route::delete('teaching-hospitals/{teachingHospital}', [TeachingHospitalController::class, 'destroy']);
+
+    // Specializations (CMS) routes
+    Route::get('specializations', [SpecializationController::class, 'index']);
+    Route::post('specializations', [SpecializationController::class, 'store']);
+    Route::put('specializations/{specialization}', [SpecializationController::class, 'update']);
+    Route::delete('specializations/{specialization}', [SpecializationController::class, 'destroy']);
 });
 
 // Database Members - Public Search (for Well-Being Survey verification)
@@ -143,6 +157,12 @@ Route::middleware('auth:sanctum')->group(function () {
 // Org Structure Members - Public
 Route::get('public/org-structure-members', [OrgStructureMemberController::class, 'publicIndex']);
 Route::get('public/teacher-staff-members', [TeacherStaffMemberController::class, 'publicIndex']);
+
+// Teaching Hospitals - Public
+Route::get('public/teaching-hospitals', [TeachingHospitalController::class, 'publicIndex']);
+
+// Specializations - Public
+Route::get('public/specializations', [SpecializationController::class, 'publicIndex']);
 
 // Affiliation lookup by code (public)
 Route::get('affiliations/by-code/{code}', [AffiliationController::class, 'getByCode']);
