@@ -3,56 +3,65 @@
 
 ---
 
-## 1. Entry Point & User Flow
+## 1. Entry Point & User Flow (Updated with NIK Verification)
 
 Profile Study Program Page (UGM / Other University)  
 → Click **Well-Being Survey**  
 → Redirect to **Well-Being Survey Page**  
-→ Auto-fetch Study Program & Affiliation (by code)  
+→ Input **NIK (Nomor Induk Keanggotaan / Unique Code)**  
+→ System validates NIK against Database Member  
+→ System auto-detects Name, Affiliation, Category  
+→ User confirms identity  
 → Step-by-step Well-Being Survey  
 → Submit  
 → Scoring + Affirmation + Support Resources  
 
 ---
 
-## 2. URL & Parameter Handling
+## 2. Verification Flow (Database Member Validation)
 
-### Source URL (Study Program Page)
-https://edashboard-kolegiumortho.com/profile-study-program/FK-UI
+### STEP 0 — Identity Verification
 
-> `FK-UI` is a **unique study program / affiliation code**
+User must enter:
+
+- NIK (Unique Member Code)
+
+### System Process:
+
+1. Lookup NIK in `database_members`
+2. If NIK not found → show:
+   > "NIK tidak ditemukan. Silakan hubungi admin prodi."
+3. If found:
+   - Retrieve:
+     - Name (masked)
+     - Affiliation
+     - Category (Resident / Fellow / Trainee)
+     - Status (Active / Inactive)
+
+### Identity Confirmation
+
+Display:
+> "Selamat datang, Ahmad S**** (Residen – FK UI)"
+
+User clicks:
+- ✅ Lanjutkan Survey
+
+If status ≠ Active → survey blocked.
 
 ---
 
-### Redirect URL
-https://edashboard-kolegiumortho.com/wellbeing-survey?code=FK-UI
-
----
-
-### Auto-Resolved Affiliation (Backend)
-
-Resolved using `code=FK-UI`:
-
-- University: Universitas Indonesia
-- Faculty: Faculty of Medicine
-- Study Program: PPDS Orthopaedi & Traumatology
-- Program Type: PPDS
-- Affiliation Code: FK-UI
-- Source: profile-study-program
-
----
-
-## 3. Survey Metadata (Hidden / System Use)
+## 3. Auto-Resolved Metadata (System Controlled)
 
 - survey_type: wellbeing
-- participant_type: resident / fellow / trainee
-- affiliation_code: FK-UI
-- university: Universitas Indonesia
-- faculty: Faculty of Medicine
-- study_program_name: PPDS Orthopaedi & Traumatology
-- program_type: PPDS
+- member_id: auto from database
+- affiliation_code: auto from database
+- university: auto
+- faculty: auto
+- study_program_name: auto
+- category: auto
+- survey_period: auto (e.g., Jan 2026)
 
-> Metadata is resolved automatically and **not editable by user**
+> Metadata is not editable by user.
 
 ---
 
@@ -104,7 +113,7 @@ Score Interpretation:
 
 ---
 
-## 6. STEP 3 — Anonymous Discomfort Report
+## 6. STEP 3 — Discomfort Report (Private Input)
 
 Do you feel any discomforting condition within the past one month?
 
@@ -115,9 +124,9 @@ If **Yes**, please describe:
 [ Write your reason here... ]
 
 Notes:
-- Fully anonymous
-- No personal identifier stored
-- Used only for aggregated insight and early warning
+- Identified at system level (member_id)
+- Not shown publicly
+- Used only for risk detection & internal follow-up
 
 ---
 
@@ -135,23 +144,22 @@ Please consider reaching out to the resources below.
 
 ---
 
-## 8. Always-Visible Support & Crisis Resources
+## 8. Risk Notification Logic
 
-### Crisis Center (Local / Faculty / University)
-- Displayed dynamically based on affiliation
-- Example:
-  - Faculty Counseling Unit
-  - University Hospital Emergency Unit
+Notification is triggered if:
 
-### Suicide & Crisis Lifeline
-- +62 811-2800-244 (Call / Text)
-- Available 24 hours, 7 days a week
+- Star rating ⭐ 1–3  
+OR  
+- Critical “Yes” answers detected
 
-### Professional Behavior Committee
-- +62 811-2800-2440
-- Available Monday–Friday, 10:00–18:00 WIB
+Recipients (Level 4):
+- Kolegium
+- KPS
+- Sekretaris Prodi
+- Sekretaris Kolegium
 
-These resources are visible on **all survey steps**.
+> Notification does not expose full responses publicly.
+> Follow-up must follow ethical guidelines.
 
 ---
 
@@ -159,9 +167,9 @@ These resources are visible on **all survey steps**.
 
 {
   "survey_type": "wellbeing",
+  "member_id": 1023,
   "affiliation_code": "FK-UI",
-  "university": "Universitas Indonesia",
-  "study_program": "PPDS Orthopaedi & Traumatology",
+  "category": "resident",
   "responses": {
     "mood": "worry",
     "burnout": 1,
@@ -173,16 +181,40 @@ These resources are visible on **all survey steps**.
     "discomfort_note": "Workload and night shift"
   },
   "risk_level": "moderate",
+  "star_rating": 3,
+  "survey_period": "2026-01",
   "submitted_at": "2026-01-31T10:15:00Z"
 }
 
 ---
 
-## 10. Ethics & UX Notes
+## 10. Dashboard Output
 
-- No medical diagnosis
-- Non-judgmental language
-- Anonymous by default
-- Immediate access to support
-- Data used only for wellbeing improvement
-- Aggregated reporting only (no individual exposure)
+Public View:
+- Average Star Rating (1–5)
+- Percentage Wellbeing Score
+- Total Respondents per Prodi
+- Last Updated (e.g., “Well-Being Survey conducted on January 2026”)
+
+Internal View (Authorized Only):
+- Risk cases summary
+- Trend per period
+- No public exposure of personal identity
+
+---
+
+## 11. Ethics & Data Governance
+
+- Identity verified via Database Member
+- No public individual exposure
+- One submission per member per period
+- Data encrypted & access-controlled
+- Used strictly for wellbeing improvement
+
+---
+
+## 12. Operational Cycle
+
+- Survey conducted every 6 months
+- Unique submission per period
+- Data archived per cycle

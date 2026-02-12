@@ -72,11 +72,11 @@ export default function Step2Questionnaire({ responses, onChange }) {
       </div>
 
       {/* Score Display */}
-      <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+      <div className="mt-8 p-4 bg-primary/10 border border-primary/20 rounded-lg">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-600">Current Score</p>
-            <p className="text-3xl font-bold text-blue-600">{yesCount}/5</p>
+            <p className="text-3xl font-bold text-primary">{yesCount}/5</p>
           </div>
           <div className="text-right">
             <p className="text-sm text-gray-600">Risk Level</p>

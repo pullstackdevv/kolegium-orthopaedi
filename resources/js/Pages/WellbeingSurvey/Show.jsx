@@ -37,6 +37,7 @@ export default function WellbeingSurveyShow({ affiliation, crisisResources: init
     discomfort_note: null,
   });
   const [result, setResult] = useState(null);
+  const [starRating, setStarRating] = useState(0);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -103,6 +104,57 @@ export default function WellbeingSurveyShow({ affiliation, crisisResources: init
     }
   };
 
+  const calculateRiskLevel = () => {
+    // Calculate mood risk
+    const moodRiskMap = {
+      happy: 'low',
+      normal: 'low',
+      worry: 'mild',
+      depressed: 'high',
+      help_me: 'high'
+    };
+    const moodRisk = moodRiskMap[surveyData.mood] || 'low';
+
+    // Calculate questionnaire score
+    const questionnaireScore = [
+      surveyData.burnout,
+      surveyData.emotional_hardening,
+      surveyData.depressed,
+      surveyData.sleep_issue,
+      surveyData.bullying
+    ].filter(v => v === true).length;
+
+    let questionnaireRisk = 'low';
+    if (questionnaireScore >= 4) {
+      questionnaireRisk = 'high';
+    } else if (questionnaireScore >= 2) {
+      questionnaireRisk = 'moderate';
+    }
+
+    // Determine overall risk level
+    const riskLevels = { low: 1, mild: 2, moderate: 3, high: 4 };
+    const moodValue = riskLevels[moodRisk];
+    const questionnaireValue = riskLevels[questionnaireRisk];
+    const maxRiskValue = Math.max(moodValue, questionnaireValue);
+
+    const riskLevelMap = { 1: 'low', 2: 'mild', 3: 'moderate', 4: 'high' };
+    return {
+      risk_level: riskLevelMap[maxRiskValue],
+      mental_health_score: questionnaireScore,
+      mood_risk: moodRisk
+    };
+  };
+
+  const getAffirmationMessage = (riskLevel) => {
+    const messages = {
+      low: "You are a great person and we love you. Keep your spirit high. You can do this! 😊",
+      mild: "You are doing well. Keep taking care of yourself and reach out if you need support.",
+      moderate: "You are not alone. Support is available and help is near. Please consider reaching out to the resources below.",
+      high: "You are not alone. Support is available and help is near. Please consider reaching out to the resources below."
+    };
+    return messages[riskLevel] || messages.low;
+  };
+
   const handleSubmit = async () => {
     try {
       setLoading(true);
@@ -118,8 +170,22 @@ export default function WellbeingSurveyShow({ affiliation, crisisResources: init
         setLoading(false);
         return;
       }
+
+      // Calculate risk level and affirmation message
+      const riskData = calculateRiskLevel();
+      const affirmationMessage = getAffirmationMessage(riskData.risk_level);
+
+      const submissionData = {
+        ...surveyData,
+        risk_level: riskData.risk_level,
+        mental_health_score: riskData.mental_health_score,
+        affirmation_message: affirmationMessage,
+        star_rating: starRating,
+        survey_type: 'wellbeing',
+        survey_period: new Date().toISOString().slice(0, 7)
+      };
       
-      const response = await api.post("/api/wellbeing-surveys", surveyData);
+      const response = await api.post("/api/wellbeing-surveys", submissionData);
       if (response.data.status === "success") {
         setResult(response.data.data);
         setCurrentStep(4);
@@ -151,17 +217,17 @@ export default function WellbeingSurveyShow({ affiliation, crisisResources: init
       <div className="bg-gray-50 min-h-screen py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg shadow-md p-6 mb-8">
+          <div className="bg-gradient-to-r from-primary to-secondary rounded-lg shadow-md p-6 mb-8">
             <h1 className="text-3xl font-bold text-white mb-2">Well-Being Survey</h1>
-            <p className="text-blue-100">
+            <p className="text-white/80">
               Indonesian Orthopaedic & Traumatology Education Dashboard
             </p>
           </div>
 
           {/* Member Information Card */}
           {memberData && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg shadow-md p-6 mb-8">
-              <h3 className="text-lg font-bold text-blue-700 mb-4">Verified Member Information</h3>
+            <div className="bg-primary/10 border border-primary/20 rounded-lg shadow-md p-6 mb-8">
+              <h3 className="text-lg font-bold text-primary mb-4">Verified Member Information</h3>
               <div className="grid grid-cols-3 gap-4">
                 {memberData.member_code && (
                   <div>
@@ -192,7 +258,7 @@ export default function WellbeingSurveyShow({ affiliation, crisisResources: init
             {/* Progress Bar */}
             <div className="mb-8">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-blue-700">Our Well-Being Survey</h2>
+                <h2 className="text-xl font-bold text-primary">Our Well-Being Survey</h2>
               </div>
               <div className="flex items-center gap-2">
                 {[1, 2, 3, 4].map((step) => (
@@ -200,9 +266,9 @@ export default function WellbeingSurveyShow({ affiliation, crisisResources: init
                     <div
                       className={`flex items-center justify-center w-10 h-10 rounded-full font-bold text-sm ${
                         step < currentStep
-                          ? "bg-blue-600 text-white"
+                          ? "bg-primary text-white"
                           : step === currentStep
-                          ? "bg-blue-600 text-white"
+                          ? "bg-primary text-white"
                           : "bg-gray-300 text-gray-600"
                       }`}
                     >
@@ -211,7 +277,7 @@ export default function WellbeingSurveyShow({ affiliation, crisisResources: init
                     {step < 4 && (
                       <div
                         className={`flex-1 h-1 mx-2 ${
-                          step < currentStep ? "bg-blue-600" : "bg-gray-300"
+                          step < currentStep ? "bg-primary" : "bg-gray-300"
                         }`}
                       ></div>
                     )}
@@ -247,11 +313,49 @@ export default function WellbeingSurveyShow({ affiliation, crisisResources: init
                 />
               )}
               {currentStep === 3 && (
-                <Step3DiscomfortReport
-                  discomfort={surveyData.discomfort}
-                  discomfortNote={surveyData.discomfort_note}
-                  onChange={handleStep3Change}
-                />
+                <div className="space-y-8">
+                  <Step3DiscomfortReport
+                    discomfort={surveyData.discomfort}
+                    discomfortNote={surveyData.discomfort_note}
+                    onChange={handleStep3Change}
+                  />
+                  
+                  {/* Star Rating */}
+                  <div className="border-t pt-8">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                      Rate Your Overall Well-Being
+                    </h3>
+                    <p className="text-gray-600 mb-6">
+                      Please rate your overall well-being on a scale of 1 to 5 stars
+                    </p>
+                    <div className="flex justify-center gap-3">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          onClick={() => setStarRating(star)}
+                          className="transition-transform hover:scale-110"
+                        >
+                          <svg
+                            className={`w-12 h-12 ${
+                              star <= starRating
+                                ? "fill-yellow-400 text-yellow-400"
+                                : "text-gray-300"
+                            }`}
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                          </svg>
+                        </button>
+                      ))}
+                    </div>
+                    {starRating > 0 && (
+                      <p className="text-center mt-4 text-primary font-semibold">
+                        You rated: {starRating} out of 5 stars
+                      </p>
+                    )}
+                  </div>
+                </div>
               )}
               {currentStep === 4 && result && (
                 <Step4Result result={result} />
@@ -271,7 +375,7 @@ export default function WellbeingSurveyShow({ affiliation, crisisResources: init
                 <button
                   onClick={currentStep === 3 ? handleSubmit : handleNext}
                   disabled={loading}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {currentStep === 3 ? "Finish" : "Next"}
                 </button>

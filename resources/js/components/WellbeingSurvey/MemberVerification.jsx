@@ -11,17 +11,25 @@ const maskMemberCode = (code) => {
 };
 
 export default function MemberVerification({ affiliation, onVerified }) {
-  const [searchType, setSearchType] = useState("member_code"); // member_code, name, contact
-  const [searchValue, setSearchValue] = useState("");
+  const [nik, setNik] = useState("");
   const [loading, setLoading] = useState(false);
   const [memberData, setMemberData] = useState(null);
   const [error, setError] = useState("");
-  const [showManualInput, setShowManualInput] = useState(false);
-  const [manualData, setManualData] = useState({ name: "", contact: "" });
+  const [step, setStep] = useState(1); // step 1: input NIK, step 2: verify name
+  const [inputName, setInputName] = useState("");
 
-  const handleSearch = async () => {
-    if (!searchValue.trim()) {
-      setError("Please enter a search value");
+  // Mask name: show first and last character, hide middle with asterisks
+  const maskName = (name) => {
+    if (!name || name.length < 2) return name;
+    const first = name.charAt(0);
+    const last = name.charAt(name.length - 1);
+    const masked = "*".repeat(Math.max(0, name.length - 2));
+    return `${first}${masked}${last}`;
+  };
+
+  const handleSearchNIK = async () => {
+    if (!nik.trim()) {
+      setError("Please enter your NIK (Member Code)");
       return;
     }
 
@@ -30,147 +38,82 @@ export default function MemberVerification({ affiliation, onVerified }) {
       setError("");
       setMemberData(null);
 
-      console.log("Search params:", {
-        search_type: searchType,
-        search_value: searchValue.trim(),
-        affiliation_id: affiliation?.id,
-      });
-
       const response = await api.get("/database-members/search", {
         params: {
-          search_type: searchType,
-          search_value: searchValue.trim(),
+          search_type: "member_code",
+          search_value: nik.trim(),
           affiliation_id: affiliation?.id,
         },
       });
 
-      console.log("Search response:", response);
-
       if (response.data.status === "success" && response.data.data) {
         setMemberData(response.data.data);
-        setShowManualInput(false);
+        setStep(2); // Move to verification step
       } else {
-        const errorMsg = response.data.message || "Member not found. You can fill in your information manually.";
-        console.log("Search not found:", response.data);
-        setError(errorMsg);
-        setShowManualInput(true);
+        setError("NIK tidak ditemukan. Silakan hubungi admin prodi.");
       }
     } catch (err) {
-      console.error("Search error details:", {
-        message: err.message,
-        status: err.response?.status,
-        data: err.response?.data,
-        config: {
-          url: err.config?.url,
-          params: err.config?.params,
-        },
-      });
-      
-      const errorMsg = err.response?.data?.message || "Error searching member. You can fill in your information manually.";
-      setError(errorMsg);
-      setShowManualInput(true);
+      console.error("Search error:", err);
+      setError("NIK tidak ditemukan. Silakan hubungi admin prodi.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleManualSubmit = () => {
-    if (!manualData.name.trim() || !manualData.contact.trim()) {
-      setError("Please fill in both name and contact");
+  const handleVerifyName = () => {
+    if (!inputName.trim()) {
+      setError("Please enter your name");
       return;
     }
 
-    const verifiedData = {
-      id: null,
-      nik: null,
-      member_code: null,
-      name: manualData.name,
-      contact: manualData.contact,
-      is_registered: false,
-    };
-
-    onVerified(verifiedData);
-  };
-
-  const handleVerifyMember = () => {
-    if (memberData) {
+    // Verify that the input matches the member data (case-insensitive)
+    if (inputName.trim().toLowerCase() === memberData.name.toLowerCase()) {
       onVerified({
         ...memberData,
         is_registered: true,
       });
+    } else {
+      setError("Name does not match. Please try again.");
     }
+  };
+
+  const handleBackToNIK = () => {
+    setStep(1);
+    setMemberData(null);
+    setInputName("");
+    setError("");
   };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-8">
-      <h2 className="text-2xl font-bold text-blue-700 mb-2">Member Verification</h2>
+      <h2 className="text-2xl font-bold text-primary mb-2">Member Verification</h2>
       <p className="text-gray-600 mb-6">
         Please verify your membership information before proceeding with the survey.
       </p>
 
-      {!memberData && !showManualInput && (
+      {/* STEP 1: Input NIK */}
+      {step === 1 && (
         <div className="space-y-6">
-          {/* Search Type Selection */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Search by:
-            </label>
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { value: "member_code", label: "Member Code" },
-                { value: "nama", label: "Name" },
-                { value: "contact", label: "Contact" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => {
-                    setSearchType(option.value);
-                    setSearchValue("");
-                    setError("");
-                  }}
-                  className={`py-3 px-4 rounded-lg font-semibold transition-colors ${
-                    searchType === option.value
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Search Input */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              {searchType === "member_code"
-                ? "Enter your Member Code"
-                : searchType === "nama"
-                ? "Enter your Name"
-                : "Enter your Contact"}
+              Enter your NIK (Member Code) *
             </label>
             <div className="flex gap-2">
               <input
                 type="text"
-                value={searchValue}
+                value={nik}
                 onChange={(e) => {
-                  setSearchValue(e.target.value);
+                  setNik(e.target.value);
                   setError("");
                 }}
-                onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                placeholder={
-                  searchType === "member_code"
-                    ? "e.g., MEM-2024-001"
-                    : searchType === "nama"
-                    ? "e.g., John Doe"
-                    : "e.g., 08123456789 or john@email.com"
-                }
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onKeyPress={(e) => e.key === "Enter" && handleSearchNIK()}
+                placeholder="e.g., MEM-2024-001"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
               <button
-                onClick={handleSearch}
+                onClick={handleSearchNIK}
                 disabled={loading}
-                className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded-lg transition-colors flex items-center gap-2"
+                className="bg-primary hover:bg-primary/90 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded-lg transition-colors flex items-center gap-2"
               >
                 <Search className="w-4 h-4" />
                 {loading ? "Searching..." : "Search"}
@@ -180,146 +123,89 @@ export default function MemberVerification({ affiliation, onVerified }) {
 
           {/* Error Message */}
           {error && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex gap-3">
-              <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm text-yellow-800">{error}</p>
-                {error.includes("not found") && (
-                  <button
-                    onClick={() => {
-                      setShowManualInput(true);
-                      setError("");
-                    }}
-                    className="text-sm text-yellow-600 hover:text-yellow-700 font-semibold mt-2"
-                  >
-                    Fill in manually instead
-                  </button>
-                )}
-              </div>
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex gap-3">
+              <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-orange-800">{error}</p>
             </div>
           )}
         </div>
       )}
 
-      {/* Member Found */}
-      {memberData && (
+      {/* STEP 2: Verify Name */}
+      {step === 2 && memberData && (
         <div className="space-y-6">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+          <div className="bg-primary/10 border border-primary/20 rounded-lg p-6">
             <div className="flex gap-3 mb-4">
-              <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0" />
+              <CheckCircle className="w-6 h-6 text-primary flex-shrink-0" />
               <div>
-                <h3 className="font-semibold text-green-900">Member Found</h3>
-                <p className="text-sm text-green-700">Your information has been verified</p>
+                <h3 className="font-semibold text-primary">NIK Found</h3>
+                <p className="text-sm text-primary/80">Please enter your name to verify your identity</p>
               </div>
             </div>
 
-            <div className="space-y-3 bg-white rounded p-4">
-              {memberData.member_code && (
-                <div>
-                  <p className="text-xs text-gray-600">Member Code</p>
-                  <p className="font-semibold text-gray-900">
-                    {maskMemberCode(memberData.member_code)}
-                  </p>
-                </div>
-              )}
+            <div className="space-y-4 bg-white rounded p-4">
               <div>
-                <p className="text-xs text-gray-600">Name</p>
-                <p className="font-semibold text-gray-900">{memberData.name}</p>
+                <p className="text-xs text-gray-600 mb-1">NIK</p>
+                <p className="font-semibold text-gray-900">
+                  {maskMemberCode(memberData.member_code)}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-600 mb-1">Registered Name (Masked)</p>
+                <div className="bg-gray-100 px-3 py-2 rounded text-sm font-semibold text-gray-900">
+                  {maskName(memberData.name)}
+                </div>
               </div>
               {memberData.contact && (
                 <div>
-                  <p className="text-xs text-gray-600">Contact</p>
+                  <p className="text-xs text-gray-600 mb-1">Contact</p>
                   <p className="font-semibold text-gray-900">{memberData.contact}</p>
                 </div>
               )}
             </div>
           </div>
 
-          <button
-            onClick={handleVerifyMember}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
-          >
-            Continue with Survey
-          </button>
-
-          <button
-            onClick={() => {
-              setMemberData(null);
-              setSearchValue("");
-              setError("");
-            }}
-            className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors"
-          >
-            Search Again
-          </button>
-        </div>
-      )}
-
-      {/* Manual Input */}
-      {showManualInput && (
-        <div className="space-y-6">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-sm text-blue-800">
-              Since your information was not found in our system, please fill in your details below.
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Enter your name *
+            </label>
+            <input
+              type="text"
+              value={inputName}
+              onChange={(e) => {
+                setInputName(e.target.value);
+                setError("");
+              }}
+              onKeyPress={(e) => e.key === "Enter" && handleVerifyName()}
+              placeholder="Enter your full name as registered"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+            <p className="text-xs text-gray-500 mt-2">
+              Your input will be encrypted and compared with the registered name
             </p>
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Full Name *
-            </label>
-            <input
-              type="text"
-              value={manualData.name}
-              onChange={(e) => {
-                setManualData({ ...manualData, name: e.target.value });
-                setError("");
-              }}
-              placeholder="Enter your full name"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Contact Information *
-            </label>
-            <input
-              type="text"
-              value={manualData.contact}
-              onChange={(e) => {
-                setManualData({ ...manualData, contact: e.target.value });
-                setError("");
-              }}
-              placeholder="Enter your contact (phone/email/address)"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex gap-3">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-800">{error}</p>
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex gap-3">
+              <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-orange-800">{error}</p>
             </div>
           )}
 
-          <button
-            onClick={handleManualSubmit}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
-          >
-            Continue with Survey
-          </button>
-
-          <button
-            onClick={() => {
-              setShowManualInput(false);
-              setManualData({ name: "", email: "" });
-              setError("");
-            }}
-            className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors"
-          >
-            Back to Search
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={handleBackToNIK}
+              className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-4 rounded-lg transition-colors"
+            >
+              Back
+            </button>
+            <button
+              onClick={handleVerifyName}
+              className="flex-1 bg-secondary hover:bg-secondary/90 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+            >
+              Verify & Continue
+            </button>
+          </div>
         </div>
       )}
     </div>

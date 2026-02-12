@@ -1,8 +1,25 @@
-import { Smile, AlertCircle, Heart } from "lucide-react";
+import { Smile, AlertCircle, Heart, Star } from "lucide-react";
 
 export default function Step4Result({ result }) {
   const isHighRisk = result.risk_level === "high" || result.risk_level === "moderate";
   const Icon = isHighRisk ? AlertCircle : Smile;
+  
+  const renderStars = (rating) => {
+    return (
+      <div className="flex gap-2 justify-center mb-4">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            className={`w-6 h-6 ${
+              star <= rating
+                ? "fill-yellow-400 text-yellow-400"
+                : "text-gray-300"
+            }`}
+          />
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="text-center">
@@ -22,11 +39,20 @@ export default function Step4Result({ result }) {
         </p>
       </div>
 
+      {/* Star Rating Display */}
+      {result.star_rating && (
+        <div className="mb-8">
+          <p className="text-sm text-gray-600 mb-2">Your Well-Being Rating</p>
+          {renderStars(result.star_rating)}
+          <p className="text-sm text-gray-600">{result.star_rating} out of 5 stars</p>
+        </div>
+      )}
+
       {/* Score Summary */}
       <div className="grid grid-cols-2 gap-4 mb-8">
         <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
           <p className="text-sm text-gray-600 mb-1">Mental Health Score</p>
-          <p className="text-3xl font-bold text-blue-600">{result.mental_health_score}/5</p>
+          <p className="text-3xl font-bold text-primary">{result.mental_health_score}/5</p>
         </div>
         <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
           <p className="text-sm text-gray-600 mb-1">Risk Level</p>
@@ -43,12 +69,12 @@ export default function Step4Result({ result }) {
 
       {/* Support Message */}
       {isHighRisk && (
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-8">
+        <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg mb-8">
           <div className="flex items-start gap-3">
-            <Heart className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <Heart className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
             <div className="text-left">
-              <p className="font-semibold text-blue-900 mb-1">Support Available</p>
-              <p className="text-sm text-blue-800">
+              <p className="font-semibold text-primary mb-1">Support Available</p>
+              <p className="text-sm text-primary/80">
                 Professional support and resources are available to help you. Please don't hesitate to reach out to any of the resources listed below.
               </p>
             </div>
@@ -57,8 +83,8 @@ export default function Step4Result({ result }) {
       )}
 
       {/* Submission Confirmation */}
-      <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-        <p className="text-sm text-green-800">
+      <div className="p-4 bg-secondary/10 border border-secondary/20 rounded-lg">
+        <p className="text-sm text-secondary/80">
           ✓ Your survey has been submitted successfully on{" "}
           <span className="font-semibold">
             {new Date().toLocaleDateString("id-ID", {

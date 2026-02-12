@@ -67,6 +67,10 @@ class WellbeingSurveyController extends Controller
     {
         $validated = $request->validate([
             'affiliation_id' => 'required|exists:affiliations,id',
+            'member_id' => 'nullable|integer',
+            'member_code' => 'nullable|string',
+            'member_name' => 'nullable|string',
+            'member_contact' => 'nullable|string',
             'affiliation_code' => 'nullable|string',
             'participant_type' => 'nullable|string',
             'university' => 'nullable|string',
@@ -81,22 +85,38 @@ class WellbeingSurveyController extends Controller
             'bullying' => 'required|boolean',
             'discomfort' => 'required|boolean',
             'discomfort_note' => 'nullable|string|max:1000',
+            'risk_level' => 'nullable|in:low,mild,moderate,high',
+            'mental_health_score' => 'nullable|integer|min:0|max:5',
+            'affirmation_message' => 'nullable|string',
+            'star_rating' => 'nullable|integer|min:1|max:5',
+            'survey_type' => 'nullable|string',
+            'survey_period' => 'nullable|string',
         ]);
 
         try {
             $survey = new WellbeingSurvey($validated);
-            $survey->user_id = Auth::id();
-            $survey->survey_type = 'wellbeing';
+            $survey->survey_type = $validated['survey_type'] ?? 'wellbeing';
+            $survey->survey_period = $validated['survey_period'] ?? now()->format('Y-m');
             
             $affiliation = Affiliation::find($validated['affiliation_id']);
             if ($affiliation) {
                 $survey->crisis_resources = $this->resolveCrisisResources($affiliation);
             }
             
-            $survey->mental_health_score = $survey->calculateMentalHealthScore();
-            $survey->risk_level = $survey->calculateRiskLevel();
+            // Calculate scores if not provided
+            if (!isset($validated['mental_health_score'])) {
+                $survey->mental_health_score = $survey->calculateMentalHealthScore();
+            }
+            if (!isset($validated['risk_level'])) {
+                $survey->risk_level = $survey->calculateRiskLevel();
+            }
 
             $survey->save();
+
+            // Trigger notification if high risk
+            if ($survey->risk_level === 'high' || $survey->risk_level === 'moderate' || $survey->star_rating <= 3) {
+                $this->triggerRiskNotification($survey);
+            }
 
             return response()->json([
                 'status' => 'success',
@@ -104,8 +124,9 @@ class WellbeingSurveyController extends Controller
                 'data' => [
                     'id' => $survey->id,
                     'risk_level' => $survey->risk_level,
-                    'affirmation_message' => $survey->getAffirmationMessage(),
+                    'affirmation_message' => $survey->affirmation_message ?? $survey->getAffirmationMessage(),
                     'mental_health_score' => $survey->mental_health_score,
+                    'star_rating' => $survey->star_rating,
                 ],
             ], 201);
         } catch (\Exception $e) {
@@ -115,6 +136,26 @@ class WellbeingSurveyController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    private function triggerRiskNotification(WellbeingSurvey $survey): void
+    {
+        // Log high-risk case for notification
+        \Log::warning('High-Risk Well-Being Survey Detected', [
+            'survey_id' => $survey->id,
+            'affiliation_id' => $survey->affiliation_id,
+            'risk_level' => $survey->risk_level,
+            'star_rating' => $survey->star_rating,
+            'mood' => $survey->mood,
+            'member_id' => $survey->member_id,
+            'created_at' => $survey->created_at,
+        ]);
+
+        // TODO: Implement notification to:
+        // - Kolegium
+        // - KPS
+        // - Sekretaris Prodi
+        // - Sekretaris Kolegium
     }
 
     public function getResult(int $surveyId): JsonResponse

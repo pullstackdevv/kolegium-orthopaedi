@@ -13,12 +13,12 @@ export default function CrisisResources({ resources }) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Crisis Center */}
         {resources.local && (
-          <div className="border-l-4 border-blue-600 bg-blue-50 p-4 rounded-lg">
-            <h3 className="font-bold text-blue-900 mb-2 flex items-center gap-2">
+          <div className="border-l-4 border-primary bg-primary/10 p-4 rounded-lg">
+            <h3 className="font-bold text-primary mb-2 flex items-center gap-2">
               <AlertCircle className="w-5 h-5" />
               {resources.local.name}
             </h3>
-            <p className="text-sm text-blue-800 mb-3">
+            <p className="text-sm text-primary/80 mb-3">
               {resources.local.description}
             </p>
           </div>
@@ -39,15 +39,15 @@ export default function CrisisResources({ resources }) {
 
         {/* Lifeline */}
         {resources.lifeline && (
-          <div className="border-l-4 border-purple-600 bg-purple-50 p-4 rounded-lg">
-            <h3 className="font-bold text-purple-900 mb-2 flex items-center gap-2">
+          <div className="border-l-4 border-secondary bg-secondary/10 p-4 rounded-lg">
+            <h3 className="font-bold text-secondary mb-2 flex items-center gap-2">
               <Phone className="w-5 h-5" />
               {resources.lifeline.name}
             </h3>
-            <p className="text-sm text-purple-800 font-semibold mb-2">
+            <p className="text-sm text-secondary/80 font-semibold mb-2">
               {resources.lifeline.phone}
             </p>
-            <p className="text-xs text-purple-700 flex items-center gap-1">
+            <p className="text-xs text-secondary/70 flex items-center gap-1">
               <Clock className="w-4 h-4" />
               {resources.lifeline.availability}
             </p>
@@ -56,15 +56,15 @@ export default function CrisisResources({ resources }) {
 
         {/* Professional Committee */}
         {resources.professional_committee && (
-          <div className="border-l-4 border-green-600 bg-green-50 p-4 rounded-lg">
-            <h3 className="font-bold text-green-900 mb-2 flex items-center gap-2">
+          <div className="border-l-4 border-tertiary bg-tertiary/10 p-4 rounded-lg">
+            <h3 className="font-bold text-tertiary mb-2 flex items-center gap-2">
               <Phone className="w-5 h-5" />
               {resources.professional_committee.name}
             </h3>
-            <p className="text-sm text-green-800 font-semibold mb-2">
+            <p className="text-sm text-tertiary/80 font-semibold mb-2">
               {resources.professional_committee.phone}
             </p>
-            <p className="text-xs text-green-700 flex items-center gap-1">
+            <p className="text-xs text-tertiary/70 flex items-center gap-1">
               <Clock className="w-4 h-4" />
               {resources.professional_committee.availability}
             </p>
@@ -72,8 +72,8 @@ export default function CrisisResources({ resources }) {
         )}
       </div>
 
-      <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-        <p className="text-sm text-yellow-800">
+      <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+        <p className="text-sm text-orange-800">
           <span className="font-semibold">Important:</span> These resources are available 24/7 for immediate support. You are not alone, and help is always available.
         </p>
       </div>

@@ -39,7 +39,7 @@ export default function Step3DiscomfortReport({
         </div>
 
         {discomfort && (
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="mt-6 p-4 bg-primary/10 border border-primary/20 rounded-lg">
             <label className="block mb-3">
               <span className="text-gray-700 font-semibold mb-2 block">
                 Please describe your discomfort:
@@ -48,7 +48,7 @@ export default function Step3DiscomfortReport({
                 value={discomfortNote || ""}
                 onChange={(e) => onChange(discomfort, e.target.value)}
                 placeholder="Write your reason here..."
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
                 rows="6"
               />
             </label>
@@ -60,9 +60,9 @@ export default function Step3DiscomfortReport({
       </div>
 
       {/* Privacy Notice */}
-      <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-        <h4 className="font-semibold text-green-900 mb-2">Privacy Notice</h4>
-        <ul className="text-sm text-green-800 space-y-1">
+      <div className="p-4 bg-secondary/10 border border-secondary/20 rounded-lg">
+        <h4 className="font-semibold text-secondary mb-2">Privacy Notice</h4>
+        <ul className="text-sm text-secondary/80 space-y-1">
           <li>✓ Fully anonymous - no personal identifiers stored</li>
           <li>✓ Used only for aggregated insights and early warning</li>
           <li>✓ Your privacy is protected</li>
