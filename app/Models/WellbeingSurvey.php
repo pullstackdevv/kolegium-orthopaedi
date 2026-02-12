@@ -14,7 +14,12 @@ class WellbeingSurvey extends Model
     protected $fillable = [
         'user_id',
         'affiliation_id',
+        'member_id',
+        'member_code',
+        'member_name',
+        'member_contact',
         'survey_type',
+        'survey_period',
         'participant_type',
         'affiliation_code',
         'university',
@@ -31,6 +36,8 @@ class WellbeingSurvey extends Model
         'discomfort_note',
         'mental_health_score',
         'risk_level',
+        'affirmation_message',
+        'star_rating',
         'crisis_resources',
     ];
 

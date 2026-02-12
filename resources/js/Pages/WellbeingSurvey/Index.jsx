@@ -26,9 +26,9 @@ export default function WellbeingSurveyIndex() {
       <div className="bg-gray-50 min-h-screen py-8">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg shadow-md p-6 mb-8">
+          <div className="bg-gradient-to-r from-primary to-secondary rounded-lg shadow-md p-6 mb-8">
             <h1 className="text-3xl font-bold text-white mb-2">Well-Being Survey</h1>
-            <p className="text-blue-100">
+            <p className="text-white/80">
               Indonesian Orthopaedic & Traumatology Education Dashboard
             </p>
           </div>
