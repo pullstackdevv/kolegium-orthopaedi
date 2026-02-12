@@ -420,7 +420,7 @@ export default function PeerGroupDetail({ peerGroup }) {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{startIndex + index + 1}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{member.name}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{member.specialization || "-"}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{member.gender || "-"}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{member.gender === "male" ? "Male" : member.gender === "female" ? "Female" : "-"}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`${STATUS_COLORS[member.status] || "bg-gray-400"} text-white px-3 py-1 rounded-full text-xs font-semibold capitalize`}>
                             {member.status}

@@ -333,14 +333,14 @@ class DatabaseMemberController extends Controller
         if ($isPeerGroup) {
             $allowedColumns = ['photo', 'member_code', 'name', 'gender', 'status'];
         } elseif ($isResident) {
-            $allowedColumns = ['photo', 'member_code', 'name', 'gender', 'entry_date', 'specialization', 'semester', 'status', 'regency'];
+            $allowedColumns = ['photo', 'member_code', 'name', 'gender', 'entry_date', 'semester', 'status', 'regency'];
         } else {
             $allowedColumns = ['photo', 'member_code', 'name', 'gender', 'entry_date', 'specialization', 'status'];
         }
 
         $headerLabels = [
             'photo' => 'Foto',
-            'member_code' => 'Nomor Identitas',
+            'member_code' => 'NIK',
             'name' => 'Nama',
             'gender' => 'Jenis Kelamin',
             'entry_date' => 'Tanggal Masuk',
@@ -768,6 +768,7 @@ class DatabaseMemberController extends Controller
             'nomor_identitas' => 'member_code',
             'no_identitas' => 'member_code',
             'nomorid' => 'member_code',
+            'nik' => 'member_code',
 
             // core fields
             'nama' => 'name',
@@ -971,13 +972,13 @@ class DatabaseMemberController extends Controller
         if ($isPeerGroup) {
             $allowedColumns = ['member_code', 'name', 'photo', 'gender', 'status'];
         } elseif ($isResident) {
-            $allowedColumns = ['member_code', 'name', 'photo', 'gender', 'status', 'entry_date', 'specialization', 'kabupaten_kota'];
+            $allowedColumns = ['member_code', 'name', 'photo', 'gender', 'status', 'entry_date', 'kabupaten_kota'];
         } else {
             $allowedColumns = ['member_code', 'name', 'photo', 'gender', 'status', 'entry_date', 'specialization'];
         }
 
         $headerLabels = [
-            'member_code' => 'Nomor Identitas',
+            'member_code' => 'NIK',
             'name' => 'Nama',
             'photo' => 'Foto',
             'gender' => 'Jenis Kelamin',
@@ -1051,6 +1052,9 @@ class DatabaseMemberController extends Controller
         }
 
         $authUser = Auth::user();
+
+        $isPeerGroup = $orgType === 'peer_group';
+        $isResident = $orgType === 'resident';
 
         $resolvedAff = $this->resolveAffiliationIdForWrite(
             [
@@ -1229,26 +1233,39 @@ class DatabaseMemberController extends Controller
                 $payload['status'] = $statusMap[$sv] ?? $payload['status'];
             }
 
-            if (isset($payload['kabupaten_kota']) && $payload['kabupaten_kota'] !== null) {
-                $regencyName = trim((string) $payload['kabupaten_kota']);
-                if ($regencyName !== '') {
-                    $regency = Regency::query()
-                        ->whereRaw('LOWER(name) = ?', [mb_strtolower($regencyName)])
-                        ->first();
-                    if ($regency) {
-                        $payload['regency_id'] = $regency->id;
-                    } else {
-                        $errors[] = [
-                            'row' => $excelRowNumber,
-                            'column' => 'kabupaten_kota',
-                            'message' => "Kabupaten/Kota '{$regencyName}' tidak ditemukan.",
-                        ];
-                        continue;
-                    }
-                }
+            // Enforce org-type-specific fields (match manual form)
+            if ($isPeerGroup) {
+                // Peer group form: only member_code, name, photo, gender, status
+                unset($payload['entry_date']);
+                unset($payload['specialization']);
                 unset($payload['kabupaten_kota']);
+            } elseif ($isResident) {
+                // Resident form: member_code, name, photo, gender, status, entry_date, regency (when graduated)
+                unset($payload['specialization']);
             } else {
+                // Fellow/Trainee form: member_code, name, photo, gender, status, entry_date, specialization
                 unset($payload['kabupaten_kota']);
+            }
+
+            $regencyName = isset($payload['kabupaten_kota']) ? trim((string) ($payload['kabupaten_kota'] ?? '')) : '';
+            unset($payload['kabupaten_kota']);
+
+            if ($orgType === 'resident' && ($payload['status'] ?? '') === 'graduated' && $regencyName !== '') {
+                $regency = Regency::query()
+                    ->whereRaw('LOWER(name) = ?', [mb_strtolower($regencyName)])
+                    ->first();
+                if ($regency) {
+                    $payload['regency_id'] = $regency->id;
+                } else {
+                    $errors[] = [
+                        'row' => $excelRowNumber,
+                        'column' => 'kabupaten_kota',
+                        'message' => "Kabupaten/Kota '{$regencyName}' tidak ditemukan di database.",
+                    ];
+                    continue;
+                }
+            } elseif ($orgType === 'resident' && ($payload['status'] ?? '') !== 'graduated') {
+                $payload['regency_id'] = null;
             }
 
             if ($payload['member_code'] === null) {
@@ -1284,7 +1301,7 @@ class DatabaseMemberController extends Controller
                 continue;
             }
 
-            if (isset($payload['specialization']) && $payload['specialization'] !== null) {
+            if (!$isPeerGroup && !$isResident && isset($payload['specialization']) && $payload['specialization'] !== null) {
                 $normalized = preg_replace('/\s+/', ' ', trim((string) $payload['specialization'])) ?? trim((string) $payload['specialization']);
                 if (!array_key_exists($normalized, $normalizedSpecializations)) {
                     $errors[] = [
@@ -1330,11 +1347,15 @@ class DatabaseMemberController extends Controller
             $rowsToPersist[] = $payload;
         }
 
-        if (!empty($errors)) {
+        if (!empty($errors) && empty($rowsToPersist)) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Validation failed.',
+                'message' => 'Semua baris gagal divalidasi.',
                 'errors' => $errors,
+                'data' => [
+                    'processed' => 0,
+                    'failed' => count($errors),
+                ],
             ], 422);
         }
 
@@ -1367,13 +1388,22 @@ class DatabaseMemberController extends Controller
 
             DB::commit();
 
-            return response()->json([
+            $response = [
                 'status' => 'success',
-                'message' => 'Import completed successfully.',
+                'message' => empty($errors)
+                    ? "Import berhasil. {$processed} data berhasil diproses."
+                    : "Import selesai. {$processed} data berhasil, " . count($errors) . " data gagal.",
                 'data' => [
                     'processed' => $processed,
+                    'failed' => count($errors),
                 ],
-            ]);
+            ];
+
+            if (!empty($errors)) {
+                $response['errors'] = $errors;
+            }
+
+            return response()->json($response);
         } catch (\Throwable $e) {
             DB::rollBack();
             throw $e;

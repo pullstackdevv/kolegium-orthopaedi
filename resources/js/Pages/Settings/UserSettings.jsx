@@ -193,8 +193,8 @@ export default function UserSettings() {
       case 'password':
         if (modalType === 'create' && (!value || value === '')) {
           errors.password = 'Password wajib diisi';
-        } else if (value && value.length < 8) {
-          errors.password = 'Password minimal 8 karakter';
+        } else if (value && value.length < 6) {
+          errors.password = 'Password minimal 6 karakter';
         } else if (value && !/(?=.*[a-z])/.test(value)) {
           errors.password = 'Password harus mengandung huruf kecil';
         } else if (value && !/(?=.*[A-Z])/.test(value)) {
@@ -1014,7 +1014,7 @@ export default function UserSettings() {
                 {modalType === 'create' ? 'Password *' : 'Password'}
               </Label>
               <p className="text-xs text-muted-foreground">
-                {modalType === 'create' ? 'Minimal 8 karakter, harus mengandung huruf besar, kecil, dan angka' : 'Kosongkan jika tidak ingin mengubah'}
+                {modalType === 'create' ? 'Minimal 6 karakter, harus mengandung huruf besar, kecil, dan angka' : 'Kosongkan jika tidak ingin mengubah'}
               </p>
               <div className="relative">
                 <Input

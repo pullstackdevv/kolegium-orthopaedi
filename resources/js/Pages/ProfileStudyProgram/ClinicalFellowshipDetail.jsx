@@ -333,7 +333,8 @@ export default function ClinicalFellowshipDetail({ fellowship }) {
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">No</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Fellow</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Photo</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Name</th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Affiliation</th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Gender</th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Status</th>
@@ -342,13 +343,13 @@ export default function ClinicalFellowshipDetail({ fellowship }) {
                 <tbody className="divide-y divide-gray-200">
                   {fellowsLoading ? (
                     <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center text-sm text-gray-500">
+                      <td colSpan={6} className="px-6 py-12 text-center text-sm text-gray-500">
                         Loading...
                       </td>
                     </tr>
                   ) : fellows.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center text-sm text-gray-500">
+                      <td colSpan={6} className="px-6 py-12 text-center text-sm text-gray-500">
                         No fellow data found.
                       </td>
                     </tr>
@@ -358,6 +359,15 @@ export default function ClinicalFellowshipDetail({ fellowship }) {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {startIndex + index + 1}
                         </td>
+                        <td className="px-6 py-4">
+                          <div className="h-10 w-10 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
+                            {fellow.photo ? (
+                              <img src={fellow.photo} alt={fellow.name} className="h-full w-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+                            ) : (
+                              <Icon icon="mdi:account" className="w-5 h-5 text-gray-400" />
+                            )}
+                          </div>
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           {fellow.name}
                         </td>
@@ -365,7 +375,7 @@ export default function ClinicalFellowshipDetail({ fellowship }) {
                           {fellow.affiliation?.name || "-"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                          {fellow.gender || "-"}
+                          {fellow.gender === "male" ? "Male" : fellow.gender === "female" ? "Female" : "-"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`${STATUS_COLORS[fellow.status] || "bg-gray-400"} text-white px-3 py-1 rounded-full text-xs font-semibold capitalize`}>

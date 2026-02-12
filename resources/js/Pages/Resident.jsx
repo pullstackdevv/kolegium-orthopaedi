@@ -46,7 +46,7 @@ export default function Resident() {
       name: "Dr. Reza Rahmat",
       prodi: "FK UI",
       semester: "Semester 8",
-      gender: "L",
+      gender: "Male",
       status: "Lulus",
       statusColor: "bg-blue-500",
       achievement: "1st Place - Outstanding Achievement in Orthopaedic and Traumatology Medicine Case"
@@ -56,7 +56,7 @@ export default function Resident() {
       name: "Dr. M. Mulky Yasin",
       prodi: "FK UNAIR",
       semester: "Semester 4",
-      gender: "L",
+      gender: "Male",
       status: "Aktif",
       statusColor: "bg-green-500",
       achievement: ""
@@ -66,7 +66,7 @@ export default function Resident() {
       name: "Dr. Rizki Safriadi",
       prodi: "FK UNPAD",
       semester: "Semester 4",
-      gender: "L",
+      gender: "Male",
       status: "Cuti",
       statusColor: "bg-yellow-500",
       achievement: ""
@@ -230,7 +230,7 @@ export default function Resident() {
                         {resident.semester}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {resident.gender}
+                        {resident.gender === "male" ? "Male" : resident.gender === "female" ? "Female" : resident.gender}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`${resident.statusColor} text-white px-3 py-1 rounded-full text-xs font-semibold`}>
