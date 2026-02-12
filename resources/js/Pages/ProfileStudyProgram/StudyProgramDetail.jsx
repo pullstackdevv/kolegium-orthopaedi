@@ -93,6 +93,7 @@ export default function StudyProgramDetail({ university, type }) {
   const [academicActivitiesLoading, setAcademicActivitiesLoading] = useState(true);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [achievements, setAchievements] = useState([]);
 
   const formatFullDate = (dateStr) => {
     const d = new Date(dateStr);
@@ -191,6 +192,22 @@ export default function StudyProgramDetail({ university, type }) {
     };
 
     fetchAcademicActivities();
+
+    const fetchAchievements = async () => {
+      if (!universityData.id) return;
+      try {
+        const res = await api.get("/public/member-achievements", {
+          params: { affiliation_id: universityData.id, organization_type: agendaSection },
+          headers: { "X-Skip-Auth-Redirect": "1" },
+        });
+        if (res.data?.status === "success") {
+          setAchievements(Array.isArray(res.data.data) ? res.data.data : []);
+        }
+      } catch (e) {
+        console.error("Failed to fetch achievements", e);
+      }
+    };
+    fetchAchievements();
   }, [agendaSection, universityData.id]);
 
   const DEFAULT_LOGO = "/assets/images/logo-univ/FK-UI.png";
@@ -619,6 +636,44 @@ export default function StudyProgramDetail({ university, type }) {
                   </Link>
                 </div>
               </div>
+
+              {/* Achievements */}
+              {achievements.length > 0 && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-0">
+                <div className="p-6 border-b border-gray-200">
+                  <h2 className="text-xl font-bold text-primary flex items-center gap-2">
+                    <Icon icon="mdi:trophy" className="w-5 h-5 text-yellow-500" />
+                    Achievements
+                  </h2>
+                </div>
+                <div className="p-4 space-y-3 max-h-72 overflow-y-auto">
+                  {achievements.map((ach) => (
+                    <div key={ach.id} className="flex items-start gap-3 p-3 bg-yellow-50/50 border border-yellow-100 rounded-lg">
+                      <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Icon icon="mdi:medal" className="w-4 h-4 text-yellow-600" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-gray-900">{ach.title}</p>
+                        {ach.description ? (
+                          <p className="text-xs text-gray-600 mt-0.5">{ach.description}</p>
+                        ) : null}
+                        <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
+                          {ach.database_member ? (
+                            <span>{ach.database_member.name}</span>
+                          ) : null}
+                          {ach.category ? (
+                            <span className="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded text-[10px]">{ach.category}</span>
+                          ) : null}
+                          {ach.date ? (
+                            <span>{new Date(ach.date).toLocaleDateString("id-ID", { year: "numeric", month: "short" })}</span>
+                          ) : null}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              )}
 
               {/* Contact */}
               {(universityData.contact?.address || universityData.contact?.phone || universityData.contact?.email) && (

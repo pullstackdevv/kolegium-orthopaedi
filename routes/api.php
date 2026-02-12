@@ -14,6 +14,7 @@ use App\Http\Controllers\OrgStructureMemberController;
 use App\Http\Controllers\TeacherStaffMemberController;
 use App\Http\Controllers\TeachingHospitalController;
 use App\Http\Controllers\SpecializationController;
+use App\Http\Controllers\MemberAchievementController;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -133,6 +134,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('specializations', [SpecializationController::class, 'store']);
     Route::put('specializations/{specialization}', [SpecializationController::class, 'update']);
     Route::delete('specializations/{specialization}', [SpecializationController::class, 'destroy']);
+
+    // Member Achievements (CMS) routes
+    Route::get('member-achievements', [MemberAchievementController::class, 'index']);
+    Route::post('member-achievements', [MemberAchievementController::class, 'store']);
+    Route::put('member-achievements/{memberAchievement}', [MemberAchievementController::class, 'update']);
+    Route::delete('member-achievements/{memberAchievement}', [MemberAchievementController::class, 'destroy']);
 });
 
 // Database Members - Public Search (for Well-Being Survey verification)
@@ -143,6 +150,7 @@ Route::get('public/agenda-events', [AgendaEventController::class, 'publicIndex']
 Route::get('public/affiliations', [AffiliationController::class, 'publicIndex']);
 Route::get('public/database-members', [DatabaseMemberController::class, 'publicIndex']);
 Route::get('public/database-members/all', [DatabaseMemberController::class, 'publicIndexAll']);
+Route::get('public/member-achievements', [MemberAchievementController::class, 'publicIndex']);
 
 // Well-Being Survey Routes - Public (submit survey)
 Route::post('wellbeing-surveys', [WellbeingSurveyController::class, 'store']);

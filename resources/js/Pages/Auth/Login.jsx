@@ -10,7 +10,7 @@ export default function LoginForm() {
     register,
     handleSubmit,
     formState: { errors: validationErrors },
-  } = useForm();
+  } = useForm({ mode: 'onChange' });
 
   const [serverErrors, setServerErrors] = useState([]);
   const [message, setMessage] = useState('');
@@ -171,7 +171,13 @@ export default function LoginForm() {
                   </div>
                   <input
                     type="email"
-                    {...register('email', { required: 'Email is required' })}
+                    {...register('email', {
+                      required: 'Email wajib diisi',
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: 'Format email tidak valid',
+                      },
+                    })}
                     className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-gray-50 focus:bg-white text-gray-700 placeholder-gray-400"
                     placeholder="your@email.com"
                   />
@@ -195,7 +201,7 @@ export default function LoginForm() {
                   </div>
                   <input
                     type={showPwd ? 'text' : 'password'}
-                    {...register('password', { required: 'Password is required' })}
+                    {...register('password', { required: 'Password wajib diisi' })}
                     className="w-full pl-12 pr-14 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-gray-50 focus:bg-white text-gray-700 placeholder-gray-400"
                     placeholder="••••••••"
                   />

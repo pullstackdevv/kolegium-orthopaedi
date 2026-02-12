@@ -123,8 +123,8 @@ export default function DatabaseResidents() {
   }, [fetchMembers]);
 
   const genderLabel = (v) => {
-    if (v === "male") return "M";
-    if (v === "female") return "F";
+    if (v === "male") return "Male";
+    if (v === "female") return "Female";
     return "-";
   };
 
