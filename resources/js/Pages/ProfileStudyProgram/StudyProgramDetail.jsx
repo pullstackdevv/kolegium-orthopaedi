@@ -563,12 +563,12 @@ export default function StudyProgramDetail({ university, type }) {
                               </div>
                             )}
                             <div className="flex-1 min-w-0">
-                              <h4 className="text-xs font-semibold text-gray-900 leading-tight">
+                              <h4 className="text-sm font-semibold text-gray-900 leading-tight">
                                 {member.name}
                               </h4>
-                              <p className="text-[10px] text-gray-600 mt-1">
+                              {/* <p className="text-[10px] text-gray-600 mt-1">
                                 {member.institution_origin ? `${member.institution_origin}` : "-"}
-                              </p>
+                              </p> */}
                             </div>
                           </div>
                         ))}
