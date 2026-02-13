@@ -95,6 +95,13 @@ export default function StudyProgramDetail({ university, type }) {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [achievements, setAchievements] = useState([]);
 
+  // Gallery state
+  const [galleryItems, setGalleryItems] = useState([]);
+  const [galleryPage, setGalleryPage] = useState(1);
+  const [galleryLastPage, setGalleryLastPage] = useState(1);
+  const [galleryLoading, setGalleryLoading] = useState(false);
+  const [galleryDetailItem, setGalleryDetailItem] = useState(null);
+
   const formatFullDate = (dateStr) => {
     const d = new Date(dateStr);
     if (Number.isNaN(d.getTime())) return "-";
@@ -209,6 +216,32 @@ export default function StudyProgramDetail({ university, type }) {
     };
     fetchAchievements();
   }, [agendaSection, universityData.id]);
+
+  // Fetch gallery dynamically
+  const fetchGallery = async (page = 1) => {
+    if (!universityData.id) return;
+    setGalleryLoading(true);
+    try {
+      const res = await api.get("/public/galleries", {
+        params: { affiliation_id: universityData.id, per_page: 4, page },
+        headers: { "X-Skip-Auth-Redirect": "1" },
+      });
+      if (res.data?.status === "success") {
+        const pg = res.data.data;
+        setGalleryItems(pg.data || []);
+        setGalleryPage(pg.current_page || 1);
+        setGalleryLastPage(pg.last_page || 1);
+      }
+    } catch (e) {
+      console.error("Failed to fetch gallery", e);
+    } finally {
+      setGalleryLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGallery(1);
+  }, [universityData.id]);
 
   const DEFAULT_LOGO = "/assets/images/logo-univ/FK-UI.png";
   const DEFAULT_PHOTO = "/assets/images/university/FK-UI.png";
@@ -585,23 +618,54 @@ export default function StudyProgramDetail({ university, type }) {
                   <Icon icon="mdi:image-multiple" className="w-5 h-5" />
                   Gallery
                 </h2>
-                <div className="grid grid-cols-2 gap-3">
-                  {universityData.gallery.map((item, index) => (
-                    <div key={index} className="relative rounded-lg overflow-hidden bg-gradient-to-br from-primary/10 via-secondary/10 to-white h-32">
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-2">
-                        <p className="text-white text-xs font-semibold">{item.title}</p>
-                      </div>
+                {galleryLoading ? (
+                  <div className="flex justify-center py-8">
+                    <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  </div>
+                ) : galleryItems.length === 0 ? (
+                  <p className="text-sm text-gray-400 text-center py-6">No gallery items yet</p>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-2 gap-3">
+                      {galleryItems.map((item) => (
+                        <div
+                          key={item.id}
+                          className="relative rounded-lg overflow-hidden bg-gradient-to-br from-primary/10 via-secondary/10 to-white h-32 cursor-pointer group"
+                          onClick={() => setGalleryDetailItem(item)}
+                        >
+                          <img
+                            src={item.photo?.startsWith("http") ? item.photo : `/storage/${item.photo}`}
+                            alt={item.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            onError={(e) => { e.target.style.display = 'none'; }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-2">
+                            <p className="text-white text-xs font-semibold line-clamp-2">{item.title}</p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                    {galleryLastPage > 1 && (
+                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                        <button
+                          className="text-xs text-primary hover:underline disabled:text-gray-300 disabled:no-underline"
+                          disabled={galleryPage <= 1}
+                          onClick={() => fetchGallery(galleryPage - 1)}
+                        >
+                          ← Previous
+                        </button>
+                        <span className="text-xs text-gray-400">{galleryPage} / {galleryLastPage}</span>
+                        <button
+                          className="text-xs text-primary hover:underline disabled:text-gray-300 disabled:no-underline"
+                          disabled={galleryPage >= galleryLastPage}
+                          onClick={() => fetchGallery(galleryPage + 1)}
+                        >
+                          Next →
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             </div>
 
@@ -1033,6 +1097,60 @@ export default function StudyProgramDetail({ university, type }) {
               <button
                 onClick={() => setShowDetailModal(false)}
                 className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                type="button"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Gallery Detail Modal */}
+      {galleryDetailItem && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={() => setGalleryDetailItem(null)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative">
+              <img
+                src={galleryDetailItem.photo?.startsWith("http") ? galleryDetailItem.photo : `/storage/${galleryDetailItem.photo}`}
+                alt={galleryDetailItem.title}
+                className="w-full h-64 object-cover"
+                onError={(e) => { e.target.style.display = 'none'; }}
+              />
+              <button
+                onClick={() => setGalleryDetailItem(null)}
+                className="absolute top-3 right-3 bg-black/40 hover:bg-black/60 text-white rounded-full p-1.5 transition-colors"
+                type="button"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1">
+              <h3 className="text-lg font-bold text-gray-900 mb-2">{galleryDetailItem.title}</h3>
+              {galleryDetailItem.gallery_date && (
+                <p className="text-sm text-gray-500 mb-3 flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4" />
+                  {new Date(galleryDetailItem.gallery_date).toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </p>
+              )}
+              {galleryDetailItem.description && (
+                <p className="text-sm text-gray-700 leading-relaxed">{galleryDetailItem.description}</p>
+              )}
+            </div>
+            <div className="p-4 border-t border-gray-100">
+              <button
+                onClick={() => setGalleryDetailItem(null)}
+                className="w-full px-4 py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium text-sm"
                 type="button"
               >
                 Close
