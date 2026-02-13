@@ -638,7 +638,7 @@ export default function StudyProgramDetail({ university, type }) {
               </div>
 
               {/* Achievements */}
-              {achievements.length > 0 && (
+              {/* {achievements.length > 0 && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-0">
                 <div className="p-6 border-b border-gray-200">
                   <h2 className="text-xl font-bold text-primary flex items-center gap-2">
@@ -673,7 +673,7 @@ export default function StudyProgramDetail({ university, type }) {
                   ))}
                 </div>
               </div>
-              )}
+              )} */}
 
               {/* Contact */}
               {(universityData.contact?.address || universityData.contact?.phone || universityData.contact?.email) && (
