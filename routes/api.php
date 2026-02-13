@@ -159,6 +159,7 @@ Route::get('public/agenda-events', [AgendaEventController::class, 'publicIndex']
 Route::get('public/affiliations', [AffiliationController::class, 'publicIndex']);
 Route::get('public/database-members', [DatabaseMemberController::class, 'publicIndex']);
 Route::get('public/database-members/all', [DatabaseMemberController::class, 'publicIndexAll']);
+Route::get('public/database-members/dashboard-stats', [DatabaseMemberController::class, 'publicDashboardStats']);
 Route::get('public/member-achievements', [MemberAchievementController::class, 'publicIndex']);
 
 // Well-Being Survey Routes - Public (submit survey)

@@ -291,6 +291,120 @@ class DatabaseMemberController extends Controller
         ]);
     }
 
+    /**
+     * Public endpoint: aggregated stats for the homepage Educational Dashboard.
+     * Returns per-org-type breakdowns by affiliation, gender, status,
+     * semester (resident only) and specialization (fellow/trainee only).
+     */
+    public function publicDashboardStats(): JsonResponse
+    {
+        $orgTypes = ['resident', 'fellow', 'trainee'];
+        $result = [];
+
+        foreach ($orgTypes as $orgType) {
+            $members = DatabaseMember::query()
+                ->where('organization_type', $orgType)
+                ->select(['id', 'affiliation_id', 'gender', 'status', 'entry_date', 'specialization'])
+                ->with('affiliation:id,name,code')
+                ->get();
+
+            $activeCount = $members->where('status', 'active')->count();
+
+            // --- By affiliation (include all affiliations of relevant type, even with 0 members) ---
+            $affiliationType = match ($orgType) {
+                'resident' => 'residen',
+                'fellow' => 'clinical_fellowship',
+                'trainee' => 'subspesialis',
+                default => $orgType,
+            };
+            $allAffiliations = Affiliation::where('type', $affiliationType)->orderBy('name')->get();
+            $memberCountByAffId = $members->groupBy('affiliation_id')
+                ->map(fn ($group) => $group->count());
+            $byAffiliation = $allAffiliations
+                ->map(fn ($aff) => ['name' => $aff->name, 'value' => $memberCountByAffId->get($aff->id, 0)])
+                ->sortByDesc('value')
+                ->values()
+                ->all();
+
+            // --- By gender (always show Male & Female) ---
+            $genderLabels = ['male' => 'Male', 'female' => 'Female'];
+            $genderCounts = $members->groupBy('gender')->map(fn ($g) => $g->count());
+            $byGender = collect($genderLabels)->map(fn ($label, $key) => [
+                'name' => $label,
+                'value' => $genderCounts->get($key, 0),
+            ])->values()->all();
+
+            // --- By status (always show Active & Graduated) ---
+            $statusLabels = ['active' => 'Active', 'graduated' => 'Graduated'];
+            $statusCounts = $members->groupBy('status')->map(fn ($g) => $g->count());
+            $byStatus = collect($statusLabels)->map(fn ($label, $key) => [
+                'name' => $label,
+                'value' => $statusCounts->get($key, 0),
+            ])->values()->all();
+
+            $item = [
+                'organization_type' => $orgType,
+                'active_count' => $activeCount,
+                'total_count' => $members->count(),
+                'by_affiliation' => $byAffiliation,
+                'by_gender' => $byGender,
+                'by_status' => $byStatus,
+            ];
+
+            // --- By semester (resident only, always show Semester 1–9) ---
+            if ($orgType === 'resident') {
+                $now = now();
+                $semesterCounts = $members
+                    ->filter(fn ($m) => $m->entry_date !== null)
+                    ->groupBy(function ($m) use ($now) {
+                        $diffMonths = $m->entry_date->diffInMonths($now);
+                        return max(1, (int) ceil($diffMonths / 6));
+                    })
+                    ->map(fn ($group) => $group->count());
+
+                $bySemester = collect(range(1, 9))->map(fn ($sem) => [
+                    'name' => "Semester {$sem}",
+                    'value' => $semesterCounts->get($sem, 0),
+                ])->all();
+
+                $item['by_semester'] = $bySemester;
+            }
+
+            // --- By specialization (fellow / trainee, always show full list) ---
+            if (in_array($orgType, ['fellow', 'trainee'])) {
+                $allSpecialties = [
+                    'Spine',
+                    'Hip And Knee',
+                    'Hand, Upper Limb and Microsurgery',
+                    'Oncology and Reconstruction',
+                    'Orthopaedic',
+                    'Shoulder and Elbow',
+                    'Advanced Orthopaedic Trauma',
+                    'Sport Injury',
+                    'Foot and Ankle',
+                ];
+                $specCounts = $members
+                    ->filter(fn ($m) => !empty($m->specialization))
+                    ->groupBy('specialization')
+                    ->map(fn ($group) => $group->count());
+
+                $bySpecialization = collect($allSpecialties)->map(fn ($spec) => [
+                    'name' => $spec,
+                    'value' => $specCounts->get($spec, 0),
+                ])->all();
+
+                $item['by_specialization'] = $bySpecialization;
+            }
+
+            $result[] = $item;
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $result,
+        ]);
+    }
+
     public function exportExcel(Request $request)
     {
         $validated = $request->validate([

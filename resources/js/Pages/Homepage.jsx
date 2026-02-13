@@ -85,6 +85,7 @@ const ChartsGrid = ({ charts }) => {
 
 // Chart Card Component
 const ChartCard = ({ chart }) => {
+  const hasData = chart.data && chart.data.length > 0;
   return (
     <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-all duration-300">
       <div className="flex justify-center mb-6">
@@ -95,7 +96,11 @@ const ChartCard = ({ chart }) => {
           size={180}
         />
       </div>
-      <ChartLegends chart={chart} />
+      {hasData ? (
+        <ChartLegends chart={chart} />
+      ) : (
+        <p className="text-center text-sm text-gray-400">No data available</p>
+      )}
     </div>
   );
 };
@@ -145,6 +150,7 @@ export default function Homepage() {
   const [agendaEvents, setAgendaEvents] = useState([]);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [dashboardStats, setDashboardStats] = useState([]);
   
   const heroImages = [
     {
@@ -348,12 +354,18 @@ export default function Homepage() {
   const prevImage = () => {
     setCurrentImageIndex((prev) => (prev - 1 + heroImages.length) % heroImages.length);
   };
-  // Stats data
-  const stats = [
-    { icon: "mdi:school", value: "720", label: "Residency", subtitle: "14 study programs", unit: "active residents" },
-    { icon: "mdi:school", value: "42", label: "Clinical Fellowship", subtitle: "5 study programs", unit: "active fellows" },
-    { icon: "mdi:school", value: "64", label: "Subspecialist", subtitle: "2 study programs", unit: "active trainees" },
-  ];
+  // Stats data (dynamic from dashboard stats)
+  const stats = useMemo(() => {
+    const find = (type) => dashboardStats.find((s) => s.organization_type === type);
+    const r = find("resident");
+    const f = find("fellow");
+    const t = find("trainee");
+    return [
+      { icon: "mdi:school", value: String(r?.active_count ?? 0), label: "Residency", subtitle: `${r?.by_affiliation?.length ?? 0} study programs`, unit: "active residents" },
+      { icon: "mdi:school", value: String(f?.active_count ?? 0), label: "Clinical Fellowship", subtitle: `${f?.by_affiliation?.length ?? 0} study programs`, unit: "active fellows" },
+      { icon: "mdi:school", value: String(t?.active_count ?? 0), label: "Subspecialist", subtitle: `${t?.by_affiliation?.length ?? 0} study programs`, unit: "active trainees" },
+    ];
+  }, [dashboardStats]);
 
   const examinations = useMemo(() => {
     const list = agendaEvents
@@ -413,272 +425,76 @@ export default function Homepage() {
     return list;
   }, [agendaEvents]);
 
-  // Educational Dashboard Programs
-  const programs = [
-    {
-      id: "P1",
-      badge: "PPDS 1",
-      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
-      students: "720",
-      charts: [
-        {
-          title: "Study Programs",
-          data: [
-            { name: 'FK UI', value: 79 },
-            { name: 'FK UNAIR', value: 66 },
-            { name: 'FK UNPAD', value: 59 },
-            { name: 'FK UNHAS', value: 76 },
-            { name: 'FK UNS', value: 79 },
-            { name: 'FK UGM', value: 76 },
-            { name: 'FK UDAYANA', value: 78 },
-            { name: 'FK USU', value: 57 },
-            { name: 'FK UB', value: 69 },
-            { name: 'FK USRI', value: 40 },
-            { name: 'FK UNAND', value: 51 },
-            { name: 'FK USK', value: 33 },
-            { name: 'FK ULM', value: 27 },
-            { name: 'RSO SOEHARSO', value: 9 }
-          ],
-          colors: ['#dc2626', '#3b82f6', '#ec4899', '#8b5cf6', '#f59e0b', '#10b981', '#6b7280', '#06b6d4', '#84cc16', '#f97316', '#a855f7', '#14b8a6', '#64748b'],
-          legends: [
-            { label: 'FK UI', value: 79 },
-            { label: 'FK UNAIR', value: 66 },
-            { label: 'FK UNPAD', value: 59 },
-            { label: 'FK UNHAS', value: 76 },
-            { label: 'FK UNS', value: 79 },
-            { label: 'FK UGM', value: 76 },
-            { label: 'FK UDAYANA', value: 78 },
-            { label: 'FK USU', value: 57 }
-          ],
-          legendsRight: [
-            { label: 'FK UB', value: 69 },
-            { label: 'FK USRI', value: 40 },
-            { label: 'FK UNAND', value: 51 },
-            { label: 'FK USK', value: 33 },
-            { label: 'FK ULM', value: 27 },
-            { label: 'RSO SOEHARSO', value: 9 }
-          ],
-          total: 720
-        },
-        {
-          title: "Semester",
-          data: [
-            { name: 'Semester 1', value: 69 },
-            { name: 'Semester 2', value: 80 },
-            { name: 'Semester 3', value: 79 },
-            { name: 'Semester 4', value: 71 },
-            { name: 'Semester 5', value: 66 },
-            { name: 'Semester 6', value: 80 },
-            { name: 'Semester 7', value: 63 },
-            { name: 'Semester 8', value: 56 },
-            { name: 'Semester 9', value: 55 }
-          ],
-          colors: ['#8b5cf6', '#ec4899', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#84cc16', '#f97316'],
-          legends: [
-            { label: 'Semester 1', value: 69 },
-            { label: 'Semester 2', value: 80 },
-            { label: 'Semester 3', value: 79 },
-            { label: 'Semester 4', value: 71 },
-            { label: 'Semester 5', value: 66 }
-          ],
-          legendsRight: [
-            { label: 'Semester 6', value: 80 },
-            { label: 'Semester 7', value: 63 },
-            { label: 'Semester 8', value: 56 },
-            { label: 'Semester 9', value: 55 }
-          ],
-          total: 619
-        },
-        {
-          title: "Gender",
-          data: [
-            { name: 'Male', value: 628 },
-            { name: 'Female', value: 46 }
-          ],
-          colors: ['#3b82f6', '#ec4899'],
-          legends: [
-            { label: 'Male', value: 628 },
-            { label: 'Female', value: 46 }
-          ],
-          total: 674
-        },
-        {
-          title: "Status",
-          data: [
-            { name: 'Graduated', value: 1157 },
-            { name: 'Active', value: 678 }
-          ],
-          colors: ['#10b981', '#f59e0b'],
-          legends: [
-            { label: 'Graduated', value: 1157 },
-            { label: 'Active', value: 678 }
-          ],
-          total: 1835
+  // Educational Dashboard – fetch dynamic data
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      try {
+        const res = await api.get("/public/database-members/dashboard-stats", {
+          headers: { "X-Skip-Auth-Redirect": "1" },
+        });
+        if (res.data?.status === "success") {
+          setDashboardStats(Array.isArray(res.data.data) ? res.data.data : []);
         }
-      ]
-    },
-    {
-      id: "CF",
-      badge: "Clinical Fellowship",
-      description: "Fellowship programs for subspecialization & continuing education.",
-      students: "42",
-      charts: [
-        {
-          title: "Study Programs",
-          data: [
-            { name: 'RSUD Dr. Saiful Anwar Malang', value: 6 },
-            { name: 'RSUP Dr. Hasan Sadikin Bandung', value: 10 },
-            { name: 'RSUP Dr. Sardjito Yogyakarta', value: 6 },
-            { name: 'RSUD Dr. Moewardi Solo', value: 1 },
-            { name: 'RSO SOEHARSO', value: 9 }
-          ],
-          colors: ['#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6'],
-          legends: [
-            { label: 'RSUD Dr. Saiful Anwar Malang', value: 6 },
-            { label: 'RSUP Dr. Hasan Sadikin Bandung', value: 10 },
-            { label: 'RSUP Dr. Sardjito Yogyakarta', value: 6 },
-            { label: 'RSUD Dr. Moewardi Solo', value: 1 },
-            { label: 'RSO SOEHARSO', value: 9 }
-          ],
-          total: 23
-        },
-        {
-          title: "Subspecialty",
-          data: [
-            { name: 'Spine', value: 21 },
-            { name: 'Hip And Knee', value: 2 },
-            { name: 'Hand, Upper Limb and Microsurgery', value: 5 },
-            { name: 'Oncology and Reconstruction', value: 2 },
-            { name: 'Orthopaedic', value: 2 },
-            { name: 'Foot and Ankle', value: 3 },
-            { name: 'Shoulder and Elbow', value: 2 },
-            { name: 'Advanced Orthopaedic Trauma', value: 4 },
-            { name: 'Sport Injury', value: 7 }
-          ],
-          colors: ['#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#10b981', '#6b7280', '#06b6d4', '#84cc16', '#64748b'],
-          legends: [
-            { label: 'Spine', value: 21 },
-            { label: 'Hip And Knee', value: 2 },
-            { label: 'Hand, Upper Limb and Microsurgery', value: 5 },
-            { label: 'Oncology and Reconstruction', value: 2 },
-            { label: 'Orthopaedic', value: 2 }
-          ],
-          legendsRight: [
-            { label: 'Shoulder and Elbow', value: 2 },
-            { label: 'Advanced Orthopaedic Trauma', value: 4 },
-            { label: 'Sport Injury', value: 7 },
-            { label: 'Foot and Ankle', value: 3 }
-          ],
-          total: 48
-        },
-        {
-          title: "Gender",
-          data: [
-            { name: 'Male', value: 2 },
-            { name: 'Female', value: 39 }
-          ],
-          colors: ['#3b82f6', '#ec4899'],
-          legends: [
-            { label: 'Male', value: 2 },
-            { label: 'Female', value: 39 }
-          ],
-          total: 41
-        },
-        {
-          title: "Status",
-          data: [
-            { name: 'Graduated', value: 21 },
-            { name: 'Active', value: 21 }
-          ],
-          colors: ['#10b981', '#f59e0b'],
-          legends: [
-            { label: 'Graduated', value: 21 },
-            { label: 'Active', value: 21 }
-          ],
-          total: 42
-        }
-      ]
-    },
-    {
-      id: "SP",
-      badge: "Subspecialist",
-      description: "Advanced program for Traumatology — trauma management & reconstruction.",
-      students: "64",
-      charts: [
-        {
-          title: "Study Program",
-          data: [
-            { name: 'FK UI', value: 20 },
-            { name: 'FK UNAIR', value: 20 }
-          ],
-          colors: ['#dc2626', '#3b82f6'],
-          legends: [
-            { label: 'FK UI', value: 20 },
-            { label: 'FK UNAIR', value: 20 }
-          ],
-          total: 40
-        },
-        {
-          title: "Subspecialty",
-          data: [
-            { name: 'Spine', value: 21 },
-            { name: 'Hip And Knee', value: 2 },
-            { name: 'Hand, Upper Limb and Microsurgery', value: 5 },
-            { name: 'Oncology and Reconstruction', value: 2 },
-            { name: 'Orthopaedic', value: 2 },
-            { name: 'Foot and Ankle', value: 3 },
-            { name: 'Shoulder and Elbow', value: 2 },
-            { name: 'Advanced Orthopaedic Trauma', value: 4 },
-            { name: 'Sport Injury', value: 7 }
-          ],
-          colors: ['#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#10b981', '#6b7280', '#06b6d4', '#84cc16'],
-          legends: [
-            { label: 'Spine', value: 21 },
-            { label: 'Hip And Knee', value: 2 },
-            { label: 'Hand, Upper Limb and Microsurgery', value: 5 },
-            { label: 'Oncology and Reconstruction', value: 2 },
-            { label: 'Orthopaedic', value: 2 }
-          ],
-          legendsRight: [
-            { label: 'Shoulder and Elbow', value: 2 },
-            { label: 'Advanced Orthopaedic Trauma', value: 4 },
-            { label: 'Sport Injury', value: 7 },
-            { label: 'Foot and Ankle', value: 3 }
-          ],
-          total: 48
-        },
-        {
-          title: "Gender",
-          data: [
-            { name: 'Male', value: 5 },
-            { name: 'Female', value: 59 }
-          ],
-          colors: ['#3b82f6', '#ec4899'],
-          legends: [
-            { label: 'Male', value: 5 },
-            { label: 'Female', value: 59 }
-          ],
-          total: 64
-        },
-        {
-          title: "Status",
-          data: [
-            { name: 'Graduated', value: 35 },
-            { name: 'Active', value: 64 }
-          ],
-          colors: ['#10b981', '#f59e0b'],
-          legends: [
-            { label: 'Graduated', value: 35 },
-            { label: 'Active', value: 64 }
-          ],
-          total: 99
-        }
-      ]
-    }
+      } catch (e) {
+        console.error("Failed to fetch dashboard stats", e);
+      }
+    };
+    fetchDashboardStats();
+  }, []);
+
+  const CHART_PALETTE = [
+    '#dc2626', '#3b82f6', '#ec4899', '#8b5cf6', '#f59e0b', '#10b981',
+    '#6b7280', '#06b6d4', '#84cc16', '#f97316', '#a855f7', '#14b8a6',
+    '#64748b', '#ef4444', '#0ea5e9', '#d946ef',
   ];
+  const GENDER_COLORS = ['#3b82f6', '#ec4899'];
+  const STATUS_COLORS_CHART = ['#10b981', '#f59e0b', '#ef4444'];
 
+  const buildChart = (title, items, colors) => {
+    const data = items.map((i) => ({ name: i.name, value: i.value }));
+    const total = data.reduce((s, d) => s + d.value, 0);
+    const half = Math.ceil(data.length / 2);
+    const legends = data.slice(0, half).map((d) => ({ label: d.name, value: d.value }));
+    const legendsRight = data.length > half ? data.slice(half).map((d) => ({ label: d.name, value: d.value })) : undefined;
+    return { title, data, colors: colors.slice(0, data.length), legends, ...(legendsRight ? { legendsRight } : {}), total };
+  };
 
-  const chartColors = ['#3b82f6', '#ef4444', '#ec4899', '#10b981', '#f59e0b', '#8b5cf6'];
+  const PROGRAM_META = {
+    resident: { id: "P1", badge: "PPDS 1", description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma." },
+    fellow: { id: "CF", badge: "Clinical Fellowship", description: "Fellowship programs for subspecialization & continuing education." },
+    trainee: { id: "SP", badge: "Subspecialist", description: "Advanced program for Traumatology — trauma management & reconstruction." },
+  };
+
+  const programs = useMemo(() => {
+    const orgTypes = ["resident", "fellow", "trainee"];
+    return orgTypes.map((orgType) => {
+      const stat = dashboardStats.find((s) => s.organization_type === orgType) || {};
+      const meta = PROGRAM_META[orgType];
+      const charts = [];
+
+      // Chart 1: Study Programs (by affiliation)
+      charts.push(buildChart("Study Programs", stat.by_affiliation || [], CHART_PALETTE));
+
+      // Chart 2: Semester (resident) or Subspecialty (fellow/trainee)
+      if (orgType === "resident") {
+        charts.push(buildChart("Semester", stat.by_semester || [], CHART_PALETTE));
+      } else {
+        charts.push(buildChart("Subspecialty", stat.by_specialization || [], CHART_PALETTE));
+      }
+
+      // Chart 3: Gender
+      charts.push(buildChart("Gender", stat.by_gender || [], GENDER_COLORS));
+
+      // Chart 4: Status
+      charts.push(buildChart("Status", stat.by_status || [], STATUS_COLORS_CHART));
+
+      return {
+        ...meta,
+        students: String(stat.active_count || 0),
+        charts,
+      };
+    });
+  }, [dashboardStats]);
 
   return (
     <HomepageLayout>
