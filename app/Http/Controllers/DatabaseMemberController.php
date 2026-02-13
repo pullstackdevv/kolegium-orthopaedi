@@ -508,11 +508,18 @@ class DatabaseMemberController extends Controller
 
         $type = $request->string('type')->toString();
 
-        $affiliations = Affiliation::query()
-            ->when($type !== '', fn ($q) => $q->where('type', $type))
-            ->orderBy('type')
-            ->orderBy('name')
-            ->get();
+        $query = Affiliation::query()
+            ->when($type !== '', fn ($q) => $q->where('type', $type));
+
+        // Non-super-admin: only return user's own affiliations
+        if (!$authUser->hasRole('super_admin')) {
+            $userAffiliationIds = $authUser->affiliations()->pluck('affiliations.id')->toArray();
+            if (!empty($userAffiliationIds)) {
+                $query->whereIn('id', $userAffiliationIds);
+            }
+        }
+
+        $affiliations = $query->orderBy('type')->orderBy('name')->get();
 
         return response()->json([
             'status' => 'success',

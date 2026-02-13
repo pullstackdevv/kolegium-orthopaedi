@@ -212,10 +212,18 @@ class TeacherStaffMemberController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Unauthorized.'], 403);
         }
 
-        $affiliations = Affiliation::query()
-            ->where('type', 'residen')
-            ->orderBy('name')
-            ->get();
+        $query = Affiliation::query()
+            ->where('type', 'residen');
+
+        // Non-super-admin: only return user's own affiliations
+        if (!$authUser->hasRole('super_admin')) {
+            $userAffiliationIds = $authUser->affiliations()->pluck('affiliations.id')->toArray();
+            if (!empty($userAffiliationIds)) {
+                $query->whereIn('id', $userAffiliationIds);
+            }
+        }
+
+        $affiliations = $query->orderBy('name')->get();
 
         return response()->json(['status' => 'success', 'data' => $affiliations]);
     }
