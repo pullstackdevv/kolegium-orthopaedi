@@ -115,7 +115,7 @@ export const sidebarMenu = [
       {
         title: "Event Gallery",
         icon: Images,
-        href: "/cms/coming-soon/kolegium-gallery-events",
+        href: "/cms/gallery?scope=kolegium",
         permission: "agenda.kolegium.view",
       },
     ],
@@ -204,7 +204,7 @@ export const sidebarMenu = [
           {
             title: "Resident - Gallery",
             icon: Images,
-            href: "/cms/coming-soon/resident-gallery",
+            href: "/cms/gallery?scope=study_program&section=resident",
             permission: "agenda.study_program.resident.view",
           },
         ],
@@ -245,7 +245,7 @@ export const sidebarMenu = [
           {
             title: "Fellow (CF) - Gallery",
             icon: Images,
-            href: "/cms/coming-soon/fellow-gallery",
+            href: "/cms/gallery?scope=study_program&section=fellow",
             permission: "agenda.study_program.fellow.view",
           },
         ],
@@ -286,7 +286,7 @@ export const sidebarMenu = [
           {
             title: "Trainee - Gallery",
             icon: Images,
-            href: "/cms/coming-soon/trainee-gallery",
+            href: "/cms/gallery?scope=study_program&section=trainee",
             permission: "agenda.study_program.trainee.view",
           },
         ],
@@ -333,7 +333,7 @@ export const sidebarMenu = [
       {
         title: "Peer Group - Gallery",
         icon: Images,
-        href: "/cms/coming-soon/peergroup-gallery",
+        href: "/cms/gallery?scope=peer_group",
         permission: "agenda.peer_group.view",
       },
     ],

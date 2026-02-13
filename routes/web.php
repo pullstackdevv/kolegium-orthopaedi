@@ -483,6 +483,11 @@ Route::middleware([Authenticate::class])
             return Inertia::render('OrgStructure/index');
         })->name('org-structure');
 
+        // Gallery
+        Route::get('/gallery', function () {
+            return Inertia::render('Gallery/index');
+        })->name('gallery');
+
         // Generic coming soon page for not-yet-developed CMS menus
         Route::get('/coming-soon/{slug}', function ($slug) {
             return Inertia::render('ComingSoon', ['slug' => $slug]);

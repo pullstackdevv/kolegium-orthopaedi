@@ -15,6 +15,7 @@ use App\Http\Controllers\TeacherStaffMemberController;
 use App\Http\Controllers\TeachingHospitalController;
 use App\Http\Controllers\SpecializationController;
 use App\Http\Controllers\MemberAchievementController;
+use App\Http\Controllers\GalleryController;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -140,6 +141,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('member-achievements', [MemberAchievementController::class, 'store']);
     Route::put('member-achievements/{memberAchievement}', [MemberAchievementController::class, 'update']);
     Route::delete('member-achievements/{memberAchievement}', [MemberAchievementController::class, 'destroy']);
+
+    // Gallery (CMS) routes
+    Route::get('galleries', [GalleryController::class, 'index']);
+    Route::get('galleries/affiliations', [GalleryController::class, 'affiliations']);
+    Route::post('galleries/upload-photo', [GalleryController::class, 'uploadPhoto']);
+    Route::post('galleries', [GalleryController::class, 'store']);
+    Route::put('galleries/{gallery}', [GalleryController::class, 'update']);
+    Route::delete('galleries/{gallery}', [GalleryController::class, 'destroy']);
 });
 
 // Database Members - Public Search (for Well-Being Survey verification)
@@ -178,3 +187,6 @@ Route::get('affiliations/by-code/{code}', [AffiliationController::class, 'getByC
 
 // Affiliation Profile - Public
 Route::get('public/affiliation-profiles/{affiliationId}', [AffiliationProfileController::class, 'publicShow']);
+
+// Gallery - Public
+Route::get('public/galleries', [GalleryController::class, 'publicIndex']);
