@@ -183,12 +183,12 @@ export const sidebarMenu = [
             href: "/cms/org-structure?org=resident",
             permission: "database.study_program.resident.view",
           },
-          {
-            title: "Resident - Secretariat Contact",
-            icon: Info,
-            href: "/cms/coming-soon/resident-secretariat",
-            permission: "agenda.study_program.resident.view",
-          },
+          // {
+          //   title: "Resident - Secretariat Contact",
+          //   icon: Info,
+          //   href: "/cms/coming-soon/resident-secretariat",
+          //   permission: "agenda.study_program.resident.view",
+          // },
           {
             title: "Resident - Database",
             icon: BookOpen,
@@ -224,12 +224,12 @@ export const sidebarMenu = [
             href: "/cms/org-structure?org=fellow",
             permission: "database.study_program.fellow.view",
           },
-          {
-            title: "Fellow (CF) - Secretariat Contact",
-            icon: Info,
-            href: "/cms/coming-soon/fellow-secretariat",
-            permission: "agenda.study_program.fellow.view",
-          },
+          // {
+          //   title: "Fellow (CF) - Secretariat Contact",
+          //   icon: Info,
+          //   href: "/cms/coming-soon/fellow-secretariat",
+          //   permission: "agenda.study_program.fellow.view",
+          // },
           {
             title: "Fellow (CF) - Database",
             icon: BookOpen,
@@ -265,12 +265,12 @@ export const sidebarMenu = [
             href: "/cms/org-structure?org=trainee",
             permission: "database.study_program.trainee.view",
           },
-          {
-            title: "Trainee - Secretariat Contact",
-            icon: Info,
-            href: "/cms/coming-soon/trainee-secretariat",
-            permission: "agenda.study_program.trainee.view",
-          },
+          // {
+          //   title: "Trainee - Secretariat Contact",
+          //   icon: Info,
+          //   href: "/cms/coming-soon/trainee-secretariat",
+          //   permission: "agenda.study_program.trainee.view",
+          // },
           {
             title: "Trainee - Database",
             icon: BookOpen,
