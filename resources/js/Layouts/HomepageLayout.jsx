@@ -73,6 +73,15 @@ export default function MarketplaceLayout({ children }) {
         setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
     };
 
+    useEffect(() => {
+        if (isMobileMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => { document.body.style.overflow = ''; };
+    }, [isMobileMenuOpen]);
+
     return (
         <AuthProvider>
             <div className="min-h-screen bg-[#F8FAFC]">
@@ -154,77 +163,127 @@ export default function MarketplaceLayout({ children }) {
                     </div>
                 </div>
 
-                {/* Mobile menu */}
+                {/* Mobile menu overlay */}
                 {isMobileMenuOpen && (
-                    <div className="lg-hidden border-t border-gray-200 bg-white text-slate-700">
-                        <div className="px-4 pt-2 pb-3 space-y-1">
-                            <Link 
-                                href="/" 
-                                className={`block px-3 py-3 rounded-lg font-semibold tracking-wide uppercase transition ${
-                                    isActive('/') && url === '/' 
-                                        ? 'text-primary bg-primary/10 border border-primary/20' 
-                                        : 'text-slate-600 hover:text-secondary hover:bg-secondary/10 border border-transparent'
-                                }`}
-                                onClick={() => setIsMobileMenuOpen(false)}
-                            >
-                                Home
-                            </Link>
-                            
-                            {/* Mobile Profile Study Program */}
-                            <div>
-                                <button
-                                    onClick={() => toggleDropdown('profile')}
-                                    className="w-full flex items-center justify-between px-3 py-3 rounded-lg font-semibold tracking-wide uppercase text-[#254D95] hover:text-[#34A1F4] hover:bg-[#34A1F4]/10 transition"
-                                >
-                                    Profile Study Program
-                                    <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'profile' ? 'rotate-180' : ''}`} />
-                                </button>
-                                {openDropdown === 'profile' && (
-                                    <div className="pl-6 space-y-1 mt-1">
-                                        <Link href="/profile-study-program/ppds1" className="block px-3 py-2 text-sm text-slate-600 hover:text-[#34A1F4] hover:bg-[#34A1F4]/10 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>PPDS 1</Link>
-                                        <Link href="/profile-study-program/clinical-fellowship" className="block px-3 py-2 text-sm text-slate-600 hover:text-[#34A1F4] hover:bg-[#34A1F4]/10 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Clinical Fellowship</Link>
-                                        <Link href="/profile-study-program/subspecialist" className="block px-3 py-2 text-sm text-slate-600 hover:text-[#34A1F4] hover:bg-[#34A1F4]/10 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Subspecialist</Link>
-                                        <Link href="/profile-study-program/ppds1" className="block px-3 py-2 text-sm text-slate-600 hover:text-secondary hover:bg-secondary/10 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>PPDS 1</Link>
-                                        <Link href="/profile-study-program/clinical-fellowship" className="block px-3 py-2 text-sm text-slate-600 hover:text-secondary hover:bg-secondary/10 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Clinical Fellowship</Link>
-                                        <Link href="/profile-study-program/subspecialist" className="block px-3 py-2 text-sm text-slate-600 hover:text-secondary hover:bg-secondary/10 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Subspecialist</Link>
-                                    </div>
-                                )}
-                            </div>
+                    <div 
+                        className="fixed inset-0 top-20 z-40 bg-black/40 lg:hidden"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                    />
+                )}
 
-                            {/* Mobile Database Members */}
-                            <div>
-                                <button
-                                    onClick={() => toggleDropdown('database')}
-                                    className="w-full flex items-center justify-between px-3 py-3 rounded-lg font-semibold tracking-wide uppercase text-primary hover:text-secondary hover:bg-secondary/10 transition"
-                                >
-                                    Resident/Fellow/Trainee
-                                    <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'database' ? 'rotate-180' : ''}`} />
-                                </button>
-                                {openDropdown === 'database' && (
-                                    <div className="pl-6 space-y-1 mt-1">
-                                        <Link href="/database-residents" className="block px-3 py-2 text-sm text-slate-600 hover:text-secondary hover:bg-secondary/10 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Residents</Link>
-                                        <Link href="/database-fellows" className="block px-3 py-2 text-sm text-slate-600 hover:text-secondary hover:bg-secondary/10 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Fellows</Link>
-                                        <Link href="/database-trainees" className="block px-3 py-2 text-sm text-slate-600 hover:text-secondary hover:bg-secondary/10 rounded-lg transition" onClick={() => setIsMobileMenuOpen(false)}>Trainees</Link>
-                                    </div>
-                                )}
+                {/* Mobile menu */}
+                <div className={`lg:hidden fixed top-20 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-xl transition-all duration-300 ease-in-out overflow-y-auto ${
+                    isMobileMenuOpen 
+                        ? 'max-h-[calc(100vh-5rem)] opacity-100 visible' 
+                        : 'max-h-0 opacity-0 invisible'
+                }`}>
+                    <div className="px-4 pt-3 pb-4 space-y-1">
+                        <Link 
+                            href="/" 
+                            className={`block px-3 py-3 rounded-lg text-[13px] font-semibold tracking-wide uppercase transition-all duration-200 ${
+                                isActive('/') && url === '/' 
+                                    ? 'text-primary bg-primary/10 border-l-4 border-primary' 
+                                    : 'text-slate-600 hover:text-secondary hover:bg-secondary/5'
+                            }`}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                            Home
+                        </Link>
+                        
+                        {/* Mobile Profile Study Program */}
+                        <div>
+                            <button
+                                onClick={() => toggleDropdown('profile')}
+                                className={`w-full flex items-center justify-between px-3 py-3 rounded-lg text-[13px] font-semibold tracking-wide uppercase transition-all duration-200 ${
+                                    isActive('/profile-study-program')
+                                        ? 'text-primary bg-primary/10 border-l-4 border-primary'
+                                        : 'text-slate-600 hover:text-secondary hover:bg-secondary/5'
+                                }`}
+                            >
+                                Study Program Profile
+                                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${openDropdown === 'profile' ? 'rotate-180' : ''}`} />
+                            </button>
+                            <div className={`overflow-hidden transition-all duration-200 ${openDropdown === 'profile' ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                <div className="pl-6 space-y-1 mt-1 pb-1">
+                                    <Link href="/profile-study-program/ppds1" className="block px-3 py-2.5 text-sm text-slate-600 hover:text-secondary hover:bg-secondary/5 rounded-lg transition-all duration-200" onClick={() => setIsMobileMenuOpen(false)}>PPDS 1</Link>
+                                    <Link href="/profile-study-program/clinical-fellowship" className="block px-3 py-2.5 text-sm text-slate-600 hover:text-secondary hover:bg-secondary/5 rounded-lg transition-all duration-200" onClick={() => setIsMobileMenuOpen(false)}>Clinical Fellowship</Link>
+                                    <Link href="/profile-study-program/subspesialis" className="block px-3 py-2.5 text-sm text-slate-600 hover:text-secondary hover:bg-secondary/5 rounded-lg transition-all duration-200" onClick={() => setIsMobileMenuOpen(false)}>Subspecialist</Link>
+                                </div>
                             </div>
-                            <Link href="/peer-group" className="block px-3 py-3 rounded-lg font-semibold tracking-wide uppercase text-slate-600 hover:text-secondary hover:bg-secondary/10 transition" onClick={() => setIsMobileMenuOpen(false)}>Peer Group</Link>
-                            <Link href="/calendar-academic" className="block px-3 py-3 rounded-lg font-semibold tracking-wide uppercase text-slate-600 hover:text-secondary hover:bg-secondary/10 transition" onClick={() => setIsMobileMenuOpen(false)}>Academic Calendar</Link>
-                            <Link href="/about-us" className="block px-3 py-3 rounded-lg font-semibold tracking-wide uppercase text-slate-600 hover:text-secondary hover:bg-secondary/10 transition" onClick={() => setIsMobileMenuOpen(false)}>About Us</Link>
-                            
-                            {auth?.user && (
+                        </div>
+
+                        {/* Mobile Database Members */}
+                        <div>
+                            <button
+                                onClick={() => toggleDropdown('database')}
+                                className={`w-full flex items-center justify-between px-3 py-3 rounded-lg text-[13px] font-semibold tracking-wide uppercase transition-all duration-200 ${
+                                    isActive('/database-residents') || isActive('/database-fellows') || isActive('/database-trainees')
+                                        ? 'text-primary bg-primary/10 border-l-4 border-primary'
+                                        : 'text-slate-600 hover:text-secondary hover:bg-secondary/5'
+                                }`}
+                            >
+                                Resident/Fellow/Trainee
+                                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${openDropdown === 'database' ? 'rotate-180' : ''}`} />
+                            </button>
+                            <div className={`overflow-hidden transition-all duration-200 ${openDropdown === 'database' ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                <div className="pl-6 space-y-1 mt-1 pb-1">
+                                    <Link href="/database-residents" className="block px-3 py-2.5 text-sm text-slate-600 hover:text-secondary hover:bg-secondary/5 rounded-lg transition-all duration-200" onClick={() => setIsMobileMenuOpen(false)}>Residents</Link>
+                                    <Link href="/database-fellows" className="block px-3 py-2.5 text-sm text-slate-600 hover:text-secondary hover:bg-secondary/5 rounded-lg transition-all duration-200" onClick={() => setIsMobileMenuOpen(false)}>Fellows</Link>
+                                    <Link href="/database-trainees" className="block px-3 py-2.5 text-sm text-slate-600 hover:text-secondary hover:bg-secondary/5 rounded-lg transition-all duration-200" onClick={() => setIsMobileMenuOpen(false)}>Trainees</Link>
+                                </div>
+                            </div>
+                        </div>
+
+                        <Link 
+                            href="/peer-group" 
+                            className={`block px-3 py-3 rounded-lg text-[13px] font-semibold tracking-wide uppercase transition-all duration-200 ${
+                                isActive('/peer-group')
+                                    ? 'text-primary bg-primary/10 border-l-4 border-primary'
+                                    : 'text-slate-600 hover:text-secondary hover:bg-secondary/5'
+                            }`}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                            Peer Group
+                        </Link>
+
+                        <Link 
+                            href="/calendar-academic" 
+                            className={`block px-3 py-3 rounded-lg text-[13px] font-semibold tracking-wide uppercase transition-all duration-200 ${
+                                isActive('/calendar-academic')
+                                    ? 'text-primary bg-primary/10 border-l-4 border-primary'
+                                    : 'text-slate-600 hover:text-secondary hover:bg-secondary/5'
+                            }`}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                            Academic Calendar
+                        </Link>
+
+                        <Link 
+                            href="/about-us" 
+                            className={`block px-3 py-3 rounded-lg text-[13px] font-semibold tracking-wide uppercase transition-all duration-200 ${
+                                isActive('/about-us')
+                                    ? 'text-primary bg-primary/10 border-l-4 border-primary'
+                                    : 'text-slate-600 hover:text-secondary hover:bg-secondary/5'
+                            }`}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                            About Us
+                        </Link>
+                        
+                        {auth?.user && (
+                            <div className="pt-2 mt-2 border-t border-gray-100">
                                 <Link 
                                     href="/cms" 
-                                    className="flex items-center gap-2 px-3 py-3 rounded-lg font-semibold bg-primary text-white hover:bg-secondary transition mt-2"
+                                    className="flex items-center gap-2 px-3 py-3 rounded-lg text-[13px] font-semibold bg-gray-900 text-white hover:bg-gray-800 transition-all duration-200"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                     <LayoutDashboard className="w-4 h-4" />
                                     <span>CMS Dashboard</span>
                                 </Link>
-                            )}
-                        </div>
+                            </div>
+                        )}
                     </div>
-                )}
+                </div>
             </header>
 
             {/* Main Content */}
