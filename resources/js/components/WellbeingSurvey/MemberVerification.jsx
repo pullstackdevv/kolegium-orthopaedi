@@ -54,6 +54,10 @@ export default function MemberVerification({ affiliation, onVerified }) {
       }
     } catch (err) {
       console.error("Search error:", err);
+      console.error("Search error response data:", err.response?.data);
+      console.error("Search error response status:", err.response?.status);
+      console.error("Search error request URL:", err.config?.baseURL + err.config?.url);
+      console.error("Search error request params:", err.config?.params);
       setError("NIK tidak ditemukan. Silakan hubungi admin prodi.");
     } finally {
       setLoading(false);
@@ -132,6 +136,25 @@ export default function MemberVerification({ affiliation, onVerified }) {
       )}
 
       {/* STEP 2: Verify Name */}
+      {/* Privacy Notice */}
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-6">
+        <h3 className="text-sm font-semibold text-green-800 mb-2">Privacy Notice</h3>
+        <ul className="space-y-1 text-sm text-green-700">
+          <li className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 flex-shrink-0" />
+            Fully anonymous - no personal identifiers stored
+          </li>
+          <li className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 flex-shrink-0" />
+            Used only for aggregated insights and early warning
+          </li>
+          <li className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 flex-shrink-0" />
+            Your privacy is protected
+          </li>
+        </ul>
+      </div>
+
       {step === 2 && memberData && (
         <div className="space-y-6">
           <div className="bg-primary/10 border border-primary/20 rounded-lg p-6">

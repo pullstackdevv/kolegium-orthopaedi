@@ -494,6 +494,11 @@ Route::middleware([Authenticate::class])
             return Inertia::render('Gallery/index');
         })->name('gallery');
 
+        // Well-Being Survey Results
+        Route::get('/wellbeing-surveys', function () {
+            return Inertia::render('WellbeingSurvey/CmsIndex');
+        })->name('wellbeing-surveys');
+
         // Generic coming soon page for not-yet-developed CMS menus
         Route::get('/coming-soon/{slug}', function ($slug) {
             return Inertia::render('ComingSoon', ['slug' => $slug]);

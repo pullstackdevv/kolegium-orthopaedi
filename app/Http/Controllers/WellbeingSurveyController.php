@@ -14,28 +14,57 @@ use Inertia\Response;
 
 class WellbeingSurveyController extends Controller
 {
-    public function index(): Response
-    {
-        return Inertia::render('WellbeingSurvey/Index');
-    }
-
-    public function show(Request $request): Response
+    public function index(Request $request): Response
     {
         $code = $request->query('code');
         $affiliation = null;
         $crisisResources = null;
 
         if ($code) {
-            $affiliation = Affiliation::where('code', $code)->select(['id', 'code', 'name', 'type', 'university', 'faculty', 'study_program_name', 'program_type'])->first();
+            $affiliation = Affiliation::where('code', $code)->first();
+            if ($affiliation) {
+                $crisisResources = $this->resolveCrisisResources($affiliation);
+            }
+        }
+
+        return Inertia::render('WellbeingSurvey/Index', [
+            'affiliation' => $affiliation,
+            'crisisResources' => $crisisResources,
+        ]);
+    }
+
+    public function show(Request $request): Response
+    {
+        $code = $request->query('code');
+        $memberId = $request->query('member_id');
+        $affiliation = null;
+        $crisisResources = null;
+        $member = null;
+
+        if ($code) {
+            $affiliation = Affiliation::where('code', $code)->first();
             
             if ($affiliation) {
                 $crisisResources = $this->resolveCrisisResources($affiliation);
             }
         }
 
+        if ($memberId) {
+            $member = \App\Models\DatabaseMember::select(['id', 'member_code', 'name', 'contact', 'affiliation_id'])->find($memberId);
+
+            // If no affiliation from code, resolve from member's affiliation_id
+            if (!$affiliation && $member && $member->affiliation_id) {
+                $affiliation = Affiliation::find($member->affiliation_id);
+                if ($affiliation) {
+                    $crisisResources = $this->resolveCrisisResources($affiliation);
+                }
+            }
+        }
+
         return Inertia::render('WellbeingSurvey/Show', [
             'affiliation' => $affiliation,
             'crisisResources' => $crisisResources,
+            'member' => $member,
         ]);
     }
 
@@ -114,7 +143,7 @@ class WellbeingSurveyController extends Controller
             $survey->save();
 
             // Trigger notification if high risk
-            if ($survey->risk_level === 'high' || $survey->risk_level === 'moderate' || $survey->star_rating <= 3) {
+            if ($survey->risk_level === 'high' || $survey->risk_level === 'moderate' || ($survey->star_rating !== null && $survey->star_rating <= 3)) {
                 $this->triggerRiskNotification($survey);
             }
 

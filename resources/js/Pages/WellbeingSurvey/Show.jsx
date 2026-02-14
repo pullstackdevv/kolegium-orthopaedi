@@ -9,7 +9,11 @@ import CrisisResources from "../../components/WellbeingSurvey/CrisisResources";
 import api from "@/api/axios";
 
 export default function WellbeingSurveyShow({ affiliation, crisisResources: initialCrisisResources, member }) {
-  const { url } = usePage();
+  const { url, props: pageProps } = usePage();
+
+  // DEBUG: log all props received
+  console.log('[WBS DEBUG] Component props:', { affiliation, member, url });
+  console.log('[WBS DEBUG] All page props:', pageProps);
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [crisisResources, setCrisisResources] = useState(initialCrisisResources);
@@ -28,39 +32,48 @@ export default function WellbeingSurveyShow({ affiliation, crisisResources: init
     member_contact: member?.contact || null,
     participant_type: null,
     mood: null,
-    burnout: false,
-    emotional_hardening: false,
-    depressed: false,
-    sleep_issue: false,
-    bullying: false,
-    discomfort: false,
+    burnout: null,
+    emotional_hardening: null,
+    depressed: null,
+    sleep_issue: null,
+    bullying: null,
+    discomfort: null,
     discomfort_note: null,
   });
   const [result, setResult] = useState(null);
   const [starRating, setStarRating] = useState(0);
 
+  // Sync affiliationData into surveyData whenever it becomes available
+  useEffect(() => {
+    if (affiliationData?.id) {
+      setSurveyData((prev) => ({
+        ...prev,
+        affiliation_id: affiliationData.id,
+        affiliation_code: affiliationData.code,
+      }));
+    }
+  }, [affiliationData]);
+
+  // Fallback: fetch affiliation by code from URL if prop is null
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
     if (code && !affiliationData) {
       fetchAffiliationByCode(code);
     }
-  }, [affiliationData]);
+  }, []);
 
   const fetchAffiliationByCode = async (code) => {
     try {
       setLoading(true);
-      const response = await api.get(`/api/affiliations/by-code/${code}`);
+      const response = await api.get(`/affiliations/by-code/${code}`);
       if (response.data.status === "success") {
-        setAffiliationData(response.data.data);
+        const aff = response.data.data;
+        setAffiliationData(aff);
         setSurveyData((prev) => ({
           ...prev,
-          affiliation_id: response.data.data.id,
-          affiliation_code: response.data.data.code,
-          university: response.data.data.university,
-          faculty: response.data.data.faculty,
-          study_program_name: response.data.data.study_program_name,
-          program_type: response.data.data.program_type,
+          affiliation_id: aff.id,
+          affiliation_code: aff.code,
         }));
       }
     } catch (error) {
@@ -159,14 +172,19 @@ export default function WellbeingSurveyShow({ affiliation, crisisResources: init
     try {
       setLoading(true);
       
-      // Ensure affiliation_id is set
-      if (!surveyData.affiliation_id && affiliationData?.id) {
-        surveyData.affiliation_id = affiliationData.id;
+      // Resolve affiliation_id from all possible sources
+      const resolvedAffiliationId = surveyData.affiliation_id || affiliationData?.id || affiliation?.id || null;
+      const resolvedAffiliationCode = surveyData.affiliation_code || affiliationData?.code || affiliation?.code || null;
+      
+      // Update surveyData with resolved values
+      if (resolvedAffiliationId) {
+        surveyData.affiliation_id = resolvedAffiliationId;
+        surveyData.affiliation_code = resolvedAffiliationCode;
       }
       
       // Validate required fields
-      if (!surveyData.affiliation_id) {
-        alert("Affiliation information is missing. Please reload the page.");
+      if (!resolvedAffiliationId) {
+        alert("Affiliation information is missing. Please go back to the verification page and try again.");
         setLoading(false);
         return;
       }
@@ -177,15 +195,23 @@ export default function WellbeingSurveyShow({ affiliation, crisisResources: init
 
       const submissionData = {
         ...surveyData,
+        affiliation_id: resolvedAffiliationId,
+        affiliation_code: resolvedAffiliationCode,
+        // Ensure boolean fields are never null (unanswered = false)
+        burnout: surveyData.burnout === true,
+        emotional_hardening: surveyData.emotional_hardening === true,
+        depressed: surveyData.depressed === true,
+        sleep_issue: surveyData.sleep_issue === true,
+        bullying: surveyData.bullying === true,
+        discomfort: surveyData.discomfort === true,
         risk_level: riskData.risk_level,
         mental_health_score: riskData.mental_health_score,
         affirmation_message: affirmationMessage,
-        star_rating: starRating,
         survey_type: 'wellbeing',
         survey_period: new Date().toISOString().slice(0, 7)
       };
       
-      const response = await api.post("/api/wellbeing-surveys", submissionData);
+      const response = await api.post("/wellbeing-surveys", submissionData);
       if (response.data.status === "success") {
         setResult(response.data.data);
         setCurrentStep(4);
@@ -224,71 +250,60 @@ export default function WellbeingSurveyShow({ affiliation, crisisResources: init
             </p>
           </div>
 
-          {/* Member Information Card */}
-          {memberData && (
-            <div className="bg-primary/10 border border-primary/20 rounded-lg shadow-md p-6 mb-8">
-              <h3 className="text-lg font-bold text-primary mb-4">Verified Member Information</h3>
-              <div className="grid grid-cols-3 gap-4">
-                {memberData.member_code && (
-                  <div>
-                    <p className="text-xs text-gray-600">Member Code</p>
-                    <p className="font-semibold text-gray-900">
-                      {memberData.member_code.charAt(0)}{'*'.repeat(Math.max(0, memberData.member_code.length - 2))}{memberData.member_code.charAt(memberData.member_code.length - 1)}
-                    </p>
-                  </div>
-                )}
-                {memberData.name && (
-                  <div>
-                    <p className="text-xs text-gray-600">Name</p>
-                    <p className="font-semibold text-gray-900">{memberData.name}</p>
-                  </div>
-                )}
-                {memberData.contact && (
-                  <div>
-                    <p className="text-xs text-gray-600">Contact</p>
-                    <p className="font-semibold text-gray-900">{memberData.contact}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
 
           {/* Main Card */}
           <div className="bg-white rounded-lg shadow-md p-8">
             {/* Progress Bar */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-primary">Our Well-Being Survey</h2>
-              </div>
-              <div className="flex items-center gap-2">
-                {[1, 2, 3, 4].map((step) => (
-                  <div key={step} className="flex items-center flex-1">
-                    <div
-                      className={`flex items-center justify-center w-10 h-10 rounded-full font-bold text-sm ${
-                        step < currentStep
-                          ? "bg-primary text-white"
-                          : step === currentStep
-                          ? "bg-primary text-white"
-                          : "bg-gray-300 text-gray-600"
-                      }`}
-                    >
-                      {step < currentStep ? "✓" : step}
-                    </div>
-                    {step < 4 && (
-                      <div
-                        className={`flex-1 h-1 mx-2 ${
-                          step < currentStep ? "bg-primary" : "bg-gray-300"
-                        }`}
-                      ></div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              <div className="flex justify-between text-xs text-gray-600 mt-4">
-                <span>Mental Well-Being Meter</span>
-                <span>Questionnaire</span>
-                <span>Anonymous Discomfort Report</span>
-                <span>Questionnaire</span>
+            <div className="mb-10">
+              <h2 className="text-xl font-bold text-primary mb-6">Our Well-Being Survey</h2>
+              <div className="relative">
+                {/* Background line */}
+                <div className="absolute top-5 left-0 right-0 h-0.5 bg-gray-200"></div>
+                {/* Active line */}
+                <div
+                  className="absolute top-5 left-0 h-0.5 bg-primary transition-all duration-500"
+                  style={{ width: `${((Math.min(currentStep, 4) - 1) / 3) * 100}%` }}
+                ></div>
+
+                <div className="relative flex justify-between">
+                  {[
+                    { step: 1, label: "Well-Being Meter" },
+                    { step: 2, label: "Questionnaire" },
+                    { step: 3, label: "Discomfort Report" },
+                    { step: 4, label: "Result" },
+                  ].map(({ step, label }) => {
+                    const isCompleted = step < currentStep;
+                    const isActive = step === currentStep;
+                    return (
+                      <div key={step} className="flex flex-col items-center" style={{ width: "25%" }}>
+                        <div
+                          className={`relative z-10 flex items-center justify-center w-10 h-10 rounded-full border-2 text-sm font-bold transition-all duration-300 ${
+                            isCompleted
+                              ? "bg-primary border-primary text-white shadow-md shadow-primary/30"
+                              : isActive
+                              ? "bg-primary border-primary text-white shadow-lg shadow-primary/40 ring-4 ring-primary/20"
+                              : "bg-white border-gray-300 text-gray-400"
+                          }`}
+                        >
+                          {isCompleted ? (
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : (
+                            step
+                          )}
+                        </div>
+                        <span
+                          className={`mt-2 text-xs text-center leading-tight font-medium ${
+                            isCompleted || isActive ? "text-primary" : "text-gray-400"
+                          }`}
+                        >
+                          {label}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
@@ -320,41 +335,6 @@ export default function WellbeingSurveyShow({ affiliation, crisisResources: init
                     onChange={handleStep3Change}
                   />
                   
-                  {/* Star Rating */}
-                  <div className="border-t pt-8">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                      Rate Your Overall Well-Being
-                    </h3>
-                    <p className="text-gray-600 mb-6">
-                      Please rate your overall well-being on a scale of 1 to 5 stars
-                    </p>
-                    <div className="flex justify-center gap-3">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          onClick={() => setStarRating(star)}
-                          className="transition-transform hover:scale-110"
-                        >
-                          <svg
-                            className={`w-12 h-12 ${
-                              star <= starRating
-                                ? "fill-yellow-400 text-yellow-400"
-                                : "text-gray-300"
-                            }`}
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                          </svg>
-                        </button>
-                      ))}
-                    </div>
-                    {starRating > 0 && (
-                      <p className="text-center mt-4 text-primary font-semibold">
-                        You rated: {starRating} out of 5 stars
-                      </p>
-                    )}
-                  </div>
                 </div>
               )}
               {currentStep === 4 && result && (

@@ -1780,17 +1780,19 @@ class DatabaseMemberController extends Controller
 
         $query = DatabaseMember::query();
 
-        // Filter by affiliation if provided
-        if ($affiliationId) {
-            $query->where('affiliation_id', $affiliationId);
-        }
-
         // Search by type
         if ($searchType === 'member_code') {
+            // member_code is unique, no need to filter by affiliation
             $query->where('member_code', $searchValue);
         } elseif ($searchType === 'nama') {
+            if ($affiliationId) {
+                $query->where('affiliation_id', $affiliationId);
+            }
             $query->where('name', 'like', "%{$searchValue}%");
         } elseif ($searchType === 'contact') {
+            if ($affiliationId) {
+                $query->where('affiliation_id', $affiliationId);
+            }
             $query->where('contact', 'like', "%{$searchValue}%");
         }
 

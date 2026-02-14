@@ -1,81 +1,40 @@
-import { Phone, Clock, AlertCircle } from "lucide-react";
+import { Building2 } from "lucide-react";
 
 export default function CrisisResources({ resources }) {
   if (!resources) return null;
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-8">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-        <AlertCircle className="w-6 h-6 text-red-600" />
-        Support & Crisis Resources
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 border-l-4 border-l-primary">
+      {/* Title */}
+      <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+        <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
+          <Building2 className="w-5 h-5 text-white" />
+        </div>
+        Educational Support
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Crisis Center */}
-        {resources.local && (
-          <div className="border-l-4 border-primary bg-primary/10 p-4 rounded-lg">
-            <h3 className="font-bold text-primary mb-2 flex items-center gap-2">
-              <AlertCircle className="w-5 h-5" />
-              {resources.local.name}
-            </h3>
-            <p className="text-sm text-primary/80 mb-3">
-              {resources.local.description}
-            </p>
-          </div>
-        )}
+      {/* Two-column layout: Addresses & Contact */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Addresses */}
+        <div className="space-y-3 text-sm text-gray-700 leading-relaxed">
+          <p>
+            Gedung Menara Era, Lantai 8, Unit 8-04<br />
+            Jl. Senen Raya 135 – 137, Jakarta 10410, INDONESIA
+          </p>
+          <p>
+            Jl. Hang Jebat Blok F3, RT.5/RW.8, Gunung, Kec. Kby. Baru,<br />
+            Kota Jakarta Selatan, Daerah Khusus Ibukota<br />
+            Jakarta 12120, Indonesia
+          </p>
+        </div>
 
-        {/* Emergency Unit */}
-        {resources.emergency && (
-          <div className="border-l-4 border-red-600 bg-red-50 p-4 rounded-lg">
-            <h3 className="font-bold text-red-900 mb-2 flex items-center gap-2">
-              <AlertCircle className="w-5 h-5" />
-              {resources.emergency.name}
-            </h3>
-            <p className="text-sm text-red-800 mb-3">
-              {resources.emergency.description}
-            </p>
-          </div>
-        )}
-
-        {/* Lifeline */}
-        {resources.lifeline && (
-          <div className="border-l-4 border-secondary bg-secondary/10 p-4 rounded-lg">
-            <h3 className="font-bold text-secondary mb-2 flex items-center gap-2">
-              <Phone className="w-5 h-5" />
-              {resources.lifeline.name}
-            </h3>
-            <p className="text-sm text-secondary/80 font-semibold mb-2">
-              {resources.lifeline.phone}
-            </p>
-            <p className="text-xs text-secondary/70 flex items-center gap-1">
-              <Clock className="w-4 h-4" />
-              {resources.lifeline.availability}
-            </p>
-          </div>
-        )}
-
-        {/* Professional Committee */}
-        {resources.professional_committee && (
-          <div className="border-l-4 border-tertiary bg-tertiary/10 p-4 rounded-lg">
-            <h3 className="font-bold text-tertiary mb-2 flex items-center gap-2">
-              <Phone className="w-5 h-5" />
-              {resources.professional_committee.name}
-            </h3>
-            <p className="text-sm text-tertiary/80 font-semibold mb-2">
-              {resources.professional_committee.phone}
-            </p>
-            <p className="text-xs text-tertiary/70 flex items-center gap-1">
-              <Clock className="w-4 h-4" />
-              {resources.professional_committee.availability}
-            </p>
-          </div>
-        )}
-      </div>
-
-      <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-        <p className="text-sm text-orange-800">
-          <span className="font-semibold">Important:</span> These resources are available 24/7 for immediate support. You are not alone, and help is always available.
-        </p>
+        {/* Contact Info */}
+        <div className="space-y-1 text-sm text-gray-700">
+          <p>telp +62 21 385 9651</p>
+          <p>mobile telp +62 812 9030 9390</p>
+          <p>fax +62 21-3859659</p>
+          <p>email : kolegiumorthopaeditraumatologi@gmail.com</p>
+        </div>
       </div>
     </div>
   );
