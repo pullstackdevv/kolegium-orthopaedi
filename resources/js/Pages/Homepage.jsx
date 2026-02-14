@@ -855,14 +855,12 @@ export default function Homepage() {
         </div>
       </section>
 
-      {/* Well-Being Survey Dashboard */}
-      {wbsStats && wbsStats.total > 0 && (
+      {/* {wbsStats && wbsStats.total > 0 && (
         <section className="py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-white rounded-2xl overflow-hidden">
               <div className="p-8">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  {/* Info - Left Side */}
                   <div className="flex flex-col justify-center">
                     <div className="bg-gradient-to-br from-primary/5 via-secondary/5 to-white rounded-2xl p-8 h-full flex flex-col justify-center">
                       <div className="space-y-6">
@@ -881,7 +879,6 @@ export default function Homepage() {
                     </div>
                   </div>
 
-                  {/* Charts - Right Side */}
                   <div className="lg:col-span-2">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {wbsCharts.map((chart, idx) => (
@@ -894,7 +891,8 @@ export default function Homepage() {
             </div>
           </div>
         </section>
-      )}
+      )} */}
+
       {showDetailModal && selectedEvent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
