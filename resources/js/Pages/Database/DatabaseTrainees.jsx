@@ -215,9 +215,9 @@ export default function DatabaseTrainees() {
                 </div>
               </div>
 
-              {/* Affiliation Filter */}
+              {/* Study Program Filter */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Affiliation</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Study Program</label>
                 <select
                   value={filters.affiliation_id}
                   onChange={(e) => setFilters({ ...filters, affiliation_id: e.target.value })}
@@ -229,7 +229,7 @@ export default function DatabaseTrainees() {
                     backgroundSize: '1.25rem 1.25rem'
                   }}
                 >
-                  <option value="">All Affiliations</option>
+                  <option value="">All Study Programs</option>
                   {affiliations.map((affiliation) => (
                     <option key={affiliation.id} value={affiliation.id}>
                       {affiliation.code || affiliation.name}
@@ -286,13 +286,10 @@ export default function DatabaseTrainees() {
                           Photo
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Member Code
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Name
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Affiliation
+                          Study Program
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Subspecialty
@@ -328,9 +325,6 @@ export default function DatabaseTrainees() {
                                 </span>
                               )}
                             </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">{member.member_code}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-900">{member.name}</div>
