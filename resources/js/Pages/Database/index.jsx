@@ -335,10 +335,10 @@ function DatabaseContent({ activeOrg }) {
   };
 
   useEffect(() => {
-    if (isResidentOrg && formData.status === "graduated" && provinces.length === 0) {
+    if ((isResidentOrg || isPeerGroupOrg) && provinces.length === 0) {
       fetchProvinces();
     }
-  }, [formData.status, isResidentOrg]);
+  }, [formData.status, isResidentOrg, isPeerGroupOrg]);
 
   useEffect(() => {
     if (selectedProvince) {
@@ -664,6 +664,10 @@ function DatabaseContent({ activeOrg }) {
       setFormData((p) => ({ ...p, affiliation_id: selectedAffiliationId || "" }));
     }
 
+    if (isPeerGroupOrg) {
+      setFormData((p) => ({ ...p, status: "graduated" }));
+    }
+
     setModalType("create");
     setShowModal(true);
   };
@@ -831,7 +835,7 @@ function DatabaseContent({ activeOrg }) {
         name: formData.name,
         photo: formData.photo || null,
         gender: formData.gender || null,
-        status: isPeerGroupOrg ? "active" : (formData.status || "active"),
+        status: formData.status || (isPeerGroupOrg ? "graduated" : "active"),
       };
 
       if (!isPeerGroupOrg) {
@@ -854,13 +858,18 @@ function DatabaseContent({ activeOrg }) {
         }
       }
 
+      if (isPeerGroupOrg) {
+        payload.graduated_at = formData.graduated_at || null;
+        payload.regency_id = formData.regency_id ? Number(formData.regency_id) : null;
+      }
+
       if (!isPeerGroupOrg && !isResidentOrg) {
         payload.specialization = formData.specialization || null;
       }
 
       if (isResidentOrg && formData.status === "graduated") {
         payload.regency_id = formData.regency_id ? Number(formData.regency_id) : null;
-      } else {
+      } else if (!isPeerGroupOrg) {
         payload.regency_id = null;
       }
 
@@ -1195,7 +1204,9 @@ function DatabaseContent({ activeOrg }) {
                           {!isPeerGroupOrg && !isResidentOrg ? <TableHead>Tanggal Masuk</TableHead> : null}
                           {!isPeerGroupOrg && !isResidentOrg ? <TableHead>Spesialisasi</TableHead> : null}
                           {isResidentOrg ? <TableHead>Semester</TableHead> : null}
-                          {!isPeerGroupOrg ? <TableHead>Status</TableHead> : null}
+                          {isPeerGroupOrg ? <TableHead>Tahun Lulus</TableHead> : null}
+                          {isPeerGroupOrg ? <TableHead>Kabupaten/Kota</TableHead> : null}
+                          <TableHead>Status</TableHead>
                           {isResidentOrg ? <TableHead>Achievements</TableHead> : null}
                           <TableHead className="text-right">Aksi</TableHead>
                         </TableRow>
@@ -1225,7 +1236,9 @@ function DatabaseContent({ activeOrg }) {
                             {isResidentOrg ? (
                               <TableCell>{calculateSemester(m.entry_date, m.status, m.graduated_at, m.leave_at, m.active_again_at)}</TableCell>
                             ) : null}
-                            {!isPeerGroupOrg ? <TableCell>{statusBadge(m.status)}</TableCell> : null}
+                            {isPeerGroupOrg ? <TableCell>{m.graduated_at ? new Date(m.graduated_at).getFullYear() : "-"}</TableCell> : null}
+                            {isPeerGroupOrg ? <TableCell>{m.regency?.name || "-"}</TableCell> : null}
+                            <TableCell>{statusBadge(m.status)}</TableCell>
                             {isResidentOrg ? (
                               <TableCell>
                                 {(achievementsByMember[m.id]?.length || 0) > 0 ? (
@@ -1493,39 +1506,37 @@ function DatabaseContent({ activeOrg }) {
                 {photoUploading ? <div className="text-xs text-muted-foreground">Mengunggah foto...</div> : null}
               </div>
 
-              {!isPeerGroupOrg ? (
-                <div className="space-y-2">
-                  <Label>Status *</Label>
-                  <Select
-                    value={formData.status}
-                    onValueChange={(v) => {
-                      setFormData((p) => ({
-                        ...p,
-                        status: v,
-                        regency_id: v !== "graduated" ? "" : p.regency_id,
-                        graduated_at: v === "graduated" ? p.graduated_at : "",
-                        leave_at: v === "leave" ? p.leave_at : "",
-                        active_again_at: v === "leave" ? p.active_again_at : "",
-                      }));
-                      if (v !== "graduated") {
-                        setSelectedProvince("");
-                        setRegencies([]);
-                      }
-                    }}
+              <div className="space-y-2">
+                <Label>Status *</Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={(v) => {
+                    setFormData((p) => ({
+                      ...p,
+                      status: v,
+                      regency_id: v !== "graduated" && !isPeerGroupOrg ? "" : p.regency_id,
+                      graduated_at: v === "graduated" || isPeerGroupOrg ? p.graduated_at : "",
+                      leave_at: v === "leave" ? p.leave_at : "",
+                      active_again_at: v === "leave" ? p.active_again_at : "",
+                    }));
+                    if (v !== "graduated" && !isPeerGroupOrg) {
+                      setSelectedProvince("");
+                      setRegencies([]);
+                    }
+                  }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih status" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">Aktif</SelectItem>
-                      <SelectItem value="graduated">Lulus</SelectItem>
-                      <SelectItem value="leave">Cuti</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              ) : null}
+                  <SelectContent>
+                    <SelectItem value="active">Aktif</SelectItem>
+                    <SelectItem value="graduated">Lulus</SelectItem>
+                    {!isPeerGroupOrg ? <SelectItem value="leave">Cuti</SelectItem> : null}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              {isResidentOrg && formData.status === "graduated" ? (
+              {(isResidentOrg && formData.status === "graduated") || isPeerGroupOrg ? (
                 <>
                   <div className="space-y-2">
                     <Label>Provinsi</Label>
@@ -1676,7 +1687,7 @@ function DatabaseContent({ activeOrg }) {
                 </div>
               ) : null}
 
-              {isResidentOrg && formData.status === "graduated" ? (
+              {(isResidentOrg && formData.status === "graduated") || isPeerGroupOrg ? (
                 <div className="space-y-2">
                   <Label>Tanggal Lulus</Label>
                   <Datepicker

@@ -455,7 +455,7 @@ class DatabaseMemberController extends Controller
         $isResident = $orgType === 'resident';
 
         if ($isPeerGroup) {
-            $allowedColumns = ['photo', 'member_code', 'name', 'gender'];
+            $allowedColumns = ['photo', 'member_code', 'name', 'gender', 'status', 'graduated_at', 'regency'];
         } elseif ($isResident) {
             $allowedColumns = ['photo', 'member_code', 'name', 'gender', 'entry_date', 'graduated_at', 'leave_at', 'active_again_at', 'semester', 'status', 'regency'];
         } else {
@@ -761,6 +761,12 @@ class DatabaseMemberController extends Controller
             }
         }
 
+        if ($orgType === 'peer_group') {
+            $resolved['leave_at'] = null;
+            $resolved['active_again_at'] = null;
+            $resolved['entry_date'] = null;
+        }
+
         $dupExists = DatabaseMember::query()
             ->where('organization_type', $orgType)
             ->where('affiliation_id', $resolved['affiliation_id'] ?? null)
@@ -870,6 +876,12 @@ class DatabaseMemberController extends Controller
                 $resolved['active_again_at'] = null;
                 $resolved['regency_id'] = null;
             }
+        }
+
+        if ($orgType === 'peer_group') {
+            $resolved['leave_at'] = null;
+            $resolved['active_again_at'] = null;
+            $resolved['entry_date'] = null;
         }
 
         if (array_key_exists('member_code', $resolved) || array_key_exists('affiliation_id', $resolved)) {
@@ -1264,7 +1276,7 @@ class DatabaseMemberController extends Controller
         $isResident = $orgType === 'resident';
 
         if ($isPeerGroup) {
-            $allowedColumns = ['member_code', 'name', 'photo', 'gender'];
+            $allowedColumns = ['member_code', 'name', 'photo', 'gender', 'status', 'graduated_at', 'kabupaten_kota'];
         } elseif ($isResident) {
             $allowedColumns = ['member_code', 'name', 'photo', 'gender', 'status', 'entry_date', 'graduated_at', 'leave_at', 'active_again_at', 'kabupaten_kota'];
         } else {
@@ -1472,7 +1484,6 @@ class DatabaseMemberController extends Controller
             $payload = [
                 'organization_type' => $orgType,
                 'affiliation_id' => $affiliationId,
-                'status' => 'active',
             ];
 
             foreach ($allowedColumns as $dbCol) {
@@ -1535,14 +1546,14 @@ class DatabaseMemberController extends Controller
 
             // Enforce org-type-specific fields (match manual form)
             if ($isPeerGroup) {
-                // Peer group form: only member_code, name, photo, gender (no status)
+                // Peer group form: member_code, name, photo, gender, status, graduated_at, kabupaten_kota
                 unset($payload['entry_date']);
-                unset($payload['graduated_at']);
                 unset($payload['leave_at']);
                 unset($payload['active_again_at']);
                 unset($payload['specialization']);
-                unset($payload['kabupaten_kota']);
-                $payload['status'] = 'active';
+                if (!isset($payload['status']) || $payload['status'] === null) {
+                    $payload['status'] = 'graduated';
+                }
             } elseif ($isResident) {
                 // Resident form: member_code, name, photo, gender, status, entry_date, regency (when graduated)
                 unset($payload['specialization']);
@@ -1554,9 +1565,9 @@ class DatabaseMemberController extends Controller
             $regencyName = isset($payload['kabupaten_kota']) ? trim((string) ($payload['kabupaten_kota'] ?? '')) : '';
             unset($payload['kabupaten_kota']);
 
-            if ($orgType === 'resident' && ($payload['status'] ?? '') === 'graduated' && $regencyName !== '') {
+            if (($orgType === 'resident' || $orgType === 'peer_group') && $regencyName !== '') {
                 $regency = Regency::query()
-                    ->whereRaw('LOWER(name) = ?', [mb_strtolower($regencyName)])
+                    ->whereRaw('LOWER(name) LIKE ?', ['%' . mb_strtolower($regencyName) . '%'])
                     ->first();
                 if ($regency) {
                     $payload['regency_id'] = $regency->id;
@@ -1628,7 +1639,7 @@ class DatabaseMemberController extends Controller
                 }
             }
 
-            if (!$isPeerGroup && isset($payload['status']) && $payload['status'] !== null) {
+            if (isset($payload['status']) && $payload['status'] !== null) {
                 if (!in_array($payload['status'], ['active', 'graduated', 'leave'], true)) {
                     $errors[] = [
                         'row' => $excelRowNumber,
