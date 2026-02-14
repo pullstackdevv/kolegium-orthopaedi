@@ -832,135 +832,40 @@ export default function StudyProgramDetail({ university, type }) {
                 );
               })()}
 
-              {/* Peminatan - Show for subspesialis: dynamic data or default fallback */}
-              {type === 'subspesialis' && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-lg font-bold text-primary mb-6 flex items-center gap-2">
-                  <Icon icon="mdi:office-building" className="w-5 h-5" />
-                  Specialization
-                </h2>
-                <div className="space-y-3">
-                  {(universityData.specializations?.length > 0
-                    ? universityData.specializations
-                    : [
-                        { id: 'default-1', name: 'Spine' },
-                        { id: 'default-2', name: 'Hip and Knee' },
-                        { id: 'default-3', name: 'Oncology Orthopaedics and Reconstructions' },
-                        { id: 'default-4', name: 'Sport Injury' },
-                        { id: 'default-5', name: 'Paediatric Orthopaedics' },
-                        { id: 'default-6', name: 'Foot and Ankle' },
-                        { id: 'default-7', name: 'Shoulder and Elbow Orthopaedics' },
-                        { id: 'default-8', name: 'Advanced Orthopaedics' },
-                        { id: 'default-9', name: 'Hand, Arm and Microsurgery' },
-                      ]
-                  ).map((spec) => (
-                    <div key={spec.id} className="bg-gray-50 rounded-xl px-5 py-4 border border-blue-200 flex items-center gap-3">
-                      <span className="w-2.5 h-2.5 bg-primary rounded-full flex-shrink-0"></span>
-                      <p className="text-sm font-semibold text-gray-900">{spec.name}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              )}
-
-
-              {/* Specialization - Only show for PPDS1 */}
-              {type === 'ppds1' && (
+              {/* Specialization - Show for subspesialis and clinical-fellowship only */}
+              {(type === 'subspesialis' || type === 'clinical-fellowship') && (
               <div className="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-6">
                 <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                   <Icon icon="mdi:school-outline" className="w-5 h-5" />
                   Specialization
                 </h2>
                 <div className="space-y-3">
-                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                    <div className="flex items-start gap-2">
-                      <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">Spine</p>
-                        <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.O.T.B</p>
+                  {(universityData.specializations?.length > 0
+                    ? universityData.specializations
+                    : [
+                        { id: 'default-1', name: 'Spine', title: 'Sp.O.T., Subsp.O.T.B' },
+                        { id: 'default-2', name: 'Hip and Knee', title: 'Sp.O.T., Subsp.P.L' },
+                        { id: 'default-3', name: 'Oncology Orthopaedics and Reconstructions', title: 'Sp.O.T., Subsp.Onk.Ort.R' },
+                        { id: 'default-4', name: 'Sport Injury', title: 'Sp.O.T., Subsp.C.O' },
+                        { id: 'default-5', name: 'Paediatric Orthopaedics', title: 'Sp.O.T., Subsp.A' },
+                        { id: 'default-6', name: 'Foot and Ankle', title: 'Sp.O.T., Subsp.K.P' },
+                        { id: 'default-7', name: 'Shoulder and Elbow Orthopaedics', title: 'Sp.O.T., Subsp.O.B.S' },
+                        { id: 'default-8', name: 'Advanced Orthopaedics', title: 'Sp.O.T., Subsp.T.L' },
+                        { id: 'default-9', name: 'Hand, Arm and Microsurgery', title: 'Sp.O.T., Subsp.T.L.B.M' },
+                      ]
+                  ).map((spec) => (
+                    <div key={spec.id} className="bg-green-50 rounded-lg p-4 border border-green-200">
+                      <div className="flex items-start gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">{spec.name}</p>
+                          {spec.title && (
+                            <p className="text-xs text-gray-600">Title: {spec.title}</p>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                    <div className="flex items-start gap-2">
-                      <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">Hip and Knee</p>
-                        <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.P.L</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                    <div className="flex items-start gap-2">
-                      <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">Oncology Orthopaedics and Reconstructions</p>
-                        <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.Onk.Ort.R</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                    <div className="flex items-start gap-2">
-                      <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">Sport Injury</p>
-                        <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.C.O</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                    <div className="flex items-start gap-2">
-                      <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">Paediatric Orthopaedics</p>
-                        <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.A</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                    <div className="flex items-start gap-2">
-                      <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">Foot and Ankle</p>
-                        <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.K.P</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                    <div className="flex items-start gap-2">
-                      <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">Shoulder and Elbow Orthopaedics</p>
-                        <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.O.B.S</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                    <div className="flex items-start gap-2">
-                      <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">Advanced Orthopaedics</p>
-                        <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.T.L</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                    <div className="flex items-start gap-2">
-                      <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">Hand, Arm and Microsurgery</p>
-                        <p className="text-xs text-gray-600">Title: Sp.O.T., Subsp.T.L.B.M</p>
-                      </div>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
               )}
