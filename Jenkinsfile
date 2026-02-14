@@ -17,25 +17,20 @@ pipeline {
                     DEFAULT_DEPLOY_PATH="/www/wwwroot/kolegium-orthopaedi-staging"
                     DEFAULT_DEPLOY_BRANCH="staging"
 
-                    DEPLOY_PATH="${DEFAULT_DEPLOY_PATH}"
-                    DEPLOY_BRANCH="${DEFAULT_DEPLOY_BRANCH}"
-
-                    # Load environment variables from .env file that lives under DEPLOY_PATH
-                    set -a
-                    if [ -f "${DEPLOY_PATH}/.env" ]; then
-                        source "${DEPLOY_PATH}/.env"
-                    fi
-                    set +a
-
-                    if [ -z "${DEPLOY_PATH}" ]; then
-                        echo "❌ DEPLOY_PATH is not set. Please define it inside ${DEFAULT_DEPLOY_PATH}/.env"
-                        exit 1
+                    # Try to load from /root/.env first (global config)
+                    if [ -f "/root/.env" ]; then
+                        echo "📄 Loading deployment config from /root/.env"
+                        set -a
+                        source /root/.env
+                        set +a
                     fi
 
-                    if [ -z "${DEPLOY_BRANCH}" ]; then
-                        echo "❌ DEPLOY_BRANCH is not set. Please define it inside ${DEPLOY_PATH}/.env"
-                        exit 1
-                    fi
+                    # Set defaults if not loaded from /root/.env
+                    DEPLOY_PATH="${DEPLOY_PATH:-$DEFAULT_DEPLOY_PATH}"
+                    DEPLOY_BRANCH="${DEPLOY_BRANCH:-$DEFAULT_DEPLOY_BRANCH}"
+
+                    echo "📍 Deploy Path: ${DEPLOY_PATH}"
+                    echo "🌿 Deploy Branch: ${DEPLOY_BRANCH}"
                     
                     echo "📦 Navigating to ${DEPLOY_PATH} ..."
                     cd ${DEPLOY_PATH} || exit 1
