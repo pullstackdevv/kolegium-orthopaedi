@@ -45,16 +45,16 @@ const ProgramInfo = ({ program }) => {
   const getStudentLabel = () => {
     if (program.id === "P1") return "Active Resident:";
     if (program.id === "CF") return "Active Fellow:";
-    if (program.id === "SP") return "Active Trainee:";
+    if (program.id === "SP") return "Active Trainees:";
     return "Active Students:";
   };
 
   return (
     <div className="flex flex-col justify-center">
-      <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-8 h-full flex flex-col justify-center">
+      <div className="bg-gradient-to-br from-primary/5 via-secondary/5 to-white rounded-2xl p-8 h-full flex flex-col justify-center">
         <div className="space-y-6">
           <div className="flex items-center gap-3">
-            <span className="bg-blue-600 text-white px-4 py-2 rounded-lg text-2xl font-bold">
+            <span className="bg-primary text-white px-4 py-2 rounded-lg text-2xl font-bold">
               {program.id}
             </span>
             <span className="text-2xl font-bold text-gray-900">{program.badge}</span>
@@ -62,9 +62,9 @@ const ProgramInfo = ({ program }) => {
           <p className="text-base text-gray-700 leading-relaxed">
             {program.description}
           </p>
-          <div className="pt-4 border-t border-blue-200">
+          <div className="pt-4 border-t border-primary/20">
             <p className="text-sm text-gray-600 mb-1">{getStudentLabel()}</p>
-            <p className="text-3xl font-bold text-blue-600">{program.students}</p>
+            <p className="text-3xl font-bold text-primary">{program.students}</p>
           </div>
         </div>
       </div>
@@ -85,6 +85,7 @@ const ChartsGrid = ({ charts }) => {
 
 // Chart Card Component
 const ChartCard = ({ chart }) => {
+  const hasData = chart.data && chart.data.length > 0;
   return (
     <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-all duration-300">
       <div className="flex justify-center mb-6">
@@ -95,7 +96,11 @@ const ChartCard = ({ chart }) => {
           size={180}
         />
       </div>
-      <ChartLegends chart={chart} />
+      {hasData ? (
+        <ChartLegends chart={chart} />
+      ) : (
+        <p className="text-center text-sm text-gray-400">No data available</p>
+      )}
     </div>
   );
 };
@@ -145,14 +150,15 @@ export default function Homepage() {
   const [agendaEvents, setAgendaEvents] = useState([]);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [dashboardStats, setDashboardStats] = useState([]);
   
   const heroImages = [
     {
-      src: "/assets/images/homepage/banner.png",
+      src: "/assets/images/homepage/banner-00.png",
       alt: "Indonesian Orthopaedic Team - Image 1"
     },
     {
-      src: "/assets/images/homepage/slide-2.png",
+      src: "/assets/images/homepage/banner-01.png",
       alt: "Indonesian Orthopaedic Team - Image 2"
     }
   ];
@@ -174,9 +180,9 @@ export default function Homepage() {
       id: "ujian_nasional",
       examLabel: "National Exam",
       name: "Ujian Nasional",
-      solidBg: "bg-blue-600",
-      softBg: "bg-blue-100",
-      softText: "text-blue-700",
+      solidBg: "bg-primary",
+      softBg: "bg-primary/10",
+      softText: "text-primary",
     },
     {
       id: "event_lokal",
@@ -218,9 +224,9 @@ export default function Homepage() {
         id: String(type || ""),
         examLabel: "Event",
         name: "Event",
-        solidBg: "bg-blue-600",
-        softBg: "bg-blue-100",
-        softText: "text-blue-700",
+        solidBg: "bg-primary",
+        softBg: "bg-primary/10",
+        softText: "text-primary",
       }
     );
   };
@@ -348,12 +354,18 @@ export default function Homepage() {
   const prevImage = () => {
     setCurrentImageIndex((prev) => (prev - 1 + heroImages.length) % heroImages.length);
   };
-  // Stats data
-  const stats = [
-    { icon: "mdi:school", value: "720", label: "Residency", subtitle: "14 study program", unit: "active residents" },
-    { icon: "mdi:school", value: "42", label: "Clinical Fellowship", subtitle: "5 study program", unit: "active fellows" },
-    { icon: "mdi:school", value: "64", label: "Subspecialist", subtitle: "2 study program", unit: "active trainee" },
-  ];
+  // Stats data (dynamic from dashboard stats)
+  const stats = useMemo(() => {
+    const find = (type) => dashboardStats.find((s) => s.organization_type === type);
+    const r = find("resident");
+    const f = find("fellow");
+    const t = find("trainee");
+    return [
+      { icon: "mdi:school", value: String(r?.active_count ?? 0), label: "Residency", subtitle: `${r?.by_affiliation?.length ?? 0} study programs`, unit: "active residents" },
+      { icon: "mdi:school", value: String(f?.active_count ?? 0), label: "Clinical Fellowship", subtitle: `${f?.by_affiliation?.length ?? 0} study programs`, unit: "active fellows" },
+      { icon: "mdi:school", value: String(t?.active_count ?? 0), label: "Subspecialist", subtitle: `${t?.by_affiliation?.length ?? 0} study programs`, unit: "active trainees" },
+    ];
+  }, [dashboardStats]);
 
   const examinations = useMemo(() => {
     const list = agendaEvents
@@ -372,7 +384,7 @@ export default function Homepage() {
           endDate: end,
           type: ev.type,
           status: meta.examLabel || "Exam",
-          statusColor: meta.solidBg || "bg-blue-600",
+          statusColor: meta.solidBg || "bg-primary",
           title: ev.title,
           location: ev.location || "",
           description: ev.description,
@@ -413,272 +425,76 @@ export default function Homepage() {
     return list;
   }, [agendaEvents]);
 
-  // Educational Dashboard Programs
-  const programs = [
-    {
-      id: "P1",
-      badge: "PPDS 1",
-      description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma.",
-      students: "720",
-      charts: [
-        {
-          title: "Study Programs",
-          data: [
-            { name: 'FK UI', value: 79 },
-            { name: 'FK UNAIR', value: 66 },
-            { name: 'FK UNPAD', value: 59 },
-            { name: 'FK UNHAS', value: 76 },
-            { name: 'FK UNS', value: 79 },
-            { name: 'FK UGM', value: 76 },
-            { name: 'FK UDAYANA', value: 78 },
-            { name: 'FK USU', value: 57 },
-            { name: 'FK UB', value: 69 },
-            { name: 'FK USRI', value: 40 },
-            { name: 'FK UNAND', value: 51 },
-            { name: 'FK USK', value: 33 },
-            { name: 'FK ULM', value: 27 },
-            { name: 'RSO SOEHARSO', value: 9 }
-          ],
-          colors: ['#dc2626', '#3b82f6', '#ec4899', '#8b5cf6', '#f59e0b', '#10b981', '#6b7280', '#06b6d4', '#84cc16', '#f97316', '#a855f7', '#14b8a6', '#64748b'],
-          legends: [
-            { label: 'FK UI', value: 79 },
-            { label: 'FK UNAIR', value: 66 },
-            { label: 'FK UNPAD', value: 59 },
-            { label: 'FK UNHAS', value: 76 },
-            { label: 'FK UNS', value: 79 },
-            { label: 'FK UGM', value: 76 },
-            { label: 'FK UDAYANA', value: 78 },
-            { label: 'FK USU', value: 57 }
-          ],
-          legendsRight: [
-            { label: 'FK UB', value: 69 },
-            { label: 'FK USRI', value: 40 },
-            { label: 'FK UNAND', value: 51 },
-            { label: 'FK USK', value: 33 },
-            { label: 'FK ULM', value: 27 },
-            { label: 'RSO SOEHARSO', value: 9 }
-          ],
-          total: 720
-        },
-        {
-          title: "Semester",
-          data: [
-            { name: 'Semester 1', value: 69 },
-            { name: 'Semester 2', value: 80 },
-            { name: 'Semester 3', value: 79 },
-            { name: 'Semester 4', value: 71 },
-            { name: 'Semester 5', value: 66 },
-            { name: 'Semester 6', value: 80 },
-            { name: 'Semester 7', value: 63 },
-            { name: 'Semester 8', value: 56 },
-            { name: 'Semester 9', value: 55 }
-          ],
-          colors: ['#8b5cf6', '#ec4899', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#84cc16', '#f97316'],
-          legends: [
-            { label: 'Semester 1', value: 69 },
-            { label: 'Semester 2', value: 80 },
-            { label: 'Semester 3', value: 79 },
-            { label: 'Semester 4', value: 71 },
-            { label: 'Semester 5', value: 66 }
-          ],
-          legendsRight: [
-            { label: 'Semester 6', value: 80 },
-            { label: 'Semester 7', value: 63 },
-            { label: 'Semester 8', value: 56 },
-            { label: 'Semester 9', value: 55 }
-          ],
-          total: 619
-        },
-        {
-          title: "Gender",
-          data: [
-            { name: 'Male', value: 628 },
-            { name: 'Female', value: 46 }
-          ],
-          colors: ['#3b82f6', '#93c5fd'],
-          legends: [
-            { label: 'Male', value: 628 },
-            { label: 'Female', value: 46 }
-          ],
-          total: 674
-        },
-        {
-          title: "Members",
-          data: [
-            { name: 'Graduated', value: 1157 },
-            { name: 'Active Students', value: 678 }
-          ],
-          colors: ['#10b981', '#86efac'],
-          legends: [
-            { label: 'Graduated', value: 1157 },
-            { label: 'Active Students', value: 678 }
-          ],
-          total: 1835
+  // Educational Dashboard – fetch dynamic data
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      try {
+        const res = await api.get("/public/database-members/dashboard-stats", {
+          headers: { "X-Skip-Auth-Redirect": "1" },
+        });
+        if (res.data?.status === "success") {
+          setDashboardStats(Array.isArray(res.data.data) ? res.data.data : []);
         }
-      ]
-    },
-    {
-      id: "CF",
-      badge: "Clinical Fellowship",
-      description: "Fellowship programs for subspecialization & continuing education.",
-      students: "42",
-      charts: [
-        {
-          title: "Organizer",
-          data: [
-            { name: 'RSUD Dr. Saiful Anwar Malang', value: 6 },
-            { name: 'RSUP Dr. Hasan Sadikin Bandung', value: 10 },
-            { name: 'RSUP Dr. Sardjito Yogyakarta', value: 6 },
-            { name: 'RSUD Dr. Moewardi Solo', value: 1 },
-            { name: 'RSO SOEHARSO', value: 9 }
-          ],
-          colors: ['#10b981', '#86efac', '#34d399', '#6ee7b7'],
-          legends: [
-            { label: 'RSUD Dr. Saiful Anwar Malang', value: 6 },
-            { label: 'RSUP Dr. Hasan Sadikin Bandung', value: 10 },
-            { label: 'RSUP Dr. Sardjito Yogyakarta', value: 6 },
-            { label: 'RSUD Dr. Moewardi Solo', value: 1 },
-            { label: 'RSO SOEHARSO', value: 9 }
-          ],
-          total: 23
-        },
-        {
-          title: "specialization",
-          data: [
-            { name: 'Spine', value: 21 },
-            { name: 'Hip And Knee', value: 2 },
-            { name: 'Hand, Upper Limb and Microsurgery', value: 5 },
-            { name: 'Oncology and Reconstruction', value: 2 },
-            { name: 'Orthopaedic', value: 2 },
-            { name: 'Foot and Ankle', value: 3 },
-            { name: 'Shoulder and Elbow', value: 2 },
-            { name: 'Advanced Orthopaedic Trauma', value: 4 },
-            { name: 'Sport Injury', value: 7 }
-          ],
-          colors: ['#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#10b981', '#6b7280', '#06b6d4', '#84cc16', '#64748b'],
-          legends: [
-            { label: 'Spine', value: 21 },
-            { label: 'Hip And Knee', value: 2 },
-            { label: 'Hand, Upper Limb and Microsurgery', value: 5 },
-            { label: 'Oncology and Reconstruction', value: 2 },
-            { label: 'Orthopaedic', value: 2 }
-          ],
-          legendsRight: [
-            { label: 'Shoulder and Elbow', value: 2 },
-            { label: 'Advanced Orthopaedic Trauma', value: 4 },
-            { label: 'Sport Injury', value: 7 },
-            { label: 'Foot and Ankle', value: 3 }
-          ],
-          total: 48
-        },
-        {
-          title: "Gender",
-          data: [
-            { name: 'Male', value: 2 },
-            { name: 'Female', value: 39 }
-          ],
-          colors: ['#3b82f6', '#93c5fd'],
-          legends: [
-            { label: 'Male', value: 2 },
-            { label: 'Female', value: 39 }
-          ],
-          total: 41
-        },
-        {
-          title: "Members",
-          data: [
-            { name: 'Graduated', value: 21 },
-            { name: 'Active Students', value: 21 }
-          ],
-          colors: ['#10b981', '#86efac'],
-          legends: [
-            { label: 'Graduated', value: 21 },
-            { label: 'Active Students', value: 21 }
-          ],
-          total: 42
-        }
-      ]
-    },
-    {
-      id: "SP",
-      badge: "Subspesialis",
-      description: "Advanced program for Traumatology — trauma management & reconstruction.",
-      students: "64",
-      charts: [
-        {
-          title: "Study Program",
-          data: [
-            { name: 'FK UI', value: 20 },
-            { name: 'FK UNAIR', value: 20 }
-          ],
-          colors: ['#dc2626', '#fca5a5'],
-          legends: [
-            { label: 'FK UI', value: 20 },
-            { label: 'FK UNAIR', value: 20 }
-          ],
-          total: 40
-        },
-        {
-          title: "specialization",
-          data: [
-            { name: 'Spine', value: 21 },
-            { name: 'Hip And Knee', value: 2 },
-            { name: 'Hand, Upper Limb and Microsurgery', value: 5 },
-            { name: 'Oncology and Reconstruction', value: 2 },
-            { name: 'Orthopaedic', value: 2 },
-            { name: 'Foot and Ankle', value: 3 },
-            { name: 'Shoulder and Elbow', value: 2 },
-            { name: 'Advanced Orthopaedic Trauma', value: 4 },
-            { name: 'Sport Injury', value: 7 }
-          ],
-          colors: ['#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#10b981', '#6b7280', '#06b6d4', '#84cc16'],
-          legends: [
-            { label: 'Spine', value: 21 },
-            { label: 'Hip And Knee', value: 2 },
-            { label: 'Hand, Upper Limb and Microsurgery', value: 5 },
-            { label: 'Oncology and Reconstruction', value: 2 },
-            { label: 'Orthopaedic', value: 2 }
-          ],
-          legendsRight: [
-            { label: 'Shoulder and Elbow', value: 2 },
-            { label: 'Advanced Orthopaedic Trauma', value: 4 },
-            { label: 'Sport Injury', value: 7 },
-            { label: 'Foot and Ankle', value: 3 }
-          ],
-          total: 48
-        },
-        {
-          title: "Gender",
-          data: [
-            { name: 'Male', value: 5 },
-            { name: 'Female', value: 59 }
-          ],
-          colors: ['#3b82f6', '#93c5fd'],
-          legends: [
-            { label: 'Male', value: 5 },
-            { label: 'Female', value: 59 }
-          ],
-          total: 64
-        },
-        {
-          title: "Members",
-          data: [
-            { name: 'Grad', value: 35 },
-            { name: 'Active', value: 64 }
-          ],
-          colors: ['#10b981', '#86efac'],
-          legends: [
-            { label: 'Grad', value: 35 },
-            { label: 'Active', value: 64 }
-          ],
-          total: 99
-        }
-      ]
-    }
+      } catch (e) {
+        console.error("Failed to fetch dashboard stats", e);
+      }
+    };
+    fetchDashboardStats();
+  }, []);
+
+  const CHART_PALETTE = [
+    '#dc2626', '#3b82f6', '#ec4899', '#8b5cf6', '#f59e0b', '#10b981',
+    '#6b7280', '#06b6d4', '#84cc16', '#f97316', '#a855f7', '#14b8a6',
+    '#64748b', '#ef4444', '#0ea5e9', '#d946ef',
   ];
+  const GENDER_COLORS = ['#3b82f6', '#ec4899'];
+  const STATUS_COLORS_CHART = ['#10b981', '#f59e0b', '#ef4444'];
 
+  const buildChart = (title, items, colors) => {
+    const data = items.map((i) => ({ name: i.name, value: i.value }));
+    const total = data.reduce((s, d) => s + d.value, 0);
+    const half = Math.ceil(data.length / 2);
+    const legends = data.slice(0, half).map((d) => ({ label: d.name, value: d.value }));
+    const legendsRight = data.length > half ? data.slice(half).map((d) => ({ label: d.name, value: d.value })) : undefined;
+    return { title, data, colors: colors.slice(0, data.length), legends, ...(legendsRight ? { legendsRight } : {}), total };
+  };
 
-  const chartColors = ['#3b82f6', '#ef4444', '#ec4899', '#10b981', '#f59e0b', '#8b5cf6'];
+  const PROGRAM_META = {
+    resident: { id: "P1", badge: "PPDS 1", description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma." },
+    fellow: { id: "CF", badge: "Clinical Fellowship", description: "Fellowship programs for subspecialization & continuing education." },
+    trainee: { id: "SP", badge: "Subspecialist", description: "Advanced program for Traumatology — trauma management & reconstruction." },
+  };
+
+  const programs = useMemo(() => {
+    const orgTypes = ["resident", "fellow", "trainee"];
+    return orgTypes.map((orgType) => {
+      const stat = dashboardStats.find((s) => s.organization_type === orgType) || {};
+      const meta = PROGRAM_META[orgType];
+      const charts = [];
+
+      // Chart 1: Study Programs (by affiliation)
+      charts.push(buildChart("Study Programs", stat.by_affiliation || [], CHART_PALETTE));
+
+      // Chart 2: Semester (resident) or Subspecialty (fellow/trainee)
+      if (orgType === "resident") {
+        charts.push(buildChart("Semester", stat.by_semester || [], CHART_PALETTE));
+      } else {
+        charts.push(buildChart("Subspecialty", stat.by_specialization || [], CHART_PALETTE));
+      }
+
+      // Chart 3: Gender
+      charts.push(buildChart("Gender", stat.by_gender || [], GENDER_COLORS));
+
+      // Chart 4: Status
+      charts.push(buildChart("Status", stat.by_status || [], STATUS_COLORS_CHART));
+
+      return {
+        ...meta,
+        students: String(stat.active_count || 0),
+        charts,
+      };
+    });
+  }, [dashboardStats]);
 
   return (
     <HomepageLayout>
@@ -687,21 +503,21 @@ export default function Homepage() {
         {/* Background Image with Gradient Overlay */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="/assets/images/homepage/banner.png" 
+            src="/assets/images/homepage/banner-00.png" 
             alt="Background Banner"
             className="w-full h-full object-cover"
             onError={(e) => {
               e.target.style.display = 'none';
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-700/80 to-blue-600/70"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-secondary/70"></div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6 text-white">
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight">
-                E-Dashboard Indonesian Orthopaedic and Traumatology Education
+                E-Dashboard Indonesian for Orthopaedic and Traumatology Education
               </h1>
               <p className="text-base sm:text-lg leading-relaxed max-w-xl opacity-95">
                 Providing open, current, and accurate information. Enhancing integration of academic information & scientific activities through a single gateway.
@@ -781,7 +597,7 @@ export default function Homepage() {
                 className="bg-white rounded-xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
                     <Icon icon={stat.icon} className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1">
@@ -810,7 +626,7 @@ export default function Homepage() {
             <h2 className="text-3xl font-bold text-gray-900">Upcoming Examination</h2>
             <Link
               href="/calendar-academic"
-              className="inline-flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:text-secondary transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               aria-label="Show more upcoming examinations in Academic Calendar"
             >
               Show More
@@ -819,15 +635,15 @@ export default function Homepage() {
           </div>
           {examinations.length === 0 ? (
             <div className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-50">
-                <Calendar className="h-6 w-6 text-blue-600" />
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                <Calendar className="h-6 w-6 text-primary" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">No upcoming examinations</h3>
               <p className="mt-1 text-sm text-gray-600">Check the academic calendar to see the full schedule and the latest updates.</p>
               <div className="mt-5">
                 <Link
                   href="/calendar-academic"
-                  className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                  className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-secondary transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                 >
                   View Calendar
                 </Link>
@@ -854,7 +670,7 @@ export default function Homepage() {
                         href={exam.registration}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium transition"
+                        className="text-primary hover:text-secondary text-sm font-medium transition"
                         onClick={(e) => e.stopPropagation()}
                       >
                         Detail
@@ -862,7 +678,7 @@ export default function Homepage() {
                     ) : (
                       <button
                         type="button"
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium transition"
+                        className="text-primary hover:text-secondary text-sm font-medium transition"
                         onClick={(e) => {
                           e.stopPropagation();
                           openDetailModal(exam);
@@ -953,7 +769,7 @@ export default function Homepage() {
                         href={event.registration}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium inline-flex items-center gap-1"
+                        className="text-primary hover:text-secondary text-sm font-medium inline-flex items-center gap-1"
                         onClick={(e) => e.stopPropagation()}
                       >
                         Registration <ChevronRight className="w-4 h-4" />
@@ -1042,7 +858,7 @@ export default function Homepage() {
                     href={selectedEvent.registration}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-700 hover:underline break-all"
+                    className="text-primary hover:text-secondary hover:underline break-all"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {selectedEvent.registration}
@@ -1052,7 +868,7 @@ export default function Homepage() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDetailModal(false)}
-                  className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors font-medium"
                 >
                   Close
                 </button>

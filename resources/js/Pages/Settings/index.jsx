@@ -69,9 +69,9 @@ function SettingsContent({ initialActiveMenu = "user" }) {
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Settingss</h1>
         <p className="text-muted-foreground">
-          Kelola pengaturan sistem, pengguna, dan hak akses
+          Manage system settings, users, and access rights
         </p>
       </div>
       

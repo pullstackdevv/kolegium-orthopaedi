@@ -6,6 +6,8 @@ Dokumentasi lengkap untuk frontend React + Inertia.js application.
 - [Struktur Frontend](#struktur-frontend)
 - [Inertia.js Flow](#inertiajs-flow)
 - [React Components](#react-components)
+- [AuthContext & Permission System](#authcontext--permission-system)
+- [Module Pages Reference](#module-pages-reference)
 - [Styling dengan TailwindCSS](#styling-dengan-tailwindcss)
 - [State Management](#state-management)
 - [Form Handling](#form-handling)
@@ -18,56 +20,101 @@ Dokumentasi lengkap untuk frontend React + Inertia.js application.
 
 ```
 resources/js/
-├── api/                      # API client functions
-│   ├── axios.js             # Axios configuration
-│   ├── auth.js              # Authentication API
-│   ├── routes.js            # Route definitions
-│   └── index.js             # API exports
+├── api/                          # API client functions
+│   ├── axios.js                 # Axios instance (baseURL: /api, CSRF, auth token, interceptors)
+│   ├── auth.js                  # Authentication API (login, register, logout, me)
+│   ├── routes.js                # API route path constants
+│   └── index.js                 # API module exports
 │
-├── components/              # Reusable components
-│   ├── ui/                  # shadcn/ui components (22 files)
-│   ├── DonutChart.jsx       # Chart component
-│   ├── PermissionGuard.jsx  # Permission HOC
-│   ├── TiptapEditor.jsx     # Rich text editor
-│   ├── theme-provider.jsx   # Theme context
-│   └── theme-toggle.jsx     # Dark mode toggle
+├── components/                  # Reusable components
+│   ├── ui/                      # 22 shadcn/ui components (New York style, JSX)
+│   │   ├── alert.jsx, avatar.jsx, badge.jsx, breadcrumb.jsx
+│   │   ├── button.jsx, card.jsx, checkbox.jsx, collapsible.jsx
+│   │   ├── dialog.jsx, dropdown-menu.jsx, input.jsx, label.jsx
+│   │   ├── scroll-area.jsx, select.jsx, separator.jsx, sheet.jsx
+│   │   ├── sidebar.jsx, skeleton.jsx, table.jsx, tabs.jsx
+│   │   ├── textarea.jsx, tooltip.jsx
+│   │   └── (all using Radix UI primitives + TailwindCSS + cva)
+│   ├── WellbeingSurvey/         # Survey-specific sub-components (6 files)
+│   │   ├── MoodSelector.jsx     # Mood emoji picker
+│   │   ├── IndicatorCheckbox.jsx # Boolean indicator toggles
+│   │   ├── SurveyResult.jsx     # Result display with risk level
+│   │   └── ...
+│   ├── DonutChart.jsx           # Highcharts donut chart wrapper
+│   ├── PermissionGuard.jsx      # Conditional render by permission(s)
+│   ├── TiptapEditor.jsx         # TinyMCE rich text editor wrapper
+│   ├── theme-provider.jsx       # Dark/light theme context provider
+│   └── theme-toggle.jsx         # Theme switcher button (Moon/Sun icons)
 │
-├── Layouts/                 # Layout components
-│   ├── HomepageLayout.jsx   # Public layout
-│   ├── DashboardLayout.jsx  # CMS layout
-│   └── dashboard/           # Dashboard sub-components
-│       ├── AppSidebar.jsx   # Sidebar navigation
-│       ├── Navbar.jsx       # Top navbar
-│       ├── Footer.jsx       # Footer
-│       └── ...
+├── contexts/                    # React Context providers
+│   └── AuthContext.jsx          # Auth state: user, role, permissions, helpers
 │
-├── Pages/                   # Page components (routes)
+├── Layouts/                     # Layout components
+│   ├── HomepageLayout.jsx       # Public website (Navbar + Footer)
+│   ├── DashboardLayout.jsx      # Re-exports from dashboard/
+│   └── dashboard/               # CMS layout sub-components
+│       ├── DashboardLayout.jsx  # Main layout (SidebarProvider + AuthProvider)
+│       ├── components/          # AppSidebar, Navbar, Footer, UserDropdown
+│       ├── config/              # Sidebar menu items configuration
+│       └── index.js             # Exports
+│
+├── Pages/                       # Page components (mapped to routes)
 │   ├── Auth/
-│   │   ├── Login.jsx
-│   │   └── Register.jsx
-│   ├── ProfileStudyProgram/
-│   │   ├── PPDS1.jsx
-│   │   ├── ClinicalFellowship.jsx
-│   │   ├── Subspesialis.jsx
-│   │   └── UniversityDetail.jsx
+│   │   ├── Login.jsx            # CMS login form
+│   │   └── Register.jsx        # CMS register form
+│   ├── Dashboard/
+│   │   ├── index.jsx            # CMS dashboard (stats, charts, recent data)
+│   │   └── Calendar.jsx        # CMS calendar view
 │   ├── Settings/
-│   │   ├── index.jsx
-│   │   ├── UserSettings.jsx
-│   │   ├── RoleSettings.jsx
-│   │   └── PermissionSettings.jsx
-│   ├── Homepage.jsx
-│   ├── AboutUs.jsx
-│   ├── CalendarAcademic.jsx
-│   ├── PeerGroup.jsx
-│   ├── Resident.jsx
-│   └── NotFound.jsx
+│   │   ├── index.jsx            # Settings tabs container
+│   │   ├── UserSettings.jsx     # User CRUD (table, modals)
+│   │   ├── RoleSettings.jsx     # Role CRUD (table, permission checkboxes)
+│   │   ├── PermissionSettings.jsx # Permission CRUD
+│   │   └── AffiliationSettings.jsx # Affiliation CRUD (with logo upload)
+│   ├── Agenda/
+│   │   └── index.jsx            # CMS agenda management (table, form dialog, publish)
+│   ├── Database/
+│   │   ├── index.jsx            # CMS database members (table, import/export, CRUD)
+│   │   ├── DatabaseResidents.jsx # Public: all residents listing
+│   │   ├── DatabaseFellows.jsx  # Public: all fellows listing
+│   │   └── DatabaseTrainees.jsx # Public: all trainees listing
+│   ├── ProfileStudyProgram/
+│   │   ├── PPDS1.jsx            # PPDS1 program cards
+│   │   ├── ClinicalFellowship.jsx # CF program cards
+│   │   ├── Subspesialis.jsx     # Subspesialis program cards
+│   │   ├── StudyProgramDetail.jsx # Detail per-universitas (agenda + members)
+│   │   ├── ClinicalFellowshipDetail.jsx # Detail per-RS
+│   │   └── DatabaseMembersLanding.jsx  # Members landing per-affiliation
+│   ├── PeerGroup/
+│   │   ├── index.jsx            # Peer group listing
+│   │   └── PeerGroupDetail.jsx  # Detail per-peer group org
+│   ├── WellbeingSurvey/
+│   │   ├── Index.jsx            # Survey landing/entry page
+│   │   └── Show.jsx             # Survey form, scoring, result display
+│   ├── Errors/
+│   │   └── Forbidden.jsx        # 403 error page
+│   ├── Homepage.jsx             # Public landing page
+│   ├── AboutUs.jsx              # About the organization
+│   ├── CalendarAcademic.jsx     # Academic calendar (uses Highcharts timeline)
+│   ├── Resident.jsx             # Resident info page
+│   ├── ComingSoon.jsx           # Placeholder page
+│   └── NotFound.jsx             # 404 error page
 │
-├── contexts/                # React contexts
-├── data/                    # Static data
-├── hooks/                   # Custom React hooks
-├── utils/                   # Utility functions
-├── app.jsx                  # Inertia app entry point
-└── bootstrap.js             # Bootstrap JS
+├── data/                        # Static data files (legacy: productData, voucherData)
+├── hooks/                       # Custom React hooks
+│   ├── use-mobile.jsx           # Responsive breakpoint detection
+│   └── useCart.js               # (legacy, unused)
+├── lib/
+│   └── utils.js                 # cn() helper for className merging (clsx + tailwind-merge)
+├── utils/                       # Utility functions
+│   ├── asset.js                 # Asset URL helper
+│   ├── auth.js                  # handleSessionExpired helper
+│   ├── helpers.js               # General utility functions
+│   ├── sweetalert.js            # SweetAlert2 preset configurations
+│   └── devtools.js              # React DevTools enabler
+├── app.jsx                      # Inertia app entry point (createInertiaApp)
+├── bootstrap.js                 # Axios defaults setup
+└── fake-tailwind-version.js     # TailwindCSS version shim for Flowbite
 ```
 
 ---
@@ -498,20 +545,32 @@ export default {
     './resources/**/*.blade.php',
     './resources/**/*.js',
     './resources/**/*.jsx',
+    './node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}',
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Manrope', 'sans-serif'],
+      },
       colors: {
+        // shadcn/ui HSL variable colors
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
+          DEFAULT: '#254D95',          // Dark blue (hardcoded)
           foreground: 'hsl(var(--primary-foreground))',
         },
-        // ... more colors
+        secondary: {
+          DEFAULT: '#34A1F4',          // Light blue
+          foreground: 'hsl(var(--secondary-foreground))',
+        },
+        tertiary: {
+          DEFAULT: '#880E0D',          // Dark red
+        },
+        // ... more shadcn/ui colors (destructive, muted, accent, popover, card, sidebar, chart)
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -521,9 +580,7 @@ export default {
     },
   },
   plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
-    require('tailwindcss-animate'),
+    require('tailwindcss-animate'),    // Only plugin used
   ],
 }
 ```
@@ -674,33 +731,232 @@ function Component() {
 }
 ```
 
-### Context API
+### Context API — AuthContext
+
+**File:** `resources/js/contexts/AuthContext.jsx`
+
+The main context used across CMS pages. Wraps the DashboardLayout and provides:
 
 ```jsx
-// Create context
+import { useAuth } from '@/contexts/AuthContext'
+
+function Component() {
+  const {
+    user,                    // Current user object
+    role,                    // User's role object { name, description }
+    permissions,             // Array of permission strings
+    isAuthenticated,         // Boolean
+    
+    // Role checks
+    isSuperAdmin,            // hasRole('super_admin') || hasRole('owner')
+    isAdminKolegium,         // hasRole('admin_kolegium')
+    isAdminStudyProgram,     // hasRole('admin_study_program')
+    isAdminPeerGroup,        // hasRole('admin_peer_group')
+    isOwner,                 // hasRole('owner')
+    isAdmin,                 // hasRole('admin')
+    isStaff,                 // hasRole('staff')
+    
+    // Permission helpers
+    hasPermission,           // (permission: string) => boolean
+    hasAnyPermission,        // (permissions: string[]) => boolean
+    hasAllPermissions,       // (permissions: string[]) => boolean
+    hasRole,                 // (roleName: string) => boolean
+    hasAnyRole,              // (roleNames: string[]) => boolean
+  } = useAuth()
+  
+  // Wildcard support: '*' matches everything, 'module.*' matches 'module.view', etc.
+  if (hasPermission('agenda.kolegium.create')) {
+    // User can create kolegium agenda
+  }
+}
+```
+
+**AuthContext vs PermissionGuard:**
+
+| | AuthContext (`useAuth`) | PermissionGuard |
+|--|--|--|
+| **Type** | React Hook | React Component |
+| **Use when** | Logic-based checks (conditions, API calls) | Declarative show/hide in JSX |
+| **Example** | `if (hasPermission('x')) { ... }` | `<PermissionGuard permission="x"><Button /></PermissionGuard>` |
+
+Both support the same wildcard permission matching.
+
+### Context API — Generic Pattern
+
+```jsx
 import { createContext, useContext, useState } from 'react'
 
-const UserContext = createContext()
+const MyContext = createContext()
 
-export function UserProvider({ children, initialUser }) {
-  const [user, setUser] = useState(initialUser)
+export function MyProvider({ children, initialValue }) {
+  const [state, setState] = useState(initialValue)
   
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <MyContext.Provider value={{ state, setState }}>
       {children}
-    </UserContext.Provider>
+    </MyContext.Provider>
   )
 }
 
-export const useUser = () => useContext(UserContext)
+export const useMyContext = () => useContext(MyContext)
+```
 
-// Usage
-function Component() {
-  const { user, setUser } = useUser()
-  
-  return <div>Hello, {user.name}</div>
+---
+
+## AuthContext & Permission System
+
+### Permission Data Flow
+
+```
+Login → Sanctum Token → HandleInertiaRequests middleware →
+Shares auth.user (with role + permissions) → usePage().props.auth →
+AuthContext.jsx → useAuth() hook → Components
+```
+
+**Backend (HandleInertiaRequests.php)** shares:
+```php
+'auth' => [
+    'user' => [
+        'id', 'name', 'email', 'is_active',
+        'role' => ['name', 'description'],  // Primary role
+        'permissions' => [...],              // All permissions (direct + via roles)
+    ]
+]
+```
+
+### Using Permissions in Pages
+
+**Declarative (PermissionGuard):**
+```jsx
+import PermissionGuard from '@/components/PermissionGuard'
+
+// Single permission
+<PermissionGuard permission="database.study_program.resident.edit">
+  <Button>Edit</Button>
+</PermissionGuard>
+
+// Multiple permissions (OR logic)
+<PermissionGuard
+  permission={["agenda.kolegium.view", "agenda.peer_group.view"]}
+  fallback={<p>No access</p>}
+>
+  <AgendaList />
+</PermissionGuard>
+```
+
+**Imperative (useAuth hook):**
+```jsx
+import { useAuth } from '@/contexts/AuthContext'
+
+function AgendaPage() {
+  const { hasPermission, isSuperAdmin, user } = useAuth()
+
+  const canCreate = hasPermission('agenda.kolegium.create')
+  const canPublish = hasPermission('agenda.kolegium.publish')
+
+  return (
+    <div>
+      {canCreate && <Button onClick={handleCreate}>Create</Button>}
+      {canPublish && <Button onClick={handlePublish}>Publish</Button>}
+    </div>
+  )
 }
 ```
+
+---
+
+## Module Pages Reference
+
+### Dashboard (`Pages/Dashboard/index.jsx`)
+
+CMS dashboard page rendered by `DashboardController@index`.
+
+**Props received from backend:**
+```javascript
+{
+  stats: {
+    totalMembers: 150,
+    totalAffiliations: 30,
+    activePrograms: 6,
+    upcomingEvents: 5,
+    membersByProgram: { resident: 80, fellow: 40, trainee: 30 },
+    membersByStatus: { active: 120, graduated: 20, leave: 10 },
+    recentMembers: [ /* last 5 members */ ],
+    upcomingAgenda: [ /* next 5 events */ ],
+  }
+}
+```
+
+Uses `DonutChart` component (Highcharts) for data visualization.
+
+### Agenda Module (`Pages/Agenda/index.jsx`)
+
+CMS page for managing agenda/events. Uses API calls (not Inertia forms).
+
+**Key features:**
+- Filtered by scope (kolegium/study_program/peer_group) + section
+- Table with pagination via API
+- Create/edit dialog with TinyMCE rich text editor
+- Image upload
+- Publish/unpublish toggle
+- Affiliation-scoped (non-super-admin only sees their affiliation's events)
+
+**Props from backend (cmsPage):**
+```javascript
+{ agendaTypeOptions: [{ id: 'ujian_lokal', name: 'Ujian Lokal' }, ...] }
+```
+
+### Database Members Module (`Pages/Database/index.jsx`)
+
+CMS page for managing database members (residents, fellows, trainees, koti, kolkes).
+
+**Key features:**
+- Tab-based org type switching (koti, kolkes, resident, fellow, trainee, peer_group)
+- Table with search, pagination, and affiliation filter
+- Create/edit member dialog
+- Photo upload
+- Import Excel (with template download)
+- Export Excel
+- Permission-gated per org type
+
+### Settings Module (`Pages/Settings/index.jsx`)
+
+Tab-based settings page with sub-pages:
+- **UserSettings** — User CRUD, toggle active status, change password, assign roles + affiliations
+- **RoleSettings** — Role CRUD, permission checkbox matrix
+- **PermissionSettings** — Permission CRUD (name, display_name, module)
+- **AffiliationSettings** — Affiliation CRUD (name, type, code, since, logo upload)
+
+### Well-Being Survey (`Pages/WellbeingSurvey/`)
+
+Public survey for mental health assessment.
+
+**Flow:**
+1. `Index.jsx` — Landing page, select affiliation via code
+2. `Show.jsx` — Multi-step form:
+   - Step 1: Verify member identity (search API call)
+   - Step 2: Mood selection (emoji picker)
+   - Step 3: Boolean indicators (burnout, emotional hardening, etc.)
+   - Step 4: Discomfort note (optional text)
+   - Submit → API → Show result with risk level + crisis resources
+
+### Public Pages
+
+| Page | Key Behavior |
+|------|----------|
+| `Homepage.jsx` | Hero section, featured events, program cards |
+| `PPDS1.jsx` | Fetches residen-type affiliations, displays as cards with links to detail |
+| `ClinicalFellowship.jsx` | Fetches clinical_fellowship affiliations |
+| `Subspesialis.jsx` | Fetches subspesialis affiliations |
+| `StudyProgramDetail.jsx` | Shows affiliation detail + agenda + member count for a specific university |
+| `ClinicalFellowshipDetail.jsx` | Same pattern for RS |
+| `DatabaseMembersLanding.jsx` | Paginated member list for a specific affiliation |
+| `PeerGroup/index.jsx` | Fetches peer_group affiliations |
+| `PeerGroupDetail.jsx` | Peer group detail page |
+| `CalendarAcademic.jsx` | Calendar view of all published events |
+| `DatabaseResidents.jsx` | Public listing of all residents across all affiliations |
+| `DatabaseFellows.jsx` | Public listing of all fellows |
+| `DatabaseTrainees.jsx` | Public listing of all trainees |
 
 ---
 
@@ -1153,4 +1409,5 @@ function App() {
 
 ---
 
-**Last Updated:** December 2024
+**Last Updated:** February 2026
+**Version:** 2.0.0

@@ -20,8 +20,10 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
   });
 
   const [stats, setStats] = useState({ total: 0, active: 0, graduated: 0, leave: 0 });
+  const [achievements, setAchievements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [achModalMember, setAchModalMember] = useState(null);
 
   const [filters, setFilters] = useState({
     status: "",
@@ -89,20 +91,87 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
     [affiliation?.id, filters.per_page, filters.search, filters.status, orgType]
   );
 
+  const fetchAchievements = useCallback(async () => {
+    if (!affiliation?.id) return;
+    try {
+      const res = await api.get("/public/member-achievements", {
+        params: { affiliation_id: affiliation.id, organization_type: orgType },
+        headers: { "X-Skip-Auth-Redirect": "1" },
+      });
+      if (res.data?.status === "success") {
+        setAchievements(Array.isArray(res.data.data) ? res.data.data : []);
+      }
+    } catch (e) {
+      console.error("Failed to fetch achievements", e);
+    }
+  }, [affiliation?.id, orgType]);
+
   useEffect(() => {
     fetchMembers({ page: 1 });
-  }, [fetchMembers]);
+    fetchAchievements();
+  }, [fetchMembers, fetchAchievements]);
 
   const genderLabel = (v) => {
-    if (v === "male") return "L";
-    if (v === "female") return "P";
+    if (v === "male") return "Male";
+    if (v === "female") return "Female";
     return "-";
   };
 
+  const calculateSemester = (entryDate, status, graduatedAt, leaveAt, activeAgainAt, nowYmd) => {
+    if (!entryDate) return "-";
+
+    const semesterIndex = (d) => {
+      if (!d) return null;
+      const dt = new Date(d);
+      if (Number.isNaN(dt.getTime())) return null;
+      const y = dt.getFullYear();
+      const m = dt.getMonth() + 1;
+      return y * 2 + (m >= 7 ? 1 : 0);
+    };
+
+    const between = (start, end) => {
+      const s = semesterIndex(start);
+      const e = semesterIndex(end);
+      if (s === null || e === null) return null;
+      const sem = e - s + 1;
+      return sem > 0 ? sem : null;
+    };
+
+    const st = (status || "active").trim();
+    const now = nowYmd || new Date().toISOString().slice(0, 10);
+
+    let sem = null;
+    if (st === "graduated") {
+      sem = between(entryDate, graduatedAt);
+    } else if (st === "leave") {
+      const s1 = between(entryDate, leaveAt);
+      if (s1 === null) return "-";
+      let total = s1;
+      const s2 = between(activeAgainAt, now);
+      if (s2 !== null) total += s2;
+      sem = total;
+    } else {
+      sem = between(entryDate, now);
+    }
+
+    if (sem === null) return "-";
+    return `Semester ${sem}`;
+  };
+
+  const achievementsByMember = useMemo(() => {
+    const map = {};
+    achievements.forEach((ach) => {
+      const mid = ach.database_member_id;
+      if (!map[mid]) map[mid] = [];
+      map[mid].push(ach);
+    });
+    return map;
+  }, [achievements]);
+
   const statusLabel = (v) => {
-    if (v === "active") return "Aktif";
-    if (v === "graduated") return "Lulus";
-    if (v === "leave") return "Cuti";
+    if (v === "active") return "Active";
+    if (v === "graduated") return "Graduated";
+    if (v === "leave") return "On Leave";
     return "-";
   };
 
@@ -113,7 +182,7 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
     return "bg-gray-100 text-gray-700";
   };
 
-  const title = type === "ppds1" ? "Data Residen PPDS1" : "Data Trainee Subspesialis";
+  const title = type === "ppds1" ? "PPDS1 Resident Data" : "Subspecialist Trainee Data";
 
   return (
     <HomepageLayout>
@@ -148,7 +217,7 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between">
               <div>
-                <div className="text-sm text-gray-600">Total Residen</div>
+                <div className="text-sm text-gray-600">Total Members</div>
                 <div className="text-2xl font-bold" style={{ color: "#254D95" }}>
                   {stats.total}
                 </div>
@@ -160,7 +229,7 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between">
               <div>
-                <div className="text-sm text-gray-600">Aktif Semester Ini</div>
+                <div className="text-sm text-gray-600">Active This Semester</div>
                 <div className="text-2xl font-bold" style={{ color: "#254D95" }}>
                   {stats.active}
                 </div>
@@ -174,7 +243,7 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
               <div>
                 <div className="text-sm text-gray-600">Achievements</div>
                 <div className="text-2xl font-bold" style={{ color: "#254D95" }}>
-                  {stats.graduated}
+                  {achievements.length}
                 </div>
               </div>
               <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
@@ -186,7 +255,7 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <div className="text-xs font-semibold text-gray-700 mb-1">Program Studi</div>
+                <div className="text-xs font-semibold text-gray-700 mb-1">Study Program</div>
                 <div className="h-10 px-3 rounded-md border border-gray-200 flex items-center text-sm text-gray-700 bg-gray-50">
                   {affiliation?.name || "-"}
                 </div>
@@ -195,7 +264,7 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
               <div>
                 <div className="text-xs font-semibold text-gray-700 mb-1">Semester</div>
                 <div className="h-10 px-3 rounded-md border border-gray-200 flex items-center text-sm text-gray-500 bg-gray-50">
-                  Semua
+                  All
                 </div>
               </div>
 
@@ -206,19 +275,19 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
                   value={filters.status}
                   onChange={(e) => setFilters((p) => ({ ...p, status: e.target.value }))}
                 >
-                  <option value="">Semua</option>
-                  <option value="active">Aktif</option>
-                  <option value="graduated">Lulus</option>
-                  <option value="leave">Cuti</option>
+                  <option value="">All</option>
+                  <option value="active">Active</option>
+                  <option value="graduated">Graduated</option>
+                  <option value="leave">On Leave</option>
                 </select>
               </div>
 
               <div>
-                <div className="text-xs font-semibold text-gray-700 mb-1">Cari Residen</div>
+                <div className="text-xs font-semibold text-gray-700 mb-1">Search Member</div>
                 <div className="relative">
                   <input
                     className="h-10 w-full pl-10 pr-3 rounded-md border border-gray-200 text-sm"
-                    placeholder="Cari nama / nomor identitas"
+                    placeholder="Search name / ID number"
                     value={filters.search}
                     onChange={(e) => setFilters((p) => ({ ...p, search: e.target.value }))}
                     onKeyDown={(e) => {
@@ -240,7 +309,7 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
                 className="h-9 px-4 rounded-md bg-blue-600 text-white text-sm hover:bg-blue-700"
                 onClick={() => fetchMembers({ page: 1 })}
               >
-                Terapkan
+                Apply
               </button>
             </div>
           </div>
@@ -248,15 +317,15 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
               <h2 className="text-lg font-bold" style={{ color: "#254D95" }}>
-                Daftar Residen
+                Member List
               </h2>
               <div className="text-sm text-gray-600">
-                Menampilkan {members.length} dari {pagination.total} residen
+                Showing {members.length} of {pagination.total} members
               </div>
             </div>
 
             {loading ? (
-              <div className="p-8 text-sm text-gray-600">Memuat data...</div>
+              <div className="p-8 text-sm text-gray-600">Loading data...</div>
             ) : error ? (
               <div className="p-8 text-sm text-red-600">{error}</div>
             ) : (
@@ -265,34 +334,62 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="text-left text-sm font-semibold text-gray-700 px-5 py-3">No</th>
-                      <th className="text-left text-sm font-semibold text-gray-700 px-5 py-3">Residen</th>
-                      <th className="text-left text-sm font-semibold text-gray-700 px-5 py-3">Prodi</th>
+                      <th className="text-left text-sm font-semibold text-gray-700 px-5 py-3">Photo</th>
+                      <th className="text-left text-sm font-semibold text-gray-700 px-5 py-3">Name</th>
                       <th className="text-left text-sm font-semibold text-gray-700 px-5 py-3">Gender</th>
+                      {type === "ppds1" && <th className="text-left text-sm font-semibold text-gray-700 px-5 py-3">Semester</th>}
                       <th className="text-left text-sm font-semibold text-gray-700 px-5 py-3">Status</th>
-                      <th className="text-left text-sm font-semibold text-gray-700 px-5 py-3">Spesialisasi</th>
+                      {type !== "ppds1" && <th className="text-left text-sm font-semibold text-gray-700 px-5 py-3">Specialization</th>}
+                      <th className="text-left text-sm font-semibold text-gray-700 px-5 py-3">Achievements</th>
                     </tr>
                   </thead>
                   <tbody>
                     {members.map((m, idx) => (
                       <tr key={m.id} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50/40"}>
                         <td className="px-5 py-3 text-sm text-gray-700">{(pagination.current_page - 1) * pagination.per_page + idx + 1}</td>
+                        <td className="px-5 py-3">
+                          <div className="h-10 w-10 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
+                            {m.photo ? (
+                              <img src={m.photo} alt={m.name} className="h-full w-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+                            ) : (
+                              <Icon icon="mdi:account" className="w-5 h-5 text-gray-400" />
+                            )}
+                          </div>
+                        </td>
                         <td className="px-5 py-3 text-sm text-gray-900">
                           <div className="font-medium">{m.name}</div>
-                          <div className="text-xs text-gray-500">{m.member_code || "-"}</div>
                         </td>
-                        <td className="px-5 py-3 text-sm text-gray-700">{affiliation?.name || "-"}</td>
                         <td className="px-5 py-3 text-sm text-gray-700">{genderLabel(m.gender)}</td>
+                        {type === "ppds1" && (
+                          <td className="px-5 py-3 text-sm text-gray-700">
+                            {calculateSemester(m.entry_date, m.status, m.graduated_at, m.leave_at, m.active_again_at)}
+                          </td>
+                        )}
                         <td className="px-5 py-3">
                           <span className={`text-xs font-semibold px-3 py-1 rounded ${statusPillClass(m.status)}`}>{statusLabel(m.status)}</span>
                         </td>
-                        <td className="px-5 py-3 text-sm text-gray-700">{m.specialization || "-"}</td>
+                        {type !== "ppds1" && <td className="px-5 py-3 text-sm text-gray-700">{m.specialization || "-"}</td>}
+                        <td className="px-5 py-3">
+                          {(achievementsByMember[m.id]?.length || 0) > 0 ? (
+                            <button
+                              type="button"
+                              className="inline-flex items-center gap-1.5 text-sm font-semibold text-yellow-700 bg-yellow-50 hover:bg-yellow-100 px-3 py-1 rounded transition-colors"
+                              onClick={() => setAchModalMember(m)}
+                            >
+                              <Icon icon="mdi:trophy" className="w-4 h-4" />
+                              {achievementsByMember[m.id].length}
+                            </button>
+                          ) : (
+                            <span className="text-xs text-gray-400">0</span>
+                          )}
+                        </td>
                       </tr>
                     ))}
 
                     {members.length === 0 ? (
                       <tr>
-                        <td className="px-5 py-6 text-sm text-gray-600" colSpan={6}>
-                          Belum ada data.
+                        <td className="px-5 py-6 text-sm text-gray-600" colSpan={10}>
+                          No data available.
                         </td>
                       </tr>
                     ) : null}
@@ -325,8 +422,46 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
               </div>
             </div>
           </div>
+
         </div>
       </section>
+
+      {achModalMember && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setAchModalMember(null)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+              <div>
+                <h3 className="text-lg font-bold" style={{ color: "#254D95" }}>Achievements</h3>
+                <p className="text-sm text-gray-600">{achModalMember.name}</p>
+              </div>
+              <button type="button" className="p-1 rounded-full hover:bg-gray-100" onClick={() => setAchModalMember(null)}>
+                <Icon icon="mdi:close" className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6 space-y-3">
+              {(achievementsByMember[achModalMember.id] || []).length > 0 ? (
+                (achievementsByMember[achModalMember.id] || []).map((ach) => (
+                  <div key={ach.id} className="flex items-start gap-3 p-3 bg-yellow-50/50 border border-yellow-100 rounded-lg">
+                    <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Icon icon="mdi:medal" className="w-4 h-4 text-yellow-600" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-gray-900">{ach.title}</p>
+                      {ach.description ? <p className="text-xs text-gray-600 mt-0.5">{ach.description}</p> : null}
+                      <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
+                        {ach.category ? <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded">{ach.category}</span> : null}
+                        {ach.date ? <span>{new Date(ach.date).toLocaleDateString("id-ID", { year: "numeric", month: "short", day: "numeric" })}</span> : null}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-sm text-gray-500 text-center py-4">Belum ada achievement.</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </HomepageLayout>
   );
 }

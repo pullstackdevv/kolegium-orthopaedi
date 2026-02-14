@@ -17,13 +17,17 @@ export default {
     	extend: {
     		colors: {
     			primary: {
-    				DEFAULT: 'hsl(var(--primary))',
-    				foreground: 'hsl(var(--primary-foreground))'
+    				DEFAULT: '#254D95',
+    				foreground: '#FFFFFF'
     			},
     			secondary: {
-    				DEFAULT: 'hsl(var(--secondary))',
-    				foreground: 'hsl(var(--secondary-foreground))'
+    				DEFAULT: '#34A1F4',
+    				foreground: '#FFFFFF'
     			},
+				tertiary: {
+					DEFAULT: '#880E0D',
+					foreground: '#FFFFFF'
+				},
     			background: 'hsl(var(--background))',
     			foreground: 'hsl(var(--foreground))',
     			card: {

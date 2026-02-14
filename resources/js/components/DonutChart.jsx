@@ -33,9 +33,7 @@ export default function DonutChart({ data, colors, centerText, size = 180 }) {
           pointFormat: '<b>{point.percentage:.1f}%</b>'
         },
         accessibility: {
-          point: {
-            valueSuffix: '%'
-          }
+          enabled: false
         },
         plotOptions: {
           pie: {
@@ -54,11 +52,13 @@ export default function DonutChart({ data, colors, centerText, size = 180 }) {
         series: [{
           name: 'Persentase',
           colorByPoint: true,
-          data: data.map((item, index) => ({
-            name: item.name,
-            y: item.value,
-            color: colors[index % colors.length]
-          }))
+          data: data.length > 0
+            ? data.map((item, index) => ({
+                name: item.name,
+                y: item.value,
+                color: colors[index % colors.length]
+              }))
+            : [{ name: 'No Data', y: 1, color: '#e5e7eb' }]
         }]
       });
     }

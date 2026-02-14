@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\DatabaseMember;
 use App\Models\Affiliation;
+use App\Models\Regency;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
@@ -188,7 +190,7 @@ class DatabaseMemberController extends Controller
         }
 
         $members = $query
-            ->with(['affiliation:id,name,code'])
+            ->with(['affiliation:id,name,code', 'regency:id,province_id,name', 'regency.province:id,name'])
             ->orderBy('name')
             ->paginate($request->integer('per_page', 10));
 
@@ -227,7 +229,9 @@ class DatabaseMemberController extends Controller
             })
             ->orderBy('name');
 
-        $members = $query->paginate($request->integer('per_page', 10));
+        $members = $query
+            ->with(['regency:id,name'])
+            ->paginate($request->integer('per_page', 10));
 
         $stats = [
             'total' => (clone $baseQuery)->count(),
@@ -240,6 +244,174 @@ class DatabaseMemberController extends Controller
             'status' => 'success',
             'data' => $members,
             'stats' => $stats,
+        ]);
+    }
+
+    public function publicIndexAll(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'per_page' => 'nullable|integer|min:1|max:100',
+            'page' => 'nullable|integer|min:1',
+            'status' => ['nullable', 'string', Rule::in(['active', 'graduated', 'leave'])],
+            'search' => 'nullable|string|max:255',
+            'organization_type' => ['nullable', 'string', Rule::in(['resident', 'fellow', 'trainee'])],
+            'affiliation_id' => 'nullable|integer|exists:affiliations,id',
+        ]);
+
+        $baseQuery = DatabaseMember::query()
+            ->whereIn('organization_type', ['resident', 'fellow', 'trainee'])
+            ->when(!empty($validated['organization_type']), fn ($q) => $q->where('organization_type', $validated['organization_type']))
+            ->with('affiliation:id,name,code');
+
+        $query = (clone $baseQuery)
+            ->when(!empty($validated['status']), fn ($q) => $q->where('status', $validated['status']))
+            ->when(!empty($validated['affiliation_id']), fn ($q) => $q->where('affiliation_id', $validated['affiliation_id']))
+            ->when(!empty($validated['search']), function ($q) use ($validated) {
+                $search = $validated['search'];
+                $q->where(function ($qq) use ($search) {
+                    $qq->where('name', 'like', "%{$search}%")
+                        ->orWhere('member_code', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('name');
+
+        $members = $query->paginate($request->integer('per_page', 12));
+
+        $stats = [
+            'total' => (clone $baseQuery)->count(),
+            'active' => (clone $baseQuery)->where('status', 'active')->count(),
+            'graduated' => (clone $baseQuery)->where('status', 'graduated')->count(),
+            'leave' => (clone $baseQuery)->where('status', 'leave')->count(),
+            'resident' => (clone $baseQuery)->where('organization_type', 'resident')->count(),
+            'fellow' => (clone $baseQuery)->where('organization_type', 'fellow')->count(),
+            'trainee' => (clone $baseQuery)->where('organization_type', 'trainee')->count(),
+        ];
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $members,
+            'stats' => $stats,
+        ]);
+    }
+
+    /**
+     * Public endpoint: aggregated stats for the homepage Educational Dashboard.
+     * Returns per-org-type breakdowns by affiliation, gender, status,
+     * semester (resident only) and specialization (fellow/trainee only).
+     */
+    public function publicDashboardStats(): JsonResponse
+    {
+        $orgTypes = ['resident', 'fellow', 'trainee'];
+        $result = [];
+
+        foreach ($orgTypes as $orgType) {
+            $members = DatabaseMember::query()
+                ->where('organization_type', $orgType)
+                ->select(['id', 'affiliation_id', 'gender', 'status', 'entry_date', 'graduated_at', 'leave_at', 'active_again_at', 'specialization'])
+                ->with('affiliation:id,name,code')
+                ->get();
+
+            $activeCount = $members->where('status', 'active')->count();
+
+            // --- By affiliation (include all affiliations of relevant type, even with 0 members) ---
+            $affiliationType = match ($orgType) {
+                'resident' => 'residen',
+                'fellow' => 'clinical_fellowship',
+                'trainee' => 'subspesialis',
+                default => $orgType,
+            };
+            $allAffiliations = Affiliation::where('type', $affiliationType)->orderBy('name')->get();
+            $memberCountByAffId = $members->groupBy('affiliation_id')
+                ->map(fn ($group) => $group->count());
+            $byAffiliation = $allAffiliations
+                ->map(fn ($aff) => ['name' => $aff->name, 'value' => $memberCountByAffId->get($aff->id, 0)])
+                ->sortByDesc('value')
+                ->values()
+                ->all();
+
+            // --- By gender (always show Male & Female) ---
+            $genderLabels = ['male' => 'Male', 'female' => 'Female'];
+            $genderCounts = $members->groupBy('gender')->map(fn ($g) => $g->count());
+            $byGender = collect($genderLabels)->map(fn ($label, $key) => [
+                'name' => $label,
+                'value' => $genderCounts->get($key, 0),
+            ])->values()->all();
+
+            // --- By status (always show Active & Graduated) ---
+            $statusLabels = ['active' => 'Active', 'graduated' => 'Graduated'];
+            $statusCounts = $members->groupBy('status')->map(fn ($g) => $g->count());
+            $byStatus = collect($statusLabels)->map(fn ($label, $key) => [
+                'name' => $label,
+                'value' => $statusCounts->get($key, 0),
+            ])->values()->all();
+
+            $item = [
+                'organization_type' => $orgType,
+                'active_count' => $activeCount,
+                'total_count' => $members->count(),
+                'by_affiliation' => $byAffiliation,
+                'by_gender' => $byGender,
+                'by_status' => $byStatus,
+            ];
+
+            // --- By semester (resident only, always show Semester 1–9) ---
+            if ($orgType === 'resident') {
+                $nowYmd = now()->format('Y-m-d');
+                $semesterCounts = $members
+                    ->filter(fn ($m) => $m->entry_date !== null)
+                    ->groupBy(function ($m) use ($nowYmd) {
+                        $entry = $m->entry_date ? $m->entry_date->format('Y-m-d') : null;
+                        $grad = $m->graduated_at ? $m->graduated_at->format('Y-m-d') : null;
+                        $leave = $m->leave_at ? $m->leave_at->format('Y-m-d') : null;
+                        $again = $m->active_again_at ? $m->active_again_at->format('Y-m-d') : null;
+
+                        $semRaw = $this->calculateSemester($entry, (string) ($m->status ?? 'active'), $grad, $leave, $again, $nowYmd);
+                        $sem = is_numeric($semRaw) ? (int) $semRaw : 0;
+                        $sem = max(1, $sem);
+                        return min(9, $sem);
+                    })
+                    ->map(fn ($group) => $group->count());
+
+                $bySemester = collect(range(1, 9))->map(fn ($sem) => [
+                    'name' => "Semester {$sem}",
+                    'value' => $semesterCounts->get($sem, 0),
+                ])->all();
+
+                $item['by_semester'] = $bySemester;
+            }
+
+            // --- By specialization (fellow / trainee, always show full list) ---
+            if (in_array($orgType, ['fellow', 'trainee'])) {
+                $allSpecialties = [
+                    'Spine',
+                    'Hip And Knee',
+                    'Hand, Upper Limb and Microsurgery',
+                    'Oncology and Reconstruction',
+                    'Orthopaedic',
+                    'Shoulder and Elbow',
+                    'Advanced Orthopaedic Trauma',
+                    'Sport Injury',
+                    'Foot and Ankle',
+                ];
+                $specCounts = $members
+                    ->filter(fn ($m) => !empty($m->specialization))
+                    ->groupBy('specialization')
+                    ->map(fn ($group) => $group->count());
+
+                $bySpecialization = collect($allSpecialties)->map(fn ($spec) => [
+                    'name' => $spec,
+                    'value' => $specCounts->get($spec, 0),
+                ])->all();
+
+                $item['by_specialization'] = $bySpecialization;
+            }
+
+            $result[] = $item;
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $result,
         ]);
     }
 
@@ -280,31 +452,36 @@ class DatabaseMemberController extends Controller
         }
 
         $isPeerGroup = $orgType === 'peer_group';
+        $isResident = $orgType === 'resident';
 
-        $allowedColumns = $isPeerGroup
-            ? ['photo', 'member_code', 'name', 'gender', 'status']
-            : ['photo', 'member_code', 'name', 'gender', 'entry_date', 'specialization', 'status'];
+        if ($isPeerGroup) {
+            $allowedColumns = ['photo', 'member_code', 'name', 'gender'];
+        } elseif ($isResident) {
+            $allowedColumns = ['photo', 'member_code', 'name', 'gender', 'entry_date', 'graduated_at', 'leave_at', 'active_again_at', 'semester', 'status', 'regency'];
+        } else {
+            $allowedColumns = ['photo', 'member_code', 'name', 'gender', 'entry_date', 'specialization', 'status'];
+        }
 
-        $headerLabels = $isPeerGroup
-            ? [
-                'photo' => 'Foto',
-                'member_code' => 'Nomor Identitas',
-                'name' => 'Nama',
-                'gender' => 'Jenis Kelamin',
-                'status' => 'Status',
-            ]
-            : [
-                'photo' => 'Foto',
-                'member_code' => 'Nomor Identitas',
-                'name' => 'Nama',
-                'gender' => 'Jenis Kelamin',
-                'entry_date' => 'Tanggal Masuk',
-                'specialization' => 'Spesialisasi',
-                'status' => 'Status',
-            ];
+        $headerLabels = [
+            'photo' => 'Foto',
+            'member_code' => 'NIK',
+            'name' => 'Nama',
+            'gender' => 'Jenis Kelamin',
+            'entry_date' => 'Tanggal Masuk',
+            'graduated_at' => 'Tahun Lulus',
+            'leave_at' => 'Mulai Cuti',
+            'active_again_at' => 'Mulai Aktif Kembali',
+            'specialization' => 'Spesialisasi',
+            'semester' => 'Semester',
+            'status' => 'Status',
+            'regency' => 'Kabupaten/Kota',
+        ];
 
-        $selectColumns = array_values(array_unique(array_merge($allowedColumns, ['title'])));
-        $members = $query->orderBy('name')->get($selectColumns);
+        $selectColumns = array_values(array_unique(array_merge(
+            array_filter($allowedColumns, fn ($c) => !in_array($c, ['semester', 'regency'], true)),
+            ['title', 'regency_id']
+        )));
+        $members = $query->with('regency:id,name')->orderBy('name')->get($selectColumns);
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -367,8 +544,49 @@ class DatabaseMemberController extends Controller
                     } else {
                         $val = substr((string) $val, 0, 10);
                     }
+                } elseif (in_array($col, ['graduated_at', 'leave_at', 'active_again_at'], true)) {
+                    if (!$val) {
+                        $val = '';
+                    } elseif ($val instanceof \DateTimeInterface) {
+                        $val = $val->format('Y-m-d');
+                    } elseif (is_string($val)) {
+                        $val = substr($val, 0, 10);
+                    } else {
+                        $val = substr((string) $val, 0, 10);
+                    }
+                } elseif ($col === 'semester') {
+                    $entryDateRaw = $member->entry_date;
+                    if ($entryDateRaw instanceof \DateTimeInterface) {
+                        $entryDateRaw = $entryDateRaw->format('Y-m-d');
+                    } elseif ($entryDateRaw !== null) {
+                        $entryDateRaw = substr((string) $entryDateRaw, 0, 10);
+                    }
+                    $gradRaw = $member->graduated_at;
+                    if ($gradRaw instanceof \DateTimeInterface) {
+                        $gradRaw = $gradRaw->format('Y-m-d');
+                    } elseif ($gradRaw !== null) {
+                        $gradRaw = substr((string) $gradRaw, 0, 10);
+                    }
+
+                    $leaveRaw = $member->leave_at;
+                    if ($leaveRaw instanceof \DateTimeInterface) {
+                        $leaveRaw = $leaveRaw->format('Y-m-d');
+                    } elseif ($leaveRaw !== null) {
+                        $leaveRaw = substr((string) $leaveRaw, 0, 10);
+                    }
+
+                    $againRaw = $member->active_again_at;
+                    if ($againRaw instanceof \DateTimeInterface) {
+                        $againRaw = $againRaw->format('Y-m-d');
+                    } elseif ($againRaw !== null) {
+                        $againRaw = substr((string) $againRaw, 0, 10);
+                    }
+
+                    $val = $this->calculateSemester($entryDateRaw, (string) ($member->status ?? 'active'), $gradRaw, $leaveRaw, $againRaw);
                 } elseif ($col === 'status') {
                     $val = $this->formatStatusLabel($val === null ? null : (string) $val);
+                } elseif ($col === 'regency') {
+                    $val = $member->regency ? $member->regency->name : '';
                 } elseif ($val === null) {
                     $val = '';
                 }
@@ -448,11 +666,18 @@ class DatabaseMemberController extends Controller
 
         $type = $request->string('type')->toString();
 
-        $affiliations = Affiliation::query()
-            ->when($type !== '', fn ($q) => $q->where('type', $type))
-            ->orderBy('type')
-            ->orderBy('name')
-            ->get();
+        $query = Affiliation::query()
+            ->when($type !== '', fn ($q) => $q->where('type', $type));
+
+        // Non-super-admin: only return user's own affiliations
+        if (!$authUser->hasRole('super_admin')) {
+            $userAffiliationIds = $authUser->affiliations()->pluck('affiliations.id')->toArray();
+            if (!empty($userAffiliationIds)) {
+                $query->whereIn('id', $userAffiliationIds);
+            }
+        }
+
+        $affiliations = $query->orderBy('type')->orderBy('name')->get();
 
         return response()->json([
             'status' => 'success',
@@ -471,6 +696,9 @@ class DatabaseMemberController extends Controller
             'photo' => 'nullable|string|max:1000',
             'contact' => 'nullable|string|max:255',
             'entry_date' => 'nullable|date',
+            'graduated_at' => 'nullable|date',
+            'leave_at' => 'nullable|date',
+            'active_again_at' => 'nullable|date',
             'gender' => ['nullable', 'string', Rule::in(['male', 'female'])],
             'specialization' => ['nullable', 'string', Rule::in(self::SPECIALIZATION_OPTIONS)],
             'status' => ['sometimes', 'string', Rule::in(['active', 'graduated', 'leave'])],
@@ -478,6 +706,7 @@ class DatabaseMemberController extends Controller
             'group' => 'nullable|string|max:255',
             'title' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:255',
+            'regency_id' => 'nullable|integer|exists:regencies,id',
         ]);
 
         $orgType = $validated['organization_type'];
@@ -498,6 +727,39 @@ class DatabaseMemberController extends Controller
 
         $resolved['position'] = $resolved['position'] ?? '';
         $resolved['status'] = $resolved['status'] ?? 'active';
+
+        if ($orgType === 'resident') {
+            if ($resolved['status'] === 'graduated') {
+                if (empty($resolved['graduated_at'])) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Tahun/Tanggal lulus wajib diisi untuk status Lulus.',
+                    ], 422);
+                }
+                $resolved['leave_at'] = null;
+                $resolved['active_again_at'] = null;
+            } elseif ($resolved['status'] === 'leave') {
+                if (empty($resolved['leave_at'])) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Tahun/Tanggal mulai cuti wajib diisi untuk status Cuti.',
+                    ], 422);
+                }
+                if (empty($resolved['active_again_at'])) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Tahun/Tanggal mulai aktif kembali wajib diisi untuk status Cuti.',
+                    ], 422);
+                }
+                $resolved['graduated_at'] = null;
+                $resolved['regency_id'] = null;
+            } else {
+                $resolved['graduated_at'] = null;
+                $resolved['leave_at'] = null;
+                $resolved['active_again_at'] = null;
+                $resolved['regency_id'] = null;
+            }
+        }
 
         $dupExists = DatabaseMember::query()
             ->where('organization_type', $orgType)
@@ -543,6 +805,9 @@ class DatabaseMemberController extends Controller
             'photo' => 'nullable|string|max:1000',
             'contact' => 'nullable|string|max:255',
             'entry_date' => 'nullable|date',
+            'graduated_at' => 'nullable|date',
+            'leave_at' => 'nullable|date',
+            'active_again_at' => 'nullable|date',
             'gender' => ['nullable', 'string', Rule::in(['male', 'female'])],
             'specialization' => ['nullable', 'string', Rule::in(self::SPECIALIZATION_OPTIONS)],
             'status' => ['sometimes', 'string', Rule::in(['active', 'graduated', 'leave'])],
@@ -550,6 +815,7 @@ class DatabaseMemberController extends Controller
             'group' => 'nullable|string|max:255',
             'title' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:255',
+            'regency_id' => 'nullable|integer|exists:regencies,id',
         ]);
 
         $validated['organization_type'] = $orgType;
@@ -566,6 +832,44 @@ class DatabaseMemberController extends Controller
 
         if (array_key_exists('position', $resolved) && $resolved['position'] === null) {
             $resolved['position'] = '';
+        }
+
+        if ($orgType === 'resident') {
+            $nextStatus = $resolved['status'] ?? $databaseMember->status ?? 'active';
+
+            if ($nextStatus === 'graduated') {
+                $nextGraduatedAt = $resolved['graduated_at'] ?? $databaseMember->graduated_at;
+                if (empty($nextGraduatedAt)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Tahun/Tanggal lulus wajib diisi untuk status Lulus.',
+                    ], 422);
+                }
+                $resolved['leave_at'] = null;
+                $resolved['active_again_at'] = null;
+            } elseif ($nextStatus === 'leave') {
+                $nextLeaveAt = $resolved['leave_at'] ?? $databaseMember->leave_at;
+                $nextActiveAgainAt = $resolved['active_again_at'] ?? $databaseMember->active_again_at;
+                if (empty($nextLeaveAt)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Tahun/Tanggal mulai cuti wajib diisi untuk status Cuti.',
+                    ], 422);
+                }
+                if (empty($nextActiveAgainAt)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Tahun/Tanggal mulai aktif kembali wajib diisi untuk status Cuti.',
+                    ], 422);
+                }
+                $resolved['graduated_at'] = null;
+                $resolved['regency_id'] = null;
+            } else {
+                $resolved['graduated_at'] = null;
+                $resolved['leave_at'] = null;
+                $resolved['active_again_at'] = null;
+                $resolved['regency_id'] = null;
+            }
         }
 
         if (array_key_exists('member_code', $resolved) || array_key_exists('affiliation_id', $resolved)) {
@@ -706,6 +1010,7 @@ class DatabaseMemberController extends Controller
             'nomor_identitas' => 'member_code',
             'no_identitas' => 'member_code',
             'nomorid' => 'member_code',
+            'nik' => 'member_code',
 
             // core fields
             'nama' => 'name',
@@ -722,6 +1027,19 @@ class DatabaseMemberController extends Controller
             'tanggal_masuk' => 'entry_date',
             'tgl_masuk' => 'entry_date',
             'entry_date' => 'entry_date',
+            'tahun_lulus' => 'graduated_at',
+            'tgl_lulus' => 'graduated_at',
+            'tanggal_lulus' => 'graduated_at',
+            'graduated_at' => 'graduated_at',
+            'mulai_cuti' => 'leave_at',
+            'tgl_cuti' => 'leave_at',
+            'tanggal_cuti' => 'leave_at',
+            'leave_at' => 'leave_at',
+            'mulai_aktif_kembali' => 'active_again_at',
+            'aktif_kembali' => 'active_again_at',
+            'tgl_aktif_kembali' => 'active_again_at',
+            'tanggal_aktif_kembali' => 'active_again_at',
+            'active_again_at' => 'active_again_at',
             'gender' => 'gender',
             'jenis_kelamin' => 'gender',
             'spesialisasi' => 'specialization',
@@ -738,6 +1056,11 @@ class DatabaseMemberController extends Controller
             'title' => 'title',
             'lokasi' => 'location',
             'location' => 'location',
+            'kabupaten' => 'kabupaten_kota',
+            'kabupaten_kota' => 'kabupaten_kota',
+            'kota' => 'kabupaten_kota',
+            'district' => 'kabupaten_kota',
+            'regency' => 'kabupaten_kota',
         ];
 
         return $aliases[$normalized] ?? $normalized;
@@ -844,6 +1167,68 @@ class DatabaseMemberController extends Controller
         };
     }
 
+    private function calculateSemester(?string $entryDate, ?string $status = null, ?string $graduatedAt = null, ?string $leaveAt = null, ?string $activeAgainAt = null, ?string $nowYmd = null): string
+    {
+        if ($entryDate === null || $entryDate === '') {
+            return '-';
+        }
+
+        $ts = strtotime($entryDate);
+        if ($ts === false) {
+            return '-';
+        }
+
+        $status = $status !== null ? trim((string) $status) : 'active';
+
+        $nowYmd = $nowYmd !== null ? $nowYmd : now()->format('Y-m-d');
+
+        $semesterIndex = function (?string $d): ?int {
+            if ($d === null || trim($d) === '') {
+                return null;
+            }
+            $t = strtotime($d);
+            if ($t === false) {
+                return null;
+            }
+            $y = (int) date('Y', $t);
+            $m = (int) date('n', $t);
+            return $y * 2 + ($m >= 7 ? 1 : 0);
+        };
+
+        $between = function (?string $start, ?string $end) use ($semesterIndex): ?int {
+            $s = $semesterIndex($start);
+            $e = $semesterIndex($end);
+            if ($s === null || $e === null) {
+                return null;
+            }
+            $sem = $e - $s + 1;
+            return $sem > 0 ? $sem : null;
+        };
+
+        if ($status === 'graduated') {
+            $sem = $between($entryDate, $graduatedAt);
+            return $sem !== null ? (string) $sem : '-';
+        }
+
+        if ($status === 'leave') {
+            $s1 = $between($entryDate, $leaveAt);
+            if ($s1 === null) {
+                return '-';
+            }
+            $total = $s1;
+            if ($activeAgainAt !== null && trim($activeAgainAt) !== '') {
+                $s2 = $between($activeAgainAt, $nowYmd);
+                if ($s2 !== null) {
+                    $total += $s2;
+                }
+            }
+            return $total > 0 ? (string) $total : '-';
+        }
+
+        $sem = $between($entryDate, $nowYmd);
+        return $sem !== null ? (string) $sem : '-';
+    }
+
     private function buildDisplayNameForExport(DatabaseMember $member): string
     {
         $baseName = trim((string) ($member->name ?? ''));
@@ -876,18 +1261,28 @@ class DatabaseMemberController extends Controller
         $authUser = Auth::user();
 
         $isPeerGroup = $orgType === 'peer_group';
-        $allowedColumns = $isPeerGroup
-            ? ['member_code', 'name', 'photo', 'gender', 'status']
-            : ['member_code', 'name', 'photo', 'gender', 'status', 'entry_date', 'specialization'];
+        $isResident = $orgType === 'resident';
+
+        if ($isPeerGroup) {
+            $allowedColumns = ['member_code', 'name', 'photo', 'gender'];
+        } elseif ($isResident) {
+            $allowedColumns = ['member_code', 'name', 'photo', 'gender', 'status', 'entry_date', 'graduated_at', 'leave_at', 'active_again_at', 'kabupaten_kota'];
+        } else {
+            $allowedColumns = ['member_code', 'name', 'photo', 'gender', 'status', 'entry_date', 'specialization'];
+        }
 
         $headerLabels = [
-            'member_code' => 'Nomor Identitas',
+            'member_code' => 'NIK',
             'name' => 'Nama',
             'photo' => 'Foto',
             'gender' => 'Jenis Kelamin',
             'status' => 'Status',
             'entry_date' => 'Tanggal Masuk',
+            'graduated_at' => 'Tahun Lulus',
+            'leave_at' => 'Mulai Cuti',
+            'active_again_at' => 'Mulai Aktif Kembali',
             'specialization' => 'Spesialisasi',
+            'kabupaten_kota' => 'Kabupaten/Kota',
         ];
 
         $spreadsheet = new Spreadsheet();
@@ -955,6 +1350,9 @@ class DatabaseMemberController extends Controller
 
         $authUser = Auth::user();
 
+        $isPeerGroup = $orgType === 'peer_group';
+        $isResident = $orgType === 'resident';
+
         $resolvedAff = $this->resolveAffiliationIdForWrite(
             [
                 'affiliation_id' => $validated['affiliation_id'] ?? null,
@@ -986,6 +1384,9 @@ class DatabaseMemberController extends Controller
             'photo',
             'contact',
             'entry_date',
+            'graduated_at',
+            'leave_at',
+            'active_again_at',
             'gender',
             'specialization',
             'status',
@@ -993,6 +1394,7 @@ class DatabaseMemberController extends Controller
             'group',
             'title',
             'location',
+            'kabupaten_kota',
         ];
 
         $requiredColumns = [
@@ -1080,7 +1482,7 @@ class DatabaseMemberController extends Controller
 
                 $cellVal = $row[$colMap[$dbCol]] ?? null;
 
-                if ($dbCol === 'entry_date') {
+                if (in_array($dbCol, ['entry_date', 'graduated_at', 'leave_at', 'active_again_at'], true)) {
                     $payload[$dbCol] = $this->parseExcelDate($cellVal);
                     continue;
                 }
@@ -1131,6 +1533,45 @@ class DatabaseMemberController extends Controller
                 $payload['status'] = $statusMap[$sv] ?? $payload['status'];
             }
 
+            // Enforce org-type-specific fields (match manual form)
+            if ($isPeerGroup) {
+                // Peer group form: only member_code, name, photo, gender (no status)
+                unset($payload['entry_date']);
+                unset($payload['graduated_at']);
+                unset($payload['leave_at']);
+                unset($payload['active_again_at']);
+                unset($payload['specialization']);
+                unset($payload['kabupaten_kota']);
+                $payload['status'] = 'active';
+            } elseif ($isResident) {
+                // Resident form: member_code, name, photo, gender, status, entry_date, regency (when graduated)
+                unset($payload['specialization']);
+            } else {
+                // Fellow/Trainee form: member_code, name, photo, gender, status, entry_date, specialization
+                unset($payload['kabupaten_kota']);
+            }
+
+            $regencyName = isset($payload['kabupaten_kota']) ? trim((string) ($payload['kabupaten_kota'] ?? '')) : '';
+            unset($payload['kabupaten_kota']);
+
+            if ($orgType === 'resident' && ($payload['status'] ?? '') === 'graduated' && $regencyName !== '') {
+                $regency = Regency::query()
+                    ->whereRaw('LOWER(name) = ?', [mb_strtolower($regencyName)])
+                    ->first();
+                if ($regency) {
+                    $payload['regency_id'] = $regency->id;
+                } else {
+                    $errors[] = [
+                        'row' => $excelRowNumber,
+                        'column' => 'kabupaten_kota',
+                        'message' => "Kabupaten/Kota '{$regencyName}' tidak ditemukan di database.",
+                    ];
+                    continue;
+                }
+            } elseif ($orgType === 'resident' && ($payload['status'] ?? '') !== 'graduated') {
+                $payload['regency_id'] = null;
+            }
+
             if ($payload['member_code'] === null) {
                 $errors[] = [
                     'row' => $excelRowNumber,
@@ -1164,7 +1605,7 @@ class DatabaseMemberController extends Controller
                 continue;
             }
 
-            if (isset($payload['specialization']) && $payload['specialization'] !== null) {
+            if (!$isPeerGroup && !$isResident && isset($payload['specialization']) && $payload['specialization'] !== null) {
                 $normalized = preg_replace('/\s+/', ' ', trim((string) $payload['specialization'])) ?? trim((string) $payload['specialization']);
                 if (!array_key_exists($normalized, $normalizedSpecializations)) {
                     $errors[] = [
@@ -1187,7 +1628,7 @@ class DatabaseMemberController extends Controller
                 }
             }
 
-            if (isset($payload['status']) && $payload['status'] !== null) {
+            if (!$isPeerGroup && isset($payload['status']) && $payload['status'] !== null) {
                 if (!in_array($payload['status'], ['active', 'graduated', 'leave'], true)) {
                     $errors[] = [
                         'row' => $excelRowNumber,
@@ -1198,23 +1639,62 @@ class DatabaseMemberController extends Controller
                 }
             }
 
-            $payload['created_at'] = $now;
-            $payload['updated_at'] = $now;
-            $payload['deleted_at'] = null;
+            if ($isResident) {
+                $st = (string) ($payload['status'] ?? 'active');
+                if ($st === 'graduated') {
+                    if (empty($payload['graduated_at'])) {
+                        $errors[] = [
+                            'row' => $excelRowNumber,
+                            'column' => 'graduated_at',
+                            'message' => 'graduated_at is required when status is graduated.',
+                        ];
+                        continue;
+                    }
+                    $payload['leave_at'] = null;
+                    $payload['active_again_at'] = null;
+                } elseif ($st === 'leave') {
+                    if (empty($payload['leave_at'])) {
+                        $errors[] = [
+                            'row' => $excelRowNumber,
+                            'column' => 'leave_at',
+                            'message' => 'leave_at is required when status is leave.',
+                        ];
+                        continue;
+                    }
+                    if (empty($payload['active_again_at'])) {
+                        $errors[] = [
+                            'row' => $excelRowNumber,
+                            'column' => 'active_again_at',
+                            'message' => 'active_again_at is required when status is leave.',
+                        ];
+                        continue;
+                    }
+                    $payload['graduated_at'] = null;
+                    $payload['regency_id'] = null;
+                } else {
+                    $payload['graduated_at'] = null;
+                    $payload['leave_at'] = null;
+                    $payload['active_again_at'] = null;
+                    $payload['regency_id'] = null;
+                }
+            }
 
-            $payload['position'] = $payload['position'] ?? '';
-            if ($payload['position'] === null) {
+            if (!isset($payload['position']) || $payload['position'] === null) {
                 $payload['position'] = '';
             }
 
             $rowsToPersist[] = $payload;
         }
 
-        if (!empty($errors)) {
+        if (!empty($errors) && empty($rowsToPersist)) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Validation failed.',
+                'message' => 'Semua baris gagal divalidasi.',
                 'errors' => $errors,
+                'data' => [
+                    'processed' => 0,
+                    'failed' => count($errors),
+                ],
             ], 422);
         }
 
@@ -1247,16 +1727,98 @@ class DatabaseMemberController extends Controller
 
             DB::commit();
 
-            return response()->json([
+            $response = [
                 'status' => 'success',
-                'message' => 'Import completed successfully.',
+                'message' => empty($errors)
+                    ? "Import berhasil. {$processed} data berhasil diproses."
+                    : "Import selesai. {$processed} data berhasil, " . count($errors) . " data gagal.",
                 'data' => [
                     'processed' => $processed,
+                    'failed' => count($errors),
                 ],
-            ]);
+            ];
+
+            if (!empty($errors)) {
+                $response['errors'] = $errors;
+            }
+
+            return response()->json($response);
         } catch (\Throwable $e) {
             DB::rollBack();
             throw $e;
         }
+    }
+
+    public function search(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'search_type' => ['required', 'string', 'in:member_code,nama,contact'],
+            'search_value' => 'required|string|max:255',
+            'affiliation_id' => 'nullable|integer|exists:affiliations,id',
+        ]);
+
+        $searchType = $validated['search_type'];
+        $searchValue = $validated['search_value'];
+        $affiliationId = $validated['affiliation_id'] ?? null;
+
+        Log::info('Member Search Debug', [
+            'search_type' => $searchType,
+            'search_value' => $searchValue,
+            'affiliation_id' => $affiliationId,
+        ]);
+
+        $query = DatabaseMember::query();
+
+        // Search by type
+        if ($searchType === 'member_code') {
+            // member_code is unique, no need to filter by affiliation
+            $query->where('member_code', $searchValue);
+        } elseif ($searchType === 'nama') {
+            if ($affiliationId) {
+                $query->where('affiliation_id', $affiliationId);
+            }
+            $query->where('name', 'like', "%{$searchValue}%");
+        } elseif ($searchType === 'contact') {
+            if ($affiliationId) {
+                $query->where('affiliation_id', $affiliationId);
+            }
+            $query->where('contact', 'like', "%{$searchValue}%");
+        }
+
+        Log::info('Member Search Query', [
+            'sql' => $query->toSql(),
+            'bindings' => $query->getBindings(),
+        ]);
+
+        $member = $query->select(['id', 'member_code', 'name', 'contact', 'affiliation_id'])->first();
+
+        Log::info('Member Search Result', [
+            'found' => $member ? true : false,
+            'member' => $member ? $member->toArray() : null,
+        ]);
+
+        if ($member) {
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'id' => $member->id,
+                    'member_code' => $member->member_code,
+                    'name' => $member->name,
+                    'contact' => $member->contact,
+                    'affiliation_id' => $member->affiliation_id,
+                ],
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Member not found',
+            'data' => null,
+            'debug' => [
+                'search_type' => $searchType,
+                'search_value' => $searchValue,
+                'affiliation_id' => $affiliationId,
+            ],
+        ], 404);
     }
 }

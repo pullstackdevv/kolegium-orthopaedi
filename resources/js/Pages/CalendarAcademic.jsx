@@ -124,22 +124,22 @@ export default function CalendarAcademic() {
         title: "Academic Year",
         value: academicYear.label,
         icon: "mdi:calendar",
-        iconBg: "bg-blue-100",
-        iconColor: "text-blue-600",
+        iconBg: "bg-primary/10",
+        iconColor: "text-primary",
       },
       {
         title: "Examination Day",
         value: String(academicYearCounts.exams),
         icon: "mdi:briefcase",
-        iconBg: "bg-orange-100",
-        iconColor: "text-orange-600",
+        iconBg: "bg-secondary/10",
+        iconColor: "text-secondary",
       },
       {
         title: "Event Day",
         value: String(academicYearCounts.agendaEvents),
         icon: "mdi:calendar-check",
-        iconBg: "bg-red-100",
-        iconColor: "text-red-600",
+        iconBg: "bg-primary/5",
+        iconColor: "text-primary",
       },
     ];
   }, [academicYear.label, academicYearCounts.agendaEvents, academicYearCounts.exams]);
@@ -470,7 +470,7 @@ export default function CalendarAcademic() {
   return (
     <HomepageLayout>
       {/* Breadcrumb Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 py-6">
+      <section className="bg-gradient-to-r from-primary to-secondary py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 text-white text-sm">
             <Link href="/" className="hover:underline">Home</Link>
@@ -484,7 +484,7 @@ export default function CalendarAcademic() {
       <section className="bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Title */}
-          <h1 className="text-3xl font-bold text-blue-700 mb-8">
+          <h1 className="text-3xl font-bold text-primary mb-8">
             Academic Calendar {academicYear.label}
           </h1>
 
@@ -495,7 +495,7 @@ export default function CalendarAcademic() {
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-sm text-gray-600 mb-2">{stat.title}</p>
-                    <p className="text-3xl font-bold text-blue-700">{stat.value}</p>
+                    <p className="text-3xl font-bold text-primary">{stat.value}</p>
                   </div>
                   <div className={`w-16 h-16 ${stat.iconBg} rounded-full flex items-center justify-center flex-shrink-0`}>
                     <Icon icon={stat.icon} className={`w-8 h-8 ${stat.iconColor}`} />
@@ -508,7 +508,7 @@ export default function CalendarAcademic() {
           {/* Ongoing Today */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-green-600">Ongoing Today</h2>
+              <h2 className="text-xl font-bold text-primary">Ongoing Today</h2>
               <span className="text-gray-600 font-normal">
                 {today.getDate()} {monthNames[today.getMonth()]} {today.getFullYear()}
               </span>
@@ -609,7 +609,7 @@ export default function CalendarAcademic() {
           {/* Upcoming Test */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-blue-600">Upcoming Examination</h2>
+              <h2 className="text-xl font-bold text-primary">Upcoming Examination</h2>
               <span className="text-gray-600 font-normal">{getUpcomingTestDateRange()}</span>
             </div>
             
@@ -659,7 +659,7 @@ export default function CalendarAcademic() {
           {/* Upcoming Event */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-blue-600">Upcoming Event</h2>
+              <h2 className="text-xl font-bold text-primary">Upcoming Event</h2>
               <span className="text-gray-600 font-normal">{getUpcomingEventDateRange()}</span>
             </div>
             
@@ -726,7 +726,7 @@ export default function CalendarAcademic() {
                             href={event.registration}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-700 text-sm font-medium inline-flex items-center gap-1"
+                            className="text-primary hover:text-secondary text-sm font-medium inline-flex items-center gap-1"
                             onClick={(e) => e.stopPropagation()}
                           >
                             Registration <ChevronRight className="w-4 h-4" />
@@ -743,13 +743,13 @@ export default function CalendarAcademic() {
 
           {/* Calendar */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-2xl font-bold text-blue-600 mb-6">Academic Calendar</h2>
+            <h2 className="text-2xl font-bold text-primary mb-6">Academic Calendar</h2>
             
             {/* Calendar Header */}
             <div className="flex items-center justify-between mb-6">
               <button
                 onClick={handlePrevMonth}
-                className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                className="flex items-center gap-2 text-primary hover:text-secondary font-medium transition-colors"
               >
                 <ChevronLeft className="w-5 h-5" />
                 <span>
@@ -758,7 +758,7 @@ export default function CalendarAcademic() {
               </button>
 
               <h3 
-                className="text-2xl font-bold text-red-700 cursor-pointer hover:text-red-800 transition-colors"
+                className="text-2xl font-bold text-primary cursor-pointer hover:text-secondary transition-colors"
                 onClick={handleOpenDatePicker}
                 title="Click to change month/year"
               >
@@ -767,7 +767,7 @@ export default function CalendarAcademic() {
 
               <button
                 onClick={handleNextMonth}
-                className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                className="flex items-center gap-2 text-primary hover:text-secondary font-medium transition-colors"
               >
                 <span>
                   {monthNames[currentMonth === 11 ? 0 : currentMonth + 1]}, {currentMonth === 11 ? currentYear + 1 : currentYear}

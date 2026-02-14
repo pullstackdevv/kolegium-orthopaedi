@@ -36,4 +36,19 @@ class Affiliation extends Model
     {
         return $this->hasMany(AgendaEvent::class);
     }
+
+    public function profile(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(AffiliationProfile::class);
+    }
+
+    public function databaseMembers(): HasMany
+    {
+        return $this->hasMany(DatabaseMember::class);
+    }
+
+    public function orgStructureMembers(): HasMany
+    {
+        return $this->hasMany(OrgStructureMember::class);
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\HasAffiliationScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DatabaseMember extends Model
@@ -20,6 +21,9 @@ class DatabaseMember extends Model
         'photo',
         'contact',
         'entry_date',
+        'graduated_at',
+        'leave_at',
+        'active_again_at',
         'gender',
         'specialization',
         'status',
@@ -27,14 +31,28 @@ class DatabaseMember extends Model
         'group',
         'title',
         'location',
+        'regency_id',
     ];
 
     protected $casts = [
         'entry_date' => 'date',
+        'graduated_at' => 'date',
+        'leave_at' => 'date',
+        'active_again_at' => 'date',
     ];
 
     public function affiliation(): BelongsTo
     {
         return $this->belongsTo(Affiliation::class);
+    }
+
+    public function regency(): BelongsTo
+    {
+        return $this->belongsTo(Regency::class);
+    }
+
+    public function achievements(): HasMany
+    {
+        return $this->hasMany(MemberAchievement::class);
     }
 }

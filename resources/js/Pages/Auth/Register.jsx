@@ -11,7 +11,7 @@ export default function Register() {
     handleSubmit,
     watch,
     formState: { errors: validationErrors },
-  } = useForm();
+  } = useForm({ mode: 'onChange' });
 
   const [showPwd, setShowPwd] = useState(false);
   const [serverErrors, setServerErrors] = useState([]);
@@ -32,6 +32,8 @@ export default function Register() {
         setMessage(err.response.data.message || 'Registration failed');
         setServerErrors(err.response.data.errors || []);
       }
+    } finally {
+      setIsLoadingSubmit(false);
     }
   };
 
@@ -71,7 +73,13 @@ export default function Register() {
           <input
             id="email"
             type="email"
-            {...register('email', { required: 'Email is required' })}
+            {...register('email', {
+              required: 'Email wajib diisi',
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: 'Format email tidak valid',
+              },
+            })}
             className="w-full border px-3 py-2 rounded pr-10"
             color={validationErrors.email || getServerError('email') ? 'failure' : undefined}
           />
@@ -87,11 +95,19 @@ export default function Register() {
           <label htmlFor="password" className="block mb-1 text-sm font-medium text-gray-700">
             Password
           </label>
+          <p className="text-xs text-gray-500 mb-1">Minimal 6 karakter, harus mengandung huruf besar dan huruf kecil</p>
           <div className="relative">
             <input
               id="password"
               type={showPwd ? 'text' : 'password'}
-              {...register('password', { required: 'Password is required', minLength: 6 })}
+              {...register('password', {
+                required: 'Password wajib diisi',
+                minLength: { value: 6, message: 'Password minimal 6 karakter' },
+                validate: {
+                  hasUppercase: (v) => /[A-Z]/.test(v) || 'Password harus mengandung huruf besar',
+                  hasLowercase: (v) => /[a-z]/.test(v) || 'Password harus mengandung huruf kecil',
+                },
+              })}
               className="w-full border px-3 py-2 rounded pr-10"
               color={validationErrors.password || getServerError('password') ? 'failure' : undefined}
             />

@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   Key,
   Building2,
+  ClipboardList,
 } from "lucide-react";
 
 // NOTE: href untuk konten Kolegium yang belum dikembangkan
@@ -115,7 +116,13 @@ export const sidebarMenu = [
       {
         title: "Event Gallery",
         icon: Images,
-        href: "/cms/coming-soon/kolegium-gallery-events",
+        href: "/cms/gallery?scope=kolegium",
+        permission: "agenda.kolegium.view",
+      },
+      {
+        title: "Well-Being Survey",
+        icon: ClipboardList,
+        href: "/cms/wellbeing-surveys",
         permission: "agenda.kolegium.view",
       },
     ],
@@ -174,21 +181,21 @@ export const sidebarMenu = [
           {
             title: "Resident - Profile",
             icon: GraduationCap,
-            href: "/cms/coming-soon/resident-profile",
-            permission: "agenda.study_program.resident.view",
+            href: "/cms/affiliation-profile?scope=study_program&section=resident",
+            permission: "profile.study_program.resident.view",
           },
           {
             title: "Resident - Organizational Structure",
             icon: Users,
-            href: "/cms/coming-soon/resident-management",
-            permission: "agenda.study_program.resident.view",
+            href: "/cms/org-structure?org=resident",
+            permission: "database.study_program.resident.view",
           },
-          {
-            title: "Resident - Secretariat Contact",
-            icon: Info,
-            href: "/cms/coming-soon/resident-secretariat",
-            permission: "agenda.study_program.resident.view",
-          },
+          // {
+          //   title: "Resident - Secretariat Contact",
+          //   icon: Info,
+          //   href: "/cms/coming-soon/resident-secretariat",
+          //   permission: "agenda.study_program.resident.view",
+          // },
           {
             title: "Resident - Database",
             icon: BookOpen,
@@ -204,7 +211,7 @@ export const sidebarMenu = [
           {
             title: "Resident - Gallery",
             icon: Images,
-            href: "/cms/coming-soon/resident-gallery",
+            href: "/cms/gallery?scope=study_program&section=resident",
             permission: "agenda.study_program.resident.view",
           },
         ],
@@ -215,21 +222,21 @@ export const sidebarMenu = [
           {
             title: "Fellow (CF) - Profile",
             icon: GraduationCap,
-            href: "/cms/coming-soon/fellow-profile",
-            permission: "agenda.study_program.fellow.view",
+            href: "/cms/affiliation-profile?scope=study_program&section=fellow",
+            permission: "profile.study_program.fellow.view",
           },
           {
             title: "Fellow (CF) - Organizational Structure",
             icon: Users,
-            href: "/cms/coming-soon/fellow-management",
-            permission: "agenda.study_program.fellow.view",
+            href: "/cms/org-structure?org=fellow",
+            permission: "database.study_program.fellow.view",
           },
-          {
-            title: "Fellow (CF) - Secretariat Contact",
-            icon: Info,
-            href: "/cms/coming-soon/fellow-secretariat",
-            permission: "agenda.study_program.fellow.view",
-          },
+          // {
+          //   title: "Fellow (CF) - Secretariat Contact",
+          //   icon: Info,
+          //   href: "/cms/coming-soon/fellow-secretariat",
+          //   permission: "agenda.study_program.fellow.view",
+          // },
           {
             title: "Fellow (CF) - Database",
             icon: BookOpen,
@@ -245,7 +252,7 @@ export const sidebarMenu = [
           {
             title: "Fellow (CF) - Gallery",
             icon: Images,
-            href: "/cms/coming-soon/fellow-gallery",
+            href: "/cms/gallery?scope=study_program&section=fellow",
             permission: "agenda.study_program.fellow.view",
           },
         ],
@@ -256,21 +263,21 @@ export const sidebarMenu = [
           {
             title: "Trainee - Profile",
             icon: GraduationCap,
-            href: "/cms/coming-soon/trainee-profile",
-            permission: "agenda.study_program.trainee.view",
+            href: "/cms/affiliation-profile?scope=study_program&section=trainee",
+            permission: "profile.study_program.trainee.view",
           },
           {
             title: "Trainee - Organizational Structure",
             icon: Users,
-            href: "/cms/coming-soon/trainee-management",
-            permission: "agenda.study_program.trainee.view",
+            href: "/cms/org-structure?org=trainee",
+            permission: "database.study_program.trainee.view",
           },
-          {
-            title: "Trainee - Secretariat Contact",
-            icon: Info,
-            href: "/cms/coming-soon/trainee-secretariat",
-            permission: "agenda.study_program.trainee.view",
-          },
+          // {
+          //   title: "Trainee - Secretariat Contact",
+          //   icon: Info,
+          //   href: "/cms/coming-soon/trainee-secretariat",
+          //   permission: "agenda.study_program.trainee.view",
+          // },
           {
             title: "Trainee - Database",
             icon: BookOpen,
@@ -286,7 +293,7 @@ export const sidebarMenu = [
           {
             title: "Trainee - Gallery",
             icon: Images,
-            href: "/cms/coming-soon/trainee-gallery",
+            href: "/cms/gallery?scope=study_program&section=trainee",
             permission: "agenda.study_program.trainee.view",
           },
         ],
@@ -301,40 +308,15 @@ export const sidebarMenu = [
       {
         title: "Peer Group - Profile",
         icon: Info,
-        href: "/cms/coming-soon/peergroup-profile",
-        permission: "agenda.peer_group.view",
+        href: "/cms/affiliation-profile?scope=peer_group",
+        permission: "profile.peer_group.view",
       },
-      // ,
-      // {
-      //   title: "Peer Group - Logo & Photos",
-      //   icon: Images,
-      //   href: "/cms/coming-soon/peergroup-logo-photos",
-      //   permission: null,
-      // },
-      // {
-      //   title: "Peer Group - Histories",
-      //   icon: History,
-      //   href: "/cms/coming-soon/peergroup-histories",
-      //   permission: null,
-      // },
-      // {
-      //   title: "Peer Group - Vision & Mission",
-      //   icon: Eye,
-      //   href: "/cms/coming-soon/peergroup-vision-mission",
-      //   permission: null,
-      // },
-      // {
-      //   title: "Peer Group - Org. Structure",
-      //   icon: Users,
-      //   href: "/cms/coming-soon/peergroup-structure",
-      //   permission: null,
-      // },
-      // {
-      //   title: "Peer Group - Secretariat Contact",
-      //   icon: Info,
-      //   href: "/cms/coming-soon/peergroup-secretariat",
-      //   permission: null,
-      // },
+      {
+        title: "Peer Group - Org. Structure",
+        icon: Users,
+        href: "/cms/org-structure?org=peer_group",
+        permission: "database.peer_group.view",
+      },
 
       {
         title: "Member Database",
@@ -358,7 +340,7 @@ export const sidebarMenu = [
       {
         title: "Peer Group - Gallery",
         icon: Images,
-        href: "/cms/coming-soon/peergroup-gallery",
+        href: "/cms/gallery?scope=peer_group",
         permission: "agenda.peer_group.view",
       },
     ],

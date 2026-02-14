@@ -196,7 +196,7 @@ export default function Dashboard() {
   const getProgramLabel = (type) => {
     const labels = {
       resident: "PPDS 1",
-      trainee: "Subspesialis",
+      trainee: "Subspecialist",
       fellow: "Clinical Fellowship",
     };
     return labels[type] || type;

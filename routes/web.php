@@ -9,7 +9,12 @@ use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Affiliation;
+use App\Models\AffiliationProfile;
 use App\Models\DatabaseMember;
+use App\Models\OrgStructureMember;
+use App\Models\TeacherStaffMember;
+use App\Models\TeachingHospital;
+use App\Models\Specialization;
 
 // Public Homepage - no login required
 Route::get('/', function () {
@@ -18,14 +23,103 @@ Route::get('/', function () {
 
 // Peer Group page
 Route::get('/peer-group', function () {
-    return Inertia::render('PeerGroup', ['layout' => 'HomepageLayout']);
+    $peerGroups = Affiliation::query()
+        ->where('type', 'peer_group')
+        ->orderBy('name')
+        ->get()
+        ->map(function ($affiliation) {
+            $profile = AffiliationProfile::where('affiliation_id', $affiliation->id)->first();
+            $logoUrl = null;
+            if ($profile && $profile->logo) {
+                $logoUrl = \Illuminate\Support\Facades\Storage::url($profile->logo);
+            } elseif ($affiliation->logo) {
+                $logoUrl = \Illuminate\Support\Facades\Storage::url($affiliation->logo);
+            }
+
+            // Get president from org structure (first by position_order)
+            $president = OrgStructureMember::query()
+                ->where('organization_type', 'peer_group')
+                ->where('affiliation_id', $affiliation->id)
+                ->orderBy('position_order')
+                ->first();
+
+            $totalMembers = DatabaseMember::query()
+                ->where('organization_type', 'peer_group')
+                ->where('affiliation_id', $affiliation->id)
+                ->count();
+
+            return [
+                'id' => $affiliation->id,
+                'code' => $affiliation->code,
+                'name' => $affiliation->code ?: $affiliation->name,
+                'fullName' => $affiliation->name,
+                'logo' => $logoUrl,
+                'president' => $president ? $president->name : '',
+                'presidentPosition' => $president ? ($president->position ?? 'President') : '',
+                'description' => $profile->description ?? '',
+                'members' => $totalMembers,
+            ];
+        });
+
+    return Inertia::render('PeerGroup/index', [
+        'layout' => 'HomepageLayout',
+        'peerGroups' => $peerGroups,
+    ]);
 })->name('peer-group');
 
 // Peer Group Detail page
 Route::get('/peer-group/{id}', function ($id) {
-    return Inertia::render('PeerGroupDetail', [
+    $affiliation = Affiliation::query()->where('id', $id)->orWhere('code', $id)->firstOrFail();
+    $profile = AffiliationProfile::where('affiliation_id', $affiliation->id)->first();
+
+    $totalMembers = DatabaseMember::query()
+        ->where('organization_type', 'peer_group')
+        ->where('affiliation_id', $affiliation->id)
+        ->count();
+
+    $profileLogoUrl = $profile && $profile->logo ? \Illuminate\Support\Facades\Storage::url($profile->logo) : null;
+    $logoUrl = $profileLogoUrl ?? ($affiliation->logo ? \Illuminate\Support\Facades\Storage::url($affiliation->logo) : null);
+    $coverImageUrl = $profile && $profile->cover_image ? \Illuminate\Support\Facades\Storage::url($profile->cover_image) : null;
+
+    // Fetch org structure members
+    $orgMembers = OrgStructureMember::query()
+        ->where('organization_type', 'peer_group')
+        ->where('affiliation_id', $affiliation->id)
+        ->orderBy('position_order')
+        ->orderBy('name')
+        ->get()
+        ->map(fn ($m) => [
+            'id' => $m->id,
+            'name' => $m->name,
+            'position' => $m->position ?? '',
+            'email' => $m->email ?? '',
+            'photo' => $m->photo ? (str_starts_with($m->photo, 'http') ? $m->photo : \Illuminate\Support\Facades\Storage::url($m->photo)) : null,
+        ])
+        ->toArray();
+
+    return Inertia::render('PeerGroup/PeerGroupDetail', [
         'layout' => 'HomepageLayout',
-        'peerGroupId' => $id
+        'peerGroupId' => $id,
+        'peerGroup' => [
+            'id' => $affiliation->id,
+            'code' => $affiliation->code,
+            'name' => $affiliation->code,
+            'fullName' => $affiliation->name,
+            'subTitle' => $profile?->sub_title ?? '',
+            'logo' => $logoUrl,
+            'image' => $coverImageUrl,
+            'members' => $totalMembers,
+            'description' => $profile?->description ?? '',
+            'registrationInfo' => $profile?->registration_info ?? '',
+            'registrationUrl' => $profile?->registration_url ?? '',
+            'contact' => [
+                'address' => $profile?->contact_address ?? '',
+                'phone' => $profile?->contact_phone ?? '',
+                'email' => $profile?->contact_email ?? '',
+                'website' => $profile?->contact_website ?? '',
+            ],
+            'orgStructure' => $orgMembers,
+        ],
     ]);
 })->name('peer-group.detail');
 
@@ -45,14 +139,87 @@ Route::get('/profile-study-program/subspesialis', function () {
 // University Detail Routes - Public Access
 // Clinical Fellowship Detail (has different layout)
 Route::get('/profile-study-program/clinical-fellowship/{id}', function ($id) {
+    $affiliation = Affiliation::query()->where('id', $id)->orWhere('code', $id)->firstOrFail();
+    $profile = AffiliationProfile::where('affiliation_id', $affiliation->id)->first();
+
+    $activeFellows = DatabaseMember::query()
+        ->where('organization_type', 'fellow')
+        ->where('affiliation_id', $affiliation->id)
+        ->where('status', 'active')
+        ->count();
+
+    $profileLogoUrl = $profile && $profile->logo ? \Illuminate\Support\Facades\Storage::url($profile->logo) : null;
+    $logoUrl = $profileLogoUrl ?? ($affiliation->logo ? \Illuminate\Support\Facades\Storage::url($affiliation->logo) : null);
+    $coverImageUrl = $profile && $profile->cover_image ? \Illuminate\Support\Facades\Storage::url($profile->cover_image) : null;
+
+    // Fetch org structure members
+    $orgMembers = OrgStructureMember::query()
+        ->where('organization_type', 'fellow')
+        ->where('affiliation_id', $affiliation->id)
+        ->orderBy('position_order')
+        ->orderBy('name')
+        ->get()
+        ->map(fn ($m) => [
+            'id' => $m->id,
+            'name' => $m->name,
+            'position' => $m->position ?? '',
+            'email' => $m->email ?? '',
+            'photo' => $m->photo ? (str_starts_with($m->photo, 'http') ? $m->photo : \Illuminate\Support\Facades\Storage::url($m->photo)) : null,
+        ])
+        ->toArray();
+
+    // Fetch teacher staff members with division
+    $teacherStaff = TeacherStaffMember::query()
+        ->where('affiliation_id', $affiliation->id)
+        ->with('division')
+        ->orderBy('name')
+        ->get()
+        ->map(fn ($m) => [
+            'id' => $m->id,
+            'name' => $m->name,
+            'photo' => $m->photo ? (str_starts_with($m->photo, 'http') ? $m->photo : \Illuminate\Support\Facades\Storage::url($m->photo)) : null,
+            'institution_origin' => $m->institution_origin ?? '',
+            'division' => $m->division->name ?? '',
+        ])
+        ->toArray();
+
+    // Fetch teaching hospitals count
+    $teachingHospitalCount = TeachingHospital::where('affiliation_id', $affiliation->id)->count();
+
     return Inertia::render('ProfileStudyProgram/ClinicalFellowshipDetail', [
-        'fellowshipId' => $id
+        'fellowshipId' => $id,
+        'fellowship' => [
+            'id' => $affiliation->id,
+            'code' => $affiliation->code,
+            'name' => $affiliation->name,
+            'title' => 'Clinical Fellowship',
+            'subTitle' => $profile->sub_title ?? '',
+            'logo' => $logoUrl,
+            'image' => $coverImageUrl,
+            'stats' => [
+                'fellowActive' => $activeFellows,
+                'staffPendidik' => count($teacherStaff),
+                'rsPendidikan' => $teachingHospitalCount,
+            ],
+            'description' => $profile->description ?? '',
+            'contact' => [
+                'address' => $profile->contact_address ?? '',
+                'phone' => $profile->contact_phone ?? '',
+                'website' => $profile->contact_website ?? '',
+            ],
+            'registration' => [
+                'info' => $profile->registration_info ?? '',
+                'url' => $profile->registration_url ?? '',
+            ],
+            'orgStructure' => $orgMembers,
+            'teacherStaff' => $teacherStaff,
+        ],
     ]);
 })->name('profile.clinical-fellowship.detail');
 
-// Database Members landing page (public)
-Route::get('/profile-study-program/{type}/{id}/database', function ($type, $id) {
-    $affiliation = Affiliation::query()->select(['id', 'name', 'code', 'type'])->findOrFail($id);
+// Database Members landing page (public) - using affiliation code
+Route::get('/profile-study-program/{type}/{code}/database', function ($type, $code) {
+    $affiliation = Affiliation::query()->select(['id', 'name', 'code', 'type'])->where('code', $code)->firstOrFail();
 
     return Inertia::render('ProfileStudyProgram/DatabaseMembersLanding', [
         'type' => $type,
@@ -61,9 +228,10 @@ Route::get('/profile-study-program/{type}/{id}/database', function ($type, $id) 
 })->where('type', 'ppds1|subspesialis')
 ->name('profile.university.database');
 
-// PPDS1 and Subspesialis Detail (same layout)
-Route::get('/profile-study-program/{type}/{id}', function ($type, $id) {
-    $affiliation = Affiliation::query()->select(['id', 'name', 'code', 'type'])->findOrFail($id);
+// PPDS1 and Subspesialis Detail (same layout) - using affiliation code
+Route::get('/profile-study-program/{type}/{code}', function ($type, $code) {
+    $affiliation = Affiliation::query()->where('code', $code)->firstOrFail();
+    $profile = AffiliationProfile::where('affiliation_id', $affiliation->id)->first();
     $orgType = $type === 'ppds1' ? 'resident' : ($type === 'subspesialis' ? 'trainee' : null);
 
     $activeResidents = 0;
@@ -75,43 +243,110 @@ Route::get('/profile-study-program/{type}/{id}', function ($type, $id) {
             ->count();
     }
 
-    return Inertia::render('ProfileStudyProgram/UniversityDetail', [
+    // Educational Dashboard stats from database_members
+    $dbBaseQuery = DatabaseMember::query()
+        ->where('organization_type', $orgType ?? 'resident')
+        ->where('affiliation_id', $affiliation->id);
+
+    $totalResidents = (clone $dbBaseQuery)->count();
+    $activeResidentsCount = (clone $dbBaseQuery)->where('status', 'active')->count();
+    $graduatedCount = (clone $dbBaseQuery)->where('status', 'graduated')->count();
+    $leaveCount = (clone $dbBaseQuery)->where('status', 'leave')->count();
+
+    $educationalDashboard = [
+        'resident' => [
+            'active' => $activeResidentsCount,
+            'total' => $totalResidents,
+        ],
+        'alumni' => [
+            'count' => $graduatedCount,
+            'total' => $totalResidents,
+        ],
+    ];
+
+    // Resolve image URLs — prefer profile logo, fallback to affiliation logo
+    $profileLogoUrl = $profile && $profile->logo ? \Illuminate\Support\Facades\Storage::url($profile->logo) : null;
+    $logoUrl = $profileLogoUrl ?? ($affiliation->logo ? \Illuminate\Support\Facades\Storage::url($affiliation->logo) : null);
+    $coverImageUrl = $profile && $profile->cover_image ? \Illuminate\Support\Facades\Storage::url($profile->cover_image) : null;
+
+    // Fetch org structure members for this affiliation
+    $orgMembers = OrgStructureMember::query()
+        ->where('organization_type', $orgType ?? 'resident')
+        ->where('affiliation_id', $affiliation->id)
+        ->orderBy('position_order')
+        ->orderBy('name')
+        ->get()
+        ->map(fn ($m) => [
+            'id' => $m->id,
+            'name' => $m->name,
+            'position' => $m->position ?? '',
+            'email' => $m->email ?? '',
+            'photo' => $m->photo ? (str_starts_with($m->photo, 'http') ? $m->photo : \Illuminate\Support\Facades\Storage::url($m->photo)) : null,
+        ])
+        ->toArray();
+
+    // Fetch teacher staff members for this affiliation
+    $teacherStaff = TeacherStaffMember::query()
+        ->where('affiliation_id', $affiliation->id)
+        ->with('division:id,name')
+        ->orderBy('name')
+        ->get()
+        ->map(fn ($m) => [
+            'id' => $m->id,
+            'name' => $m->name,
+            'institution_origin' => $m->institution_origin ?? '',
+            'division' => $m->division?->name ?? '',
+            'photo' => $m->photo ? (str_starts_with($m->photo, 'http') ? $m->photo : \Illuminate\Support\Facades\Storage::url($m->photo)) : null,
+        ])
+        ->toArray();
+
+    return Inertia::render('ProfileStudyProgram/StudyProgramDetail', [
         'type' => $type,
         'university' => [
             'id' => $affiliation->id,
+            'code' => $affiliation->code,
             'name' => $affiliation->code,
             'fullName' => $affiliation->name,
-            'description' => $type === 'ppds1' ? 'PPDS I Orthopaedi & Traumatologi' : 'Subspesialis Orthopaedi & Traumatologi',
-            'image' => '/assets/images/university-building.jpg',
+            'logo' => $logoUrl,
+            'subTitle' => $profile->sub_title ?? '',
+            'description' => $profile->description ?? ($type === 'ppds1' ? 'PPDS I Orthopaedi & Traumatologi' : 'Subspesialis Orthopaedi & Traumatologi'),
+            'image' => $coverImageUrl,
             'stats' => [
                 'activeResidents' => $activeResidents,
-                'faculty' => 0,
-                'teachingHospitals' => 0,
-            ],
-            'profileResident' => [
-                'name' => '-',
-                'position' => '-',
-                'image' => '/assets/images/profile-placeholder.jpg',
-                'description' => '-',
+                'faculty' => count($teacherStaff),
+                'teachingHospitals' => TeachingHospital::where('affiliation_id', $affiliation->id)->count(),
             ],
             'contact' => [
-                'address' => '-',
-                'email' => '-',
-                'phone' => '-',
-                'website' => '-',
+                'address' => $profile->contact_address ?? '',
+                'email' => $profile->contact_email ?? '',
+                'phone' => $profile->contact_phone ?? '',
+                'website' => $profile->contact_website ?? '',
             ],
             'information' => [
-                'accreditation' => '-',
-                'established' => '-',
-                'duration' => '-',
-                'capacity' => '-',
+                'accreditation' => $profile->accreditation ?? '',
+                'degree' => $profile->degree ?? '',
+                'established' => $profile->established_year ?? '',
+                'duration' => $profile->program_duration ?? '',
+                'capacity' => $profile->capacity ?? '',
             ],
-            'staffList' => [],
-            'residents' => [
-                'year1' => [],
-                'year2' => [],
-            ],
-            'gallery' => [],
+            'registrationInfo' => $profile->registration_info ?? '',
+            'registrationUrl' => $profile->registration_url ?? '',
+            'educationalDashboard' => $educationalDashboard,
+            'orgStructure' => $orgMembers,
+            'teacherStaff' => $teacherStaff,
+            'teachingHospitals' => TeachingHospital::query()
+                ->where('affiliation_id', $affiliation->id)
+                ->orderBy('category')
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get(['id', 'category', 'name', 'location'])
+                ->toArray(),
+            'specializations' => Specialization::query()
+                ->where('affiliation_id', $affiliation->id)
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->toArray(),
         ],
     ]);
 })->where('type', 'ppds1|subspesialis')
@@ -131,6 +366,29 @@ Route::get('/calendar-academic', function () {
 Route::get('/about-us', function () {
     return Inertia::render('AboutUs');
 })->name('about.us');
+
+// Well-Being Survey Routes - Public Access
+Route::get('/wellbeing-survey', [\App\Http\Controllers\WellbeingSurveyController::class, 'index'])
+    ->name('wellbeing-survey.index');
+
+Route::get('/wellbeing-survey/show', [\App\Http\Controllers\WellbeingSurveyController::class, 'show'])
+    ->name('wellbeing-survey.show');
+
+Route::post('/wellbeing-survey/submit', [\App\Http\Controllers\WellbeingSurveyController::class, 'store'])
+    ->name('wellbeing-survey.store');
+
+// Database Members - Public Access (Separate pages)
+Route::get('/database-residents', function () {
+    return Inertia::render('Database/DatabaseResidents');
+})->name('database.residents');
+
+Route::get('/database-fellows', function () {
+    return Inertia::render('Database/DatabaseFellows');
+})->name('database.fellows');
+
+Route::get('/database-trainees', function () {
+    return Inertia::render('Database/DatabaseTrainees');
+})->name('database.trainees');
 
 // Login routes
 Route::middleware('guest')->group(function () {
@@ -214,6 +472,26 @@ Route::middleware([Authenticate::class])
 
         // Change Password Route
         Route::post('/change-password', [\App\Http\Controllers\UserController::class, 'changePasswordWeb'])->name('change-password');
+
+        // Affiliation Profile Editor
+        Route::get('/affiliation-profile', function () {
+            return Inertia::render('AffiliationProfile/index');
+        })->name('affiliation-profile');
+
+        // Organizational Structure
+        Route::get('/org-structure', function () {
+            return Inertia::render('OrgStructure/index');
+        })->name('org-structure');
+
+        // Gallery
+        Route::get('/gallery', function () {
+            return Inertia::render('Gallery/index');
+        })->name('gallery');
+
+        // Well-Being Survey Results
+        Route::get('/wellbeing-surveys', function () {
+            return Inertia::render('WellbeingSurvey/CmsIndex');
+        })->name('wellbeing-surveys');
 
         // Generic coming soon page for not-yet-developed CMS menus
         Route::get('/coming-soon/{slug}', function ($slug) {

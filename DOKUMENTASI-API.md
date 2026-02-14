@@ -7,6 +7,11 @@ Dokumentasi lengkap API endpoints dengan contoh request/response.
 - [User Management](#user-management)
 - [Role Management](#role-management)
 - [Permission Management](#permission-management)
+- [Affiliation Management](#affiliation-management)
+- [Agenda Events](#agenda-events)
+- [Database Members](#database-members)
+- [Well-Being Survey](#well-being-survey)
+- [Public API Endpoints](#public-api-endpoints)
 - [Error Handling](#error-handling)
 
 ---
@@ -1284,6 +1289,884 @@ Retry-After: 60
 
 ---
 
+## Affiliation Management
+
+### List Affiliations (Protected)
+
+```http
+GET /api/affiliations
+Authorization: Bearer {token}
+```
+
+**Query Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| search | string | No | Search by name or code |
+| type | string | No | Filter by type: `kolegium`, `residen`, `clinical_fellowship`, `subspesialis`, `peer_group` |
+| sort_by | string | No | Column to sort by |
+| sort_direction | string | No | `asc` or `desc` (default: `asc`) |
+
+**Required Permission:** `users.view`
+
+**Response 200:**
+```json
+{
+  "status": "success",
+  "data": [
+    {
+      "id": 1,
+      "name": "Kolegium Orthopaedi dan Traumatologi",
+      "code": "KOT",
+      "type": "kolegium",
+      "since": "1999",
+      "logo": "/storage/affiliations/logos/kot.png",
+      "users_count": 5,
+      "created_at": "2025-01-01T00:00:00.000000Z"
+    }
+  ]
+}
+```
+
+### Show Affiliation (Protected)
+
+```http
+GET /api/affiliations/{id}
+Authorization: Bearer {token}
+```
+
+**Required Permission:** `users.view`
+
+### Create Affiliation (Protected)
+
+```http
+POST /api/affiliations
+Authorization: Bearer {token}
+Content-Type: multipart/form-data
+```
+
+**Body:**
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| name | string | Yes | max:255 |
+| type | string | Yes | Enum: `kolegium`, `residen`, `clinical_fellowship`, `subspesialis`, `peer_group` |
+| code | string | Yes | max:50, unique |
+| since | string | No | max:4 (year) |
+| logo | file | No | image, max:2MB, jpeg/png/jpg/gif/svg |
+
+**Required Permission:** `users.create`
+
+### Update Affiliation (Protected)
+
+```http
+PUT /api/affiliations/{id}
+Authorization: Bearer {token}
+Content-Type: multipart/form-data
+```
+
+Same fields as Create, all `sometimes` required.
+
+**Required Permission:** `users.edit`
+
+### Delete Affiliation (Protected)
+
+```http
+DELETE /api/affiliations/{id}
+Authorization: Bearer {token}
+```
+
+**Required Permission:** `users.delete`
+
+> **Note:** Cannot delete affiliations that have users assigned.
+
+### Get User Affiliations (Protected)
+
+```http
+GET /api/affiliations/user/{user_id}
+Authorization: Bearer {token}
+```
+
+**Required Permission:** `users.view`
+
+### Assign User Affiliations (Protected)
+
+```http
+POST /api/affiliations/user/{user_id}
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "affiliation_ids": [1, 5, 12]
+}
+```
+
+**Required Permission:** `users.edit`
+
+> Replaces all existing affiliations with provided list (sync).
+
+### Get Affiliation by Code (Public)
+
+```http
+GET /api/affiliations/by-code/{code}
+```
+
+No authentication required. Returns single affiliation matching the code.
+
+---
+
+## Agenda Events
+
+### List Events (Protected/CMS)
+
+```http
+GET /api/agenda-events
+Authorization: Bearer {token}
+```
+
+**Query Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| scope | string | No | `kolegium`, `study_program`, `peer_group` |
+| section | string | Conditional | Required if scope=`study_program`: `resident`, `fellow`, `trainee` |
+| type | string | No | Event type filter |
+| from | date | No | Start date filter (YYYY-MM-DD) |
+| to | date | No | End date filter (YYYY-MM-DD) |
+| per_page | int | No | Default: 10 |
+
+**Permission:** Based on scope — e.g. `agenda.kolegium.view`, `agenda.study_program.resident.view`
+
+**Response 200:**
+```json
+{
+  "status": "success",
+  "data": {
+    "data": [
+      {
+        "id": 1,
+        "scope": "kolegium",
+        "section": null,
+        "type": "ujian_nasional",
+        "title": "Ujian Board Nasional 2025",
+        "description": "<p>Rich text content...</p>",
+        "location": "Jakarta",
+        "registration_url": "https://...",
+        "image_url": "https://...",
+        "start_date": "2025-03-15",
+        "end_date": "2025-03-16",
+        "is_published": true,
+        "published_at": "2025-02-01 10:00:00",
+        "created_by": 1,
+        "affiliation_id": 1
+      }
+    ],
+    "current_page": 1,
+    "last_page": 5,
+    "per_page": 10,
+    "total": 48
+  }
+}
+```
+
+### Create Event (Protected)
+
+```http
+POST /api/agenda-events
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "scope": "kolegium",
+  "section": null,
+  "type": "ujian_nasional",
+  "title": "Ujian Board Nasional 2025",
+  "description": "<p>Deskripsi event...</p>",
+  "location": "Jakarta Convention Center",
+  "registration_url": "https://register.example.com",
+  "image_url": "/storage/agenda-events/image.jpg",
+  "start_date": "2025-03-15",
+  "end_date": "2025-03-16",
+  "is_published": false,
+  "affiliation_id": 1
+}
+```
+
+**Validation:**
+| Field | Type | Required | Rules |
+|-------|------|----------|-------|
+| scope | string | Yes | `kolegium`, `study_program`, `peer_group` |
+| section | string | Conditional | Required if scope=`study_program`: `resident`, `fellow`, `trainee` |
+| type | string | Yes | See event types below |
+| title | string | Yes | max:255 |
+| description | string | No | Rich text |
+| location | string | No | max:255 |
+| registration_url | string | No | max:500 |
+| image_url | string | No | max:500 |
+| start_date | date | Yes | |
+| end_date | date | No | Must be >= start_date |
+| is_published | boolean | No | |
+| affiliation_id | int | No | Must exist in affiliations. Auto-assigned for non-super-admin. |
+
+**Event Types:**
+- `ujian_lokal` — Ujian Lokal
+- `ujian_nasional` — Ujian Nasional
+- `event_lokal` — Event Lokal
+- `event_nasional` — Event Nasional
+- `event_peer_group` — Event Peer Group International (peer_group scope only)
+- `event_peer_group_nasional` — Event Peer Group National (peer_group scope only)
+
+**Permission:** `agenda.{scope}.create` or `agenda.{scope}.{section}.create`
+
+### Update Event (Protected)
+
+```http
+PUT /api/agenda-events/{id}
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "title": "Updated Title",
+  "description": "Updated description",
+  "start_date": "2025-04-01"
+}
+```
+
+Same fields as Create, all `sometimes` required. Scope and section cannot be changed.
+
+**Permission:** `agenda.{scope}.edit` or `agenda.{scope}.{section}.edit`
+
+### Delete Event (Protected)
+
+```http
+DELETE /api/agenda-events/{id}
+Authorization: Bearer {token}
+```
+
+Soft deletes the event.
+
+**Permission:** `agenda.{scope}.delete` or `agenda.{scope}.{section}.delete`
+
+### Publish Event (Protected)
+
+```http
+POST /api/agenda-events/{id}/publish
+Authorization: Bearer {token}
+```
+
+Sets `is_published=true` and `published_at=now()`.
+
+**Permission:** `agenda.{scope}.publish`
+
+### Unpublish Event (Protected)
+
+```http
+POST /api/agenda-events/{id}/unpublish
+Authorization: Bearer {token}
+```
+
+Sets `is_published=false` and `published_at=null`.
+
+**Permission:** `agenda.{scope}.publish`
+
+### Upload Event Image (Protected)
+
+```http
+POST /api/agenda-events/upload-image
+Authorization: Bearer {token}
+Content-Type: multipart/form-data
+```
+
+**Body:**
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| scope | string | Yes | `kolegium`, `study_program`, `peer_group` |
+| section | string | Conditional | Required if scope=`study_program` |
+| image | file | Yes | image, max:5MB |
+
+**Response 200:**
+```json
+{
+  "status": "success",
+  "message": "Image uploaded successfully",
+  "data": {
+    "path": "agenda-events/abc123.jpg",
+    "url": "https://domain.com/storage/agenda-events/abc123.jpg"
+  }
+}
+```
+
+### Upload Image for Existing Event (Protected)
+
+```http
+POST /api/agenda-events/{id}/upload-image
+Authorization: Bearer {token}
+Content-Type: multipart/form-data
+```
+
+**Body:** `image` (file, required, max:5MB)
+
+Also updates the event's `image_url` field automatically.
+
+---
+
+## Database Members
+
+### List Members (Protected/CMS)
+
+```http
+GET /api/database-members
+Authorization: Bearer {token}
+```
+
+**Query Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| organization_type | string | Yes | `koti`, `kolkes`, `resident`, `fellow`, `trainee`, `peer_group` |
+| affiliation_id | int | No | Filter by affiliation (required for non-super-admin without affiliations) |
+| per_page | int | No | Default: 10, max: 100 |
+
+**Permission:** Based on org type — e.g. `database.kolegium.koti.view`, `database.study_program.resident.view`
+
+> Data automatically filtered by user's affiliations for non-super-admin users.
+
+**Response 200:**
+```json
+{
+  "status": "success",
+  "data": {
+    "data": [
+      {
+        "id": 1,
+        "organization_type": "resident",
+        "affiliation_id": 2,
+        "member_code": "RES-001",
+        "name": "Dr. John Doe",
+        "position": "",
+        "photo": "https://...",
+        "contact": "+62812...",
+        "entry_date": "2023-07-01",
+        "gender": "male",
+        "specialization": "Orthopaedic Spine",
+        "status": "active",
+        "title": "dr., Sp.OT",
+        "affiliation": {
+          "id": 2,
+          "name": "FK Universitas Indonesia",
+          "code": "FK-UI"
+        }
+      }
+    ],
+    "current_page": 1,
+    "last_page": 3,
+    "per_page": 10,
+    "total": 25
+  }
+}
+```
+
+### Create Member (Protected)
+
+```http
+POST /api/database-members
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "organization_type": "resident",
+  "affiliation_id": 2,
+  "member_code": "RES-002",
+  "name": "Dr. Jane Smith",
+  "gender": "female",
+  "entry_date": "2024-01-15",
+  "specialization": "Orthopaedic Spine",
+  "status": "active"
+}
+```
+
+**Validation:**
+| Field | Type | Required | Rules |
+|-------|------|----------|-------|
+| organization_type | string | Yes | `koti`, `kolkes`, `resident`, `fellow`, `trainee`, `peer_group` |
+| affiliation_id | int | No | Auto-assigned for non-super-admin |
+| member_code | string | Yes | max:255, unique per org_type+affiliation |
+| name | string | Yes | max:255 |
+| position | string | No | max:255 |
+| photo | string | No | URL/path, max:1000 |
+| contact | string | No | max:255 |
+| entry_date | date | No | |
+| gender | string | No | `male` or `female` |
+| specialization | string | No | Must be from predefined list (see below) |
+| status | string | No | `active`, `graduated`, `leave` (default: `active`) |
+| specialty | string | No | max:255 |
+| group | string | No | max:255 |
+| title | string | No | max:255 |
+| location | string | No | max:255 |
+
+**Specialization Options:**
+- Hip and Knee (Adult Reconstruction, Trauma, and Sports)
+- Orthopaedic Sports Injury
+- Advanced Orthopaedic Trauma
+- Shoulder and Elbow
+- Foot and Ankle
+- Pediatric Orthopaedic
+- Orthopaedic Oncology
+- Hand, Upper Limb and Microsurgery
+- Orthopaedic Spine
+
+**Permission:** `database.{mapped_module}.create` (e.g. `database.study_program.resident.create`)
+
+### Update Member (Protected)
+
+```http
+PUT /api/database-members/{id}
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "name": "Dr. Jane Smith Updated",
+  "status": "graduated"
+}
+```
+
+Same fields as Create (except `organization_type`), all `sometimes` required.
+
+**Permission:** `database.{mapped_module}.edit`
+
+### Delete Member (Protected)
+
+```http
+DELETE /api/database-members/{id}
+Authorization: Bearer {token}
+```
+
+Soft deletes the member.
+
+**Permission:** `database.{mapped_module}.delete`
+
+### Upload Photo (Protected)
+
+```http
+POST /api/database-members/upload-photo
+Authorization: Bearer {token}
+Content-Type: multipart/form-data
+```
+
+**Body:**
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| organization_type | string | Yes | Valid org type |
+| image | file | Yes | image, max:5MB |
+
+**Response 200:**
+```json
+{
+  "status": "success",
+  "data": {
+    "path": "database-members/abc123.jpg",
+    "url": "https://domain.com/storage/database-members/abc123.jpg"
+  }
+}
+```
+
+### Upload Photo for Existing Member (Protected)
+
+```http
+POST /api/database-members/{id}/upload-photo
+Authorization: Bearer {token}
+Content-Type: multipart/form-data
+```
+
+**Body:** `image` (file, required, max:5MB)
+
+Also updates the member's `photo` field automatically.
+
+### Export Excel (Protected)
+
+```http
+GET /api/database-members/export-excel
+Authorization: Bearer {token}
+```
+
+**Query Parameters:**
+| Parameter | Type | Required |
+|-----------|------|----------|
+| organization_type | string | Yes |
+| affiliation_id | int | No |
+
+Returns `.xlsx` file download. Columns vary by org type (peer_group has fewer columns).
+
+**Permission:** `database.{mapped_module}.view`
+
+### Download Template Excel (Protected)
+
+```http
+GET /api/database-members/template-excel
+Authorization: Bearer {token}
+```
+
+**Query Parameters:**
+| Parameter | Type | Required |
+|-----------|------|----------|
+| organization_type | string | Yes |
+| affiliation_id | int | No |
+
+Returns empty `.xlsx` template with correct headers for import.
+
+**Permission:** `database.{mapped_module}.import`
+
+### Import Excel (Protected)
+
+```http
+POST /api/database-members/import-excel
+Authorization: Bearer {token}
+Content-Type: multipart/form-data
+```
+
+**Body:**
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| organization_type | string | Yes | Valid org type |
+| affiliation_id | int | No | Auto-assigned for non-super-admin |
+| file | file | Yes | `.xlsx` or `.xls` |
+
+**Import Behavior:**
+- Required columns: `member_code`, `name`
+- Supports Indonesian header aliases (e.g. "Nomor Identitas" → `member_code`, "Nama" → `name`)
+- Gender values auto-mapped: `Laki-laki`/`Pria`/`M` → `male`, `Perempuan`/`Wanita`/`F` → `female`
+- Status values auto-mapped: `Aktif` → `active`, `Lulus` → `graduated`, `Cuti` → `leave`
+- Upsert logic: updates existing records if `org_type + affiliation_id + member_code + name` match
+- Returns row-level errors if validation fails
+
+**Response 200:**
+```json
+{
+  "status": "success",
+  "message": "Import completed successfully.",
+  "data": { "processed": 25 }
+}
+```
+
+**Response 422 (validation errors):**
+```json
+{
+  "status": "error",
+  "message": "Validation failed.",
+  "errors": [
+    { "row": 3, "column": "member_code", "message": "member_code is required." },
+    { "row": 7, "column": "gender", "message": "gender must be male or female." }
+  ]
+}
+```
+
+### Get Affiliations for Database (Protected)
+
+```http
+GET /api/database-members/affiliations
+Authorization: Bearer {token}
+```
+
+**Query Parameters:**
+| Parameter | Type | Required |
+|-----------|------|----------|
+| type | string | No | Filter by affiliation type |
+
+Returns affiliations filtered by user's database permissions.
+
+### Search Members (Public)
+
+```http
+GET /api/database-members/search
+```
+
+**Query Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| search_type | string | Yes | `member_code`, `nama`, or `contact` |
+| search_value | string | Yes | Search value, max:255 |
+| affiliation_id | int | No | Filter by affiliation |
+
+Used by Well-Being Survey to verify member identity before survey submission.
+
+**Response 200:**
+```json
+{
+  "status": "success",
+  "data": {
+    "id": 42,
+    "member_code": "RES-001",
+    "name": "Dr. John Doe",
+    "contact": "+62812...",
+    "affiliation_id": 2
+  }
+}
+```
+
+**Response 404:**
+```json
+{
+  "status": "error",
+  "message": "Member not found",
+  "data": null
+}
+```
+
+---
+
+## Well-Being Survey
+
+### Submit Survey (Public)
+
+```http
+POST /api/wellbeing-surveys
+Content-Type: application/json
+
+{
+  "affiliation_id": 2,
+  "affiliation_code": "FK-UI",
+  "participant_type": "resident",
+  "university": "Universitas Indonesia",
+  "faculty": "FK",
+  "study_program_name": "Orthopaedi dan Traumatologi",
+  "program_type": "residen",
+  "mood": "worry",
+  "burnout": true,
+  "emotional_hardening": false,
+  "depressed": false,
+  "sleep_issue": true,
+  "bullying": false,
+  "discomfort": true,
+  "discomfort_note": "Feeling overwhelmed with workload"
+}
+```
+
+No authentication required.
+
+**Validation:**
+| Field | Type | Required | Rules |
+|-------|------|----------|-------|
+| affiliation_id | int | Yes | Must exist in affiliations |
+| affiliation_code | string | No | |
+| participant_type | string | No | |
+| university | string | No | |
+| faculty | string | No | |
+| study_program_name | string | No | |
+| program_type | string | No | |
+| mood | string | Yes | `happy`, `normal`, `worry`, `depressed`, `help_me` |
+| burnout | boolean | Yes | |
+| emotional_hardening | boolean | Yes | |
+| depressed | boolean | Yes | |
+| sleep_issue | boolean | Yes | |
+| bullying | boolean | Yes | |
+| discomfort | boolean | Yes | |
+| discomfort_note | string | No | max:1000 |
+
+**Backend Processing:**
+1. Calculate `mental_health_score` (0-5): count of `true` values from burnout, emotional_hardening, depressed, sleep_issue, bullying
+2. Calculate `risk_level`:
+   - `low` — score 0-1, mood not depressed/help_me/worry
+   - `mild` — mood = worry
+   - `moderate` — score 2-3
+   - `high` — score 4-5, or mood = depressed/help_me
+3. Auto-generate `crisis_resources` based on affiliation
+
+**Response 201:**
+```json
+{
+  "status": "success",
+  "message": "Survey submitted successfully.",
+  "data": {
+    "id": 15,
+    "risk_level": "moderate",
+    "mental_health_score": 2,
+    "affirmation_message": "Your feelings are valid. Consider talking to someone you trust."
+  }
+}
+```
+
+### Get Survey Result (Public)
+
+```http
+GET /api/wellbeing-surveys/{id}/result
+```
+
+No authentication required.
+
+**Response 200:**
+```json
+{
+  "status": "success",
+  "data": {
+    "id": 15,
+    "risk_level": "moderate",
+    "mental_health_score": 2,
+    "affirmation_message": "Your feelings are valid...",
+    "mood": "worry",
+    "discomfort": true,
+    "discomfort_note": "Feeling overwhelmed with workload",
+    "created_at": "2025-02-01T10:30:00.000000Z"
+  }
+}
+```
+
+### Get Survey Statistics (Protected)
+
+```http
+GET /api/wellbeing-surveys/stats
+Authorization: Bearer {token}
+```
+
+**Query Parameters:**
+| Parameter | Type | Required |
+|-----------|------|----------|
+| affiliation_id | int | No |
+
+**Response 200:**
+```json
+{
+  "status": "success",
+  "data": {
+    "total_surveys": 150,
+    "risk_distribution": {
+      "low": 80,
+      "mild": 35,
+      "moderate": 25,
+      "high": 10
+    },
+    "mood_distribution": {
+      "happy": 60,
+      "normal": 45,
+      "worry": 30,
+      "depressed": 10,
+      "help_me": 5
+    },
+    "discomfort_percentage": 42.5
+  }
+}
+```
+
+### List Surveys (Protected)
+
+```http
+GET /api/wellbeing-surveys
+Authorization: Bearer {token}
+```
+
+**Query Parameters:**
+| Parameter | Type | Required | Default |
+|-----------|------|----------|---------|
+| affiliation_id | int | No | |
+| risk_level | string | No | |
+| page | int | No | 1 |
+| per_page | int | No | 15 |
+
+**Response 200:**
+```json
+{
+  "status": "success",
+  "data": [ /* array of survey objects */ ],
+  "pagination": {
+    "total": 150,
+    "per_page": 15,
+    "current_page": 1,
+    "last_page": 10
+  }
+}
+```
+
+---
+
+## Public API Endpoints
+
+Endpoints yang tidak memerlukan authentication.
+
+### Public Agenda Events
+
+```http
+GET /api/public/agenda-events
+```
+
+**Query Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| affiliation_id | int | Filter by affiliation |
+| scope | string | `kolegium`, `study_program`, `peer_group` |
+| section | string | `resident`, `fellow`, `trainee` |
+| type | string | Event type |
+| from | date | Start date filter |
+| to | date | End date filter |
+
+Only returns events with `is_published=true`.
+
+### Public Affiliations
+
+```http
+GET /api/public/affiliations
+```
+
+**Query Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| type | string | Filter by affiliation type |
+
+### Public Database Members (per-affiliation)
+
+```http
+GET /api/public/database-members
+```
+
+**Query Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| organization_type | string | Yes | `koti`, `kolkes`, `resident`, `fellow`, `trainee`, `peer_group` |
+| affiliation_id | int | Yes | Affiliation ID |
+| per_page | int | No | Default: 10 |
+| page | int | No | Default: 1 |
+| status | string | No | `active`, `graduated`, `leave` |
+| search | string | No | Search by name or member_code |
+
+**Response includes `stats` object:**
+```json
+{
+  "stats": {
+    "total": 100,
+    "active": 75,
+    "graduated": 20,
+    "leave": 5
+  }
+}
+```
+
+### Public Database Members (all residents/fellows/trainees)
+
+```http
+GET /api/public/database-members/all
+```
+
+**Query Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| per_page | int | Default: 12 |
+| page | int | Default: 1 |
+| status | string | `active`, `graduated`, `leave` |
+| search | string | Search by name or member_code |
+| organization_type | string | `resident`, `fellow`, `trainee` |
+| affiliation_id | int | Filter by affiliation |
+
+**Response includes extended `stats`:**
+```json
+{
+  "stats": {
+    "total": 500,
+    "active": 350,
+    "graduated": 120,
+    "leave": 30,
+    "resident": 300,
+    "fellow": 150,
+    "trainee": 50
+  }
+}
+```
+
+---
+
 ## Testing with Postman
 
 ### Environment Variables
@@ -1314,4 +2197,5 @@ if (pm.response.code === 200) {
 
 ---
 
-**Last Updated:** December 2024
+**Last Updated:** February 2026
+**Version:** 2.0.0

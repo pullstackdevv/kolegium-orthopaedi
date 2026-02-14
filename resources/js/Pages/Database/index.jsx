@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertCircle, Download, FileUp, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { AlertCircle, Check, ChevronsUpDown, Download, FileUp, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import api from "@/api/axios";
 import Swal from "sweetalert2";
@@ -7,8 +7,12 @@ import PermissionGuard from "@/components/PermissionGuard";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePage } from "@inertiajs/react";
 import { Datepicker } from "flowbite-react";
+import { Icon } from "@iconify/react";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -169,6 +173,47 @@ const buildDisplayName = (member) => {
   return `${baseName} ${title}`;
 };
 
+const calculateSemester = (entryDate, status, graduatedAt, leaveAt, activeAgainAt, nowYmd) => {
+  if (!entryDate) return "-";
+
+  const semesterIndex = (d) => {
+    if (!d) return null;
+    const dt = new Date(d);
+    if (Number.isNaN(dt.getTime())) return null;
+    const y = dt.getFullYear();
+    const m = dt.getMonth() + 1;
+    return y * 2 + (m >= 7 ? 1 : 0);
+  };
+
+  const between = (start, end) => {
+    const s = semesterIndex(start);
+    const e = semesterIndex(end);
+    if (s === null || e === null) return null;
+    const sem = e - s + 1;
+    return sem > 0 ? sem : null;
+  };
+
+  const st = (status || "active").trim();
+  const now = nowYmd || new Date().toISOString().slice(0, 10);
+
+  if (st === "graduated") {
+    const sem = between(entryDate, graduatedAt);
+    return sem ?? "-";
+  }
+
+  if (st === "leave") {
+    const s1 = between(entryDate, leaveAt);
+    if (s1 === null) return "-";
+    let total = s1;
+    const s2 = between(activeAgainAt, now);
+    if (s2 !== null) total += s2;
+    return total > 0 ? total : "-";
+  }
+
+  const sem = between(entryDate, now);
+  return sem ?? "-";
+};
+
 export default function DatabasePage() {
   const page = usePage();
   const inertiaUrl = page.url;
@@ -232,6 +277,9 @@ function DatabaseContent({ activeOrg }) {
     photo: "",
     contact: "",
     entry_date: "",
+    graduated_at: "",
+    leave_at: "",
+    active_again_at: "",
     gender: "",
     specialization: "",
     status: "active",
@@ -239,7 +287,183 @@ function DatabaseContent({ activeOrg }) {
     group: "",
     title: "",
     location: "",
+    regency_id: "",
   });
+
+  const [provinces, setProvinces] = useState([]);
+  const [regencies, setRegencies] = useState([]);
+  const [selectedProvince, setSelectedProvince] = useState("");
+  const [regenciesLoading, setRegenciesLoading] = useState(false);
+
+  const [achievements, setAchievements] = useState([]);
+  const [achievementsLoading, setAchievementsLoading] = useState(false);
+  const [achievementForm, setAchievementForm] = useState({ title: "", description: "", date: "", category: "" });
+  const [editingAchievementId, setEditingAchievementId] = useState(null);
+  const [achievementSaving, setAchievementSaving] = useState(false);
+  const [allAchievements, setAllAchievements] = useState([]);
+  const [achModalMember, setAchModalMember] = useState(null);
+
+  const isPeerGroupOrg = activeOrg === "peer_group";
+  const isResidentOrg = activeOrg === "resident";
+
+  const fetchProvinces = async () => {
+    try {
+      const res = await api.get("/provinces", { headers: { "X-Skip-Auth-Redirect": "1" } });
+      const data = res.data;
+      setProvinces(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error("Failed to fetch provinces", e);
+    }
+  };
+
+  const fetchRegencies = async (provinceId) => {
+    if (!provinceId) {
+      setRegencies([]);
+      return;
+    }
+    try {
+      setRegenciesLoading(true);
+      const res = await api.get(`/provinces/${provinceId}/regencies`, { headers: { "X-Skip-Auth-Redirect": "1" } });
+      const data = res.data;
+      setRegencies(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error("Failed to fetch regencies", e);
+      setRegencies([]);
+    } finally {
+      setRegenciesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isResidentOrg && formData.status === "graduated" && provinces.length === 0) {
+      fetchProvinces();
+    }
+  }, [formData.status, isResidentOrg]);
+
+  useEffect(() => {
+    if (selectedProvince) {
+      fetchRegencies(selectedProvince);
+    } else {
+      setRegencies([]);
+    }
+  }, [selectedProvince]);
+
+  const fetchAchievements = async (memberId) => {
+    if (!memberId) return;
+    try {
+      setAchievementsLoading(true);
+      const res = await api.get("/member-achievements", {
+        params: { database_member_id: memberId },
+        headers: { "X-Skip-Auth-Redirect": "1" },
+      });
+      if (res.data?.status === "success") {
+        setAchievements(Array.isArray(res.data.data) ? res.data.data : []);
+      }
+    } catch (e) {
+      console.error("Failed to fetch achievements", e);
+    } finally {
+      setAchievementsLoading(false);
+    }
+  };
+
+  const resetAchievementForm = () => {
+    setAchievementForm({ title: "", description: "", date: "", category: "" });
+    setEditingAchievementId(null);
+  };
+
+  const handleSaveAchievement = async () => {
+    if (!achievementForm.title.trim()) return;
+    if (!selectedMember?.id) return;
+
+    try {
+      setAchievementSaving(true);
+      const payload = {
+        title: achievementForm.title,
+        description: achievementForm.description || null,
+        date: achievementForm.date || null,
+        category: achievementForm.category || null,
+      };
+
+      if (editingAchievementId) {
+        await api.put(`/member-achievements/${editingAchievementId}`, payload, {
+          headers: { "X-Skip-Auth-Redirect": "1" },
+        });
+      } else {
+        payload.database_member_id = selectedMember.id;
+        await api.post("/member-achievements", payload, {
+          headers: { "X-Skip-Auth-Redirect": "1" },
+        });
+      }
+
+      resetAchievementForm();
+      fetchAchievements(selectedMember.id);
+    } catch (e) {
+      console.error("Failed to save achievement", e);
+    } finally {
+      setAchievementSaving(false);
+    }
+  };
+
+  const handleEditAchievement = (ach) => {
+    setEditingAchievementId(ach.id);
+    setAchievementForm({
+      title: ach.title || "",
+      description: ach.description || "",
+      date: toDateInputValue(ach.date),
+      category: ach.category || "",
+    });
+  };
+
+  const handleDeleteAchievement = async (achId) => {
+    const result = await Swal.fire({
+      title: "Hapus Achievement?",
+      text: "Data achievement akan dihapus.",
+      icon: "warning",
+      confirmButtonColor: "#d33",
+      confirmButtonText: "Ya, Hapus!",
+      showCancelButton: true,
+      cancelButtonText: "Batal",
+    });
+    if (!result.isConfirmed) return;
+
+    try {
+      await api.delete(`/member-achievements/${achId}`, {
+        headers: { "X-Skip-Auth-Redirect": "1" },
+      });
+      fetchAchievements(selectedMember?.id);
+    } catch (e) {
+      console.error("Failed to delete achievement", e);
+    }
+  };
+
+  const fetchAllAchievements = async () => {
+    if (!activeOrg) return;
+    try {
+      const params = { organization_type: activeOrg };
+      if (selectedAffiliationId) {
+        params.affiliation_id = Number(selectedAffiliationId);
+      }
+      const res = await api.get("/public/member-achievements", {
+        params,
+        headers: { "X-Skip-Auth-Redirect": "1" },
+      });
+      if (res.data?.status === "success") {
+        setAllAchievements(Array.isArray(res.data.data) ? res.data.data : []);
+      }
+    } catch (e) {
+      console.error("Failed to fetch all achievements", e);
+    }
+  };
+
+  const achievementsByMember = useMemo(() => {
+    const map = {};
+    allAchievements.forEach((ach) => {
+      const mid = ach.database_member_id;
+      if (!map[mid]) map[mid] = [];
+      map[mid].push(ach);
+    });
+    return map;
+  }, [allAchievements]);
 
   const [showImportModal, setShowImportModal] = useState(false);
   const [importFile, setImportFile] = useState(null);
@@ -250,7 +474,6 @@ function DatabaseContent({ activeOrg }) {
   const [templateLoading, setTemplateLoading] = useState(false);
 
   const canView = activeOrg ? hasPermission(permissionKey(activeOrg, "view")) : false;
-  const isPeerGroupOrg = activeOrg === "peer_group";
 
   const loadAffiliations = async () => {
     if (hasUserAffiliations && !isSuperAdmin) return;
@@ -399,6 +622,9 @@ function DatabaseContent({ activeOrg }) {
   useEffect(() => {
     if (!activeOrg) return;
     fetchMembers({ page: 1 });
+    if (activeOrg === "resident") {
+      fetchAllAchievements();
+    }
   }, [activeOrg, selectedAffiliationId, filters.per_page, canView]);
 
   const resetForm = () => {
@@ -412,6 +638,9 @@ function DatabaseContent({ activeOrg }) {
       photo: "",
       contact: "",
       entry_date: "",
+      graduated_at: "",
+      leave_at: "",
+      active_again_at: "",
       gender: "",
       specialization: "",
       status: "active",
@@ -419,8 +648,13 @@ function DatabaseContent({ activeOrg }) {
       group: "",
       title: "",
       location: "",
+      regency_id: "",
     });
     setPhotoMode("url");
+    setSelectedProvince("");
+    setRegencies([]);
+    setAchievements([]);
+    resetAchievementForm();
   };
 
   const openCreateModal = () => {
@@ -445,6 +679,9 @@ function DatabaseContent({ activeOrg }) {
       photo: member?.photo || "",
       contact: member?.contact || "",
       entry_date: toDateInputValue(member?.entry_date),
+      graduated_at: toDateInputValue(member?.graduated_at),
+      leave_at: toDateInputValue(member?.leave_at),
+      active_again_at: toDateInputValue(member?.active_again_at),
       gender: member?.gender || "",
       specialization: SPECIALIZATION_OPTIONS.includes(member?.specialization || "") ? (member?.specialization || "") : "",
       status: member?.status || "active",
@@ -452,10 +689,22 @@ function DatabaseContent({ activeOrg }) {
       group: member?.group || "",
       title: member?.title || "",
       location: member?.location || "",
+      regency_id: member?.regency_id ? String(member.regency_id) : "",
     });
     setPhotoMode("url");
+
+    const provinceId = member?.regency?.province_id ? String(member.regency.province_id) : "";
+    setSelectedProvince(provinceId);
+    if (provinceId) {
+      fetchRegencies(provinceId);
+    } else {
+      setRegencies([]);
+    }
+
     setModalType("edit");
     setShowModal(true);
+
+    fetchAchievements(member.id);
   };
 
   const closeModal = () => {
@@ -582,12 +831,37 @@ function DatabaseContent({ activeOrg }) {
         name: formData.name,
         photo: formData.photo || null,
         gender: formData.gender || null,
-        status: formData.status || "active",
+        status: isPeerGroupOrg ? "active" : (formData.status || "active"),
       };
 
       if (!isPeerGroupOrg) {
         payload.entry_date = formData.entry_date || null;
+      }
+
+      if (isResidentOrg) {
+        if (formData.status === "graduated") {
+          payload.graduated_at = formData.graduated_at || null;
+          payload.leave_at = null;
+          payload.active_again_at = null;
+        } else if (formData.status === "leave") {
+          payload.graduated_at = null;
+          payload.leave_at = formData.leave_at || null;
+          payload.active_again_at = formData.active_again_at || null;
+        } else {
+          payload.graduated_at = null;
+          payload.leave_at = null;
+          payload.active_again_at = null;
+        }
+      }
+
+      if (!isPeerGroupOrg && !isResidentOrg) {
         payload.specialization = formData.specialization || null;
+      }
+
+      if (isResidentOrg && formData.status === "graduated") {
+        payload.regency_id = formData.regency_id ? Number(formData.regency_id) : null;
+      } else {
+        payload.regency_id = null;
       }
 
       if (!hasUserAffiliations) {
@@ -713,10 +987,26 @@ function DatabaseContent({ activeOrg }) {
       });
 
       if (response.data?.status === "success") {
+        const processed = response.data?.data?.processed || 0;
+        const failed = response.data?.data?.failed || 0;
+        const importErrors = response.data?.errors || [];
+
+        let html = `<div class="text-left"><p class="mb-2"><b>${processed}</b> data berhasil diimport.</p>`;
+        if (failed > 0) {
+          html += `<p class="mb-2 text-red-600"><b>${failed}</b> data gagal.</p>`;
+          html += `<div class="max-h-40 overflow-y-auto text-xs border rounded p-2 mt-2">`;
+          importErrors.slice(0, 20).forEach((e) => {
+            html += `<div class="mb-1">Row ${e.row} (${e.column}): ${e.message}</div>`;
+          });
+          if (importErrors.length > 20) html += `<div class="text-gray-500">...dan ${importErrors.length - 20} error lainnya</div>`;
+          html += `</div>`;
+        }
+        html += `</div>`;
+
         Swal.fire({
-          icon: "success",
-          title: "Import berhasil",
-          text: `Processed: ${response.data?.data?.processed || 0}`,
+          icon: failed > 0 ? "warning" : "success",
+          title: failed > 0 ? "Import Selesai (Partial)" : "Import Berhasil",
+          html,
         });
 
         setImportError(null);
@@ -728,16 +1018,28 @@ function DatabaseContent({ activeOrg }) {
       Swal.fire({ icon: "error", title: "Import gagal", text: "Gagal import data." });
     } catch (err) {
       const data = err.response?.data;
-      if (err.response?.status === 422 && Array.isArray(data?.errors)) {
-        const text = data.errors
-          .slice(0, 8)
-          .map((e) => `Row ${e.row} (${e.column}): ${e.message}`)
-          .join("\n");
+      if (err.response?.status === 422) {
+        const importErrors = Array.isArray(data?.errors) ? data.errors : [];
+        const processed = data?.data?.processed || 0;
+        const failed = data?.data?.failed || importErrors.length;
+
+        let html = `<div class="text-left">`;
+        if (processed > 0) html += `<p class="mb-2"><b>${processed}</b> data berhasil.</p>`;
+        html += `<p class="mb-2 text-red-600"><b>${failed}</b> data gagal.</p>`;
+        if (importErrors.length > 0) {
+          html += `<div class="max-h-40 overflow-y-auto text-xs border rounded p-2 mt-2">`;
+          importErrors.slice(0, 20).forEach((e) => {
+            html += `<div class="mb-1">Row ${e.row} (${e.column}): ${e.message}</div>`;
+          });
+          if (importErrors.length > 20) html += `<div class="text-gray-500">...dan ${importErrors.length - 20} error lainnya</div>`;
+          html += `</div>`;
+        }
+        html += `</div>`;
 
         Swal.fire({
           icon: "error",
-          title: "Validasi gagal",
-          text: text || data?.message || "Validasi gagal.",
+          title: "Import Gagal",
+          html: html || data?.message || "Validasi gagal.",
         });
         return;
       }
@@ -888,12 +1190,13 @@ function DatabaseContent({ activeOrg }) {
                         <TableRow>
                           <TableHead>Foto</TableHead>
                           {isSuperAdmin ? <TableHead>Afiliasi</TableHead> : null}
-                          <TableHead>Nomor Identitas</TableHead>
                           <TableHead>Nama</TableHead>
                           <TableHead>Jenis Kelamin</TableHead>
-                          {!isPeerGroupOrg ? <TableHead>Tanggal Masuk</TableHead> : null}
-                          {!isPeerGroupOrg ? <TableHead>Spesialisasi</TableHead> : null}
-                          <TableHead>Status</TableHead>
+                          {!isPeerGroupOrg && !isResidentOrg ? <TableHead>Tanggal Masuk</TableHead> : null}
+                          {!isPeerGroupOrg && !isResidentOrg ? <TableHead>Spesialisasi</TableHead> : null}
+                          {isResidentOrg ? <TableHead>Semester</TableHead> : null}
+                          {!isPeerGroupOrg ? <TableHead>Status</TableHead> : null}
+                          {isResidentOrg ? <TableHead>Achievements</TableHead> : null}
                           <TableHead className="text-right">Aksi</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -915,12 +1218,30 @@ function DatabaseContent({ activeOrg }) {
                               </div>
                             </TableCell>
                             {isSuperAdmin ? <TableCell>{m?.affiliation?.name ? (m.affiliation.code ? `${m.affiliation.name} (${m.affiliation.code})` : m.affiliation.name) : "-"}</TableCell> : null}
-                            <TableCell className="font-medium">{m.member_code}</TableCell>
                             <TableCell>{buildDisplayName(m)}</TableCell>
-                            <TableCell>{m.gender === "male" ? "Laki-laki" : m.gender === "female" ? "Perempuan" : "-"}</TableCell>
-                            {!isPeerGroupOrg ? <TableCell>{toDateInputValue(m.entry_date) || "-"}</TableCell> : null}
-                            {!isPeerGroupOrg ? <TableCell>{m.specialization || "-"}</TableCell> : null}
-                            <TableCell>{statusBadge(m.status)}</TableCell>
+                            <TableCell>{m.gender === "male" ? "Male" : m.gender === "female" ? "Female" : "-"}</TableCell>
+                            {!isPeerGroupOrg && !isResidentOrg ? <TableCell>{toDateInputValue(m.entry_date) || "-"}</TableCell> : null}
+                            {!isPeerGroupOrg && !isResidentOrg ? <TableCell>{m.specialization || "-"}</TableCell> : null}
+                            {isResidentOrg ? (
+                              <TableCell>{calculateSemester(m.entry_date, m.status, m.graduated_at, m.leave_at, m.active_again_at)}</TableCell>
+                            ) : null}
+                            {!isPeerGroupOrg ? <TableCell>{statusBadge(m.status)}</TableCell> : null}
+                            {isResidentOrg ? (
+                              <TableCell>
+                                {(achievementsByMember[m.id]?.length || 0) > 0 ? (
+                                  <button
+                                    type="button"
+                                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-yellow-700 bg-yellow-50 hover:bg-yellow-100 px-3 py-1 rounded transition-colors"
+                                    onClick={() => setAchModalMember(m)}
+                                  >
+                                    <Icon icon="mdi:trophy" className="w-4 h-4" />
+                                    {achievementsByMember[m.id].length}
+                                  </button>
+                                ) : (
+                                  <span className="text-xs text-muted-foreground">0</span>
+                                )}
+                              </TableCell>
+                            ) : null}
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-2">
                                 <PermissionGuard permission={permissionKey(activeOrg, "edit")}>
@@ -1103,7 +1424,7 @@ function DatabaseContent({ activeOrg }) {
               ) : null}
 
               <div className="space-y-2">
-                <Label>Nomor Identitas *</Label>
+                <Label>NIK *</Label>
                 <Input
                   value={formData.member_code}
                   onChange={(e) => setFormData((p) => ({ ...p, member_code: e.target.value }))}
@@ -1172,19 +1493,150 @@ function DatabaseContent({ activeOrg }) {
                 {photoUploading ? <div className="text-xs text-muted-foreground">Mengunggah foto...</div> : null}
               </div>
 
-              <div className="space-y-2">
-                <Label>Status *</Label>
-                <Select value={formData.status} onValueChange={(v) => setFormData((p) => ({ ...p, status: v }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Aktif</SelectItem>
-                    <SelectItem value="graduated">Lulus</SelectItem>
-                    <SelectItem value="leave">Cuti</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              {!isPeerGroupOrg ? (
+                <div className="space-y-2">
+                  <Label>Status *</Label>
+                  <Select
+                    value={formData.status}
+                    onValueChange={(v) => {
+                      setFormData((p) => ({
+                        ...p,
+                        status: v,
+                        regency_id: v !== "graduated" ? "" : p.regency_id,
+                        graduated_at: v === "graduated" ? p.graduated_at : "",
+                        leave_at: v === "leave" ? p.leave_at : "",
+                        active_again_at: v === "leave" ? p.active_again_at : "",
+                      }));
+                      if (v !== "graduated") {
+                        setSelectedProvince("");
+                        setRegencies([]);
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Aktif</SelectItem>
+                      <SelectItem value="graduated">Lulus</SelectItem>
+                      <SelectItem value="leave">Cuti</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : null}
+
+              {isResidentOrg && formData.status === "graduated" ? (
+                <>
+                  <div className="space-y-2">
+                    <Label>Provinsi</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-full justify-between font-normal",
+                            !selectedProvince && "text-muted-foreground"
+                          )}
+                        >
+                          {selectedProvince
+                            ? provinces.find((p) => String(p.id) === String(selectedProvince))?.name || "Pilih provinsi"
+                            : "Pilih provinsi"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput placeholder="Cari provinsi..." />
+                          <CommandList>
+                            <CommandEmpty>Provinsi tidak ditemukan.</CommandEmpty>
+                            <CommandGroup>
+                              {provinces.map((prov) => (
+                                <CommandItem
+                                  key={prov.id}
+                                  value={prov.name}
+                                  onSelect={() => {
+                                    const newVal = String(prov.id) === String(selectedProvince) ? "" : String(prov.id);
+                                    setSelectedProvince(newVal);
+                                    setFormData((p) => ({ ...p, regency_id: "" }));
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      String(selectedProvince) === String(prov.id) ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {prov.name}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Kabupaten / Kota</Label>
+                    {regenciesLoading ? (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Memuat data kabupaten...
+                      </div>
+                    ) : (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            disabled={!selectedProvince || regencies.length === 0}
+                            className={cn(
+                              "w-full justify-between font-normal",
+                              !formData.regency_id && "text-muted-foreground"
+                            )}
+                          >
+                            {formData.regency_id
+                              ? regencies.find((r) => String(r.id) === String(formData.regency_id))?.name || "Pilih kabupaten/kota"
+                              : "Pilih kabupaten/kota"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0">
+                          <Command>
+                            <CommandInput placeholder="Cari kabupaten/kota..." />
+                            <CommandList>
+                              <CommandEmpty>Kabupaten/kota tidak ditemukan.</CommandEmpty>
+                              <CommandGroup>
+                                {regencies.map((reg) => (
+                                  <CommandItem
+                                    key={reg.id}
+                                    value={reg.name}
+                                    onSelect={() => {
+                                      setFormData((p) => ({
+                                        ...p,
+                                        regency_id: String(p.regency_id) === String(reg.id) ? "" : String(reg.id),
+                                      }));
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        String(formData.regency_id) === String(reg.id) ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                    {reg.name}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    )}
+                  </div>
+                </>
+              ) : null}
 
               <div className="space-y-2">
                 <Label>Jenis Kelamin</Label>
@@ -1224,7 +1676,81 @@ function DatabaseContent({ activeOrg }) {
                 </div>
               ) : null}
 
-              {!isPeerGroupOrg ? (
+              {isResidentOrg && formData.status === "graduated" ? (
+                <div className="space-y-2">
+                  <Label>Tanggal Lulus</Label>
+                  <Datepicker
+                    value={ymdToDate(formData.graduated_at)}
+                    onChange={(d) => setFormData((p) => ({ ...p, graduated_at: dateToYmd(d) }))}
+                    weekStart={1}
+                    autoHide
+                    placeholder="Pilih tanggal"
+                    theme={{
+                      root: {
+                        input: {
+                          field: {
+                            input: {
+                              base:
+                                "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                            },
+                          },
+                        },
+                      },
+                    }}
+                  />
+                </div>
+              ) : null}
+
+              {isResidentOrg && formData.status === "leave" ? (
+                <>
+                  <div className="space-y-2">
+                    <Label>Mulai Cuti</Label>
+                    <Datepicker
+                      value={ymdToDate(formData.leave_at)}
+                      onChange={(d) => setFormData((p) => ({ ...p, leave_at: dateToYmd(d) }))}
+                      weekStart={1}
+                      autoHide
+                      placeholder="Pilih tanggal"
+                      theme={{
+                        root: {
+                          input: {
+                            field: {
+                              input: {
+                                base:
+                                  "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                              },
+                            },
+                          },
+                        },
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Mulai Aktif Kembali</Label>
+                    <Datepicker
+                      value={ymdToDate(formData.active_again_at)}
+                      onChange={(d) => setFormData((p) => ({ ...p, active_again_at: dateToYmd(d) }))}
+                      weekStart={1}
+                      autoHide
+                      placeholder="Pilih tanggal"
+                      theme={{
+                        root: {
+                          input: {
+                            field: {
+                              input: {
+                                base:
+                                  "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                              },
+                            },
+                          },
+                        },
+                      }}
+                    />
+                  </div>
+                </>
+              ) : null}
+
+              {!isPeerGroupOrg && !isResidentOrg ? (
                 <div className="space-y-2">
                   <Label>Spesialisasi</Label>
                   <Select
@@ -1247,6 +1773,87 @@ function DatabaseContent({ activeOrg }) {
               ) : null}
             </div>
 
+            {modalType === "edit" && selectedMember?.id ? (
+              <div className="border-t pt-4 mt-2 space-y-3">
+                <h4 className="text-sm font-semibold">Achievements</h4>
+
+                {achievementsLoading ? (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Memuat achievements...
+                  </div>
+                ) : achievements.length > 0 ? (
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {achievements.map((ach) => (
+                      <div key={ach.id} className="flex items-start justify-between gap-2 rounded-md border p-2 text-sm">
+                        <div className="min-w-0 flex-1">
+                          <div className="font-medium">{ach.title}</div>
+                          {ach.description ? <div className="text-xs text-muted-foreground truncate">{ach.description}</div> : null}
+                          <div className="text-xs text-muted-foreground">
+                            {ach.category ? <span className="mr-2">{ach.category}</span> : null}
+                            {ach.date ? <span>{toDateInputValue(ach.date)}</span> : null}
+                          </div>
+                        </div>
+                        <div className="flex gap-1 flex-shrink-0">
+                          <Button type="button" variant="outline" size="sm" onClick={() => handleEditAchievement(ach)}>
+                            <Pencil className="h-3 w-3" />
+                          </Button>
+                          <Button type="button" variant="destructive" size="sm" onClick={() => handleDeleteAchievement(ach.id)}>
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-xs text-muted-foreground">Belum ada achievement.</div>
+                )}
+
+                <div className="grid gap-2 grid-cols-1 rounded-md border p-3 bg-muted/30">
+                  <div className="text-xs font-medium">{editingAchievementId ? "Edit Achievement" : "Tambah Achievement"}</div>
+                  <Input
+                    placeholder="Judul achievement *"
+                    value={achievementForm.title}
+                    onChange={(e) => setAchievementForm((p) => ({ ...p, title: e.target.value }))}
+                  />
+                  <Input
+                    placeholder="Deskripsi (opsional)"
+                    value={achievementForm.description}
+                    onChange={(e) => setAchievementForm((p) => ({ ...p, description: e.target.value }))}
+                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <Input
+                      type="date"
+                      placeholder="Tanggal"
+                      value={achievementForm.date}
+                      onChange={(e) => setAchievementForm((p) => ({ ...p, date: e.target.value }))}
+                    />
+                    <Input
+                      placeholder="Kategori (opsional)"
+                      value={achievementForm.category}
+                      onChange={(e) => setAchievementForm((p) => ({ ...p, category: e.target.value }))}
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      disabled={!achievementForm.title.trim() || achievementSaving}
+                      onClick={handleSaveAchievement}
+                    >
+                      {achievementSaving ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Plus className="h-3 w-3 mr-1" />}
+                      {editingAchievementId ? "Update" : "Tambah"}
+                    </Button>
+                    {editingAchievementId ? (
+                      <Button type="button" variant="outline" size="sm" onClick={resetAchievementForm}>
+                        Batal
+                      </Button>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
             <DialogFooter className="pt-4">
               <Button type="button" variant="outline" onClick={closeModal} disabled={formLoading}>
                 Batal
@@ -1267,6 +1874,43 @@ function DatabaseContent({ activeOrg }) {
           </form>
         </DialogContent>
       </Dialog>
+
+      {achModalMember && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setAchModalMember(null)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+              <div>
+                <h3 className="text-lg font-bold">Achievements</h3>
+                <p className="text-sm text-muted-foreground">{achModalMember.name}</p>
+              </div>
+              <button type="button" className="p-1 rounded-full hover:bg-gray-100" onClick={() => setAchModalMember(null)}>
+                <Icon icon="mdi:close" className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6 space-y-3">
+              {(achievementsByMember[achModalMember.id] || []).length > 0 ? (
+                (achievementsByMember[achModalMember.id] || []).map((ach) => (
+                  <div key={ach.id} className="flex items-start gap-3 p-3 bg-yellow-50/50 border border-yellow-100 rounded-lg">
+                    <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Icon icon="mdi:medal" className="w-4 h-4 text-yellow-600" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-gray-900">{ach.title}</p>
+                      {ach.description ? <p className="text-xs text-gray-600 mt-0.5">{ach.description}</p> : null}
+                      <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
+                        {ach.category ? <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded">{ach.category}</span> : null}
+                        {ach.date ? <span>{new Date(ach.date).toLocaleDateString("id-ID", { year: "numeric", month: "short", day: "numeric" })}</span> : null}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-sm text-muted-foreground text-center py-4">Belum ada achievement.</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
