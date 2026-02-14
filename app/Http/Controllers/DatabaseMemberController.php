@@ -229,7 +229,9 @@ class DatabaseMemberController extends Controller
             })
             ->orderBy('name');
 
-        $members = $query->paginate($request->integer('per_page', 10));
+        $members = $query
+            ->with(['regency:id,name'])
+            ->paginate($request->integer('per_page', 10));
 
         $stats = [
             'total' => (clone $baseQuery)->count(),
