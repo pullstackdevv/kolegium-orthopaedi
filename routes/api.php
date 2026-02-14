@@ -31,6 +31,9 @@ Route::prefix('auth')->group(function () {
     });
 });
 
+// Database Members - Public Search (for Well-Being Survey verification)
+Route::get('database-members/search', [DatabaseMemberController::class, 'search']);
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     // User routes
@@ -150,9 +153,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('galleries/{gallery}', [GalleryController::class, 'update']);
     Route::delete('galleries/{gallery}', [GalleryController::class, 'destroy']);
 });
-
-// Database Members - Public Search (for Well-Being Survey verification)
-Route::get('database-members/search', [DatabaseMemberController::class, 'search']);
 
 // Public agenda routes (landing pages)
 Route::get('public/agenda-events', [AgendaEventController::class, 'publicIndex']);

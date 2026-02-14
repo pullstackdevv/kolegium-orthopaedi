@@ -11,14 +11,12 @@ export default function WellbeingSurveyIndex() {
   const handleMemberVerified = (memberData) => {
     setVerifiedMember(memberData);
     
-    // Navigate to survey show page with member data
-    router.visit("/wellbeing-survey/show", {
-      data: {
-        affiliation,
-        crisisResources,
-        member: memberData,
-      },
-    });
+    // Navigate to survey show page with code and member_id
+    const params = new URLSearchParams();
+    if (affiliation?.code) params.set("code", affiliation.code);
+    if (memberData?.id) params.set("member_id", memberData.id);
+    
+    router.visit(`/wellbeing-survey/show?${params.toString()}`);
   };
 
   return (
