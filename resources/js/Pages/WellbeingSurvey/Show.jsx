@@ -254,39 +254,56 @@ export default function WellbeingSurveyShow({ affiliation, crisisResources: init
           {/* Main Card */}
           <div className="bg-white rounded-lg shadow-md p-8">
             {/* Progress Bar */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-primary">Our Well-Being Survey</h2>
-              </div>
-              <div className="flex items-center gap-2">
-                {[1, 2, 3, 4].map((step) => (
-                  <div key={step} className="flex items-center flex-1">
-                    <div
-                      className={`flex items-center justify-center w-10 h-10 rounded-full font-bold text-sm ${
-                        step < currentStep
-                          ? "bg-primary text-white"
-                          : step === currentStep
-                          ? "bg-primary text-white"
-                          : "bg-gray-300 text-gray-600"
-                      }`}
-                    >
-                      {step < currentStep ? "✓" : step}
-                    </div>
-                    {step < 4 && (
-                      <div
-                        className={`flex-1 h-1 mx-2 ${
-                          step < currentStep ? "bg-primary" : "bg-gray-300"
-                        }`}
-                      ></div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              <div className="flex justify-between text-xs text-gray-600 mt-4">
-                <span>Mental Well-Being Meter</span>
-                <span>Questionnaire</span>
-                <span>Anonymous Discomfort Report</span>
-                <span>Questionnaire</span>
+            <div className="mb-10">
+              <h2 className="text-xl font-bold text-primary mb-6">Our Well-Being Survey</h2>
+              <div className="relative">
+                {/* Background line */}
+                <div className="absolute top-5 left-0 right-0 h-0.5 bg-gray-200"></div>
+                {/* Active line */}
+                <div
+                  className="absolute top-5 left-0 h-0.5 bg-primary transition-all duration-500"
+                  style={{ width: `${((Math.min(currentStep, 4) - 1) / 3) * 100}%` }}
+                ></div>
+
+                <div className="relative flex justify-between">
+                  {[
+                    { step: 1, label: "Well-Being Meter" },
+                    { step: 2, label: "Questionnaire" },
+                    { step: 3, label: "Discomfort Report" },
+                    { step: 4, label: "Result" },
+                  ].map(({ step, label }) => {
+                    const isCompleted = step < currentStep;
+                    const isActive = step === currentStep;
+                    return (
+                      <div key={step} className="flex flex-col items-center" style={{ width: "25%" }}>
+                        <div
+                          className={`relative z-10 flex items-center justify-center w-10 h-10 rounded-full border-2 text-sm font-bold transition-all duration-300 ${
+                            isCompleted
+                              ? "bg-primary border-primary text-white shadow-md shadow-primary/30"
+                              : isActive
+                              ? "bg-primary border-primary text-white shadow-lg shadow-primary/40 ring-4 ring-primary/20"
+                              : "bg-white border-gray-300 text-gray-400"
+                          }`}
+                        >
+                          {isCompleted ? (
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : (
+                            step
+                          )}
+                        </div>
+                        <span
+                          className={`mt-2 text-xs text-center leading-tight font-medium ${
+                            isCompleted || isActive ? "text-primary" : "text-gray-400"
+                          }`}
+                        >
+                          {label}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
