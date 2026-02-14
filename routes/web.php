@@ -213,6 +213,12 @@ Route::get('/profile-study-program/clinical-fellowship/{id}', function ($id) {
             ],
             'orgStructure' => $orgMembers,
             'teacherStaff' => $teacherStaff,
+            'specializations' => Specialization::query()
+                ->where('affiliation_id', $affiliation->id)
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->toArray(),
         ],
     ]);
 })->name('profile.clinical-fellowship.detail');

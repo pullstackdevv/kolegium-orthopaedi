@@ -194,47 +194,86 @@ export default function ClinicalFellowshipDetail({ fellowship }) {
               )}
             </div>
 
-            {/* Secretariat Contact */}
-            <div className="lg:col-span-1 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-bold text-primary mb-4">Secretariat Contact</h2>
-              <div className="space-y-4">
-                {data.contact?.address && (
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <MapPin className="w-4 h-4 text-primary" />
+            {/* Right Sidebar: Secretariat Contact + Specialization */}
+            <div className="lg:col-span-1 space-y-6">
+              {/* Secretariat Contact */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h2 className="text-lg font-bold text-primary mb-4">Secretariat Contact</h2>
+                <div className="space-y-4">
+                  {data.contact?.address && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <MapPin className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-primary font-semibold mb-1">Address</p>
+                      <p className="text-xs text-gray-700">{data.contact.address}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs text-primary font-semibold mb-1">Address</p>
-                    <p className="text-xs text-gray-700">{data.contact.address}</p>
+                  )}
+                  {data.contact?.phone && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Phone className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-primary font-semibold mb-1">Phone</p>
+                      <a href={`tel:${data.contact.phone}`} className="text-xs text-gray-700 hover:text-primary">
+                        {data.contact.phone}
+                      </a>
+                    </div>
                   </div>
+                  )}
+                  {data.contact?.website && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Globe className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-primary font-semibold mb-1">Website</p>
+                      <a href={data.contact.website} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline break-all">
+                        {data.contact.website}
+                      </a>
+                    </div>
+                  </div>
+                  )}
                 </div>
-                )}
-                {data.contact?.phone && (
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Phone className="w-4 h-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-primary font-semibold mb-1">Phone</p>
-                    <a href={`tel:${data.contact.phone}`} className="text-xs text-gray-700 hover:text-primary">
-                      {data.contact.phone}
-                    </a>
-                  </div>
+              </div>
+
+              {/* Specialization */}
+              <div className="bg-white rounded-xl shadow-sm border-2 border-gray-200 p-6">
+                <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+                  <Icon icon="mdi:school-outline" className="w-5 h-5" />
+                  Specialization
+                </h2>
+                <div className="space-y-3">
+                  {(data.specializations?.length > 0
+                    ? data.specializations
+                    : [
+                        { id: 'default-1', name: 'Spine', title: 'Sp.O.T., Subsp.O.T.B' },
+                        { id: 'default-2', name: 'Hip and Knee', title: 'Sp.O.T., Subsp.P.L' },
+                        { id: 'default-3', name: 'Oncology Orthopaedics and Reconstructions', title: 'Sp.O.T., Subsp.Onk.Ort.R' },
+                        { id: 'default-4', name: 'Sport Injury', title: 'Sp.O.T., Subsp.C.O' },
+                        { id: 'default-5', name: 'Paediatric Orthopaedics', title: 'Sp.O.T., Subsp.A' },
+                        { id: 'default-6', name: 'Foot and Ankle', title: 'Sp.O.T., Subsp.K.P' },
+                        { id: 'default-7', name: 'Shoulder and Elbow Orthopaedics', title: 'Sp.O.T., Subsp.O.B.S' },
+                        { id: 'default-8', name: 'Advanced Orthopaedics', title: 'Sp.O.T., Subsp.T.L' },
+                        { id: 'default-9', name: 'Hand, Arm and Microsurgery', title: 'Sp.O.T., Subsp.T.L.B.M' },
+                      ]
+                  ).map((spec) => (
+                    <div key={spec.id} className="bg-green-50 rounded-lg p-4 border border-green-200">
+                      <div className="flex items-start gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">{spec.name}</p>
+                          {spec.title && (
+                            <p className="text-xs text-gray-600">Title: {spec.title}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                )}
-                {data.contact?.website && (
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Globe className="w-4 h-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-primary font-semibold mb-1">Website</p>
-                    <a href={data.contact.website} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline break-all">
-                      {data.contact.website}
-                    </a>
-                  </div>
-                </div>
-                )}
               </div>
             </div>
           </div>

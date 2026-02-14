@@ -264,7 +264,7 @@ export default function PeerGroupDetail({ peerGroup }) {
                     <h2 className="text-xl md:text-2xl font-bold text-primary leading-tight mt-1">
                       {peerGroupData.fullName}
                     </h2>
-                    <div className="mt-4 text-center">
+                    <div className="mt-4 text-left">
                       <div className="text-3xl font-bold text-primary">{peerGroupData.members}</div>
                       <div className="text-base text-gray-600 underline">Members</div>
                     </div>
@@ -494,7 +494,7 @@ export default function PeerGroupDetail({ peerGroup }) {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{member.name}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                            {member.entry_date ? member.entry_date.split("-")[0] : "-"}
+                            {member.graduated_at ? member.graduated_at.split("-")[0] : "-"}
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-700">
                             {member.regency?.name || "-"}

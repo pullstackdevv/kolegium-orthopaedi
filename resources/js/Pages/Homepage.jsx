@@ -151,6 +151,7 @@ export default function Homepage() {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [dashboardStats, setDashboardStats] = useState([]);
+  const [wbsStats, setWbsStats] = useState(null);
   
   const heroImages = [
     {
@@ -442,6 +443,21 @@ export default function Homepage() {
     fetchDashboardStats();
   }, []);
 
+  // WBS stats – fetch
+  useEffect(() => {
+    const fetchWbsStats = async () => {
+      try {
+        const res = await api.get("/public/wellbeing-surveys/stats");
+        if (res.data?.status === "success") {
+          setWbsStats(res.data.data);
+        }
+      } catch (e) {
+        console.error("Failed to fetch WBS stats", e);
+      }
+    };
+    fetchWbsStats();
+  }, []);
+
   const CHART_PALETTE = [
     '#dc2626', '#3b82f6', '#ec4899', '#8b5cf6', '#f59e0b', '#10b981',
     '#6b7280', '#06b6d4', '#84cc16', '#f97316', '#a855f7', '#14b8a6',
@@ -458,6 +474,48 @@ export default function Homepage() {
     const legendsRight = data.length > half ? data.slice(half).map((d) => ({ label: d.name, value: d.value })) : undefined;
     return { title, data, colors: colors.slice(0, data.length), legends, ...(legendsRight ? { legendsRight } : {}), total };
   };
+
+  const MOOD_COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#f97316', '#ef4444'];
+  const RISK_COLORS_CHART = ['#22c55e', '#facc15', '#f97316', '#ef4444'];
+  const QUESTIONNAIRE_COLORS = ['#ef4444', '#f97316', '#8b5cf6', '#3b82f6', '#ec4899', '#06b6d4'];
+
+  const wbsCharts = useMemo(() => {
+    if (!wbsStats) return [];
+    const charts = [];
+
+    // Mood Distribution
+    const moodMap = { happy: 'Happy', normal: 'Normal', worry: 'Worry', depressed: 'Depressed', help_me: 'Help Me' };
+    const moodItems = Object.entries(moodMap).map(([key, label]) => ({
+      name: label, value: wbsStats.by_mood?.[key] || 0,
+    })).filter(i => i.value > 0);
+    if (moodItems.length > 0) {
+      charts.push(buildChart('Mood', moodItems, MOOD_COLORS));
+    }
+
+    // Risk Distribution
+    const riskMap = { low: 'Low', mild: 'Mild', moderate: 'Moderate', high: 'High' };
+    const riskItems = Object.entries(riskMap).map(([key, label]) => ({
+      name: label, value: wbsStats.by_risk?.[key] || 0,
+    })).filter(i => i.value > 0);
+    if (riskItems.length > 0) {
+      charts.push(buildChart('Risk Level', riskItems, RISK_COLORS_CHART));
+    }
+
+    // Questionnaire Issues
+    const qMap = {
+      burnout: 'Burnout', emotional_hardening: 'Emotional Hardening',
+      depressed: 'Depressed', sleep_issue: 'Sleep Issue',
+      bullying: 'Bullying', discomfort: 'Discomfort',
+    };
+    const qItems = Object.entries(qMap).map(([key, label]) => ({
+      name: label, value: wbsStats.questionnaire?.[key] || 0,
+    })).filter(i => i.value > 0);
+    if (qItems.length > 0) {
+      charts.push(buildChart('Issues Reported', qItems, QUESTIONNAIRE_COLORS));
+    }
+
+    return charts;
+  }, [wbsStats]);
 
   const PROGRAM_META = {
     resident: { id: "P1", badge: "PPDS 1", description: "The first specialist medical education program for Orthopedics — focusing on general orthopedic surgery & trauma." },
@@ -783,6 +841,7 @@ export default function Homepage() {
         </div>
       </section>
 
+
       {/* Educational Dashboard Section */}
       <section className="py-12 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -795,6 +854,44 @@ export default function Homepage() {
           </div>
         </div>
       </section>
+
+      {/* {wbsStats && wbsStats.total > 0 && (
+        <section className="py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-white rounded-2xl overflow-hidden">
+              <div className="p-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  <div className="flex flex-col justify-center">
+                    <div className="bg-gradient-to-br from-primary/5 via-secondary/5 to-white rounded-2xl p-8 h-full flex flex-col justify-center">
+                      <div className="space-y-6">
+                        <div className="flex items-center gap-3">
+                          <span className="bg-primary text-white px-4 py-2 rounded-lg text-2xl font-bold">WBS</span>
+                          <span className="text-2xl font-bold text-gray-900">Well-Being Survey</span>
+                        </div>
+                        <p className="text-base text-gray-700 leading-relaxed">
+                          Monitoring the mental health and well-being of orthopaedic education participants across all programs.
+                        </p>
+                        <div className="pt-4 border-t border-primary/20">
+                          <p className="text-sm text-gray-600 mb-1">Total Responses:</p>
+                          <p className="text-3xl font-bold text-primary">{wbsStats.total}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {wbsCharts.map((chart, idx) => (
+                        <ChartCard key={idx} chart={chart} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )} */}
 
       {showDetailModal && selectedEvent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
