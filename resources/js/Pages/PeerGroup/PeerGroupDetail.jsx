@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
-import { MapPin, Phone, Mail, Globe, ChevronRight, ChevronLeft, Search } from "lucide-react";
+import { MapPin, Phone, Mail, Globe, ChevronRight, ChevronLeft, Search, Calendar, X } from "lucide-react";
 import HomepageLayout from "../../Layouts/HomepageLayout";
 import api from "@/api/axios";
 
@@ -21,10 +21,7 @@ export default function PeerGroupDetail({ peerGroup }) {
     image: null,
     logo: null,
     subTitle: "Peer Group",
-    stats: {
-      members: 0,
-      activeMembers: 0,
-    },
+    members: 0,
     contact: {
       address: "",
       email: "",
@@ -38,11 +35,89 @@ export default function PeerGroupDetail({ peerGroup }) {
     orgStructure: peerGroup?.orgStructure || [],
   };
 
-  const DEFAULT_LOGO = "/assets/images/logo-univ/FK-UI.png";
-  const DEFAULT_PHOTO = "/assets/images/university/FK-UI.png";
+  const DEFAULT_LOGO = "/assets/images/peergroup/master-logo.png";
+  const DEFAULT_PHOTO = "/assets/images/peergroup/master-banner.png";
 
   const resolvedLogo = peerGroupData.logo || DEFAULT_LOGO;
   const resolvedPhoto = peerGroupData.image || DEFAULT_PHOTO;
+
+  // Academic activities
+  const [academicActivities, setAcademicActivities] = useState([]);
+  const [academicActivitiesLoading, setAcademicActivitiesLoading] = useState(true);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
+  const formatFullDate = (dateStr) => {
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return "-";
+    d.setHours(12, 0, 0, 0);
+    return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  };
+
+  const formatDateLabel = (startStr, endStr) => {
+    const startLabel = formatFullDate(startStr);
+    const endLabel = endStr ? formatFullDate(endStr) : startLabel;
+    return startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`;
+  };
+
+  const getEventBadgeMeta = (typeStr) => {
+    const type = String(typeStr || "");
+    const KNOWN = {
+      ujian_lokal: { label: "Ujian Lokal", className: "bg-red-500 text-white" },
+      ujian_nasional: { label: "Ujian Nasional", className: "bg-primary text-white" },
+      event_lokal: { label: "Event Lokal", className: "bg-green-500 text-white" },
+      event_nasional: { label: "Event Nasional", className: "bg-orange-500 text-white" },
+      event_peer_group: { label: "Peer Group International", className: "bg-purple-500 text-white" },
+      event_peer_group_nasional: { label: "Peer Group National", className: "bg-indigo-500 text-white" },
+    };
+    if (KNOWN[type]) return { ...KNOWN[type], dotClass: KNOWN[type].className.split(" ")[0] };
+    const raw = type.replace(/^(event_|ujian_)/, "");
+    const key = raw || "event";
+    const label = key.split("_").filter(Boolean).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+    if (key.includes("nasional")) return { label, className: "bg-emerald-500 text-white", dotClass: "bg-emerald-500" };
+    if (type.startsWith("ujian_")) return { label, className: "bg-red-500 text-white", dotClass: "bg-red-500" };
+    return { label, className: "bg-primary text-white", dotClass: "bg-primary" };
+  };
+
+  const openDetailModal = (ev) => { setSelectedEvent(ev); setShowDetailModal(true); };
+
+  useEffect(() => {
+    const fetchAcademicActivities = async () => {
+      setAcademicActivitiesLoading(true);
+      try {
+        const { data } = await api.get("/public/agenda-events", {
+          params: { affiliation_id: peerGroupData.id },
+        });
+        if (data?.status !== "success") { setAcademicActivities([]); return; }
+        const items = (data?.data ?? [])
+          .filter((event) => /^(event|ujian)_/.test(String(event?.type ?? "")))
+          .sort((a, b) => new Date(a.start_date) - new Date(b.start_date))
+          .slice(0, 2)
+          .map((event) => {
+            const badgeMeta = getEventBadgeMeta(event.type);
+            return {
+              id: event.id,
+              dateLabel: formatDateLabel(event.start_date, event.end_date),
+              title: event.title,
+              location: event.location,
+              badge: badgeMeta.label,
+              badgeClass: badgeMeta.className,
+              dotClass: badgeMeta.dotClass,
+              type: event.type,
+              description: event.description,
+              registration: event.registration_url,
+              image: event.image_url,
+            };
+          });
+        setAcademicActivities(items);
+      } catch (error) {
+        setAcademicActivities([]);
+      } finally {
+        setAcademicActivitiesLoading(false);
+      }
+    };
+    if (peerGroupData.id) fetchAcademicActivities();
+  }, [peerGroupData.id]);
 
   // Dynamic members state
   const [members, setMembers] = useState([]);
@@ -137,7 +212,7 @@ export default function PeerGroupDetail({ peerGroup }) {
 
               {/* Right: Info */}
               <div className="flex-1">
-                <div className="flex items-center gap-6 mb-6">
+                <div className="flex items-start gap-6 mb-6">
                   <div className="w-24 h-24 rounded-full bg-white border-8 border-primary flex items-center justify-center flex-shrink-0 overflow-hidden shadow-md">
                     <img
                       src={resolvedLogo}
@@ -151,25 +226,17 @@ export default function PeerGroupDetail({ peerGroup }) {
                     />
                   </div>
                   <div className="flex-1">
-                    <p className="text-lg font-semibold text-primary mb-1">{peerGroupData.subTitle}</p>
-                    <h1 className="text-2xl md:text-4xl font-bold text-primary leading-tight">
-                      {peerGroupData.fullName}
+                    <p className="text-lg font-semibold text-primary mb-1">Peer Group</p>
+                    <h1 className="text-2xl md:text-3xl font-bold text-primary leading-tight">
+                      {peerGroupData.name}
                     </h1>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-8 ms-32">
-                  <div className="text-center md:text-left">
-                    <div className="text-3xl font-bold text-primary">{peerGroupData.stats.members}</div>
-                    <div className="text-lg text-gray-600 mt-1">Total Members</div>
-                  </div>
-                  <div className="text-center md:text-left">
-                    <div className="text-3xl font-bold text-primary">{peerGroupData.stats.activeMembers}</div>
-                    <div className="text-lg text-gray-600 mt-1">Active Members</div>
-                  </div>
-                  <div className="text-center md:text-left">
-                    <div className="text-3xl font-bold text-primary">{pagination.total}</div>
-                    <div className="text-lg text-gray-600 mt-1">Registered</div>
+                    <h2 className="text-xl md:text-2xl font-bold text-primary leading-tight mt-1">
+                      {peerGroupData.fullName}
+                    </h2>
+                    <div className="mt-4 text-center">
+                      <div className="text-3xl font-bold text-primary">{peerGroupData.members}</div>
+                      <div className="text-base text-gray-600 underline">Members</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -198,207 +265,121 @@ export default function PeerGroupDetail({ peerGroup }) {
                 )}
               </div>
 
-              {/* Struktur Organisasi */}
+              {/* Advisory Council */}
               {peerGroupData.orgStructure?.length > 0 && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
-                  <Icon icon="mdi:school-outline" className="w-5 h-5" />
-                  Organizational Structure
+                  <Icon icon="mdi:account-group" className="w-5 h-5" />
+                  Advisory Council
                 </h2>
-                <div className="grid grid-cols-2 gap-4">
-                  {peerGroupData.orgStructure.slice(0, 2).map((member) => (
-                    <div key={member.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                      <div className="flex items-start gap-3 mb-3">
+                <div className="grid grid-cols-2 gap-3">
+                  {peerGroupData.orgStructure.map((member) => (
+                    <div key={member.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
                         {member.photo ? (
                           <img
                             src={member.photo}
                             alt={member.name}
-                            className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-                            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                            className="w-10 h-10 rounded-full object-cover"
+                            onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.innerHTML = '<svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>'; }}
                           />
-                        ) : null}
-                        <div className={`w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 ${member.photo ? 'hidden' : ''}`}>
-                          <Icon icon="mdi:account" className="w-6 h-6 text-primary" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-semibold text-gray-900 leading-tight">
-                            {member.name}
-                          </h4>
-                          {member.position && (
-                            <p className="text-xs text-gray-600 mt-1">{member.position}</p>
-                          )}
-                        </div>
+                        ) : (
+                          <Icon icon="mdi:account" className="w-5 h-5 text-gray-400" />
+                        )}
                       </div>
-                      {member.email && (
-                        <div className="flex items-center gap-1 text-xs text-primary">
-                          <Icon icon="mdi:email-outline" className="w-3 h-3" />
-                          <a href={`mailto:${member.email}`} className="hover:underline">{member.email}</a>
-                        </div>
-                      )}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-medium text-gray-900 leading-tight">
+                          {member.name}
+                        </h4>
+                        {member.position && (
+                          <p className="text-xs text-gray-500 mt-0.5">{member.position}</p>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
-
-                {peerGroupData.orgStructure.length > 2 && (
-                <div className="mt-4">
-                  <h3 className="text-sm font-semibold text-primary mb-3">All Members</h3>
-                  <div className="grid grid-cols-3 gap-3">
-                    {peerGroupData.orgStructure.slice(2).map((member) => (
-                      <div key={member.id} className="bg-white rounded-xl py-5 px-3 border border-gray-200 text-center flex flex-col items-center">
-                        {member.photo ? (
-                          <img
-                            src={member.photo}
-                            alt={member.name}
-                            className="w-16 h-16 rounded-full object-cover mb-3"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.nextElementSibling && (e.target.nextElementSibling.style.display = 'flex');
-                            }}
-                          />
-                        ) : null}
-                        {!member.photo && (
-                          <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-3">
-                            <Icon icon="mdi:account" className="w-9 h-9 text-gray-400" />
-                          </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-xs font-semibold text-gray-900 leading-tight">
-                            {member.name}
-                          </h4>
-                          {member.position && (
-                            <p className="text-[10px] text-gray-600 mt-1">{member.position}</p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                )}
               </div>
               )}
 
             </div>
 
             {/* Right Column - Sidebar */}
-            <div className="lg:col-span-1 space-y-4">
+            <div className="lg:col-span-1 space-y-6">
 
-              {/* Member Data */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-0">
-                <div className="p-6 border-b border-gray-200">
-                  <h2 className="text-xl font-bold text-primary">
-                    Member Data
-                  </h2>
-                </div>
-
-                <div className="p-6 space-y-4">
-                  <div className="bg-primary/5 border-2 border-primary/15 rounded-lg p-6">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-lg font-semibold text-primary">Active Members</h3>
-                      <div className="text-4xl font-bold text-primary">
-                        {peerGroupData.stats.activeMembers}
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      Total active members in this peer group
-                    </p>
-                  </div>
+              {/* Event */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 className="text-xl font-bold text-primary mb-4">Event</h2>
+                <div className="bg-green-50 rounded-lg p-8 min-h-[120px] border border-green-100">
                 </div>
               </div>
-
-              {/* Contact */}
-              {(peerGroupData.contact?.address || peerGroupData.contact?.phone || peerGroupData.contact?.email) && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-0">
-                <div className="p-6 border-b border-gray-200">
-                  <h2 className="text-xl font-bold text-primary">
-                    Contact
-                  </h2>
-                </div>
-
-                <div className="p-6 space-y-4">
-                  {peerGroupData.contact.address && (
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-primary mb-1">Address</h3>
-                      <p className="text-xs text-gray-600">{peerGroupData.contact.address}</p>
-                    </div>
-                  </div>
-                  )}
-
-                  {peerGroupData.contact.phone && (
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Phone className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-primary mb-1">Phone</h3>
-                      <a href={`tel:${peerGroupData.contact.phone}`} className="text-xs text-primary hover:text-secondary">
-                        {peerGroupData.contact.phone}
-                      </a>
-                    </div>
-                  </div>
-                  )}
-
-                  {peerGroupData.contact.email && (
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Mail className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-primary mb-1">E-mail</h3>
-                      <a href={`mailto:${peerGroupData.contact.email}`} className="text-xs text-primary hover:text-secondary">
-                        {peerGroupData.contact.email}
-                      </a>
-                    </div>
-                  </div>
-                  )}
-
-                  {peerGroupData.contact.website && (
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Globe className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-primary mb-1">Website</h3>
-                      <a href={peerGroupData.contact.website} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:text-secondary break-all">
-                        {peerGroupData.contact.website}
-                      </a>
-                    </div>
-                  </div>
-                  )}
-                </div>
-              </div>
-              )}
 
               {/* Registration */}
-              {peerGroupData.registrationInfo && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                <h2 className="text-xl font-bold text-primary mb-6">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 className="text-xl font-bold text-primary mb-4">
                   Registration
                 </h2>
-
-                <div className="space-y-4">
-                  <div className="text-base text-gray-700 leading-relaxed whitespace-pre-line">
-                    {peerGroupData.registrationInfo}
-                  </div>
-                  {peerGroupData.registrationUrl && (
-                    <div className="mt-4">
-                      <span className="text-sm text-gray-600">Registration Link: </span>
-                      <a
-                        href={peerGroupData.registrationUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline break-all"
-                      >
-                        {peerGroupData.registrationUrl}
-                      </a>
+                {peerGroupData.registrationInfo ? (
+                  <div className="space-y-4">
+                    <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                      {peerGroupData.registrationInfo}
                     </div>
-                  )}
-                </div>
+                    {peerGroupData.registrationUrl && (
+                      <div className="mt-4">
+                        <span className="text-sm text-gray-600">Registration Link: </span>
+                        <a
+                          href={peerGroupData.registrationUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline break-all"
+                        >
+                          {peerGroupData.registrationUrl}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center text-sm text-gray-500">
+                    No registration information available.
+                  </div>
+                )}
               </div>
-              )}
+
+              {/* Academic Activities */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 className="text-xl font-bold text-primary mb-4">
+                  Academic Activities
+                </h2>
+                {academicActivities.length === 0 ? (
+                  <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center text-sm text-gray-600">
+                    No upcoming academic activities.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {academicActivities.map((item) => (
+                      <div key={item.id} className="border border-gray-200 rounded-lg p-3 bg-white shadow-sm">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="text-xs text-gray-600">{item.dateLabel}</span>
+                            <span className="text-gray-300">•</span>
+                            <span className={`${item.badgeClass} text-[10px] font-semibold px-2 py-0.5 rounded`}>
+                              {item.badge}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            className="text-xs text-primary hover:text-secondary flex-shrink-0"
+                            onClick={() => openDetailModal(item)}
+                          >
+                            Detail
+                          </button>
+                        </div>
+                        <h4 className="text-sm font-bold text-gray-900 leading-snug">{item.title}</h4>
+                        {item.location && <p className="text-xs text-gray-500 mt-1">{item.location}</p>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -441,7 +422,7 @@ export default function PeerGroupDetail({ peerGroup }) {
             <div id="members-table" className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
               <div className="p-6 border-b border-gray-200">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-primary">Peer Group Members</h2>
+                  <h2 className="text-lg font-bold text-primary">Member Name</h2>
                   <p className="text-sm text-gray-600">
                     Showing {members.length > 0 ? startIndex + 1 : 0}-{startIndex + members.length} of {pagination.total} members
                   </p>
@@ -452,10 +433,10 @@ export default function PeerGroupDetail({ peerGroup }) {
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">No</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Photo</th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Name</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Specialization</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Gender</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Status</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Graduation Year</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Placement District</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
@@ -471,13 +452,21 @@ export default function PeerGroupDetail({ peerGroup }) {
                       members.map((member, index) => (
                         <tr key={member.id} className="hover:bg-gray-50 transition-colors">
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{startIndex + index + 1}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{member.name}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{member.specialization || "-"}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{member.gender || "-"}</td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`${STATUS_COLORS[member.status] || "bg-gray-400"} text-white px-3 py-1 rounded-full text-xs font-semibold capitalize`}>
-                              {member.status}
-                            </span>
+                            {member.photo ? (
+                              <img src={member.photo} alt={member.name} className="w-10 h-10 rounded-full object-cover" />
+                            ) : (
+                              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                                <Icon icon="mdi:account" className="w-5 h-5 text-gray-400" />
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{member.name}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            {member.entry_date ? member.entry_date.split("-")[0] : "-"}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-700">
+                            {member.regency?.name || "-"}
                           </td>
                         </tr>
                       ))
@@ -536,6 +525,50 @@ export default function PeerGroupDetail({ peerGroup }) {
           </div>
         </div>
       </section>
+      {showDetailModal && selectedEvent && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowDetailModal(false)}
+        >
+          <div
+            className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={`p-6 rounded-t-xl ${selectedEvent.dotClass || "bg-primary"}`}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-white" />
+                  <span className="text-white font-medium text-sm">
+                    {selectedEvent.dateLabel || "-"}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setShowDetailModal(false)}
+                  className="text-white hover:text-gray-200 transition-colors"
+                  type="button"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <h3 className="text-xl font-bold text-white">{selectedEvent.title}</h3>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1">
+              <div className="text-sm text-gray-700">
+                <p>{selectedEvent.description || "No description available"}</p>
+              </div>
+            </div>
+            <div className="p-6 border-t border-gray-200 flex gap-3">
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                type="button"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </HomepageLayout>
   );
 }
