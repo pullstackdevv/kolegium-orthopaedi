@@ -5,15 +5,45 @@ import { Search, Users, GraduationCap, UserX, ChevronLeft, ChevronRight } from "
 import HomepageLayout from "../../Layouts/HomepageLayout";
 import api from "@/api/axios";
 
-const calculateSemester = (entryDate) => {
+const calculateSemester = (entryDate, status, graduatedAt, leaveAt, activeAgainAt, nowYmd) => {
   if (!entryDate) return "-";
-  const entry = new Date(entryDate);
-  if (Number.isNaN(entry.getTime())) return "-";
-  const now = new Date();
-  const entryIdx = entry.getFullYear() * 2 + (entry.getMonth() >= 6 ? 1 : 0);
-  const nowIdx = now.getFullYear() * 2 + (now.getMonth() >= 6 ? 1 : 0);
-  const sem = nowIdx - entryIdx + 1;
-  return sem > 0 ? sem : "-";
+
+  const semesterIndex = (d) => {
+    if (!d) return null;
+    const dt = new Date(d);
+    if (Number.isNaN(dt.getTime())) return null;
+    const y = dt.getFullYear();
+    const m = dt.getMonth() + 1;
+    return y * 2 + (m >= 7 ? 1 : 0);
+  };
+
+  const between = (start, end) => {
+    const s = semesterIndex(start);
+    const e = semesterIndex(end);
+    if (s === null || e === null) return null;
+    const sem = e - s + 1;
+    return sem > 0 ? sem : null;
+  };
+
+  const st = (status || "active").trim();
+  const now = nowYmd || new Date().toISOString().slice(0, 10);
+
+  if (st === "graduated") {
+    const sem = between(entryDate, graduatedAt);
+    return sem ?? "-";
+  }
+
+  if (st === "leave") {
+    const s1 = between(entryDate, leaveAt);
+    if (s1 === null) return "-";
+    let total = s1;
+    const s2 = between(activeAgainAt, now);
+    if (s2 !== null) total += s2;
+    return total > 0 ? total : "-";
+  }
+
+  const sem = between(entryDate, now);
+  return sem ?? "-";
 };
 
 export default function DatabaseResidents() {
@@ -355,7 +385,9 @@ export default function DatabaseResidents() {
                             <div className="text-sm text-gray-900">{genderLabel(member.gender)}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{calculateSemester(member.entry_date)}</div>
+                            <div className="text-sm text-gray-900">
+                              {calculateSemester(member.entry_date, member.status, member.graduated_at, member.leave_at, member.active_again_at)}
+                            </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`text-xs px-2 py-1 rounded-full ${statusPillClass(member.status)}`}>

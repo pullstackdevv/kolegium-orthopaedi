@@ -5,12 +5,6 @@ import { Users, Calendar, ChevronRight, ChevronLeft, Search, X } from "lucide-re
 import HomepageLayout from "../../Layouts/HomepageLayout";
 import api from "@/api/axios";
 
-const STATUS_COLORS = {
-  active: "bg-red-500",
-  graduated: "bg-green-500",
-  leave: "bg-yellow-500",
-};
-
 const DEFAULT_PEER_GROUP_DETAILS = {
   IOSSA: {
     name: "IOSSA",
@@ -110,7 +104,7 @@ export default function PeerGroupDetail({ peerGroup }) {
   const [members, setMembers] = useState([]);
   const [membersLoading, setMembersLoading] = useState(false);
   const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, total: 0, per_page: 10 });
-  const [filters, setFilters] = useState({ status: "", search: "" });
+  const [filters, setFilters] = useState({ search: "" });
 
   const fetchMembers = useCallback(async (page = 1) => {
     if (!peerGroupInfo.id) return;
@@ -122,7 +116,6 @@ export default function PeerGroupDetail({ peerGroup }) {
         per_page: pagination.per_page,
         page,
       };
-      if (filters.status) params.status = filters.status;
       if (filters.search) params.search = filters.search;
 
       const response = await api.get("/public/database-members", {
@@ -383,35 +376,17 @@ export default function PeerGroupDetail({ peerGroup }) {
 
           {/* Filters */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-2">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Status Filter */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                <select
-                  value={filters.status}
-                  onChange={(e) => handleFilterChange("status", e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-                >
-                  <option value="">All</option>
-                  <option value="active">Active</option>
-                  <option value="graduated">Graduated</option>
-                  <option value="leave">Leave</option>
-                </select>
-              </div>
-
-              {/* Search */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Search Member</label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="text"
-                    value={filters.search}
-                    onChange={(e) => handleFilterChange("search", e.target.value)}
-                    placeholder="Search by name..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-                  />
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Search Member</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={filters.search}
+                  onChange={(e) => handleFilterChange("search", e.target.value)}
+                  placeholder="Search by name..."
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                />
               </div>
             </div>
           </div>
@@ -434,17 +409,16 @@ export default function PeerGroupDetail({ peerGroup }) {
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Name</th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Specialization</th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Gender</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {membersLoading ? (
                     <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center text-sm text-gray-500">Loading...</td>
+                      <td colSpan={4} className="px-6 py-12 text-center text-sm text-gray-500">Loading...</td>
                     </tr>
                   ) : members.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center text-sm text-gray-500">No member data found.</td>
+                      <td colSpan={4} className="px-6 py-12 text-center text-sm text-gray-500">No member data found.</td>
                     </tr>
                   ) : (
                     members.map((member, index) => (
@@ -453,11 +427,6 @@ export default function PeerGroupDetail({ peerGroup }) {
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{member.name}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{member.specialization || "-"}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{member.gender === "male" ? "Male" : member.gender === "female" ? "Female" : "-"}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`${STATUS_COLORS[member.status] || "bg-gray-400"} text-white px-3 py-1 rounded-full text-xs font-semibold capitalize`}>
-                            {member.status}
-                          </span>
-                        </td>
                       </tr>
                     ))
                   )}

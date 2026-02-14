@@ -173,15 +173,45 @@ const buildDisplayName = (member) => {
   return `${baseName} ${title}`;
 };
 
-const calculateSemester = (entryDate) => {
+const calculateSemester = (entryDate, status, graduatedAt, leaveAt, activeAgainAt, nowYmd) => {
   if (!entryDate) return "-";
-  const entry = new Date(entryDate);
-  if (Number.isNaN(entry.getTime())) return "-";
-  const now = new Date();
-  const entryIdx = entry.getFullYear() * 2 + (entry.getMonth() >= 6 ? 1 : 0);
-  const nowIdx = now.getFullYear() * 2 + (now.getMonth() >= 6 ? 1 : 0);
-  const sem = nowIdx - entryIdx + 1;
-  return sem > 0 ? sem : "-";
+
+  const semesterIndex = (d) => {
+    if (!d) return null;
+    const dt = new Date(d);
+    if (Number.isNaN(dt.getTime())) return null;
+    const y = dt.getFullYear();
+    const m = dt.getMonth() + 1;
+    return y * 2 + (m >= 7 ? 1 : 0);
+  };
+
+  const between = (start, end) => {
+    const s = semesterIndex(start);
+    const e = semesterIndex(end);
+    if (s === null || e === null) return null;
+    const sem = e - s + 1;
+    return sem > 0 ? sem : null;
+  };
+
+  const st = (status || "active").trim();
+  const now = nowYmd || new Date().toISOString().slice(0, 10);
+
+  if (st === "graduated") {
+    const sem = between(entryDate, graduatedAt);
+    return sem ?? "-";
+  }
+
+  if (st === "leave") {
+    const s1 = between(entryDate, leaveAt);
+    if (s1 === null) return "-";
+    let total = s1;
+    const s2 = between(activeAgainAt, now);
+    if (s2 !== null) total += s2;
+    return total > 0 ? total : "-";
+  }
+
+  const sem = between(entryDate, now);
+  return sem ?? "-";
 };
 
 export default function DatabasePage() {
@@ -247,6 +277,9 @@ function DatabaseContent({ activeOrg }) {
     photo: "",
     contact: "",
     entry_date: "",
+    graduated_at: "",
+    leave_at: "",
+    active_again_at: "",
     gender: "",
     specialization: "",
     status: "active",
@@ -605,6 +638,9 @@ function DatabaseContent({ activeOrg }) {
       photo: "",
       contact: "",
       entry_date: "",
+      graduated_at: "",
+      leave_at: "",
+      active_again_at: "",
       gender: "",
       specialization: "",
       status: "active",
@@ -643,6 +679,9 @@ function DatabaseContent({ activeOrg }) {
       photo: member?.photo || "",
       contact: member?.contact || "",
       entry_date: toDateInputValue(member?.entry_date),
+      graduated_at: toDateInputValue(member?.graduated_at),
+      leave_at: toDateInputValue(member?.leave_at),
+      active_again_at: toDateInputValue(member?.active_again_at),
       gender: member?.gender || "",
       specialization: SPECIALIZATION_OPTIONS.includes(member?.specialization || "") ? (member?.specialization || "") : "",
       status: member?.status || "active",
@@ -792,12 +831,29 @@ function DatabaseContent({ activeOrg }) {
         name: formData.name,
         photo: formData.photo || null,
         gender: formData.gender || null,
-        status: formData.status || "active",
+        status: isPeerGroupOrg ? "active" : (formData.status || "active"),
       };
 
       if (!isPeerGroupOrg) {
         payload.entry_date = formData.entry_date || null;
       }
+
+      if (isResidentOrg) {
+        if (formData.status === "graduated") {
+          payload.graduated_at = formData.graduated_at || null;
+          payload.leave_at = null;
+          payload.active_again_at = null;
+        } else if (formData.status === "leave") {
+          payload.graduated_at = null;
+          payload.leave_at = formData.leave_at || null;
+          payload.active_again_at = formData.active_again_at || null;
+        } else {
+          payload.graduated_at = null;
+          payload.leave_at = null;
+          payload.active_again_at = null;
+        }
+      }
+
       if (!isPeerGroupOrg && !isResidentOrg) {
         payload.specialization = formData.specialization || null;
       }
@@ -1139,7 +1195,7 @@ function DatabaseContent({ activeOrg }) {
                           {!isPeerGroupOrg && !isResidentOrg ? <TableHead>Tanggal Masuk</TableHead> : null}
                           {!isPeerGroupOrg && !isResidentOrg ? <TableHead>Spesialisasi</TableHead> : null}
                           {isResidentOrg ? <TableHead>Semester</TableHead> : null}
-                          <TableHead>Status</TableHead>
+                          {!isPeerGroupOrg ? <TableHead>Status</TableHead> : null}
                           {isResidentOrg ? <TableHead>Achievements</TableHead> : null}
                           <TableHead className="text-right">Aksi</TableHead>
                         </TableRow>
@@ -1166,8 +1222,10 @@ function DatabaseContent({ activeOrg }) {
                             <TableCell>{m.gender === "male" ? "Male" : m.gender === "female" ? "Female" : "-"}</TableCell>
                             {!isPeerGroupOrg && !isResidentOrg ? <TableCell>{toDateInputValue(m.entry_date) || "-"}</TableCell> : null}
                             {!isPeerGroupOrg && !isResidentOrg ? <TableCell>{m.specialization || "-"}</TableCell> : null}
-                            {isResidentOrg ? <TableCell>{calculateSemester(m.entry_date)}</TableCell> : null}
-                            <TableCell>{statusBadge(m.status)}</TableCell>
+                            {isResidentOrg ? (
+                              <TableCell>{calculateSemester(m.entry_date, m.status, m.graduated_at, m.leave_at, m.active_again_at)}</TableCell>
+                            ) : null}
+                            {!isPeerGroupOrg ? <TableCell>{statusBadge(m.status)}</TableCell> : null}
                             {isResidentOrg ? (
                               <TableCell>
                                 {(achievementsByMember[m.id]?.length || 0) > 0 ? (
@@ -1435,28 +1493,37 @@ function DatabaseContent({ activeOrg }) {
                 {photoUploading ? <div className="text-xs text-muted-foreground">Mengunggah foto...</div> : null}
               </div>
 
-              <div className="space-y-2">
-                <Label>Status *</Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(v) => {
-                    setFormData((p) => ({ ...p, status: v, regency_id: v !== "graduated" ? "" : p.regency_id }));
-                    if (v !== "graduated") {
-                      setSelectedProvince("");
-                      setRegencies([]);
-                    }
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Aktif</SelectItem>
-                    <SelectItem value="graduated">Lulus</SelectItem>
-                    <SelectItem value="leave">Cuti</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              {!isPeerGroupOrg ? (
+                <div className="space-y-2">
+                  <Label>Status *</Label>
+                  <Select
+                    value={formData.status}
+                    onValueChange={(v) => {
+                      setFormData((p) => ({
+                        ...p,
+                        status: v,
+                        regency_id: v !== "graduated" ? "" : p.regency_id,
+                        graduated_at: v === "graduated" ? p.graduated_at : "",
+                        leave_at: v === "leave" ? p.leave_at : "",
+                        active_again_at: v === "leave" ? p.active_again_at : "",
+                      }));
+                      if (v !== "graduated") {
+                        setSelectedProvince("");
+                        setRegencies([]);
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Aktif</SelectItem>
+                      <SelectItem value="graduated">Lulus</SelectItem>
+                      <SelectItem value="leave">Cuti</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : null}
 
               {isResidentOrg && formData.status === "graduated" ? (
                 <>
@@ -1607,6 +1674,80 @@ function DatabaseContent({ activeOrg }) {
                     }}
                   />
                 </div>
+              ) : null}
+
+              {isResidentOrg && formData.status === "graduated" ? (
+                <div className="space-y-2">
+                  <Label>Tanggal Lulus</Label>
+                  <Datepicker
+                    value={ymdToDate(formData.graduated_at)}
+                    onChange={(d) => setFormData((p) => ({ ...p, graduated_at: dateToYmd(d) }))}
+                    weekStart={1}
+                    autoHide
+                    placeholder="Pilih tanggal"
+                    theme={{
+                      root: {
+                        input: {
+                          field: {
+                            input: {
+                              base:
+                                "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                            },
+                          },
+                        },
+                      },
+                    }}
+                  />
+                </div>
+              ) : null}
+
+              {isResidentOrg && formData.status === "leave" ? (
+                <>
+                  <div className="space-y-2">
+                    <Label>Mulai Cuti</Label>
+                    <Datepicker
+                      value={ymdToDate(formData.leave_at)}
+                      onChange={(d) => setFormData((p) => ({ ...p, leave_at: dateToYmd(d) }))}
+                      weekStart={1}
+                      autoHide
+                      placeholder="Pilih tanggal"
+                      theme={{
+                        root: {
+                          input: {
+                            field: {
+                              input: {
+                                base:
+                                  "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                              },
+                            },
+                          },
+                        },
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Mulai Aktif Kembali</Label>
+                    <Datepicker
+                      value={ymdToDate(formData.active_again_at)}
+                      onChange={(d) => setFormData((p) => ({ ...p, active_again_at: dateToYmd(d) }))}
+                      weekStart={1}
+                      autoHide
+                      placeholder="Pilih tanggal"
+                      theme={{
+                        root: {
+                          input: {
+                            field: {
+                              input: {
+                                base:
+                                  "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                              },
+                            },
+                          },
+                        },
+                      }}
+                    />
+                  </div>
+                </>
               ) : null}
 
               {!isPeerGroupOrg && !isResidentOrg ? (
