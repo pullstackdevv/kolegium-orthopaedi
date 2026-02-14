@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   Key,
   Building2,
+  ClipboardList,
 } from "lucide-react";
 
 // NOTE: href untuk konten Kolegium yang belum dikembangkan
@@ -116,6 +117,12 @@ export const sidebarMenu = [
         title: "Event Gallery",
         icon: Images,
         href: "/cms/gallery?scope=kolegium",
+        permission: "agenda.kolegium.view",
+      },
+      {
+        title: "Well-Being Survey",
+        icon: ClipboardList,
+        href: "/cms/wellbeing-surveys",
         permission: "agenda.kolegium.view",
       },
     ],
