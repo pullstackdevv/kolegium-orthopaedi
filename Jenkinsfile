@@ -1,52 +1,66 @@
-sh '''
-echo "🚀 Connecting to VPS ${SERVER_IP} ..."
-ssh -o StrictHostKeyChecking=no root@${SERVER_IP} << 'ENDSSH'
-    set -e
+pipeline {
+    agent any
 
-    # === PILIH FOLDER TARGET DI SINI ===
-    # Misalnya mau production:
-    BASE_PATH="/www/wwwroot/kolegium-orthopaedi"
-    # Kalau mau staging, ganti ke:
-    # BASE_PATH="/www/wwwroot/kolegium-orthopaedi-staging"
+    environment {
+        SERVER_IP = "31.97.188.192"
+        GIT_REPO = "https://github.com/pullstackdevv/kolegium-orthopaedi.git"
+    }
 
-    if [ ! -f "${BASE_PATH}/.env" ]; then
-        echo "❌ .env not found in ${BASE_PATH}"
-        exit 1
-    fi
+    stages {
+        stage('Deploy via SSH') {
+            steps {
+                sh '''
+                echo "🚀 Connecting to VPS ${SERVER_IP} ..."
+                ssh -o StrictHostKeyChecking=no root@${SERVER_IP} << 'ENDSSH'
+                    set -e
 
-    echo "📄 Loading env from ${BASE_PATH}/.env"
+                    DEFAULT_DEPLOY_PATH="/www/wwwroot/kolegium-orthopaedi-staging"
+                    DEFAULT_DEPLOY_BRANCH="staging"
 
-    set -a
-    source "${BASE_PATH}/.env"
-    set +a
+                    # Try to load from /root/.env first (global config)
+                    if [ -f "/root/.env" ]; then
+                        echo "📄 Loading deployment config from /root/.env"
+                        set -a
+                        source /root/.env
+                        set +a
+                    fi
 
-    if [ -z "${DEPLOY_PATH}" ]; then
-        echo "❌ DEPLOY_PATH is not set in .env"
-        exit 1
-    fi
+                    # Set defaults if not loaded from /root/.env
+                    DEPLOY_PATH="${DEPLOY_PATH:-$DEFAULT_DEPLOY_PATH}"
+                    DEPLOY_BRANCH="${DEPLOY_BRANCH:-$DEFAULT_DEPLOY_BRANCH}"
 
-    if [ -z "${DEPLOY_BRANCH}" ]; then
-        echo "❌ DEPLOY_BRANCH is not set in .env"
-        exit 1
-    fi
+                    echo "📍 Deploy Path: ${DEPLOY_PATH}"
+                    echo "🌿 Deploy Branch: ${DEPLOY_BRANCH}"
+                    
+                    echo "📦 Navigating to ${DEPLOY_PATH} ..."
+                    cd ${DEPLOY_PATH} || exit 1
 
-    echo "📦 Navigating to ${DEPLOY_PATH} ..."
-    cd "${DEPLOY_PATH}"
+                    echo "🔄 Pulling latest code..."
+                    git fetch origin ${DEPLOY_BRANCH} && git reset --hard origin/${DEPLOY_BRANCH}
 
-    echo "🔄 Pulling latest code from branch ${DEPLOY_BRANCH} ..."
-    git fetch origin "${DEPLOY_BRANCH}"
-    git reset --hard "origin/${DEPLOY_BRANCH}"
+                    echo "🧩 Installing dependencies..."
+                    composer install --no-interaction --prefer-dist --optimize-autoloader
 
-    echo "🧩 Installing dependencies..."
-    composer install --no-interaction --prefer-dist --optimize-autoloader
+                    echo "⚙️  Optimizing Laravel..."
+                    php artisan migrate --force
+                    php artisan config:cache
+                    php artisan route:cache
 
-    echo "⚙️ Optimizing Laravel..."
-    php artisan migrate --force
-    php artisan config:cache
-    php artisan route:cache
-
-    echo "🧱 Building frontend..."
-    npm install
-    npm run build
+                    echo "🧱 Building frontend..."
+                    npm install
+                    npm run build
 ENDSSH
-'''
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Deployment berhasil di VPS ${SERVER_IP}!"
+        }
+        failure {
+            echo "❌ Deployment gagal. Periksa log Jenkins dan VPS."
+        }
+    }
+}
