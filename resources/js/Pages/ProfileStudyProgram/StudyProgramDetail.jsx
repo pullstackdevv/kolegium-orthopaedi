@@ -3,7 +3,10 @@ import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
 import { MapPin, Phone, Mail, Globe, Calendar, X, ChevronDown, ChevronUp, Heart } from "lucide-react";
 import HomepageLayout from "../../Layouts/HomepageLayout";
+import DefaultImage from "../../components/DefaultImage";
+import DefaultLogo from "../../components/DefaultLogo";
 import DonutChart from "../../components/DonutChart";
+import { Skeleton } from "../../components/ui/skeleton";
 import api from "@/api/axios";
 
 const DEFAULT_STAFF_LIST = [
@@ -243,11 +246,8 @@ export default function StudyProgramDetail({ university, type }) {
     fetchGallery(1);
   }, [universityData.id]);
 
-  const DEFAULT_LOGO = "/assets/images/logo-univ/FK-UI.png";
-  const DEFAULT_PHOTO = "/assets/images/university/FK-UI.png";
-
-  const resolvedLogo = universityData.logo || DEFAULT_LOGO;
-  const resolvedPhoto = universityData.image || DEFAULT_PHOTO;
+  const resolvedLogo = universityData.logo || null;
+  const resolvedPhoto = universityData.image || null;
 
   return (
     <HomepageLayout>
@@ -272,32 +272,14 @@ export default function StudyProgramDetail({ university, type }) {
             <div className="flex flex-col md:flex-row gap-8 items-start">
               {/* Left: Image */}
               <div className="w-full md:w-1/3 h-64 flex-shrink-0 overflow-hidden rounded-2xl">
-                <img
-                  src={resolvedPhoto}
-                  alt={universityData.fullName}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    if (e.target.src !== DEFAULT_PHOTO) {
-                      e.target.src = DEFAULT_PHOTO;
-                    }
-                  }}
-                />
+                <DefaultImage src={resolvedPhoto} alt={universityData.fullName} />
               </div>
 
               {/* Right: Info */}
               <div className="flex-1">
                 <div className="flex items-center gap-6 mb-6">
                   <div className="w-24 h-24 rounded-full bg-white border-8 border-primary flex items-center justify-center flex-shrink-0 overflow-hidden shadow-md">
-                    <img
-                      src={resolvedLogo}
-                      alt={`${universityData.name} logo`}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        if (e.target.src !== DEFAULT_LOGO) {
-                          e.target.src = DEFAULT_LOGO;
-                        }
-                      }}
-                    />
+                    <DefaultLogo src={resolvedLogo} alt={`${universityData.name} logo`} />
                   </div>
                   <div className="flex-1">
                     <p className="text-lg font-semibold text-primary mb-1">{universityData.subTitle}</p>
@@ -619,8 +601,10 @@ export default function StudyProgramDetail({ university, type }) {
                   Gallery
                 </h2>
                 {galleryLoading ? (
-                  <div className="flex justify-center py-8">
-                    <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  <div className="grid grid-cols-2 gap-3">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <Skeleton key={i} className="h-32 w-full rounded-lg" />
+                    ))}
                   </div>
                 ) : galleryItems.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-6">No gallery items yet</p>
@@ -875,7 +859,20 @@ export default function StudyProgramDetail({ university, type }) {
                 <h2 className="text-xl font-bold text-primary mb-4">
                   Academic Activities
                 </h2>
-                {academicActivities.length === 0 ? (
+                {academicActivitiesLoading ? (
+                  <div className="space-y-4">
+                    {Array.from({ length: 2 }).map((_, i) => (
+                      <div key={i} className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Skeleton className="h-4 w-24" />
+                          <Skeleton className="h-5 w-20 rounded" />
+                        </div>
+                        <Skeleton className="h-5 w-3/4 mb-1" />
+                        <Skeleton className="h-4 w-1/2" />
+                      </div>
+                    ))}
+                  </div>
+                ) : academicActivities.length === 0 ? (
                   <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center text-sm text-gray-600">
                     No upcoming academic activities for this program.
                   </div>

@@ -1,6 +1,7 @@
 import { Link } from "@inertiajs/react";
 import { useEffect, useState } from "react";
 import HomepageLayout from "../../Layouts/HomepageLayout";
+import { Skeleton } from "../../components/ui/skeleton";
 import api from "@/api/axios";
 
 const DEFAULT_DESCRIPTION = "A continuing education program for specialist doctors to deepen clinical expertise in a particular subspecialty area.";
@@ -119,7 +120,29 @@ export default function ClinicalFellowship() {
             <h1 className="text-3xl font-bold text-primary">Study Program Profile</h1>
           </div>
           {loading ? (
-            <div className="text-center py-12 text-gray-500">Loading...</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Skeleton className="w-12 h-12 rounded-lg" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-5 w-3/4" />
+                      <Skeleton className="h-3 w-1/3" />
+                    </div>
+                  </div>
+                  <div className="space-y-2 mb-4">
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-2/3" />
+                  </div>
+                  <Skeleton className="h-3 w-1/2 mb-6" />
+                  <div className="pt-4 border-t border-gray-200 flex justify-between">
+                    <Skeleton className="h-4 w-28" />
+                    <Skeleton className="h-4 w-24" />
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : universities.length === 0 ? (
             <div className="text-center py-12 text-gray-500">No data available.</div>
           ) : (

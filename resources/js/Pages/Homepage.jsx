@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import HomepageLayout from "../Layouts/HomepageLayout";
 import DonutChart from "../components/DonutChart";
+import { Skeleton } from "../components/ui/skeleton";
 import api from "@/api/axios";
 
 const DEFAULT_EVENT_IMAGE =
@@ -152,6 +153,8 @@ export default function Homepage() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [dashboardStats, setDashboardStats] = useState([]);
   const [wbsStats, setWbsStats] = useState(null);
+  const [agendaLoading, setAgendaLoading] = useState(true);
+  const [statsLoading, setStatsLoading] = useState(true);
   
   const heroImages = [
     {
@@ -342,6 +345,8 @@ export default function Homepage() {
         setAgendaEvents(sorted);
       } catch (e) {
         setAgendaEvents([]);
+      } finally {
+        setAgendaLoading(false);
       }
     };
 
@@ -438,6 +443,8 @@ export default function Homepage() {
         }
       } catch (e) {
         console.error("Failed to fetch dashboard stats", e);
+      } finally {
+        setStatsLoading(false);
       }
     };
     fetchDashboardStats();
@@ -691,7 +698,20 @@ export default function Homepage() {
               <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-          {examinations.length === 0 ? (
+          {agendaLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="bg-white border border-gray-200 rounded-lg p-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-5 w-20 rounded" />
+                  </div>
+                  <Skeleton className="h-5 w-3/4 mb-2" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : examinations.length === 0 ? (
             <div className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
                 <Calendar className="h-6 w-6 text-primary" />
@@ -771,7 +791,24 @@ export default function Homepage() {
               <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-          {events.length === 0 ? (
+          {agendaLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                  <Skeleton className="h-48 w-full rounded-none" />
+                  <div className="p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Skeleton className="h-4 w-28" />
+                      <Skeleton className="h-5 w-20 rounded" />
+                    </div>
+                    <Skeleton className="h-5 w-3/4 mb-2" />
+                    <Skeleton className="h-4 w-1/2 mb-3" />
+                    <Skeleton className="h-4 w-24" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : events.length === 0 ? (
             <div className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-purple-50">
                 <Calendar className="h-6 w-6 text-purple-600" />
