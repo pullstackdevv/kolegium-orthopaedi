@@ -215,9 +215,9 @@ export default function DatabaseFellows() {
                 </div>
               </div>
 
-              {/* Affiliation Filter */}
+              {/* Hospital Filter */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Affiliation</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Hospital</label>
                 <select
                   value={filters.affiliation_id}
                   onChange={(e) => setFilters({ ...filters, affiliation_id: e.target.value })}
@@ -229,7 +229,7 @@ export default function DatabaseFellows() {
                     backgroundSize: '1.25rem 1.25rem'
                   }}
                 >
-                  <option value="">All Affiliations</option>
+                  <option value="">All Hospitals</option>
                   {affiliations.map((affiliation) => (
                     <option key={affiliation.id} value={affiliation.id}>
                       {affiliation.code || affiliation.name}
@@ -292,7 +292,7 @@ export default function DatabaseFellows() {
                           Name
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Affiliation
+                          Hospital
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Subspecialty

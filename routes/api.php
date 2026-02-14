@@ -162,9 +162,10 @@ Route::get('public/database-members/all', [DatabaseMemberController::class, 'pub
 Route::get('public/database-members/dashboard-stats', [DatabaseMemberController::class, 'publicDashboardStats']);
 Route::get('public/member-achievements', [MemberAchievementController::class, 'publicIndex']);
 
-// Well-Being Survey Routes - Public (submit survey)
+// Well-Being Survey Routes - Public (submit survey + public stats)
 Route::post('wellbeing-surveys', [WellbeingSurveyController::class, 'store']);
 Route::get('wellbeing-surveys/{surveyId}/result', [WellbeingSurveyController::class, 'getResult']);
+Route::get('public/wellbeing-surveys/stats', [WellbeingSurveyController::class, 'publicStats']);
 
 // Well-Being Survey Routes - Protected (admin/analytics)
 Route::middleware('auth:sanctum')->group(function () {

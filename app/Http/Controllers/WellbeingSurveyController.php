@@ -216,30 +216,68 @@ class WellbeingSurveyController extends Controller
     public function getStats(Request $request): JsonResponse
     {
         $affiliationId = $request->query('affiliation_id');
-        $query = WellbeingSurvey::query();
 
+        $base = WellbeingSurvey::query();
         if ($affiliationId) {
-            $query->where('affiliation_id', $affiliationId);
+            $base->where('affiliation_id', $affiliationId);
         }
 
+        $total = (clone $base)->count();
+
         $stats = [
-            'total_surveys' => $query->count(),
-            'risk_distribution' => [
-                'low' => $query->where('risk_level', 'low')->count(),
-                'mild' => $query->where('risk_level', 'mild')->count(),
-                'moderate' => $query->where('risk_level', 'moderate')->count(),
-                'high' => $query->where('risk_level', 'high')->count(),
+            'total' => $total,
+            'by_risk' => [
+                'low' => (clone $base)->where('risk_level', 'low')->count(),
+                'mild' => (clone $base)->where('risk_level', 'mild')->count(),
+                'moderate' => (clone $base)->where('risk_level', 'moderate')->count(),
+                'high' => (clone $base)->where('risk_level', 'high')->count(),
             ],
-            'mood_distribution' => $query->groupBy('mood')
+            'by_mood' => (clone $base)->groupBy('mood')
                 ->selectRaw('mood, count(*) as count')
                 ->get()
                 ->pluck('count', 'mood'),
-            'discomfort_percentage' => $query->where('discomfort', true)->count() / max($query->count(), 1) * 100,
+            'discomfort_percentage' => $total > 0
+                ? round((clone $base)->where('discomfort', true)->count() / $total * 100, 1)
+                : 0,
         ];
 
         return response()->json([
             'status' => 'success',
             'data' => $stats,
+        ]);
+    }
+
+    public function publicStats(): JsonResponse
+    {
+        $total = WellbeingSurvey::count();
+
+        $riskDist = WellbeingSurvey::groupBy('risk_level')
+            ->selectRaw('risk_level, count(*) as count')
+            ->get()
+            ->pluck('count', 'risk_level');
+
+        $moodDist = WellbeingSurvey::groupBy('mood')
+            ->selectRaw('mood, count(*) as count')
+            ->get()
+            ->pluck('count', 'mood');
+
+        $questionnaire = [
+            'burnout' => WellbeingSurvey::where('burnout', true)->count(),
+            'emotional_hardening' => WellbeingSurvey::where('emotional_hardening', true)->count(),
+            'depressed' => WellbeingSurvey::where('depressed', true)->count(),
+            'sleep_issue' => WellbeingSurvey::where('sleep_issue', true)->count(),
+            'bullying' => WellbeingSurvey::where('bullying', true)->count(),
+            'discomfort' => WellbeingSurvey::where('discomfort', true)->count(),
+        ];
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'total' => $total,
+                'by_risk' => $riskDist,
+                'by_mood' => $moodDist,
+                'questionnaire' => $questionnaire,
+            ],
         ]);
     }
 
