@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
-import { Users, Calendar, ChevronRight, ChevronLeft, Search, X } from "lucide-react";
-import { MapPin, Phone, Mail, Globe, ChevronRight, ChevronLeft, Search, Calendar, X } from "lucide-react";
+import { Users, Calendar, ChevronRight, ChevronLeft, Search, X, MapPin, Phone, Mail, Globe } from "lucide-react";
 import HomepageLayout from "../../Layouts/HomepageLayout";
 import api from "@/api/axios";
 
@@ -184,11 +183,11 @@ export default function PeerGroupDetail({ peerGroup }) {
   const [galleryDetailItem, setGalleryDetailItem] = useState(null);
 
   const fetchGallery = async (page = 1) => {
-    if (!peerGroupInfo.id) return;
+    if (!peerGroupData.id) return;
     setGalleryLoading(true);
     try {
       const res = await api.get("/public/galleries", {
-        params: { affiliation_id: peerGroupInfo.id, per_page: 4, page },
+        params: { affiliation_id: peerGroupData.id, per_page: 4, page },
         headers: { "X-Skip-Auth-Redirect": "1" },
       });
       if (res.data?.status === "success") {
@@ -206,7 +205,7 @@ export default function PeerGroupDetail({ peerGroup }) {
 
   useEffect(() => {
     fetchGallery(1);
-  }, [peerGroupInfo.id]);
+  }, [peerGroupData.id]);
 
   return (
     <HomepageLayout>
@@ -451,54 +450,6 @@ export default function PeerGroupDetail({ peerGroup }) {
               </div>
             </div>
 
-          {/* Members Table */}
-          <div id="members-table" className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-primary">Peer Group Members</h2>
-                <p className="text-sm text-gray-600">
-                  Showing {members.length > 0 ? startIndex + 1 : 0}-{startIndex + members.length} of {pagination.total} members
-                </p>
-              </div>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">No</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Name</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Specialization</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Gender</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {membersLoading ? (
-                    <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center text-sm text-gray-500">Loading...</td>
-                    </tr>
-                  ) : members.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center text-sm text-gray-500">No member data found.</td>
-                    </tr>
-                  ) : (
-                    members.map((member, index) => (
-                      <tr key={member.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{startIndex + index + 1}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{member.name}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{member.specialization || "-"}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{member.gender === "male" ? "Male" : member.gender === "female" ? "Female" : "-"}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`${STATUS_COLORS[member.status] || "bg-gray-400"} text-white px-3 py-1 rounded-full text-xs font-semibold capitalize`}>
-                            {member.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
             {/* Table */}
             <div id="members-table" className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
               <div className="p-6 border-b border-gray-200">
