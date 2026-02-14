@@ -3,6 +3,8 @@ import { Link } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
 import { Users, Calendar, ChevronRight, ChevronLeft, Search, X, MapPin, Phone, Mail, Globe } from "lucide-react";
 import HomepageLayout from "../../Layouts/HomepageLayout";
+import DefaultImage from "../../components/DefaultImage";
+import DefaultLogo from "../../components/DefaultLogo";
 import api from "@/api/axios";
 
 const STATUS_COLORS = {
@@ -35,11 +37,8 @@ export default function PeerGroupDetail({ peerGroup }) {
     orgStructure: peerGroup?.orgStructure || [],
   };
 
-  const DEFAULT_LOGO = "/assets/images/peergroup/master-logo.png";
-  const DEFAULT_PHOTO = "/assets/images/peergroup/master-banner.png";
-
-  const resolvedLogo = peerGroupData.logo || DEFAULT_LOGO;
-  const resolvedPhoto = peerGroupData.image || DEFAULT_PHOTO;
+  const resolvedLogo = peerGroupData.logo || null;
+  const resolvedPhoto = peerGroupData.image || null;
 
   // Academic activities
   const [academicActivities, setAcademicActivities] = useState([]);
@@ -230,32 +229,14 @@ export default function PeerGroupDetail({ peerGroup }) {
             <div className="flex flex-col md:flex-row gap-8 items-start">
               {/* Left: Image */}
               <div className="w-full md:w-1/3 h-64 flex-shrink-0 overflow-hidden rounded-2xl">
-                <img
-                  src={resolvedPhoto}
-                  alt={peerGroupData.fullName}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    if (e.target.src !== DEFAULT_PHOTO) {
-                      e.target.src = DEFAULT_PHOTO;
-                    }
-                  }}
-                />
+                <DefaultImage src={resolvedPhoto} alt={peerGroupData.fullName} />
               </div>
 
               {/* Right: Info */}
               <div className="flex-1">
                 <div className="flex items-start gap-6 mb-6">
                   <div className="w-24 h-24 rounded-full bg-white border-8 border-primary flex items-center justify-center flex-shrink-0 overflow-hidden shadow-md">
-                    <img
-                      src={resolvedLogo}
-                      alt={`${peerGroupData.name} logo`}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        if (e.target.src !== DEFAULT_LOGO) {
-                          e.target.src = DEFAULT_LOGO;
-                        }
-                      }}
-                    />
+                    <DefaultLogo src={resolvedLogo} alt={`${peerGroupData.name} logo`} />
                   </div>
                   <div className="flex-1">
                     <p className="text-lg font-semibold text-primary mb-1">Peer Group</p>
