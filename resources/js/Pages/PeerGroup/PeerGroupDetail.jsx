@@ -123,7 +123,7 @@ export default function PeerGroupDetail({ peerGroup }) {
   const [members, setMembers] = useState([]);
   const [membersLoading, setMembersLoading] = useState(false);
   const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, total: 0, per_page: 10 });
-  const [filters, setFilters] = useState({ status: "", search: "" });
+  const [filters, setFilters] = useState({ search: "" });
 
   const fetchMembers = useCallback(async (page = 1) => {
     if (!peerGroupData.id) return;
@@ -135,7 +135,6 @@ export default function PeerGroupDetail({ peerGroup }) {
         per_page: pagination.per_page,
         page,
       };
-      if (filters.status) params.status = filters.status;
       if (filters.search) params.search = filters.search;
 
       const response = await api.get("/public/database-members", {

@@ -117,14 +117,45 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
     return "-";
   };
 
-  const calculateSemester = (entryDate) => {
+  const calculateSemester = (entryDate, status, graduatedAt, leaveAt, activeAgainAt, nowYmd) => {
     if (!entryDate) return "-";
-    const entry = new Date(entryDate);
-    if (Number.isNaN(entry.getTime())) return "-";
-    const now = new Date();
-    const diffMonths = (now.getFullYear() - entry.getFullYear()) * 12 + (now.getMonth() - entry.getMonth());
-    const semester = Math.max(1, Math.ceil(diffMonths / 6));
-    return `Semester ${semester}`;
+
+    const semesterIndex = (d) => {
+      if (!d) return null;
+      const dt = new Date(d);
+      if (Number.isNaN(dt.getTime())) return null;
+      const y = dt.getFullYear();
+      const m = dt.getMonth() + 1;
+      return y * 2 + (m >= 7 ? 1 : 0);
+    };
+
+    const between = (start, end) => {
+      const s = semesterIndex(start);
+      const e = semesterIndex(end);
+      if (s === null || e === null) return null;
+      const sem = e - s + 1;
+      return sem > 0 ? sem : null;
+    };
+
+    const st = (status || "active").trim();
+    const now = nowYmd || new Date().toISOString().slice(0, 10);
+
+    let sem = null;
+    if (st === "graduated") {
+      sem = between(entryDate, graduatedAt);
+    } else if (st === "leave") {
+      const s1 = between(entryDate, leaveAt);
+      if (s1 === null) return "-";
+      let total = s1;
+      const s2 = between(activeAgainAt, now);
+      if (s2 !== null) total += s2;
+      sem = total;
+    } else {
+      sem = between(entryDate, now);
+    }
+
+    if (sem === null) return "-";
+    return `Semester ${sem}`;
   };
 
   const achievementsByMember = useMemo(() => {
@@ -329,7 +360,11 @@ export default function DatabaseMembersLanding({ type, affiliation }) {
                           <div className="font-medium">{m.name}</div>
                         </td>
                         <td className="px-5 py-3 text-sm text-gray-700">{genderLabel(m.gender)}</td>
-                        {type === "ppds1" && <td className="px-5 py-3 text-sm text-gray-700">{calculateSemester(m.entry_date)}</td>}
+                        {type === "ppds1" && (
+                          <td className="px-5 py-3 text-sm text-gray-700">
+                            {calculateSemester(m.entry_date, m.status, m.graduated_at, m.leave_at, m.active_again_at)}
+                          </td>
+                        )}
                         <td className="px-5 py-3">
                           <span className={`text-xs font-semibold px-3 py-1 rounded ${statusPillClass(m.status)}`}>{statusLabel(m.status)}</span>
                         </td>

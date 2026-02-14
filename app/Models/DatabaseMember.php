@@ -21,6 +21,9 @@ class DatabaseMember extends Model
         'photo',
         'contact',
         'entry_date',
+        'graduated_at',
+        'leave_at',
+        'active_again_at',
         'gender',
         'specialization',
         'status',
@@ -33,6 +36,9 @@ class DatabaseMember extends Model
 
     protected $casts = [
         'entry_date' => 'date',
+        'graduated_at' => 'date',
+        'leave_at' => 'date',
+        'active_again_at' => 'date',
     ];
 
     public function affiliation(): BelongsTo
