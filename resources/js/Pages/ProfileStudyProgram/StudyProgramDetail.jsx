@@ -6,6 +6,7 @@ import HomepageLayout from "../../Layouts/HomepageLayout";
 import DefaultImage from "../../components/DefaultImage";
 import DefaultLogo from "../../components/DefaultLogo";
 import DonutChart from "../../components/DonutChart";
+import { Skeleton } from "../../components/ui/skeleton";
 import api from "@/api/axios";
 
 const DEFAULT_STAFF_LIST = [
@@ -600,8 +601,10 @@ export default function StudyProgramDetail({ university, type }) {
                   Gallery
                 </h2>
                 {galleryLoading ? (
-                  <div className="flex justify-center py-8">
-                    <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  <div className="grid grid-cols-2 gap-3">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <Skeleton key={i} className="h-32 w-full rounded-lg" />
+                    ))}
                   </div>
                 ) : galleryItems.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-6">No gallery items yet</p>
@@ -856,7 +859,20 @@ export default function StudyProgramDetail({ university, type }) {
                 <h2 className="text-xl font-bold text-primary mb-4">
                   Academic Activities
                 </h2>
-                {academicActivities.length === 0 ? (
+                {academicActivitiesLoading ? (
+                  <div className="space-y-4">
+                    {Array.from({ length: 2 }).map((_, i) => (
+                      <div key={i} className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Skeleton className="h-4 w-24" />
+                          <Skeleton className="h-5 w-20 rounded" />
+                        </div>
+                        <Skeleton className="h-5 w-3/4 mb-1" />
+                        <Skeleton className="h-4 w-1/2" />
+                      </div>
+                    ))}
+                  </div>
+                ) : academicActivities.length === 0 ? (
                   <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center text-sm text-gray-600">
                     No upcoming academic activities for this program.
                   </div>

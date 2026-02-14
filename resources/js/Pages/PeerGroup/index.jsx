@@ -1,7 +1,9 @@
 import { Link, usePage } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
+import { useState, useEffect } from "react";
 import { Users, Calendar, ChevronRight, ChevronLeft } from "lucide-react";
 import HomepageLayout from "../../Layouts/HomepageLayout";
+import { Skeleton } from "../../components/ui/skeleton";
 
 const DEFAULT_PEER_GROUPS = [
   {
@@ -103,6 +105,12 @@ function isAllPeerGroupsComplete(groups) {
 export default function PeerGroup() {
   const { peerGroups: dbPeerGroups = [] } = usePage().props;
   const peerGroups = isAllPeerGroupsComplete(dbPeerGroups) ? dbPeerGroups : DEFAULT_PEER_GROUPS;
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 400);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <HomepageLayout>
@@ -124,6 +132,25 @@ export default function PeerGroup() {
           <h1 className="text-3xl font-bold text-primary mb-8">Peer Group</h1>
 
           {/* Peer Groups Grid */}
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="bg-white rounded-lg border border-gray-200 p-6">
+                  <Skeleton className="h-6 w-1/3 mb-3" />
+                  <Skeleton className="h-3 w-3/4 mb-4" />
+                  <div className="space-y-2 mb-4">
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-2/3" />
+                  </div>
+                  <div className="pt-4 border-t border-gray-200 flex justify-between">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-16" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {peerGroups.map((group) => (
               <div 
@@ -162,6 +189,7 @@ export default function PeerGroup() {
               </div>
             ))}
           </div>
+          )}
         </div>
       </section>
     </HomepageLayout>
